@@ -28,6 +28,10 @@ This README would normally document whatever steps are necessary to get your app
 * Repo owner or admin
 * Other community or team contact
 
+### Dependancy 
+* libboost BGL 1.58
+* libxerces 3.1
+
 
 ### Building Kheops ###
 * cmake .
