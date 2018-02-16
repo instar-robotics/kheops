@@ -27,3 +27,22 @@ This README would normally document whatever steps are necessary to get your app
 
 * Repo owner or admin
 * Other community or team contact
+
+
+### Building Kheops ###
+* cmake .
+* make
+
+### Help menu ###
+* ./kheops -h 
+
+### Run Kheops ###
+* ./kheops -s xml_path 
+
+### User function exampe ###
+
+* Building demofct by hand :
+mkdir lib
+g++ -c user_src/demofct.cpp -o user_src/demofct.o -I include -I user_src -I /usr/include/eigen3 -fpic -std=c++17
+gcc -shared -o  lib/demofct.so  user_src/demofct.o
+
