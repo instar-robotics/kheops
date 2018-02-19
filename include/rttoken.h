@@ -36,7 +36,7 @@ class RtToken : public Runner
                 double means;
                 unsigned long long nbrun;
 
-                Graph::vertex_descriptor const * rt_node;
+                Graph::vertex_descriptor rt_node;
 
 	public : 
 
@@ -50,7 +50,7 @@ class RtToken : public Runner
 
                 virtual ~RtToken() {}
 
-		void setRtNode( Graph::vertex_descriptor const * rt_node  )
+		void setRtNode( Graph::vertex_descriptor rt_node  )
                 {
                         this->rt_node = rt_node;
                 }
@@ -106,9 +106,9 @@ class RtToken : public Runner
 
                                 auto start = std::chrono::system_clock::now();
 
-                                produce(*rt_node);
-                                wait_for_produce(*rt_node);
-                                consume(*rt_node);
+                                produce(rt_node);
+                                wait_for_produce(rt_node);
+                                consume(rt_node);
 
                                 auto end = std::chrono::system_clock::now();
 
@@ -129,10 +129,10 @@ class RtToken : public Runner
                                 means+= elapsed_seconds.count();
                                 nbrun++;
                         }
-                        produce(*rt_node);
+                        produce(rt_node);
                         // ICI possibilité d'ajouter un wait avec un time out 
                         // identifier les liens qui ne se terminent pas : donnent de l'infos sur la branche bloquée
-                        consume(*rt_node);
+                        consume(rt_node);
                 }
 }; 
 

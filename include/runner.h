@@ -22,6 +22,8 @@ The fact that you are presently reading this means that you have had knowledge o
 #include <thread>
 #include <condition_variable>
 
+#include <iostream>
+
 enum STATE { STOP=0, PAUSE=1, RUN=2 };
 
 class Runner
@@ -53,7 +55,7 @@ class Runner
 		// Payload of the runner
                 virtual void exec() = 0;
 
-		void wait_for_produce(const Graph::vertex_descriptor & v_mtx)
+		void wait_for_produce(const Graph::vertex_descriptor  v_mtx)
                 {
                         for( auto it =  boost::in_edges(v_mtx, *g); it.first != it.second; ++it.first)
                         {
@@ -61,7 +63,7 @@ class Runner
                         }
                 }
 
-                void wait_for_consume(const Graph::vertex_descriptor & v_mtx)
+                void wait_for_consume(const Graph::vertex_descriptor v_mtx)
                 {
                         for( auto it =  boost::out_edges(v_mtx, *g); it.first != it.second; ++it.first)
                         {
@@ -69,7 +71,7 @@ class Runner
                         }
                 }
 
-                void produce(const Graph::vertex_descriptor & v_mtx)
+                void produce(const Graph::vertex_descriptor  v_mtx)
                 {
                         for( auto it =  boost::out_edges(v_mtx, *g); it.first != it.second; ++it.first)
                         {
@@ -77,7 +79,7 @@ class Runner
                         }
                 }
 
-                void consume(const Graph::vertex_descriptor & v_mtx)
+                void consume(const Graph::vertex_descriptor  v_mtx)
                 {
                         for( auto it =  boost::in_edges(v_mtx, *g); it.first != it.second; ++it.first)
                         {
@@ -88,6 +90,11 @@ class Runner
 		void spawn() {
                     thx = std::thread( [=] { exec(); } );
                 }
+
+		void join()
+		{
+			thx.join();
+		}
 		
 		std::thread & getThread() {
                         return thx;

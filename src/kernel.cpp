@@ -30,26 +30,34 @@ void Kernel::load_graph()
 	Function *f = xmlc->getFirstFunction();
 	do
 	{
-		if( f == NULL) throw  std::invalid_argument("Kernel : Unable to find Function");
-		else add_function(f);
+		if( f != NULL)
+		{
+			add_function(f);
+		}
 
 	}while( (f = xmlc->getNextFunction()) != NULL );
 }
 
 void Kernel::load_input()
 {
+
+	// FAIRE DANS L'AUTRE SENS ? 
+	// Comme pour load_graph : lecture du XML et recherche dans le graphe
+	// Mais il faut un moyen de chercher dans le graphe (mettre Uuid dans les nodes) avec une MAP Propeties
+
+	// Dans tout les cas : c'est une bonne idée de mettre l'uuid dans les nodes en plus
+	
 	std::vector<std::string> inputs; 
-	for( auto it = boost::vertices(graph); it.first != it.second; ++it.first)
+	for( auto it_dest = boost::vertices(graph); it_dest.first != it_dest.second; ++it_dest.first)
 	{
-		std::cout << (graph[*it.first])->getUuid() << std::endl;
-		xmlc->getInputsUuid(  (graph[*it.first])->getUuid() , inputs );
-
-		// Pour chaque inputs :
-		// getNode 
-		//
-
+		//xmlc->getInputsUuid(  (graph[*it_dest.first])->getUuid() , inputs );
+		xmlc->getInputsUuid( boost::get(boost::vertex_function, graph)[*it_dest.first]->getUuid(),inputs);
+		for( auto it_source = inputs.begin(); it_source != inputs.end(); it_source++)
+		{
+			add_edge( node_map[*it_source], *it_dest.first, graph );	
+		}
 		inputs.clear();
-	}	
+	}
 }
 
 void Kernel::load_lib()
@@ -71,8 +79,138 @@ void Kernel::load_lib()
 
 void Kernel::add_function( Function *funct  )
 {
-	if( funct != NULL) Graph::vertex_descriptor v1 = boost::add_vertex(funct, graph);
+	if( funct != NULL) {
+		if( node_map.find( funct->getUuid() ) == node_map.end() ) 
+		{
+			Graph::vertex_descriptor vd = boost::add_vertex(graph);
+			boost::put(boost::vertex_function, graph, vd, funct );
+			boost::put(boost::vertex_name, graph, vd, -1);
+			node_map[funct->getUuid()] = vd;
+		}
+		else throw  std::invalid_argument("Kernel : uuid function in xml file has to be unique");
+	}
 	else throw  std::invalid_argument("Kernel : try to add Null Function");
 }
 
+void Kernel::del_function( Function * funct)
+{
+	clear_vertex( node_map[funct->getUuid()] , graph);
+	remove_vertex( node_map[funct->getUuid()] , graph);
+}
 
+void Kernel::del_function(const std::string& uuid)
+{
+	clear_vertex( node_map[uuid] , graph);
+	remove_vertex( node_map[uuid] , graph);
+}
+
+void Kernel::spawn()
+{
+	for( auto it = runners.begin(); it != runners.end(); it++)
+	{
+		it->second->spawn();
+	}
+}
+
+void Kernel::join()
+{
+	for( auto it = runners.begin(); it != runners.end(); it++)
+	{
+		it->second->join();
+	}
+}
+
+void Kernel::add_rttoken()
+{
+	Graph::vertex_descriptor rt_node = boost::add_vertex(graph);
+	node_map[rtnode_name] = rt_node  ;
+
+	Link *l;
+	for( auto it =  boost::vertices(graph) ; it.first != it.second; ++it.first)
+        {
+		if( *it.first != rt_node)
+		{
+			auto it_in = boost::in_edges( *it.first  , graph);
+			if( it_in.first == it_in.second )
+			{
+				add_edge( rt_node, *it.first, graph  );
+			}
+
+			auto it_out = boost::out_edges(*it.first, graph);
+			if( it_out.first == it_out.second)
+			{
+				add_edge(*it.first, rt_node  ,graph  );
+			}
+		}
+        }
+	RtToken * RT = new RtToken( xmlc->get_RtToken() , xmlc->get_RtToken_Unit() );
+	RT->setGraph(&graph);
+	RT->setRtNode(rt_node);
+	boost::put(boost::vertex_name, graph, rt_node, 0);
+	runners[0] = RT;
+}
+
+
+void Kernel::simple_runner_allocation()
+{
+	FRunner *fr;
+	int idRunner=1;
+
+	for( auto it =  boost::vertices(graph) ; it.first != it.second; ++it.first)
+	{
+		Graph::vertex_descriptor v =  *it.first ;
+
+		if( boost::get( boost::vertex_name , graph, v) == -1) 
+		{
+			fr = new FRunner(idRunner);
+			fr->setGraph(&graph);
+			fr->add_node(v);
+
+			runners[idRunner] = dynamic_cast<Runner*>(fr);
+
+			boost::put(boost::vertex_name, graph, v, idRunner);
+			idRunner++;
+		}
+	}
+
+	for( auto it = boost::edges(graph); it.first != it.second; ++it.first)
+	{
+		boost::put(boost::edge_weight, graph, *it.first , new Synchronized_Link());
+	}
+}
+
+void Kernel::runner_allocation()
+{
+	this->simple_runner_allocation();
+}
+
+/*
+void Kernel::runner_construction()
+{
+
+	for( auto it = boost::edges(graph); it.first != it.second; ++it.first)
+	{
+		Link *l;
+		int id_source = boost::get( boost::vertex_name, graph)[ boost::source(*it.first, graph) ];
+		int id_target = boost::get( boost::vertex_name, graph)[ boost::target(*it.first, graph) ];
+
+		std::cout << "Runner : " << id_source << " " << id_target << std::endl;
+
+		if( id_source == id_target ) 
+		{
+			l = new Passing_Link();
+		}
+		else
+		{
+			l = new Synchronized_Link();
+		}
+		
+		boost::put(boost::edge_weight, graph, *it.first , l);
+	}
+
+	for( auto it =  boost::vertices(graph) ; it.first != it.second; ++it.first)
+        {
+        }
+}
+
+*/

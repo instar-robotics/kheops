@@ -128,6 +128,32 @@ int main(int argc, char **argv)
 	Kernel::get().load_lib();
 	Kernel::get().load_graph();
 	Kernel::get().load_input();
+	Kernel::get().add_rttoken();
+	Kernel::get().runner_allocation();
+	
+	Kernel::get().spawn();
+	
+	bool run  = true;
+        while(run)
+        {
+
+                std::string buffer;
+                getline(std::cin,buffer);
+
+                if(buffer == "pause") {
+                        Runner::pause();
+                }
+                else if (buffer == "run" ) Runner::resume();
+                else if (buffer == "q")
+                {
+                        run = false;
+                }
+
+                std::cout << "M state : "  << Runner::getState() << std::endl;
+        }
+
+	Runner::stop();	
+	Kernel::get().join();
 
 	return 0;
 

@@ -22,6 +22,7 @@ The fact that you are presently reading this means that you have had knowledge o
 #include "xmlconverter.h"
 #include "runner.h"
 
+const std::string rtnode_name = "rtnode";
 
 class Kernel 
 {
@@ -31,9 +32,10 @@ class Kernel
 		std::string resfile;
 		std::string libdir;
 
-		XmlConverter *  xmlc;
+		XmlConverter * xmlc;
 
 		Graph graph;
+		std::map<std::string, Graph::vertex_descriptor> node_map;
 		std::map<int, Runner *> runners;
 		
 		static Kernel singleton;
@@ -45,6 +47,8 @@ class Kernel
 		{
 			delete xmlc;
 			graph.clear();
+			runners.clear();
+			node_map.clear();
 		}
 		Kernel(const Kernel&) = delete;
                 Kernel& operator=(const Kernel&) = delete;
@@ -66,7 +70,17 @@ class Kernel
 		void load_input();			
 		void load_graph();
 
+		void add_rttoken();
+
 		void add_function(Function *box);
+		void del_function(Function * funct);
+		void del_function(const std::string & uuid);
+
+		void simple_runner_allocation();
+		void runner_allocation();
+
+		void spawn();
+		void join();
 
 };
 

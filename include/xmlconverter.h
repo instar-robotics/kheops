@@ -45,7 +45,8 @@ class XmlConverter
 		std::string uuid = XMLString::transcode( el.getAttribute( XMLString::transcode(  "uuid" )));
 
 		Function *f = Factory<Function>::Instance().create(name);
-		f->setUuid(uuid);
+		if( f ==  NULL ) throw  std::invalid_argument("Kernel : Unable to find Function");
+		else f->setUuid(uuid);
 
 		return f;
 	}
@@ -97,12 +98,39 @@ class XmlConverter
 		else return __convertXmlToFunction( (*xFunc) );
 	}
 
-	void getInputsUuid( std::string FunctUuid, std::vector<std::string> &inputs  )
+	void getInputsUuid( std::string FunctUuid, std::vector<std::string> &links_name  )
 	{
-	//	getAttributeNode
+		DOMElement * function = dynamic_cast<DOMElement *>( m_doc->getElementsByTagName(XMLString::transcode("functions"))->item(0))->getFirstElementChild();
+		if (function == NULL) return;
+
+		do{
+			if( XMLString::transcode(function->getAttribute( XMLString::transcode("uuid"))) == FunctUuid )
+			{
+				// SPLIT Finds du Tag Inputs
+				DOMElement * inputs = dynamic_cast<DOMElement *>( function->getElementsByTagName(XMLString::transcode("inputs"))->item(0))->getFirstElementChild() ; 
+				if( inputs == NULL) return ;
+				do{
+					links_name.push_back( XMLString::transcode(inputs->getElementsByTagName(XMLString::transcode("link"))->item(0)->getTextContent()));
+
+				}while( (inputs = inputs->getNextElementSibling()) != NULL  );
+
+			}
+		}while( (function = function->getNextElementSibling()) != NULL );	
+	}
+
+
+	double get_RtToken()
+	{
+		return std::stod(   XMLString::transcode( dynamic_cast<DOMElement *>( m_doc->getElementsByTagName(XMLString::transcode("rt_token"))->item(0))->getTextContent()  ) );
+	}
+
+	std::string get_RtToken_Unit()
+	{
+
+		return XMLString::transcode( dynamic_cast<DOMElement *>( m_doc->getElementsByTagName(XMLString::transcode("rt_token"))->item(0))->getAttribute( XMLString::transcode(  "unit" )));
+
 
 	}
-	
 };
 
 #endif // __XML_CONVERTER__
