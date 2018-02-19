@@ -34,19 +34,17 @@ void Kernel::load_graph()
 		{
 			add_function(f);
 		}
-
 	}while( (f = xmlc->getNextFunction()) != NULL );
 }
 
 void Kernel::load_input()
 {
-
 	// FAIRE DANS L'AUTRE SENS ? 
 	// Comme pour load_graph : lecture du XML et recherche dans le graphe
 	// Mais il faut un moyen de chercher dans le graphe (mettre Uuid dans les nodes) avec une MAP Propeties
 
 	// Dans tout les cas : c'est une bonne idée de mettre l'uuid dans les nodes en plus
-	
+
 	std::vector<std::string> inputs; 
 	for( auto it_dest = boost::vertices(graph); it_dest.first != it_dest.second; ++it_dest.first)
 	{

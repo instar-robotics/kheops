@@ -28,6 +28,8 @@ class Kernel
 {
 	private :
 
+		std::string script_name;
+
 		std::string scriptfile;
 		std::string resfile;
 		std::string libdir;
@@ -60,6 +62,10 @@ class Kernel
 			singleton.libdir = libdir;
 			
 			singleton.xmlc = new  XmlConverter(scriptfile);
+		
+			singleton.script_name = singleton.xmlc->getScriptName(); 
+
+			std::cout << "Run : " << singleton.script_name << " script"<< std::endl;
 		}		
 
 		static Kernel& get() noexcept { 

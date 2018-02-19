@@ -75,11 +75,6 @@ class XmlConverter
 		XMLPlatformUtils::Initialize();
 	}
 
-	std::string getScriptName()
-	{
-		return  XMLString::transcode( (dynamic_cast<DOMElement *>( m_doc->getElementsByTagName(XMLString::transcode("script"))->item(0))->getFirstElementChild())->getTextContent())  ;
-	}
-
 	Function * getFirstFunction()
 	{
 		xFunc = dynamic_cast<DOMElement *>( m_doc->getElementsByTagName(XMLString::transcode("functions"))->item(0))->getFirstElementChild()  ;
@@ -118,18 +113,36 @@ class XmlConverter
 		}while( (function = function->getNextElementSibling()) != NULL );	
 	}
 
+	std::string getScriptName()
+	{
+		if(  m_doc->getElementsByTagName(XMLString::transcode("script"))->getLength() == 0) throw  std::invalid_argument("XML : Unable to find script tag ");
+		
+		DOMElement * el = dynamic_cast<DOMElement *>( m_doc->getElementsByTagName(XMLString::transcode("script"))->item(0))->getFirstElementChild();
+		if (el  == NULL) throw std::invalid_argument("XML : missing tag");
+
+		do{
+			std::string tname = XMLString::transcode( el->getTagName());
+			if( !tname.compare( "name")) { break; }
+
+		}while( (el = el->getNextElementSibling()) != NULL );	
+
+		if( el == NULL) throw std::invalid_argument("XML : enable to find script name");
+
+		return  XMLString::transcode( el->getTextContent());
+	}
 
 	double get_RtToken()
 	{
+		if(  m_doc->getElementsByTagName(XMLString::transcode("rt_token"))->getLength() == 0) throw  std::invalid_argument("XML : Unable to find \"rt_token\" tag");
+
 		return std::stod(   XMLString::transcode( dynamic_cast<DOMElement *>( m_doc->getElementsByTagName(XMLString::transcode("rt_token"))->item(0))->getTextContent()  ) );
 	}
 
 	std::string get_RtToken_Unit()
 	{
+		if(  m_doc->getElementsByTagName(XMLString::transcode("rt_token"))->getLength() == 0) throw  std::invalid_argument("XML : Unable to find \"rt_token\" tag");
 
 		return XMLString::transcode( dynamic_cast<DOMElement *>( m_doc->getElementsByTagName(XMLString::transcode("rt_token"))->item(0))->getAttribute( XMLString::transcode(  "unit" )));
-
-
 	}
 };
 

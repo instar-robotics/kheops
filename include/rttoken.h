@@ -93,7 +93,7 @@ class RtToken : public Runner
 			}
 			else 
 			{
-				throw std::invalid_argument("Rt Token Unit must be : ["+second+"] or ["+ms+"] or ["+hertz+"]" );
+				throw std::invalid_argument("Rt Token Unit must be : ["+second+"] : second  or ["+ms+"] : millisecond  or ["+hertz+"] : hertz" );
 			}
 		}
 
