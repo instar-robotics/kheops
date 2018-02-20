@@ -29,7 +29,7 @@ const std::string hertz = "Hz";
 class RtToken : public Runner
 {
         private :
-                // En seconde
+                // In second
                 double period;
 		
 		//TODO : pour l'instant pas de gestion de rebouclage du compteur
@@ -42,98 +42,26 @@ class RtToken : public Runner
 
 		// Period in second
 		RtToken(double period) : Runner(),period(period),means(0),nbrun(0)  {}
-
-		RtToken(double value, std::string unit) : Runner(),means(0),nbrun(0)  
-		{
-			setToken(value, unit);
-		}
-
+		RtToken(double value, std::string unit) : Runner(),means(0),nbrun(0) { setToken(value, unit);}
                 virtual ~RtToken() {}
 
-		void setRtNode( Graph::vertex_descriptor rt_node  )
-                {
-                        this->rt_node = rt_node;
-                }
+		inline void setRtNode( Graph::vertex_descriptor rt_node ) { this->rt_node = rt_node;}
 
 		// Frequency in Hz
-		inline void setFrequency( double frequency  )
-		{
-			period = convert_period_frequency(frequency);
-		}
+		inline void setFrequency( double frequency ) { period = convert_period_frequency(frequency);}
 		
 		// Period in second
-		inline void setPeriod( double period  )
-		{
-			this->period = period;
-		}
+		inline void setPeriod( double period ) {this->period = period;}
 		
 		// Period in second
-		inline void setMsPeriod( double period  )
-		{
-			this->period = convert_ms_to_s(period);
-		}
+		inline void setMsPeriod( double period ) {this->period = convert_ms_to_s(period);}
 
 		inline double getPeriod(){return period;}
 		inline double getMsPeriod(){return  convert_s_to_ms(period);}
 		inline double getFrequency(){return  convert_period_frequency(period);}
 
-		void setToken(double value, std::string unit)
-		{
-			if( unit == second ) 
-			{
-				setPeriod( value );
-			}
-			else if ( unit == ms ) 
-			{
-				setMsPeriod( value);
-			} 
-			else if( unit == hertz )
-			{
-				setFrequency(value);
-			}
-			else 
-			{
-				throw std::invalid_argument("Rt Token Unit must be : ["+second+"] : second  or ["+ms+"] : millisecond  or ["+hertz+"] : hertz" );
-			}
-		}
-
-		virtual void exec()
-                {
-                        while( !Runner::__is_stop() )
-                        {
-                                Runner::wait_for_running();
-                                if( Runner::__is_stop() ) continue;
-
-                                auto start = std::chrono::system_clock::now();
-
-                                produce(rt_node);
-                                wait_for_produce(rt_node);
-                                consume(rt_node);
-
-                                auto end = std::chrono::system_clock::now();
-
-                                std::chrono::duration<double> elapsed_seconds = end-start;
-
-                                if( elapsed_seconds.count() > period  )
-                                {
-	                        	std::cout << "Warning : RT_Token timeout. Waited : " <<  getMsPeriod()  << " ms (freq="<< convert_period_frequency(period) <<" Hz). Reel : " << convert_s_to_ms(elapsed_seconds.count()) << " ms " << std::endl;
-                                }
-                                else
-                                {
-                                        double sleep_duration = period - elapsed_seconds.count();
-                                        usleep( sleep_duration * CONV_S_TO_MS );
-
-                                        std::cout << "RT_Token OK (freq=" << convert_period_frequency(period) << "Hz) :" << convert_s_to_ms(elapsed_seconds.count()) << " ms (real freq=" << convert_period_frequency(elapsed_seconds.count())  << " Hz).  Sleep duration :  " <<   convert_s_to_ms(sleep_duration) << " ms" << std::endl;
-                                }
-
-                                means+= elapsed_seconds.count();
-                                nbrun++;
-                        }
-                        produce(rt_node);
-                        // ICI possibilité d'ajouter un wait avec un time out 
-                        // identifier les liens qui ne se terminent pas : donnent de l'infos sur la branche bloquée
-                        consume(rt_node);
-                }
+		void setToken(double value, std::string unit);
+		virtual void exec();
 }; 
 
 #endif // __RT_TOKEN_H__

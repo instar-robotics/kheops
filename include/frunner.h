@@ -76,7 +76,7 @@ class FRunner : public Runner
 		// 	Il faut faire attention de les pushés dans l'ordre d'exécution
 		//
 		// 	Faire une fonction qui utilise le graphe pour sélectionner automatiquement 
-		//	le bon ordre d'éxecution
+		//	le bon ordre d'éxecution ??
 
 };
 

@@ -45,34 +45,12 @@ class Kernel
 	public :
 	
 		Kernel() : xmlc(NULL) {}
-		~Kernel()
-		{
-			delete xmlc;
-			graph.clear();
-			runners.clear();
-			node_map.clear();
-		}
+		~Kernel();
 		Kernel(const Kernel&) = delete;
                 Kernel& operator=(const Kernel&) = delete;
 
-		static void init(std::string scriptfile, std::string resfile, std::string libdir)
-		{
-			singleton.scriptfile=scriptfile;
-			singleton.resfile=resfile;
-			singleton.libdir = libdir;
-			
-			singleton.xmlc = new  XmlConverter(scriptfile);
-		
-			singleton.xmlc->getScriptName( singleton.script_name   ); 
-
-			std::cout << "Run : " << singleton.script_name << " script"<< std::endl;
-		}		
-
-		static Kernel& get() noexcept { 
-     			 return singleton;
-   		}
-
-
+		static void init(std::string scriptfile, std::string resfile, std::string libdir);
+		static inline Kernel& get() noexcept {return singleton;}
 
 		void load_lib();			
 		void load_inputs();			

@@ -25,6 +25,17 @@ The fact that you are presently reading this means that you have had knowledge o
 
 Kernel Kernel::singleton;
 
+Kernel::~Kernel()
+{
+	delete xmlc;
+	graph.clear();
+	runners.clear();
+	node_map.clear();
+}
+
+void Kernel::init(std::string scriptfile, std::string resfile, std::string libdir)
+{}
+
 void Kernel::load_functions()
 {
 	std::vector<XFunction> functions;
