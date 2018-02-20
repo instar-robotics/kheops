@@ -14,59 +14,41 @@ and, more generally, to use and operate it in the same conditions as regards sec
 The fact that you are presently reading this means that you have had knowledge of the CeCILL v2.1 license and that you accept its terms.
 */
 
-#include "runner.h"
+#include "frunner.h"
 
-int Runner::state = PAUSE;
-std::mutex Runner::mtx;
-std::condition_variable Runner::cv;
-
-void Runner::wait_for_produce(const Graph::vertex_descriptor  v_mtx)
+void FRunner::exec()
 {
-	for( auto it =  boost::in_edges(v_mtx, *g); it.first != it.second; ++it.first)
+	checkFunction();
+
+	while( !Runner::__is_stop()   )
 	{
-		get(boost::edge_weight, *g) [*it.first ]->wait_for_produce();
+		for(auto it = functions.begin(); it != functions.end(); it++)
+		{
+			wait_for_produce(*it);
+		//TODO : décider si le runner attend la fin de l'execution de la boite successeur 
+		//      Si UN seul manager et toutes les functions attachées au RT_TOKEN inutile
+		//      Si des functions peuvent ne pas être reliés au RT_TOKEN : 
+		//              - Permet de synchroniser ou de ne pas synchroniser leurs executions
+		//              - Les deux comportements peuvent être intéressant.
+		//      wait_for_consume(**it);
+
+		// Check Here NULL Pointer ? 
+//                                      ((*g)[**it])->compute();
+			boost::get(boost::vertex_function , *g)[*it]->compute();
+			consume(*it);
+			produce(*it);
+		}
 	}
+	for(auto it = functions.begin(); it != functions.end(); it++) {produce(*it); }
 }
 
-void Runner::wait_for_consume(const Graph::vertex_descriptor v_mtx)
+void FRunner::checkFunction()
 {
-	for( auto it =  boost::out_edges(v_mtx, *g); it.first != it.second; ++it.first)
+	for(auto it = functions.begin(); it != functions.end(); it++)
 	{
-		get(boost::edge_weight, *g) [*it.first ]->wait_for_consume();
+		if( ( boost::get( boost::vertex_function ,*g  )[*it]) == NULL) {
+			 throw  std::invalid_argument("Runner "+std::to_string(id)+" : Function uninitialized for node : "+std::to_string(*it));
+		}
 	}
-}
-
-
-void Runner::produce(const Graph::vertex_descriptor  v_mtx)
-{
-	for( auto it =  boost::out_edges(v_mtx, *g); it.first != it.second; ++it.first)
-	{
-		get(boost::edge_weight, *g) [*it.first ]->produce();
-	}
-}
-
-void Runner::consume(const Graph::vertex_descriptor  v_mtx)
-{
-	for( auto it =  boost::in_edges(v_mtx, *g); it.first != it.second; ++it.first)
-	{
-		get(boost::edge_weight, *g) [*it.first ]->consume();
-	}
-}
-
-void Runner::wait_for_running()
-{
-	{
-		std::unique_lock<std::mutex> lk(Runner::mtx);
-		Runner::cv.wait(lk,   [=] {return  (Runner::__is_running() || Runner::__is_stop());}  );
-	}
-}
-
-void Runner::change_state(int state)
-{
-	{
-		std::unique_lock<std::mutex> lk(Runner::mtx);
-		Runner::state = state;
-	}
-	Runner::cv.notify_all();
 }
 

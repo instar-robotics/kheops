@@ -125,17 +125,11 @@ int main(int argc, char **argv)
 	XmlConverter::Initialize();
 
 	Kernel::init(fscript,fres,libdir);	
-	std::cout << "HERE" << std::endl;
 	Kernel::get().load_lib();
-	std::cout << "HERE" << std::endl;
 	Kernel::get().load_functions();
-	std::cout << "HERE" << std::endl;
 	Kernel::get().load_inputs();
-	std::cout << "HERE" << std::endl;
 	Kernel::get().add_rttoken();
-	std::cout << "HERE" << std::endl;
 	Kernel::get().runner_allocation();
-	std::cout << "HERE" << std::endl;
 	
 	Kernel::get().spawn();
 	

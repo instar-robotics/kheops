@@ -31,46 +31,10 @@ class FRunner : public Runner
                 FRunner(int id) : Runner(id) {}
                 virtual ~FRunner() {}
 
-                virtual void exec()
-                {
-			checkFunction();
+                virtual void exec();
+		void checkFunction();
 
-                        while( !Runner::__is_stop()   )
-                        {
-                                for(auto it = functions.begin(); it != functions.end(); it++)
-                                {
-                                        wait_for_produce(*it);
-				//TODO : décider si le runner attend la fin de l'execution de la boite successeur 
-				//	Si UN seul manager et toutes les functions attachées au RT_TOKEN inutile
-				// 	Si des functions peuvent ne pas être reliés au RT_TOKEN : 
-				//		- Permet de synchroniser ou de ne pas synchroniser leurs executions
-				// 		- Les deux comportements peuvent être intéressant.
-                                //      wait_for_consume(**it);
-		
-				// Check Here NULL Pointer ? 
-//                                	((*g)[**it])->compute();
-					boost::get(boost::vertex_function , *g)[*it]->compute();
-                                        consume(*it);
-                                        produce(*it);
-                                }
-                        }
-                        for(auto it = functions.begin(); it != functions.end(); it++) {produce(*it); }
-                }
-
-		void checkFunction()
-		{
-			for(auto it = functions.begin(); it != functions.end(); it++)
-			{
-				if( ( boost::get( boost::vertex_function ,*g  )[*it]) == NULL) {
-					 throw  std::invalid_argument("Runner "+std::to_string(id)+" : Function uninitialized for node : "+std::to_string(*it));
-				}
-			} 
-		}
-
-                void add_node(Graph::vertex_descriptor node )
-                {
-                        functions.push_back(node);
-                }
+                inline void add_node(Graph::vertex_descriptor node ){functions.push_back(node);}
 
 		//TODO : pour l'instant les functions sont pushées les unes à la suite des autres
 		// 	Il faut faire attention de les pushés dans l'ordre d'exécution

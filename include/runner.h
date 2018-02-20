@@ -47,7 +47,6 @@ class Runner
                 Runner(int id) : id(id), g(NULL){}
 
                 virtual ~Runner(){}
-
                 inline void setGraph(Graph * g){ this->g=g;}
 		inline void setId(int id){  this->id = id; }
 		inline int getId(){ return id; }
@@ -55,85 +54,23 @@ class Runner
 		// Payload of the runner
                 virtual void exec() = 0;
 
-		void wait_for_produce(const Graph::vertex_descriptor  v_mtx)
-                {
-                        for( auto it =  boost::in_edges(v_mtx, *g); it.first != it.second; ++it.first)
-                        {
-                                get(boost::edge_weight, *g) [*it.first ]->wait_for_produce();
-                        }
-                }
+		void wait_for_produce(const Graph::vertex_descriptor  v_mtx);
+                void wait_for_consume(const Graph::vertex_descriptor v_mtx);
 
-                void wait_for_consume(const Graph::vertex_descriptor v_mtx)
-                {
-                        for( auto it =  boost::out_edges(v_mtx, *g); it.first != it.second; ++it.first)
-                        {
-                                get(boost::edge_weight, *g) [*it.first ]->wait_for_consume();
-                        }
-                }
+                void produce(const Graph::vertex_descriptor  v_mtx);
+                void consume(const Graph::vertex_descriptor  v_mtx);
 
-                void produce(const Graph::vertex_descriptor  v_mtx)
-                {
-                        for( auto it =  boost::out_edges(v_mtx, *g); it.first != it.second; ++it.first)
-                        {
-                                get(boost::edge_weight, *g) [*it.first ]->produce();
-                        }
-                }
+		inline void spawn() {thx = std::thread( [=] { exec(); } );}
+		inline void join() {thx.join();}
+		inline std::thread & getThread() {return thx;}
 
-                void consume(const Graph::vertex_descriptor  v_mtx)
-                {
-                        for( auto it =  boost::in_edges(v_mtx, *g); it.first != it.second; ++it.first)
-                        {
-                                get(boost::edge_weight, *g) [*it.first ]->consume();
-                        }
-                }
+                static void wait_for_running();
+                static void change_state(int state);
 
-		void spawn() {
-                    thx = std::thread( [=] { exec(); } );
-                }
-
-		void join()
-		{
-			thx.join();
-		}
-		
-		std::thread & getThread() {
-                        return thx;
-                }
-
-                static void wait_for_running()
-                {
-                        {
-                                std::unique_lock<std::mutex> lk(Runner::mtx);
-                                Runner::cv.wait(lk,   [=] {return  (Runner::__is_running() || Runner::__is_stop());}  );
-                        }
-                }
-
-                static void change_state(int state)
-                {
-                        {
-                                std::unique_lock<std::mutex> lk(Runner::mtx);
-                                Runner::state = state;
-                        }
-                        Runner::cv.notify_all();
-                }
-
-                static inline void stop()
-                {
-			change_state(STOP);
-                }
-
-                static inline void pause()
-                {
-                        change_state(PAUSE);
-                }
-
-                static inline void resume()
-                {
-                        change_state(RUN);
-                }
-
+                static inline void stop() {change_state(STOP);}
+                static inline void pause() {change_state(PAUSE);}
+                static inline void resume() {change_state(RUN);}
                 static inline int getState(){ return state;}
-
 };
 
 #endif //__RUNNER_H__
