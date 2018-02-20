@@ -51,17 +51,31 @@ void Kernel::load_inputs()
 
 	// Dans tout les cas : c'est une bonne idée de mettre l'uuid dans les nodes en plus
 
-	std::vector<std::string> inputs; 
+/*
+	std::vector<XInput> inputs; 
 	for( auto it_dest = boost::vertices(graph); it_dest.first != it_dest.second; ++it_dest.first)
 	{
 		//xmlc->getInputsUuid(  (graph[*it_dest.first])->getUuid() , inputs );
 		xmlc->getInputsUuid( boost::get(boost::vertex_function, graph)[*it_dest.first]->getUuid(),inputs);
 		for( auto it_source = inputs.begin(); it_source != inputs.end(); it_source++)
 		{
-			add_edge( node_map[*it_source], *it_dest.first, graph );	
+			add_edge( node_map[(*it_source).uuid_pred], *it_dest.first, graph );	
 		}
 		inputs.clear();
 	}
+*/
+	std::vector<XInput> inputs;
+	xmlc->getInputs(inputs);
+	
+	for( auto it = inputs.begin(); it != inputs.end(); it++)
+	{
+		if( node_map.find( (*it).uuid_pred ) == node_map.end()) throw  std::invalid_argument( "Kernel : try to add link with unkown source "+(*it).uuid_pred  );
+		if( node_map.find( (*it).uuid_suc ) == node_map.end()) throw   std::invalid_argument( "Kernel : try to add link with unkown target "+(*it).uuid_suc );
+
+		add_edge( node_map[(*it).uuid_pred],  node_map[(*it).uuid_suc]  , graph );
+	} 	
+	inputs.clear();
+	
 }
 
 void Kernel::load_lib()
@@ -232,4 +246,8 @@ void Kernel::runner_construction()
         }
 }
 
+	for( auto it = boost::edges(graph); it.first != it.second; ++it.first)
+	{
+		std::cout <<  boost::source(*it.first, graph) << " " <<  boost::target(*it.first, graph) << std::endl;
+	}
 */

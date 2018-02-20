@@ -63,7 +63,7 @@ class Kernel
 			
 			singleton.xmlc = new  XmlConverter(scriptfile);
 		
-			singleton.script_name = singleton.xmlc->getScriptName(); 
+			singleton.xmlc->getScriptName( singleton.script_name   ); 
 
 			std::cout << "Run : " << singleton.script_name << " script"<< std::endl;
 		}		

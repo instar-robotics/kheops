@@ -77,6 +77,18 @@ class XmlConverter
 		f.y = std::stoi(y);
 	}
 
+	void __convertXmlToInput( const DOMElement &el, XInput &xi )
+	{
+		if( el.getElementsByTagName(XMLString::transcode("name"))->getLength() == 0) throw std::invalid_argument("Kernel : Input has no name (Function "+xi.uuid_suc+")");
+
+                xi.name =  XMLString::transcode(  (dynamic_cast<DOMElement *> (el.getElementsByTagName(XMLString::transcode("name"))->item(0))->getTextContent()));
+		
+		if( el.getElementsByTagName(XMLString::transcode("link"))->getLength() == 0) throw std::invalid_argument("Kernel : Input has no predecessor [link tag] (Function "+xi.uuid_suc+")");
+                
+		xi.uuid_pred =  XMLString::transcode(  (dynamic_cast<DOMElement *> (el.getElementsByTagName(XMLString::transcode("link"))->item(0))->getTextContent()));
+
+	}
+
 	public : 
 	
 	~XmlConverter()
@@ -120,30 +132,63 @@ class XmlConverter
 	}
 
 
-	void getInputsUuid( std::string FunctUuid, std::vector<std::string> &links_name  )
+	void getInputsUuid( std::string FunctUuid, std::vector<XInput> &xinputs  )
 	{
 		if( m_doc->getElementsByTagName(XMLString::transcode("functions"))->getLength() == 0) throw  std::invalid_argument("XML : Unable to find functions section");
 
 		DOMElement * function = dynamic_cast<DOMElement *>( m_doc->getElementsByTagName(XMLString::transcode("functions"))->item(0))->getFirstElementChild();
-		if (function == NULL) return;
+		if (function == NULL)  throw  std::invalid_argument("XML : functions section is empty, any input to load ");
 
 		do{
 			if( XMLString::transcode(function->getAttribute( XMLString::transcode("uuid"))) == FunctUuid )
 			{
 				if(  function->getElementsByTagName(XMLString::transcode("inputs"))->getLength() == 0) return;
-				DOMElement * inputs = dynamic_cast<DOMElement *>( function->getElementsByTagName(XMLString::transcode("inputs"))->item(0))->getFirstElementChild() ; 
-				if( inputs == NULL) return ;
+				DOMElement * input = dynamic_cast<DOMElement *>( function->getElementsByTagName(XMLString::transcode("inputs"))->item(0))->getFirstElementChild() ; 
+				if( input == NULL) return ;
 
 				do{
-					links_name.push_back( XMLString::transcode(inputs->getElementsByTagName(XMLString::transcode("link"))->item(0)->getTextContent()));
+					XInput xi;
+					xi.uuid_suc = FunctUuid;
+					__convertXmlToInput( *input, xi );		
+					xinputs.push_back(xi);
 
-				}while( (inputs = inputs->getNextElementSibling()) != NULL  );
+				}while( (input = input->getNextElementSibling()) != NULL  );
+
 				return;	
 			}
 		}while( (function = function->getNextElementSibling()) != NULL );	
 	}
 
-	std::string getScriptName()
+
+	void getInputs( std::vector<XInput> &xinputs)
+	{
+		if( m_doc->getElementsByTagName(XMLString::transcode("functions"))->getLength() == 0) throw  std::invalid_argument("XML : Unable to find functions section");
+
+		DOMElement * function = dynamic_cast<DOMElement *>( m_doc->getElementsByTagName(XMLString::transcode("functions"))->item(0))->getFirstElementChild();
+
+		if (function == NULL)  throw  std::invalid_argument("XML : functions section is empty, any input to load ");
+		do{
+			if(  function->getElementsByTagName(XMLString::transcode("inputs"))->getLength() > 0) 
+			{
+				std::string FunctUuid = XMLString::transcode( function->getAttribute( XMLString::transcode(  "uuid" )));
+		                if( FunctUuid.size() == 0 ) throw std::invalid_argument("XML : Function uuid is empty");
+
+				DOMElement * input = dynamic_cast<DOMElement *>( function->getElementsByTagName(XMLString::transcode("inputs"))->item(0))->getFirstElementChild() ; 
+				if( input != NULL) 
+				{
+					do{
+						XInput xi;
+						xi.uuid_suc = FunctUuid;
+						__convertXmlToInput( *input, xi );		
+						xinputs.push_back(xi);
+
+					}while( (input = input->getNextElementSibling()) != NULL  );
+				}
+			}
+		}while( (function = function->getNextElementSibling()) != NULL );	
+	}
+
+	void getScriptName(std::string &name)
 	{
 		if(  m_doc->getElementsByTagName(XMLString::transcode("script"))->getLength() == 0) throw  std::invalid_argument("XML : Unable to find script tag ");
 		
@@ -158,15 +203,16 @@ class XmlConverter
 
 		if( el == NULL) throw std::invalid_argument("XML : enable to find script name");
 
-		return  XMLString::transcode( el->getTextContent());
+		name=XMLString::transcode( el->getTextContent());
 	}
 
 	
-	void getRtToken( XRtToken rt )
+	void getRtToken( XRtToken & rt )
 	{
 		if(  m_doc->getElementsByTagName(XMLString::transcode("rt_token"))->getLength() == 0) throw  std::invalid_argument("XML : Unable to find \"rt_token\" tag");
 	
 		rt.value = std::stod(   XMLString::transcode( dynamic_cast<DOMElement *>( m_doc->getElementsByTagName(XMLString::transcode("rt_token"))->item(0))->getTextContent()));
+
 		rt.unit = XMLString::transcode( dynamic_cast<DOMElement *>( m_doc->getElementsByTagName(XMLString::transcode("rt_token"))->item(0))->getAttribute( XMLString::transcode(  "unit" )));
 	}
 	
