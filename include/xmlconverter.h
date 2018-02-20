@@ -95,20 +95,23 @@ class XmlConverter
 
 	void getInputsUuid( std::string FunctUuid, std::vector<std::string> &links_name  )
 	{
+		if( m_doc->getElementsByTagName(XMLString::transcode("functions"))->getLength() == 0) throw  std::invalid_argument("XML : Unable to find functions section");
+
 		DOMElement * function = dynamic_cast<DOMElement *>( m_doc->getElementsByTagName(XMLString::transcode("functions"))->item(0))->getFirstElementChild();
 		if (function == NULL) return;
 
 		do{
 			if( XMLString::transcode(function->getAttribute( XMLString::transcode("uuid"))) == FunctUuid )
 			{
-				// SPLIT Finds du Tag Inputs
+				if(  function->getElementsByTagName(XMLString::transcode("inputs"))->getLength() == 0) return;
 				DOMElement * inputs = dynamic_cast<DOMElement *>( function->getElementsByTagName(XMLString::transcode("inputs"))->item(0))->getFirstElementChild() ; 
 				if( inputs == NULL) return ;
+
 				do{
 					links_name.push_back( XMLString::transcode(inputs->getElementsByTagName(XMLString::transcode("link"))->item(0)->getTextContent()));
 
 				}while( (inputs = inputs->getNextElementSibling()) != NULL  );
-
+				return;	
 			}
 		}while( (function = function->getNextElementSibling()) != NULL );	
 	}
