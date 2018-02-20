@@ -34,7 +34,9 @@ Kernel::~Kernel()
 }
 
 void Kernel::init(std::string scriptfile, std::string resfile, std::string libdir)
-{}
+{
+
+}
 
 void Kernel::load_functions()
 {
