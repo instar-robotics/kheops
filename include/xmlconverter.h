@@ -29,6 +29,27 @@ The fact that you are presently reading this means that you have had knowledge o
 
 using namespace xercesc;
 
+struct XFunction
+{
+	std::string uuid;
+	std::string name; 
+	int x;
+	int y;
+};
+
+struct XInput
+{
+	std::string name;
+	std::string uuid_pred;
+	std::string uuid_suc;
+};
+
+struct XRtToken
+{
+	std::string unit;
+	double value;
+};
+
 class XmlConverter
 {
 	private :
@@ -36,19 +57,24 @@ class XmlConverter
 	DOMDocument* m_doc;
 	XercesDOMParser *parser ;
 	ErrorHandler* errHandler;
-
-	DOMElement * xFunc;
 	
-	Function *  __convertXmlToFunction(const DOMElement &el)
+	void __convertXmlToFunction(const DOMElement &el, XFunction &f)
 	{
-                std::string name =  XMLString::transcode(  (dynamic_cast<DOMElement *> (el.getElementsByTagName(XMLString::transcode("name"))->item(0))->getTextContent()));
-		std::string uuid = XMLString::transcode( el.getAttribute( XMLString::transcode(  "uuid" )));
+		f.uuid = XMLString::transcode( el.getAttribute( XMLString::transcode(  "uuid" )));
 
-		Function *f = Factory<Function>::Instance().create(name);
-		if( f ==  NULL ) throw  std::invalid_argument("Kernel : Unable to find Function");
-		else f->setUuid(uuid);
+		if( f.uuid.size() == 0 ) throw std::invalid_argument("XML : Function uuid is empty");
 
-		return f;
+		if( el.getElementsByTagName(XMLString::transcode("name"))->getLength() == 0) throw std::invalid_argument("Kernel : Function "+f.uuid+" has no name");
+
+                f.name =  XMLString::transcode(  (dynamic_cast<DOMElement *> (el.getElementsByTagName(XMLString::transcode("name"))->item(0))->getTextContent()));
+
+		std::string x = XMLString::transcode( el.getAttribute( XMLString::transcode(  "x" )));
+		if( x.size() == 0 ) throw std::invalid_argument("XML : Function have no X value");
+		f.x = std::stoi(x);
+
+		std::string y  = XMLString::transcode( el.getAttribute( XMLString::transcode(  "y" )));
+		if( y.size() == 0 ) throw std::invalid_argument("XML : Function have no Y value");
+		f.y = std::stoi(y);
 	}
 
 	public : 
@@ -59,7 +85,7 @@ class XmlConverter
 		delete errHandler;
 	}
 
-	XmlConverter(std::string filepath) : m_doc(NULL), parser(NULL),errHandler(NULL), xFunc(NULL)
+	XmlConverter(std::string filepath) : m_doc(NULL), parser(NULL),errHandler(NULL)
 	{
 		parser = new XercesDOMParser();
 		errHandler = (ErrorHandler*) new HandlerBase();
@@ -68,30 +94,31 @@ class XmlConverter
 		m_doc = parser->getDocument();
 	}
 
-	XmlConverter() : m_doc(NULL),parser(NULL),errHandler(NULL), xFunc(NULL) { }
+	XmlConverter() : m_doc(NULL),parser(NULL),errHandler(NULL) { }
 
 	static void Initialize()
 	{
 		XMLPlatformUtils::Initialize();
 	}
 
-	Function * getFirstFunction()
+
+	void getFunctions(std::vector<XFunction> &functions)
 	{
+		DOMElement * xFunc;
+		XFunction f;
+		
+		if( m_doc->getElementsByTagName(XMLString::transcode("functions"))->getLength() == 0) throw  std::invalid_argument("XML : Unable to find functions section");
+
 		xFunc = dynamic_cast<DOMElement *>( m_doc->getElementsByTagName(XMLString::transcode("functions"))->item(0))->getFirstElementChild()  ;
-		if( xFunc == NULL) return NULL;
+		if( xFunc == NULL) throw  std::invalid_argument("XML : functions section is empty, any function to load");
 
-		return __convertXmlToFunction( (*xFunc) );
+		do{
+			__convertXmlToFunction( *xFunc, f);
+			functions.push_back(f);
+
+		}while(  (xFunc = xFunc->getNextElementSibling() ) != NULL);
 	}
 
-	Function * getNextFunction()
-	{
-		if( xFunc == NULL) return NULL;
-
-		xFunc = xFunc->getNextElementSibling();
-	
-		if( xFunc == NULL) return NULL;
-		else return __convertXmlToFunction( (*xFunc) );
-	}
 
 	void getInputsUuid( std::string FunctUuid, std::vector<std::string> &links_name  )
 	{
@@ -134,19 +161,15 @@ class XmlConverter
 		return  XMLString::transcode( el->getTextContent());
 	}
 
-	double get_RtToken()
+	
+	void getRtToken( XRtToken rt )
 	{
 		if(  m_doc->getElementsByTagName(XMLString::transcode("rt_token"))->getLength() == 0) throw  std::invalid_argument("XML : Unable to find \"rt_token\" tag");
-
-		return std::stod(   XMLString::transcode( dynamic_cast<DOMElement *>( m_doc->getElementsByTagName(XMLString::transcode("rt_token"))->item(0))->getTextContent()  ) );
+	
+		rt.value = std::stod(   XMLString::transcode( dynamic_cast<DOMElement *>( m_doc->getElementsByTagName(XMLString::transcode("rt_token"))->item(0))->getTextContent()));
+		rt.unit = XMLString::transcode( dynamic_cast<DOMElement *>( m_doc->getElementsByTagName(XMLString::transcode("rt_token"))->item(0))->getAttribute( XMLString::transcode(  "unit" )));
 	}
-
-	std::string get_RtToken_Unit()
-	{
-		if(  m_doc->getElementsByTagName(XMLString::transcode("rt_token"))->getLength() == 0) throw  std::invalid_argument("XML : Unable to find \"rt_token\" tag");
-
-		return XMLString::transcode( dynamic_cast<DOMElement *>( m_doc->getElementsByTagName(XMLString::transcode("rt_token"))->item(0))->getAttribute( XMLString::transcode(  "unit" )));
-	}
+	
 };
 
 #endif // __XML_CONVERTER__

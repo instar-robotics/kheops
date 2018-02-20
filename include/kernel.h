@@ -72,13 +72,16 @@ class Kernel
      			 return singleton;
    		}
 
+
+
 		void load_lib();			
-		void load_input();			
-		void load_graph();
+		void load_inputs();			
+		void load_functions();
 
 		void add_rttoken();
 
-		void add_function(Function *box);
+		Function* buildFunction(const XFunction&);
+		void add_function(Function *funct);
 		void del_function(Function * funct);
 		void del_function(const std::string & uuid);
 

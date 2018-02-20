@@ -25,19 +25,25 @@ The fact that you are presently reading this means that you have had knowledge o
 
 Kernel Kernel::singleton;
 
-void Kernel::load_graph()
+void Kernel::load_functions()
 {
-	Function *f = xmlc->getFirstFunction();
-	do
+	std::vector<XFunction> functions;
+	xmlc->getFunctions(functions);
+
+	for(auto it = functions.begin(); it != functions.end(); it++)
 	{
-		if( f != NULL)
+		if( Factory<Function>::Instance().is_register(it->name) )
 		{
-			add_function(f);
+			add_function( buildFunction(*it ) );	
+		}	
+		else
+		{
+			std::cout << "Function "+it->name+" is not a native function. Try to load it" << std::endl;
 		}
-	}while( (f = xmlc->getNextFunction()) != NULL );
+	}
 }
 
-void Kernel::load_input()
+void Kernel::load_inputs()
 {
 	// FAIRE DANS L'AUTRE SENS ? 
 	// Comme pour load_graph : lecture du XML et recherche dans le graphe
@@ -73,6 +79,17 @@ void Kernel::load_lib()
             exit(1);
         }
   }
+}
+
+Function* Kernel::buildFunction(const XFunction& xf)
+{
+      Function *f = Factory<Function>::Instance().create(xf.name);
+      if( f ==  NULL ) throw  std::invalid_argument("Kernel : Unable to build Function "+xf.name);
+      else{ 
+		f->setUuid(xf.uuid);
+		f->setSize(xf.x,xf.y,0);
+      }
+      return f;
 }
 
 void Kernel::add_function( Function *funct  )
@@ -141,7 +158,11 @@ void Kernel::add_rttoken()
 			}
 		}
         }
-	RtToken * RT = new RtToken( xmlc->get_RtToken() , xmlc->get_RtToken_Unit() );
+
+	XRtToken xrt;
+	xmlc->getRtToken(xrt); 
+
+	RtToken * RT = new RtToken( xrt.value , xrt.unit );
 	RT->setGraph(&graph);
 	RT->setRtNode(rt_node);
 	boost::put(boost::vertex_name, graph, rt_node, 0);

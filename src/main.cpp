@@ -126,8 +126,8 @@ int main(int argc, char **argv)
 
 	Kernel::init(fscript,fres,libdir);	
 	Kernel::get().load_lib();
-	Kernel::get().load_graph();
-	Kernel::get().load_input();
+	Kernel::get().load_functions();
+	Kernel::get().load_inputs();
 	Kernel::get().add_rttoken();
 	Kernel::get().runner_allocation();
 	

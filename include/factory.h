@@ -57,6 +57,11 @@ class Factory
                          table[classname] = builder;
                 }
 
+		bool is_register(const std::string& classname)
+		{
+			return (table.find(classname) != table.end());
+		}
+	
                 T * create(const std::string& classname)
 		{
 		 typename std::map<std::string, Builder<T>*>::iterator it  = table.find(classname);
