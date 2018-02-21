@@ -22,8 +22,6 @@ The fact that you are presently reading this means that you have had knowledge o
 #include "xmlconverter.h"
 #include "runner.h"
 
-const std::string rtnode_name = "rtnode";
-
 class Kernel 
 {
 	private :
@@ -64,6 +62,9 @@ class Kernel
 		void del_function(Function * funct);
 		void del_function(const std::string & uuid);
 		void add_function_on_fly(std::string Fct, std::string pred_uuid, int x=-1, int y=-1);
+		// Don't delete the old ling between pred_uuid and suc_uuid
+		void insert_function_on_fly(std::string Fct, std::string pred_uuid, std::string suc_uuid ,int x=-1, int y=-1);
+		void del_link(std::string pred_uuid, std::string suc_uuid);
 
 		void simple_runner_allocation();
 		void runner_allocation();

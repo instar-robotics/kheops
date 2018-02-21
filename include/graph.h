@@ -37,8 +37,4 @@ typedef boost::graph_traits<Graph>::vertex_iterator vertex_iter;
 typedef boost::graph_traits<Graph>::out_edge_iterator out_edge_iterator;
 typedef boost::graph_traits<Graph>::in_edge_iterator in_edge_iterator;
 
-
-
-
-
 #endif //__GRAPH_H__

@@ -170,6 +170,71 @@ void Kernel::add_function_on_fly(std::string Fct, std::string pred_uuid, int x, 
 	}
 }
 
+
+void Kernel::insert_function_on_fly(std::string Fct, std::string pred_uuid, std::string suc_uuid ,int x, int y)
+{
+        uuid_t out;
+        uuid_generate(out);
+
+        char cuuid[37];
+        uuid_unparse(out,cuuid);
+        std::string uuid(cuuid);
+
+        if( node_map.find( pred_uuid  ) == node_map.end()) throw  std::invalid_argument( "Kernel : try to add function with unkown source "+ pred_uuid ); 
+        if( node_map.find( suc_uuid  ) == node_map.end()) throw  std::invalid_argument( "Kernel : try to add function with unkown source "+ suc_uuid ); 
+
+        if( Factory<Function>::Instance().is_register(Fct) )
+        {
+                Function *f = Factory<Function>::Instance().create(Fct);
+                if( f ==  NULL ) throw  std::invalid_argument("Kernel : Unable to build Function "+Fct);
+                else{
+                        f->setUuid(uuid);
+        
+                        if( x == -1 ){ x=boost::get(boost::vertex_function, graph)[node_map[pred_uuid]]->getX();}
+                        if( y == -1 ){ y=boost::get(boost::vertex_function, graph)[node_map[pred_uuid]]->getY();}
+
+                        f->setSize(x,y,0);
+  
+                        add_function(f);
+
+                        EdgeWeightProperty ep =dynamic_cast<Link*>(new Synchronized_Link());
+                        add_edge( node_map[pred_uuid] , node_map[uuid] ,ep, graph  );
+                        
+                        EdgeWeightProperty es =dynamic_cast<Link*>(new Synchronized_Link());
+                        add_edge( node_map[uuid],  node_map[suc_uuid]  ,es, graph  );
+/*
+                        int idRunner = boost::get( boost::vertex_name, graph, node_map[pred_uuid]  ) ;
+                        dynamic_cast<FRunner*>(runners[idRunner])->add_node( node_map[uuid] );
+                        boost::put(boost::vertex_name, graph, node_map[uuid], idRunner);
+*/			
+			int idRunner = add_frunner();
+			dynamic_cast<FRunner*>(runners[idRunner])->add_node( node_map[uuid] );
+                        boost::put(boost::vertex_name, graph, node_map[uuid], idRunner);
+
+			runners[idRunner]->spawn();
+                }
+        }
+}
+
+void Kernel::del_link(std::string pred_uuid, std::string suc_uuid)
+{
+	if( node_map.find( pred_uuid  ) == node_map.end()) throw  std::invalid_argument( "Kernel : try to add function with unkown source "+ pred_uuid );   
+        if( node_map.find( suc_uuid  ) == node_map.end()) throw  std::invalid_argument( "Kernel : try to add function with unkown source "+ suc_uuid );
+
+	Graph::edge_descriptor e;
+	bool succes;
+	tie(e, succes) = boost::edge( node_map[pred_uuid], node_map[suc_uuid], graph );
+
+	if (succes)
+	{	
+		Link * l = boost::get(boost::edge_weight, graph, e);
+		boost::remove_edge(e, graph);
+		l->produce();
+		delete(l);
+	}	
+}
+
+
 void Kernel::del_function( Function * funct)
 {
 	clear_vertex( node_map[funct->getUuid()] , graph);
@@ -213,7 +278,6 @@ int Kernel::add_frunner()
 void Kernel::add_rttoken()
 {
 	Graph::vertex_descriptor rt_node = boost::add_vertex(graph);
-	node_map[rtnode_name] = rt_node  ;
 
 	Link *l;
 	for( auto it =  boost::vertices(graph) ; it.first != it.second; ++it.first)

@@ -16,6 +16,7 @@ The fact that you are presently reading this means that you have had knowledge o
 
 #include "frunner.h"
 #include "rttoken.h"
+#include <iostream>
 
 void FRunner::exec()
 {
@@ -23,9 +24,18 @@ void FRunner::exec()
 
 	while( !RtToken::instance().is_asking_stop() )
 	{
-		for(auto it = functions.begin(); it != functions.end(); it++)
+
+		//TODO : ici segfault si utilisation iterator
+		// Segfault déclenché par la function add_function_on_fly
+		// Solution 1 : utiliser vector comme tableau : OK
+		// Solution 2 : plus complexe : revoir la synchro des Runners 
+			// Pas forcément une bonne solution de se synchroniser sur le wait_for_produce.
+			// Peut être que chaque runner devrai faire un wait_ask_resume avant de relancer une boucle.
+			// -> revoir modèle singleton pour RtToken : plutot mettre le singleton au niveau du RUNNER ??
+
+		for(int i = 0; i < functions.size() ; i++)
 		{
-			wait_for_produce(*it);
+			wait_for_produce( functions[i] );
 		//TODO : décider si le runner attend la fin de l'execution de la boite successeur 
 		//      Si UN seul manager et toutes les functions attachées au RT_TOKEN inutile
 		//      Si des functions peuvent ne pas être reliés au RT_TOKEN : 
@@ -35,9 +45,10 @@ void FRunner::exec()
 
 		// Check Here NULL Pointer ? 
 //                                      ((*g)[**it])->compute();
-			boost::get(boost::vertex_function , *g)[*it]->compute();
-			consume(*it);
-			produce(*it);
+
+			boost::get(boost::vertex_function , *g)[functions[i]]->compute();
+			consume(functions[i]);
+			produce(functions[i]);
 		}
 	}
 	for(auto it = functions.begin(); it != functions.end(); it++) {produce(*it); }

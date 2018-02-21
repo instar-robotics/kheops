@@ -158,7 +158,18 @@ int main(int argc, char **argv)
                         RtToken::instance().wait_for_pause();
 			Kernel::instance().add_function_on_fly("MyFct", buffer  ,0,0);
                         RtToken::instance().ask_resume();
+		}
+		else if (buffer == "add2")
+		{
 
+			std::string suc;
+                	getline(std::cin,buffer);
+                	getline(std::cin,suc);
+                        RtToken::instance().ask_pause();
+                        RtToken::instance().wait_for_pause();
+			Kernel::instance().insert_function_on_fly("MyFct", buffer ,suc ,0,0);
+			Kernel::instance().del_link(buffer ,suc);
+                        RtToken::instance().ask_resume();
 		}
 
                 std::cout << "M state : "  << RtToken::instance().getRequest() << std::endl;
