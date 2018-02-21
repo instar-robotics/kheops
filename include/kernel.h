@@ -50,18 +50,20 @@ class Kernel
                 Kernel& operator=(const Kernel&) = delete;
 
 		static void init(std::string scriptfile, std::string resfile, std::string libdir);
-		static inline Kernel& get() noexcept {return singleton;}
+		static inline Kernel& instance() noexcept {return singleton;}
 
 		void load_lib();			
 		void load_inputs();			
 		void load_functions();
 
 		void add_rttoken();
+		int add_frunner();
 
 		Function* buildFunction(const XFunction&);
 		void add_function(Function *funct);
 		void del_function(Function * funct);
 		void del_function(const std::string & uuid);
+		void add_function_on_fly(std::string Fct, std::string pred_uuid, int x=-1, int y=-1);
 
 		void simple_runner_allocation();
 		void runner_allocation();

@@ -8,7 +8,7 @@ set ( EIGEN3_INCLUDE_DIR  "/usr/include/eigen3" )
 set(CMAKE_CXX_FLAGS "-std=c++17")
 
 file(GLOB_RECURSE sourcefiles src/*.cpp)
-add_definitions(-Wextra -Wall -pthread -ldl)
+add_definitions(-Wextra -Wall)
 include_directories(include  ${EIGEN3_INCLUDE_DIR} )
 
 add_executable(
@@ -16,4 +16,4 @@ add_executable(
         ${sourcefiles}
 )
 
-target_link_libraries(kheops pthread xerces-c dl)
+target_link_libraries(kheops pthread xerces-c dl uuid)

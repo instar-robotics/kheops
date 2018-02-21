@@ -21,6 +21,7 @@ The fact that you are presently reading this means that you have had knowledge o
 #include <syslog.h>
 #include <signal.h>
 
+#include "rttoken.h"
 #include "kernel.h"
 #include "xmlconverter.h"
 
@@ -125,13 +126,13 @@ int main(int argc, char **argv)
 	XmlConverter::Initialize();
 
 	Kernel::init(fscript,fres,libdir);	
-	Kernel::get().load_lib();
-	Kernel::get().load_functions();
-	Kernel::get().load_inputs();
-	Kernel::get().add_rttoken();
-	Kernel::get().runner_allocation();
+	Kernel::instance().load_lib();
+	Kernel::instance().load_functions();
+	Kernel::instance().load_inputs();
+	Kernel::instance().add_rttoken();
+	Kernel::instance().runner_allocation();
 	
-	Kernel::get().spawn();
+	Kernel::instance().spawn();
 	
 	bool run  = true;
         while(run)
@@ -141,19 +142,30 @@ int main(int argc, char **argv)
                 getline(std::cin,buffer);
 
                 if(buffer == "pause") {
-                        Runner::pause();
+                        RtToken::instance().ask_pause();
+                        RtToken::instance().wait_for_pause();
                 }
-                else if (buffer == "run" ) Runner::resume();
+                else if (buffer == "run" ) RtToken::instance().ask_resume();
                 else if (buffer == "q")
                 {
                         run = false;
                 }
+		else if (buffer == "add")
+		{
 
-                std::cout << "M state : "  << Runner::getState() << std::endl;
+                	getline(std::cin,buffer);
+                        RtToken::instance().ask_pause();
+                        RtToken::instance().wait_for_pause();
+			Kernel::instance().add_function_on_fly("MyFct", buffer  ,0,0);
+                        RtToken::instance().ask_resume();
+
+		}
+
+                std::cout << "M state : "  << RtToken::instance().getRequest() << std::endl;
         }
 
-	Runner::stop();	
-	Kernel::get().join();
+        RtToken::instance().ask_stop();
+	Kernel::instance().join();
 
 	return 0;
 

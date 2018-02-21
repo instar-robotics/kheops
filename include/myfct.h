@@ -11,7 +11,7 @@ class MyFct : public Function
 
 		virtual void compute()
 		{
-			std::cout << "My Fct" << std::endl;
+			std::cout << "My Fct : " <<  getUuid() << std::endl;
 		}
 
 };

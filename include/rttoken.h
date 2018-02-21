@@ -17,6 +17,7 @@ The fact that you are presently reading this means that you have had knowledge o
 #ifndef __RT_TOKEN_H__
 #define __RT_TOKEN_H__
 
+#include <condition_variable>
 #include "runner.h"
 #include "util.h"
 
@@ -25,6 +26,8 @@ The fact that you are presently reading this means that you have had knowledge o
 const std::string second = "s";
 const std::string ms = "ms";
 const std::string hertz = "Hz";
+
+enum STATE { STOP=0, PAUSE=1, RUN=2 };
 
 class RtToken : public Runner
 {
@@ -38,14 +41,23 @@ class RtToken : public Runner
 
                 Graph::vertex_descriptor rt_node;
 
+		int state;
+		int request;
+                std::mutex mtx;
+                std::condition_variable cv;
+
+		static RtToken singleton;
+
 	public : 
 
 		// Period in second
-		RtToken(double period) : Runner(),period(period),means(0),nbrun(0)  {}
-		RtToken(double value, std::string unit) : Runner(),means(0),nbrun(0) { setToken(value, unit);}
+		RtToken() : Runner(),period(0),means(0),nbrun(0),state(PAUSE),request(PAUSE)  {}
+		RtToken(double period) : Runner(),period(period),means(0),nbrun(0),state(PAUSE),request(PAUSE)  {}
+		RtToken(double value, std::string unit) : Runner(),means(0),nbrun(0),state(PAUSE),request(PAUSE) { setToken(value, unit);}
                 virtual ~RtToken() {}
 
 		inline void setRtNode( Graph::vertex_descriptor rt_node ) { this->rt_node = rt_node;}
+		inline Graph::vertex_descriptor  getRtNode() { return rt_node;}
 
 		// Frequency in Hz
 		inline void setFrequency( double frequency ) { period = convert_period_frequency(frequency);}
@@ -62,6 +74,32 @@ class RtToken : public Runner
 
 		void setToken(double value, std::string unit);
 		virtual void exec();
+		
+		void wait_ask_resume();
+                void wait_for_pause();
+
+                void change_request(int request);
+                inline void ask_stop() {change_request(STOP);}
+                inline void ask_pause() {change_request(PAUSE);}
+                inline void ask_resume() {change_request(RUN);}
+                inline int getRequest(){ return request;}
+                
+		void change_state(int state);
+                inline void stop() {change_state(STOP);}
+                inline void pause() {change_state(PAUSE);}
+                inline void resume() {change_state(RUN);}
+                inline int getState(){ return state;}
+		
+		inline bool is_asking_run() { return request==RUN;}
+                inline bool is_asking_stop() { return request==STOP;}
+                inline bool is_asking_pause() { return request==PAUSE;}
+		
+		inline bool is_running() { return state==RUN;}
+                inline bool is_stop() { return state==STOP;}
+                inline bool is_pause() { return state==PAUSE;}
+
+		static inline RtToken& instance() noexcept {return singleton;}
+
 }; 
 
 #endif // __RT_TOKEN_H__

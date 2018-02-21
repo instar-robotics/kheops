@@ -16,6 +16,8 @@ The fact that you are presently reading this means that you have had knowledge o
 
 #include <dlfcn.h>
 #include <sstream>
+#include <uuid/uuid.h>
+#include <iostream>
 
 #include "kernel.h"
 #include "factory.h"
@@ -29,8 +31,14 @@ Kernel::~Kernel()
 {
 	delete xmlc;
 	graph.clear();
-	runners.clear();
 	node_map.clear();
+	
+	for( auto it = runners.begin(); it != runners.end(); it++)
+	{
+		delete(it->second);
+	}
+
+	runners.clear();
 }
 
 void Kernel::init(std::string scriptfile, std::string resfile, std::string libdir)
@@ -44,7 +52,6 @@ void Kernel::init(std::string scriptfile, std::string resfile, std::string libdi
 	singleton.xmlc->getScriptName( singleton.script_name  );
 
 	std::cout << "Run : " << singleton.script_name << " script"<< std::endl;
-
 }
 
 void Kernel::load_functions()
@@ -67,25 +74,6 @@ void Kernel::load_functions()
 
 void Kernel::load_inputs()
 {
-	// FAIRE DANS L'AUTRE SENS ? 
-	// Comme pour load_graph : lecture du XML et recherche dans le graphe
-	// Mais il faut un moyen de chercher dans le graphe (mettre Uuid dans les nodes) avec une MAP Propeties
-
-	// Dans tout les cas : c'est une bonne idée de mettre l'uuid dans les nodes en plus
-
-/*
-	std::vector<XInput> inputs; 
-	for( auto it_dest = boost::vertices(graph); it_dest.first != it_dest.second; ++it_dest.first)
-	{
-		//xmlc->getInputsUuid(  (graph[*it_dest.first])->getUuid() , inputs );
-		xmlc->getInputsUuid( boost::get(boost::vertex_function, graph)[*it_dest.first]->getUuid(),inputs);
-		for( auto it_source = inputs.begin(); it_source != inputs.end(); it_source++)
-		{
-			add_edge( node_map[(*it_source).uuid_pred], *it_dest.first, graph );	
-		}
-		inputs.clear();
-	}
-*/
 	std::vector<XInput> inputs;
 	xmlc->getInputs(inputs);
 	
@@ -94,7 +82,7 @@ void Kernel::load_inputs()
 		if( node_map.find( (*it).uuid_pred ) == node_map.end()) throw  std::invalid_argument( "Kernel : try to add link with unkown source "+(*it).uuid_pred  );
 		if( node_map.find( (*it).uuid_suc ) == node_map.end()) throw   std::invalid_argument( "Kernel : try to add link with unkown target "+(*it).uuid_suc );
 
-		add_edge( node_map[(*it).uuid_pred],  node_map[(*it).uuid_suc]  , graph );
+		add_edge( node_map[(*it).uuid_pred], node_map[(*it).uuid_suc]  , graph );
 	} 	
 	inputs.clear();
 	
@@ -143,6 +131,45 @@ void Kernel::add_function( Function *funct  )
 	else throw  std::invalid_argument("Kernel : try to add Null Function");
 }
 
+void Kernel::add_function_on_fly(std::string Fct, std::string pred_uuid, int x, int y)
+{
+	uuid_t out;
+	uuid_generate(out);
+
+	char cuuid[37];
+	uuid_unparse(out,cuuid);
+	std::string uuid(cuuid);
+	
+	if( node_map.find( pred_uuid  ) == node_map.end()) throw  std::invalid_argument( "Kernel : try to add function with unkown source "+ pred_uuid );
+
+	if( Factory<Function>::Instance().is_register(Fct) )
+	{
+		Function *f = Factory<Function>::Instance().create(Fct);
+      		if( f ==  NULL ) throw  std::invalid_argument("Kernel : Unable to build Function "+Fct);
+     		else{
+                	f->setUuid(uuid);
+
+			if( x == -1 ){ x=boost::get(boost::vertex_function, graph)[node_map[pred_uuid]]->getX();}
+			if( y == -1 ){ y=boost::get(boost::vertex_function, graph)[node_map[pred_uuid]]->getY();}
+
+                	f->setSize(x,y,0);
+
+			add_function(f);
+			EdgeWeightProperty e =dynamic_cast<Link*>(new Synchronized_Link());
+			add_edge( node_map[pred_uuid] , node_map[uuid] ,e, graph  );
+			
+			EdgeWeightProperty rt_e =dynamic_cast<Link*>(new Synchronized_Link());
+			add_edge( node_map[uuid], RtToken::instance().getRtNode() ,rt_e, graph  );
+
+			int idRunner = add_frunner();
+			dynamic_cast<FRunner*>(runners[idRunner])->add_node( node_map[uuid] );
+                        boost::put(boost::vertex_name, graph, node_map[uuid], idRunner);
+
+			runners[idRunner]->spawn();
+      		}
+	}
+}
+
 void Kernel::del_function( Function * funct)
 {
 	clear_vertex( node_map[funct->getUuid()] , graph);
@@ -157,6 +184,7 @@ void Kernel::del_function(const std::string& uuid)
 
 void Kernel::spawn()
 {
+	RtToken::instance().spawn();
 	for( auto it = runners.begin(); it != runners.end(); it++)
 	{
 		it->second->spawn();
@@ -165,10 +193,21 @@ void Kernel::spawn()
 
 void Kernel::join()
 {
+	RtToken::instance().join();
 	for( auto it = runners.begin(); it != runners.end(); it++)
 	{
 		it->second->join();
 	}
+}
+
+int Kernel::add_frunner()
+{
+	int idr = runners.size();
+	FRunner *fr = new FRunner(idr);
+	fr->setGraph(&graph);
+	runners[idr] = dynamic_cast<Runner*>(fr);
+
+	return idr;
 }
 
 void Kernel::add_rttoken()
@@ -198,30 +237,23 @@ void Kernel::add_rttoken()
 	XRtToken xrt;
 	xmlc->getRtToken(xrt); 
 
-	RtToken * RT = new RtToken( xrt.value , xrt.unit );
-	RT->setGraph(&graph);
-	RT->setRtNode(rt_node);
+	RtToken::instance().setToken(xrt.value , xrt.unit );
+	RtToken::instance().setGraph(&graph);
+	RtToken::instance().setRtNode(rt_node);
 	boost::put(boost::vertex_name, graph, rt_node, 0);
-	runners[0] = RT;
 }
 
 
 void Kernel::simple_runner_allocation()
 {
-	FRunner *fr;
-	int idRunner=1;
-
 	for( auto it =  boost::vertices(graph) ; it.first != it.second; ++it.first)
 	{
 		Graph::vertex_descriptor v =  *it.first ;
 
 		if( boost::get( boost::vertex_name , graph, v) == -1) 
 		{
-			fr = new FRunner(idRunner);
-			fr->setGraph(&graph);
-			fr->add_node(v);
-
-			runners[idRunner] = dynamic_cast<Runner*>(fr);
+			int idRunner = add_frunner();
+			dynamic_cast<FRunner*>(runners[idRunner])->add_node(v);
 
 			boost::put(boost::vertex_name, graph, v, idRunner);
 			idRunner++;

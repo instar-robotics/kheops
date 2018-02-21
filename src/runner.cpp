@@ -16,10 +16,6 @@ The fact that you are presently reading this means that you have had knowledge o
 
 #include "runner.h"
 
-int Runner::state = PAUSE;
-std::mutex Runner::mtx;
-std::condition_variable Runner::cv;
-
 void Runner::wait_for_produce(const Graph::vertex_descriptor  v_mtx)
 {
 	for( auto it =  boost::in_edges(v_mtx, *g); it.first != it.second; ++it.first)
@@ -51,22 +47,5 @@ void Runner::consume(const Graph::vertex_descriptor  v_mtx)
 	{
 		get(boost::edge_weight, *g) [*it.first ]->consume();
 	}
-}
-
-void Runner::wait_for_running()
-{
-	{
-		std::unique_lock<std::mutex> lk(Runner::mtx);
-		Runner::cv.wait(lk,   [=] {return  (Runner::__is_running() || Runner::__is_stop());}  );
-	}
-}
-
-void Runner::change_state(int state)
-{
-	{
-		std::unique_lock<std::mutex> lk(Runner::mtx);
-		Runner::state = state;
-	}
-	Runner::cv.notify_all();
 }
 

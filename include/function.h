@@ -50,6 +50,9 @@ class Function
 		inline void setSize(int x, int y){ output = MatrixXd::Constant( x , y ,0); }
 		inline void setSize(int x, int y, int dvalue){ output = MatrixXd::Constant( x , y ,dvalue); }
 
+		inline int getX(){return output.rows();}
+		inline int getY(){return output.cols();}
+
                 inline const MatrixXd& operator()() const
                 {
                         return output;

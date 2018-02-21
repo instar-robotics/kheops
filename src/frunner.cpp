@@ -15,12 +15,13 @@ The fact that you are presently reading this means that you have had knowledge o
 */
 
 #include "frunner.h"
+#include "rttoken.h"
 
 void FRunner::exec()
 {
 	checkFunction();
 
-	while( !Runner::__is_stop()   )
+	while( !RtToken::instance().is_asking_stop() )
 	{
 		for(auto it = functions.begin(); it != functions.end(); it++)
 		{

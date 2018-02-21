@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <script>
     <name>Example</name>	
-    <rt_token unit="ms">10</rt_token> 
+    <rt_token unit="Hz">1000</rt_token> 
     <functions>
 	<function uuid="1" x="1" y="1">
 		<name>MyFct</name>

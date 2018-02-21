@@ -15,6 +15,9 @@ The fact that you are presently reading this means that you have had knowledge o
 */
 
 #include "rttoken.h"
+#include <iostream>
+
+RtToken RtToken::singleton;
 
 void RtToken::setToken(double value, std::string unit)
 {
@@ -39,10 +42,10 @@ void RtToken::setToken(double value, std::string unit)
 
 void RtToken::exec()
 {
-	while( !Runner::__is_stop() )
+	while( !is_asking_stop() )
 	{
-		Runner::wait_for_running();
-		if( Runner::__is_stop() ) continue;
+		wait_ask_resume();
+		if( is_asking_stop() ) continue;
 
 		auto start = std::chrono::system_clock::now();
 
@@ -73,5 +76,44 @@ void RtToken::exec()
 	// ICI possibilité d'ajouter un wait avec un time out 
 	// identifier les liens qui ne se terminent pas : donnent de l'infos sur la branche bloquée
 	consume(rt_node);
+	stop();
+}
+
+void RtToken::wait_ask_resume()
+{
+        {
+		if( is_asking_pause() ) pause();
+                std::unique_lock<std::mutex> lk(mtx);
+                cv.wait(lk, [=] {  return  !is_asking_pause();}  );
+        }
+	resume();
+}
+
+
+void RtToken::wait_for_pause()
+{
+        {
+                std::unique_lock<std::mutex> lk(mtx);
+                cv.wait(lk,   [=] {return is_pause();  }  );
+        }
+}
+
+void RtToken::change_request(int request)
+{
+        {
+                std::unique_lock<std::mutex> lk(mtx);
+                this->request = request;
+        }
+        cv.notify_all();
+}
+
+
+void RtToken::change_state(int state)
+{
+        {
+                std::unique_lock<std::mutex> lk(mtx);
+                this->state = state;
+        }
+        cv.notify_all();
 }
 

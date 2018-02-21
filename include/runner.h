@@ -20,11 +20,6 @@ The fact that you are presently reading this means that you have had knowledge o
 #include "graph.h"
 #include "link.h"
 #include <thread>
-#include <condition_variable>
-
-#include <iostream>
-
-enum STATE { STOP=0, PAUSE=1, RUN=2 };
 
 class Runner
 {
@@ -33,13 +28,6 @@ class Runner
                 int id;
                 std::thread thx;
                 Graph const *g;
-
-                static int state;
-                static std::mutex mtx;
-                static std::condition_variable cv;
-
-                static inline bool __is_running() { return state==RUN;}
-                static inline bool __is_stop() { return state==STOP;}
 
 	public :
 
@@ -64,13 +52,6 @@ class Runner
 		inline void join() {thx.join();}
 		inline std::thread & getThread() {return thx;}
 
-                static void wait_for_running();
-                static void change_state(int state);
-
-                static inline void stop() {change_state(STOP);}
-                static inline void pause() {change_state(PAUSE);}
-                static inline void resume() {change_state(RUN);}
-                static inline int getState(){ return state;}
 };
 
 #endif //__RUNNER_H__
