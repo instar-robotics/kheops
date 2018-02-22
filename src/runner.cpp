@@ -97,6 +97,14 @@ void Runner::join_all()
         }
 }
 
+void Runner::sync_all()
+{
+	for(int i = 0 ; i < Runner::runners.size(); i++)
+	{
+		Runner::runners[i]->sync();
+	}
+}
+
 int Runner::add(Runner * runner)
 {
 	if( runner == NULL) throw std::invalid_argument( "Runner : try to add NULL runner");

@@ -44,18 +44,12 @@ void RtToken::exec()
 {
 	while( !__is_asking_stop() )
 	{
-		std::cout << "RT" << std::endl;
 		wait_ask_resume();
 		if( __is_asking_stop() ) continue;
 
 		auto start = std::chrono::system_clock::now();
 
-		std::cout << "RT" << std::endl;
-		for(int i = 0 ; i < Runner::runners.size(); i++) 
-		{
-			std::cout << "SYNC" << std::endl;
-			Runner::runners[i]->sync();
-		} 
+		Runner::sync_all();
 
 		produce(rt_node);
 		wait_for_produce(rt_node);
@@ -80,6 +74,7 @@ void RtToken::exec()
 		means+= elapsed_seconds.count();
 		nbrun++;
 	}
+	Runner::sync_all();
 	produce(rt_node);
 	// ICI possibilité d'ajouter un wait avec un time out 
 	// identifier les liens qui ne se terminent pas : donnent de l'infos sur la branche bloquée
@@ -90,8 +85,8 @@ void RtToken::exec()
 void RtToken::wait_ask_resume()
 {
         {
-                std::unique_lock<std::mutex> lk(rt_mtx);
 		if( __is_asking_pause()) pause();
+                std::unique_lock<std::mutex> lk(rt_mtx);
                 rt_cv.wait(lk, [=] {  return  !__is_asking_pause();}  );
         }
 	resume();

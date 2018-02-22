@@ -76,6 +76,7 @@ class Runner
 
 		static void spawn_all();
                 static void join_all();
+		static void sync_all();
 		
                 static inline int getRequest(){ return request;}
 };
