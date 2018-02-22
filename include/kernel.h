@@ -59,9 +59,10 @@ class Kernel
 		void add_function(Function *funct);
 		void del_function(Function * funct);
 		void del_function(const std::string & uuid);
-		void add_function_on_fly(std::string Fct, std::string pred_uuid, int x=-1, int y=-1);
+		void add_function_suc(std::string Fct, std::string pred_uuid, int x=-1, int y=-1);
+		void add_function_pred(std::string Fct, std::string suc_uuid, int x=-1, int y=-1);
 		// Don't delete the old ling between pred_uuid and suc_uuid
-		void insert_function_on_fly(std::string Fct, std::string pred_uuid, std::string suc_uuid ,int x=-1, int y=-1);
+		void insert_function(std::string Fct, std::string pred_uuid, std::string suc_uuid ,int x=-1, int y=-1);
 		void del_link(std::string pred_uuid, std::string suc_uuid);
 
 		void simple_runner_allocation();

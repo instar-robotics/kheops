@@ -16,24 +16,15 @@ The fact that you are presently reading this means that you have had knowledge o
 
 #include "runner.h"
 
-int Runner::request;
+int Runner::request = PAUSE;
 std::map<int, Runner *> Runner::runners;
 
-
-/*
-        for( auto it = runners.begin(); it != runners.end(); it++)
-        {
-                delete(it->second);
-        }
-
-        runners.clear();
-*/
 
 void Runner::wait_for_produce(const Graph::vertex_descriptor  v_mtx)
 {
 	for( auto it =  boost::in_edges(v_mtx, *g); it.first != it.second; ++it.first)
 	{
-		get(boost::edge_weight, *g) [*it.first ]->wait_for_produce();
+		boost::get(boost::edge_weight, *g) [*it.first ]->wait_for_produce();
 	}
 }
 
@@ -41,7 +32,7 @@ void Runner::wait_for_consume(const Graph::vertex_descriptor v_mtx)
 {
 	for( auto it =  boost::out_edges(v_mtx, *g); it.first != it.second; ++it.first)
 	{
-		get(boost::edge_weight, *g) [*it.first ]->wait_for_consume();
+		boost::get(boost::edge_weight, *g) [*it.first ]->wait_for_consume();
 	}
 }
 
@@ -50,7 +41,7 @@ void Runner::produce(const Graph::vertex_descriptor  v_mtx)
 {
 	for( auto it =  boost::out_edges(v_mtx, *g); it.first != it.second; ++it.first)
 	{
-		get(boost::edge_weight, *g) [*it.first ]->produce();
+		boost::get(boost::edge_weight, *g) [*it.first ]->produce();
 	}
 }
 
@@ -58,7 +49,7 @@ void Runner::consume(const Graph::vertex_descriptor  v_mtx)
 {
 	for( auto it =  boost::in_edges(v_mtx, *g); it.first != it.second; ++it.first)
 	{
-		get(boost::edge_weight, *g) [*it.first ]->consume();
+		boost::get(boost::edge_weight, *g) [*it.first ]->consume();
 	}
 }
 
@@ -66,15 +57,15 @@ void Runner::wait_for_sync()
 {
         {
                 std::unique_lock<std::mutex> lk(mtx_sync); 
-                cv_sync.wait(lk,[=]{ return sync;});
+                cv_sync.wait(lk,[=]{ return bsync;});
         }
 }
 
 void Runner::sync()
 {
         {
-                std::unique_lock<std::mutex> lk(); 
-                sync = true;
+                std::unique_lock<std::mutex> lk(mtx_sync); 
+                bsync = true;
         }
         cv_sync.notify_one();
 }
@@ -82,33 +73,51 @@ void Runner::sync()
 void Runner::desync()
 {
         {
-              std::unique_lock<std::mutex> lk( Runner::msync);
-              sync = false;
+              std::unique_lock<std::mutex> lk( Runner::mtx_sync);
+              bsync = false;
         }
         cv_sync.notify_one();
 }
 
-void Runner::change_state(int rt_state)
-{
-	Runner::state = state;
-}
 
-/*
-void Kernel::spawn()
+
+void Runner::spawn_all()
 {
-        RtToken::instance().spawn();
         for( auto it = runners.begin(); it != runners.end(); it++)
         {
                 it->second->spawn();
         }
 }
 
-void Kernel::join()
+void Runner::join_all()
 {
-        RtToken::instance().join();
         for( auto it = runners.begin(); it != runners.end(); it++)
         {
                 it->second->join();
         }
 }
-*/
+
+int Runner::add(Runner * runner)
+{
+	if( runner == NULL) throw std::invalid_argument( "Runner : try to add NULL runner");
+
+        int idr = runners.size();
+        runner->setId(idr);
+        runners[idr] = runner;
+        return idr;
+}
+
+Runner * Runner::get(int id)
+{
+	if( runners.find(id) != runners.end() ) return runners[id];
+	else return NULL;
+}
+
+void Runner::clear()
+{
+        for( auto it = runners.begin(); it != runners.end(); it++)
+        {
+                delete(it->second);
+        }
+        runners.clear();
+}

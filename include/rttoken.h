@@ -48,11 +48,11 @@ class RtToken : public Runner
 	public : 
 
 		// Period in second
-		RtToken() : Runner(),period(0),means(0),nbrun(0),state(PAUSE),request(PAUSE)  {}
-		RtToken(double period) : Runner(),period(period),means(0),nbrun(0),state(PAUSE),request(PAUSE)  {}
-		RtToken(double value, std::string unit) : Runner(),means(0),nbrun(0),state(PAUSE),request(PAUSE) { setToken(value, unit);}
-                virtual ~RtToken() {} = delete;
-                virtual RtToken(const RtToken&) {} = delete;
+		RtToken() : Runner(),period(0),means(0),nbrun(0),state(PAUSE) {}
+		RtToken(double period) : Runner(),period(period),means(0),nbrun(0),state(PAUSE)  {}
+		RtToken(double value, std::string unit) : Runner(),means(0),nbrun(0),state(PAUSE){ setToken(value, unit);}
+                virtual ~RtToken(){}
+                RtToken(const RtToken&) = delete;
 
 		inline void setRtNode( Graph::vertex_descriptor rt_node ) { this->rt_node = rt_node;}
 		inline Graph::vertex_descriptor  getRtNode() { return rt_node;}

@@ -132,7 +132,8 @@ int main(int argc, char **argv)
 	Kernel::instance().add_rttoken();
 	Kernel::instance().runner_allocation();
 	
-	Kernel::instance().spawn();
+        RtToken::instance().spawn();
+	Runner::spawn_all();
 	
 	bool run  = true;
         while(run)
@@ -150,16 +151,25 @@ int main(int argc, char **argv)
                 {
                         run = false;
                 }
-		else if (buffer == "add")
+		else if (buffer == "pred")
 		{
 
                 	getline(std::cin,buffer);
                         RtToken::instance().ask_pause();
                         RtToken::instance().wait_for_pause();
-			Kernel::instance().add_function_on_fly("MyFct", buffer  ,0,0);
+			Kernel::instance().add_function_pred("MyFct", buffer  ,0,0);
                         RtToken::instance().ask_resume();
 		}
-		else if (buffer == "add2")
+		else if (buffer == "suc")
+		{
+
+                	getline(std::cin,buffer);
+                        RtToken::instance().ask_pause();
+                        RtToken::instance().wait_for_pause();
+			Kernel::instance().add_function_suc("MyFct", buffer  ,0,0);
+                        RtToken::instance().ask_resume();
+		}
+		else if (buffer == "ins")
 		{
 
 			std::string suc;
@@ -167,7 +177,7 @@ int main(int argc, char **argv)
                 	getline(std::cin,suc);
                         RtToken::instance().ask_pause();
                         RtToken::instance().wait_for_pause();
-			Kernel::instance().insert_function_on_fly("MyFct", buffer ,suc ,0,0);
+			Kernel::instance().insert_function("MyFct", buffer ,suc ,0,0);
 			Kernel::instance().del_link(buffer ,suc);
                         RtToken::instance().ask_resume();
 		}
@@ -176,7 +186,9 @@ int main(int argc, char **argv)
         }
 
         RtToken::instance().ask_stop();
-	Kernel::instance().join();
+	RtToken::instance().join();
+	Runner::join_all();
+	Runner::clear();
 
 	return 0;
 

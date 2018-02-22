@@ -31,21 +31,21 @@ class Runner
                 std::thread thx;
                 Graph const *g;
 		
-		bool sync;
+		bool bsync;
 		std::mutex mtx_sync;
                 std::condition_variable cv_sync;
 
 		static int request;
 		static std::map<int, Runner *> runners;
 		
-		inline bool __is_asking_stop() {return Runners::request == STOP; }
-		inline bool __is_asking_running() {return Runners::request==RUN;}
-                inline bool __is_asking_pause() {return Runners::request==PAUSE;}
+		inline bool __is_asking_stop() {return Runner::request == STOP; }
+		inline bool __is_asking_running() {return Runner::request==RUN;}
+                inline bool __is_asking_pause() {return Runner::request==PAUSE;}
 
 	public :
 
-                Runner() : id(-1), g(NULL), sync(false) {}
-                Runner(int id) : id(id), g(NULL), sync(false){}
+                Runner() : id(-1), g(NULL), bsync(false) {}
+                Runner(int id) : id(id), g(NULL), bsync(false){}
 
                 virtual ~Runner(){}
                 inline void setGraph(Graph * g){ this->g=g;}
@@ -65,19 +65,17 @@ class Runner
 		inline void join() {thx.join();}
 		inline std::thread & getThread() {return thx;}
 
-		void wait_for_synchro();
+		void wait_for_sync();
 		void desync();
 		void sync();
 
 		inline static int size(){ return runners.size();  }
-		inline static void clear();
 		static int add(Runner *r); 
-		static bool del(Runner *r); 
-		static bool del(int id); 
 		static Runner* get(int id);
+		static void clear();
 
-		static void spawnRunners();
-                static void joinRunners();
+		static void spawn_all();
+                static void join_all();
 		
                 static inline int getRequest(){ return request;}
 };

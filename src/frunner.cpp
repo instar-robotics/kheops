@@ -24,7 +24,7 @@ void FRunner::exec()
 
 	while( ! __is_asking_stop() )
 	{
-		wait_for_synchro();
+		wait_for_sync();
 		if( __is_asking_stop()) continue;
 
 		for(int i = 0; i < functions.size() ; i++)

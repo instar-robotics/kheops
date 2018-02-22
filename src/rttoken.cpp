@@ -44,14 +44,17 @@ void RtToken::exec()
 {
 	while( !__is_asking_stop() )
 	{
+		std::cout << "RT" << std::endl;
 		wait_ask_resume();
 		if( __is_asking_stop() ) continue;
 
 		auto start = std::chrono::system_clock::now();
 
+		std::cout << "RT" << std::endl;
 		for(int i = 0 ; i < Runner::runners.size(); i++) 
 		{
-			Runner::runners[i].sync();
+			std::cout << "SYNC" << std::endl;
+			Runner::runners[i]->sync();
 		} 
 
 		produce(rt_node);

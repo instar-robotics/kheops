@@ -124,7 +124,7 @@ void Kernel::add_function( Function *funct  )
 	else throw  std::invalid_argument("Kernel : try to add Null Function");
 }
 
-void Kernel::add_function_on_fly(std::string Fct, std::string pred_uuid, int x, int y)
+void Kernel::add_function_suc(std::string Fct, std::string pred_uuid, int x, int y)
 {
 	uuid_t out;
 	uuid_generate(out);
@@ -155,8 +155,9 @@ void Kernel::add_function_on_fly(std::string Fct, std::string pred_uuid, int x, 
 			add_edge( node_map[uuid], RtToken::instance().getRtNode() ,rt_e, graph  );
 
 			Runner * fr = new FRunner();
+			fr->setGraph(&graph);
 			Runner::add(fr);
-			fr->add_node( node_map[uuid] );
+			dynamic_cast<FRunner*>(fr)->add_node( node_map[uuid] );
                         boost::put(boost::vertex_name, graph, node_map[uuid], fr->getId());
 
 			fr->spawn();
@@ -165,7 +166,49 @@ void Kernel::add_function_on_fly(std::string Fct, std::string pred_uuid, int x, 
 }
 
 
-void Kernel::insert_function_on_fly(std::string Fct, std::string pred_uuid, std::string suc_uuid ,int x, int y)
+void Kernel::add_function_pred(std::string Fct, std::string suc_uuid, int x, int y)
+{
+        uuid_t out;
+        uuid_generate(out);
+                
+        char cuuid[37];
+        uuid_unparse(out,cuuid);
+        std::string uuid(cuuid);
+    
+        if( node_map.find( suc_uuid  ) == node_map.end()) throw  std::invalid_argument( "Kernel : try to add function with unkown source "+ suc_uuid );
+        
+        if( Factory<Function>::Instance().is_register(Fct) )
+        {
+                Function *f = Factory<Function>::Instance().create(Fct);
+                if( f ==  NULL ) throw  std::invalid_argument("Kernel : Unable to build Function "+Fct);
+                else{
+                        f->setUuid(uuid);
+
+                        if( x == -1 ){ x=boost::get(boost::vertex_function, graph)[node_map[suc_uuid]]->getX();}
+                        if( y == -1 ){ y=boost::get(boost::vertex_function, graph)[node_map[suc_uuid]]->getY();}
+
+                        f->setSize(x,y,0);
+
+                        add_function(f);
+
+                        EdgeWeightProperty e =dynamic_cast<Link*>(new Synchronized_Link());
+                        add_edge( node_map[uuid],  node_map[suc_uuid] , e, graph  );
+
+			            
+			Runner * fr = new FRunner();
+			fr->setGraph(&graph);
+                        Runner::add(fr);
+			dynamic_cast<FRunner*>(fr)->add_node( node_map[uuid] );
+                        boost::put(boost::vertex_name, graph, node_map[uuid], fr->getId());
+
+                        fr->spawn();
+                }
+        }
+}
+
+
+
+void Kernel::insert_function(std::string Fct, std::string pred_uuid, std::string suc_uuid ,int x, int y)
 {
         uuid_t out;
         uuid_generate(out);
@@ -202,8 +245,9 @@ void Kernel::insert_function_on_fly(std::string Fct, std::string pred_uuid, std:
                         boost::put(boost::vertex_name, graph, node_map[uuid], idRunner);
 */			
 			Runner * fr = new FRunner();
+			fr->setGraph(&graph);
 			Runner::add(fr);
-			fr->add_node( node_map[uuid] );
+			dynamic_cast<FRunner*>(fr)->add_node( node_map[uuid] );
                         boost::put(boost::vertex_name, graph, node_map[uuid], fr->getId());
 
 			fr->spawn();
@@ -284,8 +328,9 @@ void Kernel::simple_runner_allocation()
 		if( boost::get( boost::vertex_name , graph, v) == -1) 
 		{
 			Runner * fr = new FRunner();
+			fr->setGraph(&graph);
 			Runner::add(fr);
-			fr->add_node(v);
+			dynamic_cast<FRunner*>(fr)->add_node( v );
 
 			boost::put(boost::vertex_name, graph, v, fr->getId());
 		}
