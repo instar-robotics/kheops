@@ -174,6 +174,20 @@ int main(int argc, char **argv)
 			Kernel::instance().del_link(buffer ,suc);
                         RtToken::instance().ask_resume();
 		}
+		else if(buffer == "rt")
+		{
+			std::string unit;
+                	getline(std::cin,buffer);
+                	getline(std::cin,unit);
+                        RtToken::instance().ask_pause();
+                        RtToken::instance().wait_for_pause();
+			RtToken::instance().setToken( std::stoi(buffer),  unit );
+                        RtToken::instance().ask_resume();
+		}
+		else if(buffer == "w")
+		{
+			Kernel::instance().write_graph();
+		}
 
                 std::cout << "M state : "  << RtToken::instance().getRequest() << std::endl;
         }

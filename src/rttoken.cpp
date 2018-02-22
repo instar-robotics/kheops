@@ -52,8 +52,7 @@ void RtToken::exec()
 
 		FRunner::sync_all();
 
-//		produce(rt_node);
-		wait_for_produce(rt_node);
+		//wait_for_produce(rt_node);
 		consume(rt_node);
 
 		auto end = std::chrono::system_clock::now();
@@ -76,9 +75,9 @@ void RtToken::exec()
 		nbrun++;
 	}
 	FRunner::sync_all();
-	//produce(rt_node);
 	// ICI possibilité d'ajouter un wait avec un time out 
 	// identifier les liens qui ne se terminent pas : donnent de l'infos sur la branche bloquée
+//	wait_for_produce(rt_node);
 	consume(rt_node);
 	stop();
 }

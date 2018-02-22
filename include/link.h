@@ -29,8 +29,8 @@ class Link{
 
 		virtual void produce() = 0;
 		virtual void consume() = 0;
-		virtual void wait_for_produce() = 0;	
-		virtual void wait_for_consume() = 0;	
+		//virtual void wait_for_produce() = 0;	
+		//virtual void wait_for_consume() = 0;	
 
 };
 
@@ -42,8 +42,8 @@ class Passing_Link : public Link
 
                 virtual inline void produce() {}
                 virtual inline void consume() {}
-                virtual inline void wait_for_produce() {}
-                virtual inline void wait_for_consume() {}
+                //virtual inline void wait_for_produce() {}
+                //virtual inline void wait_for_consume() {}
 };
 
 class Synchronized_Link : public Link
@@ -69,6 +69,7 @@ class Synchronized_Link : public Link
                         cv.notify_one();
                 }
 
+/*
                 virtual void consume()
                 {
                         {
@@ -77,15 +78,17 @@ class Synchronized_Link : public Link
                         }
                         cv.notify_one();
                 }
-
-                virtual void wait_for_produce()
+*/
+                virtual void consume()
                 {
                         {
                                 std::unique_lock<std::mutex> lk(mtx);
                                 cv.wait(lk, std::bind( &Synchronized_Link::__is_produce, this));
+				state = false;
                         }
                 }
 
+/*
                 virtual void wait_for_consume()
                 {
                         {
@@ -93,6 +96,7 @@ class Synchronized_Link : public Link
                                 cv.wait(lk, std::bind( &Synchronized_Link::__is_consume, this));
                         }
                 }
+*/
 };
 
 

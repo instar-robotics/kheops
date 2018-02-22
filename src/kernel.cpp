@@ -18,6 +18,8 @@ The fact that you are presently reading this means that you have had knowledge o
 #include <sstream>
 #include <uuid/uuid.h>
 #include <iostream>
+#include <fstream>
+#include <boost/graph/graphviz.hpp>
 
 #include "kernel.h"
 #include "factory.h"
@@ -318,6 +320,13 @@ void Kernel::add_rttoken()
 	boost::put(boost::vertex_name, graph, rt_node, 0);
 }
 
+
+void Kernel::write_graph()
+{
+	std::string filename = script_name+".dot";
+	std::ofstream ofs (filename);
+	write_graphviz(ofs, graph);
+}
 
 void Kernel::simple_runner_allocation()
 {

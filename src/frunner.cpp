@@ -29,7 +29,8 @@ void FRunner::exec()
 
 		for(unsigned int i = 0; i < functions.size() ; i++)
 		{
-			wait_for_produce( functions[i] );
+//			wait_for_produce( functions[i] );
+			consume(functions[i]);
 		//TODO : décider si le runner attend la fin de l'execution de la boite successeur 
 		//      Si UN seul manager et toutes les functions attachées au RT_TOKEN inutile
 		//      Si des functions peuvent ne pas être reliés au RT_TOKEN : 
@@ -39,7 +40,7 @@ void FRunner::exec()
 
 		// Check Here NULL Pointer ? 
 			boost::get(boost::vertex_function , *g)[functions[i]]->compute();
-			consume(functions[i]);
+			//	consume(functions[i]);
 			produce(functions[i]);
 		}
 

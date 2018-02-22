@@ -18,7 +18,7 @@ The fact that you are presently reading this means that you have had knowledge o
 
 int Runner::request = PAUSE;
 
-
+/*
 void Runner::wait_for_produce(const Graph::vertex_descriptor  v_mtx)
 {
 	for( auto it =  boost::in_edges(v_mtx, *g); it.first != it.second; ++it.first)
@@ -34,7 +34,7 @@ void Runner::wait_for_consume(const Graph::vertex_descriptor v_mtx)
 		boost::get(boost::edge_weight, *g) [*it.first ]->wait_for_consume();
 	}
 }
-
+*/
 
 void Runner::produce(const Graph::vertex_descriptor  v_mtx)
 {

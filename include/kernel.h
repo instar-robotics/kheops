@@ -68,6 +68,7 @@ class Kernel
 		void simple_runner_allocation();
 		void runner_allocation();
 
+		void write_graph();
 };
 
 #endif // __KERNEL_H__

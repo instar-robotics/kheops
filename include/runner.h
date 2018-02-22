@@ -50,8 +50,8 @@ class Runner
 		// Payload of the runner
                 virtual void exec() = 0;
 
-		void wait_for_produce(const Graph::vertex_descriptor  v_mtx);
-                void wait_for_consume(const Graph::vertex_descriptor v_mtx);
+		//void wait_for_produce(const Graph::vertex_descriptor  v_mtx);
+                //void wait_for_consume(const Graph::vertex_descriptor v_mtx);
 
                 void produce(const Graph::vertex_descriptor  v_mtx);
                 void consume(const Graph::vertex_descriptor  v_mtx);
