@@ -27,21 +27,42 @@ class FRunner : public Runner
 
                 std::vector<Graph::vertex_descriptor> functions;
 
+
+		bool bsync;
+                std::mutex mtx_sync;
+                std::condition_variable cv_sync;
+
+		static std::map<int, FRunner *> runners;
+
+
+
         public :
-                FRunner() : Runner() {}
-                FRunner(int id) : Runner(id) {}
+                FRunner() :Runner(),bsync(false) {}
+                FRunner(int id) :Runner(id),bsync(false) {}
                 virtual ~FRunner() {}
 
                 virtual void exec();
 		void checkFunction();
 
-                inline void add_node(Graph::vertex_descriptor node ){functions.push_back(node);}
+		void wait_for_sync();
+                void sync();
+
+		static void spawn_all();
+		static void join_all();
+                static void sync_all();
+
+		inline static int size(){ return runners.size();  }
+                static int add(FRunner *r);
+                static FRunner* get(int id);
+                static void clear();
+
 
 		//TODO : pour l'instant les functions sont pushées les unes à la suite des autres
 		// 	Il faut faire attention de les pushés dans l'ordre d'exécution
 		//
 		// 	Faire une fonction qui utilise le graphe pour sélectionner automatiquement 
 		//	le bon ordre d'éxecution ??
+                inline void add_node(Graph::vertex_descriptor node ){functions.push_back(node);}
 
 };
 

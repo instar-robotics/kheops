@@ -22,16 +22,9 @@ The fact that you are presently reading this means that you have had knowledge o
 #include <signal.h>
 
 #include "rttoken.h"
+#include "frunner.h"
 #include "kernel.h"
 #include "xmlconverter.h"
-
-
-//TEST
-/*
-#include "myfct.h"
-#include "frunner.h"
-#include "rttoken.h"
-*/
 
 void gestionnaire_signaux(int numero)
 {
@@ -133,7 +126,7 @@ int main(int argc, char **argv)
 	Kernel::instance().runner_allocation();
 	
         RtToken::instance().spawn();
-	Runner::spawn_all();
+	FRunner::spawn_all();
 	
 	bool run  = true;
         while(run)
@@ -187,79 +180,9 @@ int main(int argc, char **argv)
 
         RtToken::instance().ask_stop();
 	RtToken::instance().join();
-	Runner::join_all();
-	Runner::clear();
+	FRunner::join_all();
+	FRunner::clear();
 
 	return 0;
 
-
-	/*****************/
-	// TEST
-	/*	
-  	Graph g;
-
-	MyFct mf;
-
-	Graph::vertex_descriptor v1 = boost::add_vertex(&mf, g);
- 	Graph::vertex_descriptor v2 = boost::add_vertex(&mf, g);
-	Graph::vertex_descriptor rt_node = boost::add_vertex(g);
-
-	Synchronized_Link l12;
-  	Synchronized_Link ld1;	
-  	Synchronized_Link l2e;	
-
-	EdgeWeightProperty e12 =dynamic_cast<Link*>(&l12);
-  	EdgeWeightProperty ed1 =dynamic_cast<Link*>(&ld1);
-  	EdgeWeightProperty e2e =dynamic_cast<Link*>(&l2e);
-
-	add_edge(v1, v2, e12, g);
-  	add_edge(rt_node , v1, ed1 , g);
-  	add_edge(v2, rt_node, e2e , g);
-
-	FRunner r1(1);
-	FRunner r2(2);
-
-	r1.setGraph(&g);
-	r2.setGraph(&g);
-
-	r1.add_node(&v1);
-	r2.add_node(&v2);
-
-	RtToken RT(20000,"Hz");
-	RT.setGraph(&g);
-	RT.setRtNode(&rt_node);
-
-	r1.spawn();
-  	r2.spawn();
-  	RT.spawn();
-
- 	Runner::resume();
-
-	bool run  = true;
-        while(run)
-        {
-
-                std::string buffer;
-                getline(std::cin,buffer);
-
-                if(buffer == "pause") {
-                        Runner::pause();
-                }
-                else if (buffer == "run" ) Runner::resume();
-                else if (buffer == "q")
-                {
-                        run = false;
-                }
-
-                std::cout << "M state : "  << Runner::getState() << std::endl;
-        }
-
-	Runner::stop();	
-
-	r1.getThread().join();
-        r2.getThread().join();
-        RT.getThread().join();
-
-	return 0;
-	*/
 }

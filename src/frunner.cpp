@@ -15,8 +15,8 @@ The fact that you are presently reading this means that you have had knowledge o
 */
 
 #include "frunner.h"
-#include "rttoken.h"
-#include <iostream>
+
+std::map<int, FRunner *> FRunner::runners;
 
 void FRunner::exec()
 {
@@ -27,7 +27,7 @@ void FRunner::exec()
 		wait_for_sync();
 		if( __is_asking_stop()) continue;
 
-		for(int i = 0; i < functions.size() ; i++)
+		for(unsigned int i = 0; i < functions.size() ; i++)
 		{
 			wait_for_produce( functions[i] );
 		//TODO : décider si le runner attend la fin de l'execution de la boite successeur 
@@ -42,7 +42,7 @@ void FRunner::exec()
 			consume(functions[i]);
 			produce(functions[i]);
 		}
-		desync();
+
 	}
 	for(auto it = functions.begin(); it != functions.end(); it++) {produce(*it);}
 }
@@ -52,8 +52,76 @@ void FRunner::checkFunction()
 	for(auto it = functions.begin(); it != functions.end(); it++)
 	{
 		if( ( boost::get( boost::vertex_function ,*g  )[*it]) == NULL) {
-			 throw  std::invalid_argument("Runner "+std::to_string(id)+" : Function uninitialized for node : "+std::to_string(*it));
+			 throw  std::invalid_argument("FRunner "+std::to_string(id)+" : Function uninitialized for node : "+std::to_string(*it));
 		}
 	}
+}
+
+
+void FRunner::wait_for_sync()
+{
+        {
+                std::unique_lock<std::mutex> lk(mtx_sync);
+                cv_sync.wait(lk,[=]{ return bsync;});
+                bsync = false;
+        }
+}
+
+void FRunner::sync()
+{
+        {
+                std::unique_lock<std::mutex> lk(mtx_sync); 
+                bsync = true;
+        }
+        cv_sync.notify_one();
+}
+
+void FRunner::spawn_all()
+{
+        for( auto it = runners.begin(); it != runners.end(); it++)
+        {
+                it->second->spawn();
+        }
+}
+
+void FRunner::join_all()
+{
+        for( auto it = runners.begin(); it != runners.end(); it++)
+        {
+                it->second->join();
+        }
+}
+
+void FRunner::sync_all()
+{
+        for(unsigned int i = 0 ; i < FRunner::runners.size(); i++)
+        {
+                FRunner::runners[i]->sync();
+        }
+}
+
+int FRunner::add(FRunner * runner)
+{
+        if( runner == NULL) throw std::invalid_argument( "FRunner : try to add NULL runner");
+
+        int idr = runners.size();
+        runner->setId(idr);
+        runners[idr] = runner;
+        return idr;
+}
+
+FRunner * FRunner::get(int id)
+{
+        if( runners.find(id) != runners.end() ) return runners[id];
+        else return NULL;
+}
+
+void FRunner::clear()
+{
+        for( auto it = runners.begin(); it != runners.end(); it++)
+        {
+                delete(it->second);
+        }
+        runners.clear();
 }
 

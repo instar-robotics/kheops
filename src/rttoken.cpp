@@ -15,6 +15,7 @@ The fact that you are presently reading this means that you have had knowledge o
 */
 
 #include "rttoken.h"
+#include "frunner.h"
 #include <iostream>
 
 RtToken RtToken::singleton;
@@ -49,9 +50,9 @@ void RtToken::exec()
 
 		auto start = std::chrono::system_clock::now();
 
-		Runner::sync_all();
+		FRunner::sync_all();
 
-		produce(rt_node);
+//		produce(rt_node);
 		wait_for_produce(rt_node);
 		consume(rt_node);
 
@@ -74,8 +75,8 @@ void RtToken::exec()
 		means+= elapsed_seconds.count();
 		nbrun++;
 	}
-	Runner::sync_all();
-	produce(rt_node);
+	FRunner::sync_all();
+	//produce(rt_node);
 	// ICI possibilité d'ajouter un wait avec un time out 
 	// identifier les liens qui ne se terminent pas : donnent de l'infos sur la branche bloquée
 	consume(rt_node);

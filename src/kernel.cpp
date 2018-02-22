@@ -154,10 +154,10 @@ void Kernel::add_function_suc(std::string Fct, std::string pred_uuid, int x, int
 			EdgeWeightProperty rt_e =dynamic_cast<Link*>(new Synchronized_Link());
 			add_edge( node_map[uuid], RtToken::instance().getRtNode() ,rt_e, graph  );
 
-			Runner * fr = new FRunner();
+			FRunner * fr = new FRunner();
 			fr->setGraph(&graph);
-			Runner::add(fr);
-			dynamic_cast<FRunner*>(fr)->add_node( node_map[uuid] );
+			FRunner::add(fr);
+			fr->add_node( node_map[uuid] );
                         boost::put(boost::vertex_name, graph, node_map[uuid], fr->getId());
 
 			fr->spawn();
@@ -195,10 +195,10 @@ void Kernel::add_function_pred(std::string Fct, std::string suc_uuid, int x, int
                         add_edge( node_map[uuid],  node_map[suc_uuid] , e, graph  );
 
 			            
-			Runner * fr = new FRunner();
+			FRunner * fr = new FRunner();
 			fr->setGraph(&graph);
-                        Runner::add(fr);
-			dynamic_cast<FRunner*>(fr)->add_node( node_map[uuid] );
+                        FRunner::add(fr);
+			fr->add_node( node_map[uuid] );
                         boost::put(boost::vertex_name, graph, node_map[uuid], fr->getId());
 
                         fr->spawn();
@@ -244,10 +244,10 @@ void Kernel::insert_function(std::string Fct, std::string pred_uuid, std::string
                         dynamic_cast<FRunner*>(runners[idRunner])->add_node( node_map[uuid] );
                         boost::put(boost::vertex_name, graph, node_map[uuid], idRunner);
 */			
-			Runner * fr = new FRunner();
+			FRunner * fr = new FRunner();
 			fr->setGraph(&graph);
-			Runner::add(fr);
-			dynamic_cast<FRunner*>(fr)->add_node( node_map[uuid] );
+			FRunner::add(fr);
+			fr->add_node( node_map[uuid] );
                         boost::put(boost::vertex_name, graph, node_map[uuid], fr->getId());
 
 			fr->spawn();
@@ -290,17 +290,17 @@ void Kernel::add_rttoken()
 {
 	Graph::vertex_descriptor rt_node = boost::add_vertex(graph);
 
-	Link *l;
 	for( auto it =  boost::vertices(graph) ; it.first != it.second; ++it.first)
         {
 		if( *it.first != rt_node)
 		{
+/*
 			auto it_in = boost::in_edges( *it.first  , graph);
 			if( it_in.first == it_in.second )
 			{
 				add_edge( rt_node, *it.first, graph  );
 			}
-
+*/
 			auto it_out = boost::out_edges(*it.first, graph);
 			if( it_out.first == it_out.second)
 			{
@@ -327,10 +327,10 @@ void Kernel::simple_runner_allocation()
 
 		if( boost::get( boost::vertex_name , graph, v) == -1) 
 		{
-			Runner * fr = new FRunner();
+			FRunner * fr = new FRunner();
 			fr->setGraph(&graph);
-			Runner::add(fr);
-			dynamic_cast<FRunner*>(fr)->add_node( v );
+			FRunner::add(fr);
+			fr->add_node( v );
 
 			boost::put(boost::vertex_name, graph, v, fr->getId());
 		}

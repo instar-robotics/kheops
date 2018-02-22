@@ -17,7 +17,6 @@ The fact that you are presently reading this means that you have had knowledge o
 #include "runner.h"
 
 int Runner::request = PAUSE;
-std::map<int, Runner *> Runner::runners;
 
 
 void Runner::wait_for_produce(const Graph::vertex_descriptor  v_mtx)
@@ -53,79 +52,3 @@ void Runner::consume(const Graph::vertex_descriptor  v_mtx)
 	}
 }
 
-void Runner::wait_for_sync()
-{
-        {
-                std::unique_lock<std::mutex> lk(mtx_sync); 
-                cv_sync.wait(lk,[=]{ return bsync;});
-        }
-}
-
-void Runner::sync()
-{
-        {
-                std::unique_lock<std::mutex> lk(mtx_sync); 
-                bsync = true;
-        }
-        cv_sync.notify_one();
-}
-
-void Runner::desync()
-{
-        {
-              std::unique_lock<std::mutex> lk( Runner::mtx_sync);
-              bsync = false;
-        }
-        cv_sync.notify_one();
-}
-
-
-
-void Runner::spawn_all()
-{
-        for( auto it = runners.begin(); it != runners.end(); it++)
-        {
-                it->second->spawn();
-        }
-}
-
-void Runner::join_all()
-{
-        for( auto it = runners.begin(); it != runners.end(); it++)
-        {
-                it->second->join();
-        }
-}
-
-void Runner::sync_all()
-{
-	for(int i = 0 ; i < Runner::runners.size(); i++)
-	{
-		Runner::runners[i]->sync();
-	}
-}
-
-int Runner::add(Runner * runner)
-{
-	if( runner == NULL) throw std::invalid_argument( "Runner : try to add NULL runner");
-
-        int idr = runners.size();
-        runner->setId(idr);
-        runners[idr] = runner;
-        return idr;
-}
-
-Runner * Runner::get(int id)
-{
-	if( runners.find(id) != runners.end() ) return runners[id];
-	else return NULL;
-}
-
-void Runner::clear()
-{
-        for( auto it = runners.begin(); it != runners.end(); it++)
-        {
-                delete(it->second);
-        }
-        runners.clear();
-}

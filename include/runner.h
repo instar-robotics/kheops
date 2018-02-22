@@ -31,12 +31,7 @@ class Runner
                 std::thread thx;
                 Graph const *g;
 		
-		bool bsync;
-		std::mutex mtx_sync;
-                std::condition_variable cv_sync;
-
 		static int request;
-		static std::map<int, Runner *> runners;
 		
 		inline bool __is_asking_stop() {return Runner::request == STOP; }
 		inline bool __is_asking_running() {return Runner::request==RUN;}
@@ -44,8 +39,8 @@ class Runner
 
 	public :
 
-                Runner() : id(-1), g(NULL), bsync(false) {}
-                Runner(int id) : id(id), g(NULL), bsync(false){}
+                Runner() : id(-1), g(NULL) {}
+                Runner(int id) : id(id), g(NULL){}
 
                 virtual ~Runner(){}
                 inline void setGraph(Graph * g){ this->g=g;}
@@ -65,19 +60,6 @@ class Runner
 		inline void join() {thx.join();}
 		inline std::thread & getThread() {return thx;}
 
-		void wait_for_sync();
-		void desync();
-		void sync();
-
-		inline static int size(){ return runners.size();  }
-		static int add(Runner *r); 
-		static Runner* get(int id);
-		static void clear();
-
-		static void spawn_all();
-                static void join_all();
-		static void sync_all();
-		
                 static inline int getRequest(){ return request;}
 };
 
