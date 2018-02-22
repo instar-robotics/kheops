@@ -36,7 +36,6 @@ class Kernel
 
 		Graph graph;
 		std::map<std::string, Graph::vertex_descriptor> node_map;
-		std::map<int, Runner *> runners;
 		
 		static Kernel singleton;
 
@@ -55,7 +54,6 @@ class Kernel
 		void load_functions();
 
 		void add_rttoken();
-		int add_frunner();
 
 		Function* buildFunction(const XFunction&);
 		void add_function(Function *funct);
@@ -68,9 +66,6 @@ class Kernel
 
 		void simple_runner_allocation();
 		void runner_allocation();
-
-		void spawn();
-		void join();
 
 };
 

@@ -27,8 +27,6 @@ const std::string second = "s";
 const std::string ms = "ms";
 const std::string hertz = "Hz";
 
-enum STATE { STOP=0, PAUSE=1, RUN=2 };
-
 class RtToken : public Runner
 {
         private :
@@ -41,10 +39,10 @@ class RtToken : public Runner
 
                 Graph::vertex_descriptor rt_node;
 
-		int state;
+		int rt_state;
 		int request;
-                std::mutex mtx;
-                std::condition_variable cv;
+                std::mutex rt_mtx;
+                std::condition_variable rt_cv;
 
 		static RtToken singleton;
 

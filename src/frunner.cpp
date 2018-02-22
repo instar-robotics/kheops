@@ -22,16 +22,9 @@ void FRunner::exec()
 {
 	checkFunction();
 
-	while( !RtToken::instance().is_asking_stop() )
+	while( ! Runners::__is_stop() )
 	{
-
-		//TODO : ici segfault si utilisation iterator
-		// Segfault déclenché par la function add_function_on_fly
-		// Solution 1 : utiliser vector comme tableau : OK
-		// Solution 2 : plus complexe : revoir la synchro des Runners 
-			// Pas forcément une bonne solution de se synchroniser sur le wait_for_produce.
-			// Peut être que chaque runner devrai faire un wait_ask_resume avant de relancer une boucle.
-			// -> revoir modèle singleton pour RtToken : plutot mettre le singleton au niveau du RUNNER ??
+		wait_for_synchro();
 
 		for(int i = 0; i < functions.size() ; i++)
 		{
@@ -44,12 +37,11 @@ void FRunner::exec()
 		//      wait_for_consume(**it);
 
 		// Check Here NULL Pointer ? 
-//                                      ((*g)[**it])->compute();
-
 			boost::get(boost::vertex_function , *g)[functions[i]]->compute();
 			consume(functions[i]);
 			produce(functions[i]);
 		}
+		desync();
 	}
 	for(auto it = functions.begin(); it != functions.end(); it++) {produce(*it); }
 }

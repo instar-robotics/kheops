@@ -83,8 +83,8 @@ void RtToken::wait_ask_resume()
 {
         {
 		if( is_asking_pause() ) pause();
-                std::unique_lock<std::mutex> lk(mtx);
-                cv.wait(lk, [=] {  return  !is_asking_pause();}  );
+                std::unique_lock<std::mutex> lk(rt_mtx);
+                rt_cv.wait(lk, [=] {  return  !is_asking_pause();}  );
         }
 	resume();
 }
@@ -93,27 +93,27 @@ void RtToken::wait_ask_resume()
 void RtToken::wait_for_pause()
 {
         {
-                std::unique_lock<std::mutex> lk(mtx);
-                cv.wait(lk,   [=] {return is_pause();  }  );
+                std::unique_lock<std::mutex> lk(rt_mtx);
+                rt_cv.wait(lk,   [=] {return is_pause();  }  );
         }
 }
 
 void RtToken::change_request(int request)
 {
         {
-                std::unique_lock<std::mutex> lk(mtx);
+                std::unique_lock<std::mutex> lk(rt_mtx);
                 this->request = request;
         }
-        cv.notify_all();
+        rt_cv.notify_all();
 }
 
 
-void RtToken::change_state(int state)
+void RtToken::change_rt_state(int rt_state)
 {
         {
-                std::unique_lock<std::mutex> lk(mtx);
-                this->state = state;
+                std::unique_lock<std::mutex> lk(rt_mtx);
+                this->rt_state = rt_state;
         }
-        cv.notify_all();
+        rt_cv.notify_all();
 }
 

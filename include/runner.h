@@ -21,6 +21,8 @@ The fact that you are presently reading this means that you have had knowledge o
 #include "link.h"
 #include <thread>
 
+enum STATE { STOP=0, PAUSE=1, RUN=2 };
+
 class Runner
 {
         protected :
@@ -28,11 +30,20 @@ class Runner
                 int id;
                 std::thread thx;
                 Graph const *g;
+		
+		bool sync;
+		std::mutex mtx;
+                std::condition_variable cv;
+
+		static int state;
+		static std::map<int, Runner *> runners;
+
+		static bool __is_stop(){ return state == STOP; }
 
 	public :
 
-                Runner() : id(-1), g(NULL) {}
-                Runner(int id) : id(id), g(NULL){}
+                Runner() : id(-1), g(NULL), sync(false) {}
+                Runner(int id) : id(id), g(NULL), sync(false){}
 
                 virtual ~Runner(){}
                 inline void setGraph(Graph * g){ this->g=g;}
@@ -51,6 +62,21 @@ class Runner
 		inline void spawn() {thx = std::thread( [=] { exec(); } );}
 		inline void join() {thx.join();}
 		inline std::thread & getThread() {return thx;}
+
+		void wait_for_synchro();
+		void desync();
+		void sync();
+
+		inline static int nbRunner(){ return runners.size();  }
+		inline static void clear();
+		static int add(Runner *r); 
+		static bool del(Runner *r); 
+		static bool del(int id); 
+		static Runner* get(int id);
+
+		static void spawn();
+                static void join();
+
 
 };
 
