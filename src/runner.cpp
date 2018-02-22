@@ -16,6 +16,19 @@ The fact that you are presently reading this means that you have had knowledge o
 
 #include "runner.h"
 
+int Runner::request;
+std::map<int, Runner *> Runner::runners;
+
+
+/*
+        for( auto it = runners.begin(); it != runners.end(); it++)
+        {
+                delete(it->second);
+        }
+
+        runners.clear();
+*/
+
 void Runner::wait_for_produce(const Graph::vertex_descriptor  v_mtx)
 {
 	for( auto it =  boost::in_edges(v_mtx, *g); it.first != it.second; ++it.first)
@@ -49,3 +62,53 @@ void Runner::consume(const Graph::vertex_descriptor  v_mtx)
 	}
 }
 
+void Runner::wait_for_sync()
+{
+        {
+                std::unique_lock<std::mutex> lk(mtx_sync); 
+                cv_sync.wait(lk,[=]{ return sync;});
+        }
+}
+
+void Runner::sync()
+{
+        {
+                std::unique_lock<std::mutex> lk(); 
+                sync = true;
+        }
+        cv_sync.notify_one();
+}
+
+void Runner::desync()
+{
+        {
+              std::unique_lock<std::mutex> lk( Runner::msync);
+              sync = false;
+        }
+        cv_sync.notify_one();
+}
+
+void Runner::change_state(int rt_state)
+{
+	Runner::state = state;
+}
+
+/*
+void Kernel::spawn()
+{
+        RtToken::instance().spawn();
+        for( auto it = runners.begin(); it != runners.end(); it++)
+        {
+                it->second->spawn();
+        }
+}
+
+void Kernel::join()
+{
+        RtToken::instance().join();
+        for( auto it = runners.begin(); it != runners.end(); it++)
+        {
+                it->second->join();
+        }
+}
+*/

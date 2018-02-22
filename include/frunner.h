@@ -28,6 +28,7 @@ class FRunner : public Runner
                 std::vector<Graph::vertex_descriptor> functions;
 
         public :
+                FRunner() : Runner() {}
                 FRunner(int id) : Runner(id) {}
                 virtual ~FRunner() {}
 

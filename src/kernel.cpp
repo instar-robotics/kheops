@@ -32,13 +32,6 @@ Kernel::~Kernel()
 	delete xmlc;
 	graph.clear();
 	node_map.clear();
-	
-	for( auto it = runners.begin(); it != runners.end(); it++)
-	{
-		delete(it->second);
-	}
-
-	runners.clear();
 }
 
 void Kernel::init(std::string scriptfile, std::string resfile, std::string libdir)
@@ -161,11 +154,12 @@ void Kernel::add_function_on_fly(std::string Fct, std::string pred_uuid, int x, 
 			EdgeWeightProperty rt_e =dynamic_cast<Link*>(new Synchronized_Link());
 			add_edge( node_map[uuid], RtToken::instance().getRtNode() ,rt_e, graph  );
 
-			int idRunner = add_frunner();
-			dynamic_cast<FRunner*>(runners[idRunner])->add_node( node_map[uuid] );
-                        boost::put(boost::vertex_name, graph, node_map[uuid], idRunner);
+			Runner * fr = new FRunner();
+			Runner::add(fr);
+			fr->add_node( node_map[uuid] );
+                        boost::put(boost::vertex_name, graph, node_map[uuid], fr->getId());
 
-			runners[idRunner]->spawn();
+			fr->spawn();
       		}
 	}
 }
@@ -207,11 +201,12 @@ void Kernel::insert_function_on_fly(std::string Fct, std::string pred_uuid, std:
                         dynamic_cast<FRunner*>(runners[idRunner])->add_node( node_map[uuid] );
                         boost::put(boost::vertex_name, graph, node_map[uuid], idRunner);
 */			
-			int idRunner = add_frunner();
-			dynamic_cast<FRunner*>(runners[idRunner])->add_node( node_map[uuid] );
-                        boost::put(boost::vertex_name, graph, node_map[uuid], idRunner);
+			Runner * fr = new FRunner();
+			Runner::add(fr);
+			fr->add_node( node_map[uuid] );
+                        boost::put(boost::vertex_name, graph, node_map[uuid], fr->getId());
 
-			runners[idRunner]->spawn();
+			fr->spawn();
                 }
         }
 }
@@ -245,34 +240,6 @@ void Kernel::del_function(const std::string& uuid)
 {
 	clear_vertex( node_map[uuid] , graph);
 	remove_vertex( node_map[uuid] , graph);
-}
-
-void Kernel::spawn()
-{
-	RtToken::instance().spawn();
-	for( auto it = runners.begin(); it != runners.end(); it++)
-	{
-		it->second->spawn();
-	}
-}
-
-void Kernel::join()
-{
-	RtToken::instance().join();
-	for( auto it = runners.begin(); it != runners.end(); it++)
-	{
-		it->second->join();
-	}
-}
-
-int Kernel::add_frunner()
-{
-	int idr = runners.size();
-	FRunner *fr = new FRunner(idr);
-	fr->setGraph(&graph);
-	runners[idr] = dynamic_cast<Runner*>(fr);
-
-	return idr;
 }
 
 void Kernel::add_rttoken()
@@ -316,11 +283,11 @@ void Kernel::simple_runner_allocation()
 
 		if( boost::get( boost::vertex_name , graph, v) == -1) 
 		{
-			int idRunner = add_frunner();
-			dynamic_cast<FRunner*>(runners[idRunner])->add_node(v);
+			Runner * fr = new FRunner();
+			Runner::add(fr);
+			fr->add_node(v);
 
-			boost::put(boost::vertex_name, graph, v, idRunner);
-			idRunner++;
+			boost::put(boost::vertex_name, graph, v, fr->getId());
 		}
 	}
 

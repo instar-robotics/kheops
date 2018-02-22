@@ -22,9 +22,10 @@ void FRunner::exec()
 {
 	checkFunction();
 
-	while( ! Runners::__is_stop() )
+	while( ! __is_asking_stop() )
 	{
 		wait_for_synchro();
+		if( __is_asking_stop()) continue;
 
 		for(int i = 0; i < functions.size() ; i++)
 		{
@@ -43,7 +44,7 @@ void FRunner::exec()
 		}
 		desync();
 	}
-	for(auto it = functions.begin(); it != functions.end(); it++) {produce(*it); }
+	for(auto it = functions.begin(); it != functions.end(); it++) {produce(*it);}
 }
 
 void FRunner::checkFunction()

@@ -32,13 +32,15 @@ class Runner
                 Graph const *g;
 		
 		bool sync;
-		std::mutex mtx;
-                std::condition_variable cv;
+		std::mutex mtx_sync;
+                std::condition_variable cv_sync;
 
-		static int state;
+		static int request;
 		static std::map<int, Runner *> runners;
-
-		static bool __is_stop(){ return state == STOP; }
+		
+		inline bool __is_asking_stop() {return Runners::request == STOP; }
+		inline bool __is_asking_running() {return Runners::request==RUN;}
+                inline bool __is_asking_pause() {return Runners::request==PAUSE;}
 
 	public :
 
@@ -67,17 +69,17 @@ class Runner
 		void desync();
 		void sync();
 
-		inline static int nbRunner(){ return runners.size();  }
+		inline static int size(){ return runners.size();  }
 		inline static void clear();
 		static int add(Runner *r); 
 		static bool del(Runner *r); 
 		static bool del(int id); 
 		static Runner* get(int id);
 
-		static void spawn();
-                static void join();
-
-
+		static void spawnRunners();
+                static void joinRunners();
+		
+                static inline int getRequest(){ return request;}
 };
 
 #endif //__RUNNER_H__

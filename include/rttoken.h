@@ -39,8 +39,7 @@ class RtToken : public Runner
 
                 Graph::vertex_descriptor rt_node;
 
-		int rt_state;
-		int request;
+		int state;
                 std::mutex rt_mtx;
                 std::condition_variable rt_cv;
 
@@ -52,7 +51,8 @@ class RtToken : public Runner
 		RtToken() : Runner(),period(0),means(0),nbrun(0),state(PAUSE),request(PAUSE)  {}
 		RtToken(double period) : Runner(),period(period),means(0),nbrun(0),state(PAUSE),request(PAUSE)  {}
 		RtToken(double value, std::string unit) : Runner(),means(0),nbrun(0),state(PAUSE),request(PAUSE) { setToken(value, unit);}
-                virtual ~RtToken() {}
+                virtual ~RtToken() {} = delete;
+                virtual RtToken(const RtToken&) {} = delete;
 
 		inline void setRtNode( Graph::vertex_descriptor rt_node ) { this->rt_node = rt_node;}
 		inline Graph::vertex_descriptor  getRtNode() { return rt_node;}
@@ -77,22 +77,18 @@ class RtToken : public Runner
                 void wait_for_pause();
 
                 void change_request(int request);
-                inline void ask_stop() {change_request(STOP);}
+                inline void ask_stop() {change_request(STOP); }
                 inline void ask_pause() {change_request(PAUSE);}
-                inline void ask_resume() {change_request(RUN);}
+                inline void ask_resume() {change_request(RUN); }
                 inline int getRequest(){ return request;}
-                
-		void change_state(int state);
+
+                void change_state(int state);
                 inline void stop() {change_state(STOP);}
                 inline void pause() {change_state(PAUSE);}
                 inline void resume() {change_state(RUN);}
                 inline int getState(){ return state;}
-		
-		inline bool is_asking_run() { return request==RUN;}
-                inline bool is_asking_stop() { return request==STOP;}
-                inline bool is_asking_pause() { return request==PAUSE;}
-		
-		inline bool is_running() { return state==RUN;}
+                
+		inline bool is_run() { return state==RUN;}
                 inline bool is_stop() { return state==STOP;}
                 inline bool is_pause() { return state==PAUSE;}
 
