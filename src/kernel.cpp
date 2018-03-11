@@ -30,10 +30,7 @@ The fact that you are presently reading this means that you have had knowledge o
 Kernel Kernel::singleton;
 
 Kernel::~Kernel()
-{
-	delete xmlc;
-
-	
+{	
 	for( auto it = node_map.begin(); it != node_map.end(); it++)
 	{
 		Function *f = boost::get(boost::vertex_function , graph)[ it->second  ];
@@ -50,12 +47,16 @@ void Kernel::init(std::string scriptfile, std::string resfile, std::string libdi
 	singleton.resfile=resfile;
 	singleton.libdir = libdir;
 
-	singleton.xmlc = new  XmlConverter(scriptfile);
-
-	singleton.xmlc->loadScript(singleton.xs);
+	XmlConverter * xmlc = new  XmlConverter(scriptfile);
+	xmlc->loadScript(singleton.xs);
+	delete xmlc;
 
 	std::cout << "Run : " << singleton.xs.name << " script"<< std::endl;
 }
+
+/********************************************************************************************************/
+/****************** 			Load Section	 			      *******************/
+/********************************************************************************************************/
 
 void Kernel::load_functions()
 {
@@ -80,9 +81,9 @@ void Kernel::load_functions()
 	}
 }
 
+
 void Kernel::load_links()
 {
-	
 	for(auto funct = xs.functions.begin(); funct != xs.functions.end(); funct++)
 	{
 		for( auto input = funct->second.inputs.begin(); input != funct->second.inputs.end(); input++)
@@ -102,6 +103,7 @@ void Kernel::load_links()
 	}	 	
 }
 
+
 void Kernel::load_lib()
 {
   void *handle;	
@@ -119,11 +121,17 @@ void Kernel::load_lib()
   }
 }
 
+
+/********************************************************************************************************/
+/****************** 			Function Section 			      *******************/
+/********************************************************************************************************/
+
 Function* Kernel::buildFunction(const XFunction& xf)
 {
       Function *f = Factory<Function>::Instance().create(xf.name);
       if( f ==  NULL ) throw  std::invalid_argument("Kernel : Unable to build Function "+xf.name);
-      else{ 
+      else
+      { 
 		f->setUuid(xf.uuid);
 		if( f->type() == typeid(MatrixXd).hash_code()) 		
 		{
@@ -136,7 +144,8 @@ Function* Kernel::buildFunction(const XFunction& xf)
 
 void Kernel::add_function( Function *funct  )
 {
-	if( funct != NULL) {
+	if( funct != NULL) 
+	{
 		if( node_map.find( funct->getUuid() ) == node_map.end() ) 
 		{
 			Graph::vertex_descriptor vd = boost::add_vertex(graph);
@@ -201,7 +210,7 @@ void Kernel::add_function_suc(std::string Fct, std::string pred_uuid, int rows, 
 }
 
 
-void Kernel::add_function_pred(std::string Fct, std::string suc_uuid, int row, int col)
+void Kernel::add_function_pred(std::string Fct, std::string suc_uuid, int rows, int cols)
 {
         uuid_t out;
         uuid_generate(out);
@@ -219,12 +228,12 @@ void Kernel::add_function_pred(std::string Fct, std::string suc_uuid, int row, i
                 else{
                         f->setUuid(uuid);
 
-                        if( row == -1 ){ row=boost::get(boost::vertex_function, graph)[node_map[suc_uuid]]->getRows();}
-                        if( col == -1 ){ col=boost::get(boost::vertex_function, graph)[node_map[suc_uuid]]->getCols();}
+                        if(rows == -1){ rows=boost::get(boost::vertex_function, graph)[node_map[suc_uuid]]->getRows();}
+                        if(cols == -1){ cols=boost::get(boost::vertex_function, graph)[node_map[suc_uuid]]->getCols();}
 
 			if( f->type() == typeid(MatrixXd).hash_code()) 		
 			{
-			  dynamic_cast<FMatrix*>(f)->setSize(row,col);
+			  dynamic_cast<FMatrix*>(f)->setSize(rows,cols);
 			}
 
 			// Add Node to the graph
@@ -294,11 +303,7 @@ void Kernel::insert_function(std::string Fct, std::string pred_uuid, std::string
 */			
 			// Add a new Runner 
 			// NB : naive runner strategy : could add the function to pred'runner or remap all the runner using the graph
-			FRunner * fr = new FRunner();
-			fr->setGraph(&graph);
-			FRunner::add(fr);
-			fr->add_node( node_map[uuid] );
-                        boost::put(boost::vertex_name, graph, node_map[uuid], fr->getId());
+
 
 			// Spawn the runner
 			fr->spawn();
@@ -371,14 +376,11 @@ void Kernel::add_rttoken()
 }
 
 
-void Kernel::write_graph()
-{
-	std::string filename = xs.name+".dot";
-	std::ofstream ofs (filename);
-	write_graphviz(ofs, graph);
-}
+/********************************************************************************************************/
+/****************** 			Runner Section	 			      *******************/
+/********************************************************************************************************/
 
-void Kernel::simple_runner_allocation()
+void Kernel::separate_runner_allocation()
 {
 	for( auto it =  boost::vertices(graph) ; it.first != it.second; ++it.first)
 	{
@@ -404,8 +406,63 @@ void Kernel::simple_runner_allocation()
 
 void Kernel::runner_allocation()
 {
-	this->simple_runner_allocation();
+	this->separate_runner_allocation();
 }
+
+void Kernel::add_runner(const std::string& uuid)
+{
+	this->add_separate_runner(uuid);
+}
+
+void Kernel::add_separate_runner(const std::string& uuid)
+{
+        if( node_map.find( uuid  ) == node_map.end()) throw  std::invalid_argument( "Kernel : try to add runner to an unkown function "+ uuid ); 
+
+	FRunner * fr = new FRunner();
+	fr->setGraph(&graph);
+	FRunner::add(fr);
+	fr->add_node( node_map[uuid] );
+	boost::put(boost::vertex_name, graph, node_map[uuid], fr->getId());
+}
+
+/*
+void Kernel::runner_construction()
+{
+
+	for( auto it = boost::edges(graph); it.first != it.second; ++it.first)
+	{
+		Link *l;
+		int id_source = boost::get( boost::vertex_name, graph)[ boost::source(*it.first, graph) ];
+		int id_target = boost::get( boost::vertex_name, graph)[ boost::target(*it.first, graph) ];
+
+		std::cout << "Runner : " << id_source << " " << id_target << std::endl;
+
+		if( id_source == id_target ) 
+		{
+			l = new Passing_Link();
+		}
+		else
+		{
+			l = new Synchronized_Link();
+		}
+		
+		boost::put(boost::edge_weight, graph, *it.first , l);
+	}
+
+	for( auto it =  boost::vertices(graph) ; it.first != it.second; ++it.first)
+        {
+        }
+}
+
+	for( auto it = boost::edges(graph); it.first != it.second; ++it.first)
+	{
+		std::cout <<  boost::source(*it.first, graph) << " " <<  boost::target(*it.first, graph) << std::endl;
+	}
+*/
+
+/********************************************************************************************************/
+/****************** 			Bind Section 				      *******************/
+/********************************************************************************************************/
 
 void Kernel::bind(IScalar &value, std::string var_name,std::string uuid)
 {
@@ -488,6 +545,7 @@ void Kernel::bind(IScalarMatrix& value, std::string var_name,std::string uuid)
 	else throw  std::invalid_argument( "Kernel : unkown operator : "+xs.functions[uuid].inputs[var_name].links[0].op+". Legal operators are +, *, / or -");
 }
 
+
 void Kernel::bind(ISAnchor& value, std::string var_name,std::string uuid)
 {
         if( node_map.find(uuid) == node_map.end() || xs.functions.find(uuid) == xs.functions.end() ) throw std::invalid_argument( "Kernel : try to bind a scalarAnchor input to unkown function "+uuid );
@@ -531,9 +589,52 @@ void Kernel::bind(ISAnchor& value, std::string var_name,std::string uuid)
 	}
 }
 
+
 void Kernel::bind(ISMAnchor& value, std::string var_name,std::string uuid)
 {
+        if( node_map.find(uuid) == node_map.end() || xs.functions.find(uuid) == xs.functions.end() ) throw std::invalid_argument( "Kernel : try to bind a smatrixAnchor input to unkown function "+uuid );
+                
+        if( xs.functions[uuid].inputs.find(var_name) ==  xs.functions[uuid].inputs.end() )  throw std::invalid_argument( "Kernel : unable to find input "+var_name+" for function "+uuid  );
+
+        if(  xs.functions[uuid].inputs[var_name].isAnchor == false)  throw std::invalid_argument( "Kernel : smatrixAnchor input "+var_name+" must be an anchor" );
+
+        if(  xs.functions[uuid].inputs[var_name].links.size() == 0 ) throw std::invalid_argument( "Kernel : smatrixAnchor input "+var_name+" should have at least one link. "+ std::to_string(xs.functions[uuid].inputs[var_name].links.size())+" given" );        
+        if( xs.functions[uuid].inputs[var_name].links[0].isSparse == true) throw std::invalid_argument( "Kernel : smatrixAnchor input can't be sparse type");
+	
+	//TODO : check size (rows/cols). All inputs must have the same size 
+	for( auto it =  xs.functions[uuid].inputs[var_name].links.begin(); it != xs.functions[uuid].inputs[var_name].links.end(); it++)
+	{
+		IScalarMatrix * ism = new IScalarMatrix();
+		if( it->isCst == true )
+		{
+			//is->setCValue( std::stod( it->value) );
+			//value.setCValue( MatrixXd::Constant( sf->getRows(),sf->getCols(),  std::stod( xs.functions[uuid].inputs[var_name].links[0].value))); 
+		}
+		else
+		{
+			std::string uuid_pred = it->uuid_pred;
+			
+			if( node_map.find( uuid_pred ) == node_map.end()) throw std::invalid_argument( "Kernel : try to get output from unkown function "+uuid_pred );
+
+			Function *f =  boost::get(boost::vertex_function, graph, node_map[uuid_pred]) ;
+			if( f->type() == value.type())
+			{
+				ism->i( &(dynamic_cast<FMatrix*>(f)->getOutput()) );
+		 
+			}else throw std::invalid_argument( "Kernel : try to bind no compatible type ");
+		}
+		ism->w( it->weight );
+
+		if( it->op == "+" ) ism->setOp(ADDITION);
+		else if( it->op == "*" ) ism->setOp(MULTIPLICATION);
+		else if( it->op == "-" ) ism->setOp(SUBSTRACTION);
+		else if( it->op == "/" ) ism->setOp(DIVISION);
+		else throw  std::invalid_argument( "Kernel : unkown operator : "+xs.functions[uuid].inputs[var_name].links[0].op+". Legal operators are +, *, / or -");
+		
+		value.add_input(ism);
+	}
 }
+
 
 void Kernel::bind(IMMAnchor& value, std::string var_name,std::string uuid)
 {
@@ -541,41 +642,8 @@ void Kernel::bind(IMMAnchor& value, std::string var_name,std::string uuid)
 	// Default value : should be possible to add a 1x1 matrix 
 }
 
+
 void Kernel::bind(std::string& value, std::string var_name,std::string uuid)
 {
 }
 
-/*
-void Kernel::runner_construction()
-{
-
-	for( auto it = boost::edges(graph); it.first != it.second; ++it.first)
-	{
-		Link *l;
-		int id_source = boost::get( boost::vertex_name, graph)[ boost::source(*it.first, graph) ];
-		int id_target = boost::get( boost::vertex_name, graph)[ boost::target(*it.first, graph) ];
-
-		std::cout << "Runner : " << id_source << " " << id_target << std::endl;
-
-		if( id_source == id_target ) 
-		{
-			l = new Passing_Link();
-		}
-		else
-		{
-			l = new Synchronized_Link();
-		}
-		
-		boost::put(boost::edge_weight, graph, *it.first , l);
-	}
-
-	for( auto it =  boost::vertices(graph) ; it.first != it.second; ++it.first)
-        {
-        }
-}
-
-	for( auto it = boost::edges(graph); it.first != it.second; ++it.first)
-	{
-		std::cout <<  boost::source(*it.first, graph) << " " <<  boost::target(*it.first, graph) << std::endl;
-	}
-*/

@@ -18,38 +18,68 @@ The fact that you are presently reading this means that you have had knowledge o
 
 REGISTER_FUNCTION(MMul);
 REGISTER_FUNCTION(SMul);
+REGISTER_FUNCTION(MSMul);
 
 void MMul::compute()
 {
-	if( inputs.size() == 0)
+	if( inMatrix.size() == 0)
 
-	inputs[0].accumulate(output);	
+	inMatrix[0].accumulate(output);	
 
-	for(unsigned int i=0; i < inputs.size(); i++)
+	for(unsigned int i=0; i < inMatrix.size(); i++)
 	{
-		inputs[0].mul_accumulate(output);	
+		inMatrix[0].mul_accumulate(output);	
 	}
 }
 
 void  MMul::setparameters()
 {
-        Kernel::instance().bind(inputs,"inputs", getUuid());
+        Kernel::instance().bind(inMatrix,"inMatrix", getUuid());
 
 }
 
 void SMul::compute()
 {
-	if( inputs.size() == 0)
+	if( inScalar.size() == 0)
 
-	inputs[0].accumulate(output);	
+	inScalar[0].accumulate(output);	
 
-	for(unsigned int i=0; i < inputs.size(); i++)
+	for(unsigned int i=0; i < inScalar.size(); i++)
 	{
-		inputs[0].mul_accumulate(output);	
+		inScalar[0].mul_accumulate(output);	
 	}
 }
 
 void  SMul::setparameters()
 {
-        Kernel::instance().bind(inputs,"inputs", getUuid());
+        Kernel::instance().bind(inScalar,"inScalar", getUuid());
 }
+
+
+void MSMul::compute()
+{
+	double sMul=0;
+        if( inScalar.size() == 0 || inMatrix.size() == 0) return;
+
+        inScalar[0].accumulate(sMul);
+
+        for(unsigned int i=0; i < inScalar.size(); i++)
+        {
+                inScalar[0].mul_accumulate(sMul);
+        }
+		
+	inMatrix[0].accumulate(output);	
+
+	for(unsigned int i=0; i < inMatrix.size(); i++)
+	{
+		inMatrix[0].mul_accumulate(output);	
+	}
+	output *= sMul;
+}
+
+void  MSMul::setparameters()
+{
+        Kernel::instance().bind(inScalar,"inScalar", getUuid());
+        Kernel::instance().bind(inMatrix,"inMatrix", getUuid());
+}
+

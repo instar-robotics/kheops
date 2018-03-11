@@ -31,8 +31,6 @@ class Kernel
 		std::string resfile;
 		std::string libdir;
 
-		XmlConverter * xmlc;
-
 		Graph graph;
 		std::map<std::string, Graph::vertex_descriptor> node_map;
 		
@@ -42,7 +40,7 @@ class Kernel
 
 	public :
 	
-		Kernel() : xmlc(NULL) {}
+		Kernel(){}
 		~Kernel();
 		Kernel(const Kernel&) = delete;
                 Kernel& operator=(const Kernel&) = delete;
@@ -54,7 +52,6 @@ class Kernel
 		void load_links();			
 		void load_functions();
 
-		void add_rttoken();
 
 		Function* buildFunction(const XFunction&);
 		void add_function(Function *funct);
@@ -81,10 +78,13 @@ class Kernel
 		// Warning 2 : XML Model is not updated
 		void del_link(std::string pred_uuid, std::string suc_uuid);
 
-		void simple_runner_allocation();
-		void runner_allocation();
 
-		void write_graph();
+		void add_rttoken();
+		void runner_allocation();
+		void separate_runner_allocation();
+		void add_runner(const std::string& uuid);
+		void add_separate_runner(const std::string& uuid);
+
 
 		void bind( IScalar& value, std::string var_name, std::string uuid );
 		void bind( IScalarMatrix& value, std::string var_name, std::string uuid );
@@ -92,7 +92,6 @@ class Kernel
 		void bind( ISMAnchor& value, std::string var_name, std::string uuid );
 		void bind( IMMAnchor& value, std::string var_name, std::string uuid );
 		void bind( std::string& value, std::string var_name, std::string uuid );
-
 };
 
 #endif // __KERNEL_H__
