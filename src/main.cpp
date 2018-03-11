@@ -183,7 +183,7 @@ int main(int argc, char **argv)
 		}
 		else if(buffer == "w")
 		{
-			Kernel::instance().write_graph();
+			write_graph(Kernel::instance().getGraph(), Kernel::instance().getName());
 		}
 		else if(buffer == "quiet")
 		{

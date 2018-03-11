@@ -20,6 +20,7 @@ The fact that you are presently reading this means that you have had knowledge o
 #include <dirent.h>
 #include <errno.h>
 #include <iostream>
+#include <uuid/uuid.h>
 
 int getdir (std::string dir, std::vector<std::string> &files)
 {
@@ -60,3 +61,15 @@ double convert_period_frequency(double value)
         return 1/value;
 }
 
+
+std::string generate_uuid()
+{
+	uuid_t out;
+        uuid_generate(out);
+
+        char cuuid[37];
+        uuid_unparse(out,cuuid);
+        std::string uuid(cuuid);
+
+	return uuid;
+}

@@ -24,3 +24,4 @@ double convert_s_to_ms(double value);
 double convert_ms_to_s(double value);
 double convert_period_frequency(double value);
 
+std::string generate_uuid();

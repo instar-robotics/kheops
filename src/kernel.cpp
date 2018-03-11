@@ -16,10 +16,7 @@ The fact that you are presently reading this means that you have had knowledge o
 
 #include <dlfcn.h>
 #include <sstream>
-#include <uuid/uuid.h>
 #include <iostream>
-#include <fstream>
-#include <boost/graph/graphviz.hpp>
 
 #include "kernel.h"
 #include "factory.h"
@@ -160,12 +157,7 @@ void Kernel::add_function( Function *funct  )
 
 void Kernel::add_function_suc(std::string Fct, std::string pred_uuid, int rows, int cols)
 {
-	uuid_t out;
-	uuid_generate(out);
-
-	char cuuid[37];
-	uuid_unparse(out,cuuid);
-	std::string uuid(cuuid);
+        std::string uuid = generate_uuid();
 	
 	if( node_map.find( pred_uuid  ) == node_map.end()) throw  std::invalid_argument( "Kernel : try to add function with unkown source "+ pred_uuid );
 
@@ -196,15 +188,7 @@ void Kernel::add_function_suc(std::string Fct, std::string pred_uuid, int rows, 
 			boost::put( boost::edge_weight, graph, rt_e.first, new Synchronized_Link()); 
 
 			// add a runner to the new node
-			// NB : naive new runner strategy : to improve performance, explore graph and rebuild runners
-			FRunner * fr = new FRunner();
-			fr->setGraph(&graph);
-			FRunner::add(fr);
-			fr->add_node( node_map[uuid] );
-                        boost::put(boost::vertex_name, graph, node_map[uuid], fr->getId());
-
-			// Spawn the runner
-			fr->spawn();
+			add_runner(uuid);
       		}
 	}
 }
@@ -212,12 +196,7 @@ void Kernel::add_function_suc(std::string Fct, std::string pred_uuid, int rows, 
 
 void Kernel::add_function_pred(std::string Fct, std::string suc_uuid, int rows, int cols)
 {
-        uuid_t out;
-        uuid_generate(out);
-                
-        char cuuid[37];
-        uuid_unparse(out,cuuid);
-        std::string uuid(cuuid);
+        std::string uuid = generate_uuid();
     
         if( node_map.find( suc_uuid  ) == node_map.end()) throw  std::invalid_argument( "Kernel : try to add function with unkown source "+ suc_uuid );
         
@@ -244,15 +223,7 @@ void Kernel::add_function_pred(std::string Fct, std::string suc_uuid, int rows, 
 			boost::put( boost::edge_weight, graph , e.first, new Synchronized_Link()); 
 			            
 			// add a runner to the new node
-			// NB : naive new runner strategy : to improve performance, explore graph and rebuild runners
-			FRunner * fr = new FRunner();
-			fr->setGraph(&graph);
-                        FRunner::add(fr);
-			fr->add_node( node_map[uuid] );
-                        boost::put(boost::vertex_name, graph, node_map[uuid], fr->getId());
-
-			// Spawn the runner
-                        fr->spawn();
+			add_runner(uuid);
                 }
         }
 }
@@ -260,12 +231,7 @@ void Kernel::add_function_pred(std::string Fct, std::string suc_uuid, int rows, 
 
 void Kernel::insert_function(std::string Fct, std::string pred_uuid, std::string suc_uuid ,int rows, int cols)
 {
-        uuid_t out;
-        uuid_generate(out);
-
-        char cuuid[37];
-        uuid_unparse(out,cuuid);
-        std::string uuid(cuuid);
+        std::string uuid = generate_uuid();
 
         if( node_map.find( pred_uuid  ) == node_map.end()) throw  std::invalid_argument( "Kernel : try to add function with unkown source "+ pred_uuid ); 
         if( node_map.find( suc_uuid  ) == node_map.end()) throw  std::invalid_argument( "Kernel : try to add function with unkown source "+ suc_uuid ); 
@@ -277,8 +243,8 @@ void Kernel::insert_function(std::string Fct, std::string pred_uuid, std::string
                 else{
                         f->setUuid(uuid);
         
-                        if( rows == -1 ){ rows=boost::get(boost::vertex_function, graph)[node_map[pred_uuid]]->getRows();}
-                        if( cols == -1 ){ cols=boost::get(boost::vertex_function, graph)[node_map[pred_uuid]]->getCols();}
+                        if(rows==-1){ rows=boost::get(boost::vertex_function, graph)[node_map[pred_uuid]]->getRows();}
+                        if(cols==-1){ cols=boost::get(boost::vertex_function, graph)[node_map[pred_uuid]]->getCols();}
 
 			if( f->type() == typeid(MatrixXd).hash_code()) 		
 			{
@@ -295,41 +261,12 @@ void Kernel::insert_function(std::string Fct, std::string pred_uuid, std::string
 			// Add link between new node and successor
 			std::pair<Graph::edge_descriptor, bool> es = add_edge( node_map[uuid], node_map[suc_uuid]  ,graph  );
 			boost::put( boost::edge_weight, graph, es.first, new Synchronized_Link()); 
-/*
-			// Alternative to naive runner strategy : add functuin to pred's runner
-                        int idRunner = boost::get( boost::vertex_name, graph, node_map[pred_uuid]  ) ;
-                        dynamic_cast<FRunner*>(runners[idRunner])->add_node( node_map[uuid] );
-                        boost::put(boost::vertex_name, graph, node_map[uuid], idRunner);
-*/			
+
 			// Add a new Runner 
-			// NB : naive runner strategy : could add the function to pred'runner or remap all the runner using the graph
-
-
-			// Spawn the runner
-			fr->spawn();
+			add_runner(uuid);
                 }
         }
 }
-
-
-void Kernel::del_link(std::string pred_uuid, std::string suc_uuid)
-{
-	if( node_map.find( pred_uuid  ) == node_map.end()) throw  std::invalid_argument( "Kernel : try to add function with unkown source "+ pred_uuid );   
-        if( node_map.find( suc_uuid  ) == node_map.end()) throw  std::invalid_argument( "Kernel : try to add function with unkown source "+ suc_uuid );
-
-	Graph::edge_descriptor e;
-	bool succes;
-	tie(e, succes) = boost::edge( node_map[pred_uuid], node_map[suc_uuid], graph );
-
-	if (succes)
-	{	
-		Link * l = boost::get(boost::edge_weight, graph, e);
-		boost::remove_edge(e, graph);
-		l->produce();
-		delete(l);
-	}	
-}
-
 
 void Kernel::del_function( Function * funct)
 {
@@ -375,6 +312,23 @@ void Kernel::add_rttoken()
 	boost::put(boost::vertex_name, graph, rt_node, 0);
 }
 
+void Kernel::del_link(std::string pred_uuid, std::string suc_uuid)
+{
+	if( node_map.find( pred_uuid  ) == node_map.end()) throw  std::invalid_argument( "Kernel : try to add function with unkown source "+ pred_uuid );   
+        if( node_map.find( suc_uuid  ) == node_map.end()) throw  std::invalid_argument( "Kernel : try to add function with unkown source "+ suc_uuid );
+
+	Graph::edge_descriptor e;
+	bool succes;
+	tie(e, succes) = boost::edge( node_map[pred_uuid], node_map[suc_uuid], graph );
+
+	if (succes)
+	{	
+		Link * l = boost::get(boost::edge_weight, graph, e);
+		boost::remove_edge(e, graph);
+		l->produce();
+		delete(l);
+	}	
+}
 
 /********************************************************************************************************/
 /****************** 			Runner Section	 			      *******************/
@@ -382,6 +336,7 @@ void Kernel::add_rttoken()
 
 void Kernel::separate_runner_allocation()
 {
+	// Build all runners
 	for( auto it =  boost::vertices(graph) ; it.first != it.second; ++it.first)
 	{
 		Graph::vertex_descriptor v =  *it.first ;
@@ -397,6 +352,7 @@ void Kernel::separate_runner_allocation()
 		}
 	}
 
+	// Create all links
 	for( auto it = boost::edges(graph); it.first != it.second; ++it.first)
 	{
 		bool type = boost::get( boost::edge_type, graph)[*it.first];
@@ -411,6 +367,7 @@ void Kernel::runner_allocation()
 
 void Kernel::add_runner(const std::string& uuid)
 {
+	// NB : naive runner strategy : could add the function to pred'runner or remap all the runner using the graph
 	this->add_separate_runner(uuid);
 }
 
@@ -423,12 +380,22 @@ void Kernel::add_separate_runner(const std::string& uuid)
 	FRunner::add(fr);
 	fr->add_node( node_map[uuid] );
 	boost::put(boost::vertex_name, graph, node_map[uuid], fr->getId());
+			
+	// Spawn the runner
+	fr->spawn();
 }
+
+//TODO : under construction. Try to implements better allocation strategies (decrease number of Runner by script
+/*
+	// Alternative to naive runner strategy : add functuin to pred's runner
+	int idRunner = boost::get( boost::vertex_name, graph, node_map[pred_uuid]  ) ;
+	dynamic_cast<FRunner*>(runners[idRunner])->add_node( node_map[uuid] );
+	boost::put(boost::vertex_name, graph, node_map[uuid], idRunner);
+*/			
 
 /*
 void Kernel::runner_construction()
 {
-
 	for( auto it = boost::edges(graph); it.first != it.second; ++it.first)
 	{
 		Link *l;
@@ -492,16 +459,10 @@ void Kernel::bind(IScalar &value, std::string var_name,std::string uuid)
 
 		}else throw std::invalid_argument( "Kernel : try to bind no compatible type ");
 	}
-			
 	value.w( xs.functions[uuid].inputs[var_name].links[0].weight );
-
-	if( xs.functions[uuid].inputs[var_name].links[0].op == "+" ) value.setOp(ADDITION);
-	else if( xs.functions[uuid].inputs[var_name].links[0].op == "*" ) value.setOp(MULTIPLICATION);
-	else if( xs.functions[uuid].inputs[var_name].links[0].op == "-" ) value.setOp(SUBSTRACTION);
-	else if( xs.functions[uuid].inputs[var_name].links[0].op == "/" ) value.setOp(DIVISION);
-	else throw  std::invalid_argument( "Kernel : unkown operator : "+xs.functions[uuid].inputs[var_name].links[0].op+". Legal operators are +, *, / or -");
-
+	value.setOp( xs.functions[uuid].inputs[var_name].links[0].op );
 }
+
 
 void Kernel::bind(IScalarMatrix& value, std::string var_name,std::string uuid)
 {
@@ -535,14 +496,8 @@ void Kernel::bind(IScalarMatrix& value, std::string var_name,std::string uuid)
 
 		}else throw std::invalid_argument( "Kernel : try to bind no compatible type ");
 	}
-			
 	value.w( xs.functions[uuid].inputs[var_name].links[0].weight );
-
-	if( xs.functions[uuid].inputs[var_name].links[0].op == "+" ) value.setOp(ADDITION);
-	else if( xs.functions[uuid].inputs[var_name].links[0].op == "*" ) value.setOp(MULTIPLICATION);
-	else if( xs.functions[uuid].inputs[var_name].links[0].op == "-" ) value.setOp(SUBSTRACTION);
-	else if( xs.functions[uuid].inputs[var_name].links[0].op == "/" ) value.setOp(DIVISION);
-	else throw  std::invalid_argument( "Kernel : unkown operator : "+xs.functions[uuid].inputs[var_name].links[0].op+". Legal operators are +, *, / or -");
+	value.setOp( xs.functions[uuid].inputs[var_name].links[0].op );
 }
 
 
@@ -578,13 +533,7 @@ void Kernel::bind(ISAnchor& value, std::string var_name,std::string uuid)
 			}else throw std::invalid_argument( "Kernel : try to bind no compatible type ");
 		}
 		is->w( it->weight );
-
-		if( it->op == "+" ) is->setOp(ADDITION);
-		else if( it->op == "*" ) is->setOp(MULTIPLICATION);
-		else if( it->op == "-" ) is->setOp(SUBSTRACTION);
-		else if( it->op == "/" ) is->setOp(DIVISION);
-		else throw  std::invalid_argument( "Kernel : unkown operator : "+xs.functions[uuid].inputs[var_name].links[0].op+". Legal operators are +, *, / or -");
-		
+		is->setOp( it->op );
 		value.add_input(is);
 	}
 }
@@ -624,13 +573,7 @@ void Kernel::bind(ISMAnchor& value, std::string var_name,std::string uuid)
 			}else throw std::invalid_argument( "Kernel : try to bind no compatible type ");
 		}
 		ism->w( it->weight );
-
-		if( it->op == "+" ) ism->setOp(ADDITION);
-		else if( it->op == "*" ) ism->setOp(MULTIPLICATION);
-		else if( it->op == "-" ) ism->setOp(SUBSTRACTION);
-		else if( it->op == "/" ) ism->setOp(DIVISION);
-		else throw  std::invalid_argument( "Kernel : unkown operator : "+xs.functions[uuid].inputs[var_name].links[0].op+". Legal operators are +, *, / or -");
-		
+		ism->setOp( it->op );
 		value.add_input(ism);
 	}
 }

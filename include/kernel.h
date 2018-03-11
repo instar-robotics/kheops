@@ -48,10 +48,12 @@ class Kernel
 		static void init(std::string scriptfile, std::string resfile, std::string libdir);
 		static inline Kernel& instance() noexcept {return singleton;}
 
+		inline const Graph& getGraph(){return graph;}
+		inline const std::string& getName(){return xs.name;}
+
 		void load_lib();			
 		void load_links();			
 		void load_functions();
-
 
 		Function* buildFunction(const XFunction&);
 		void add_function(Function *funct);

@@ -21,6 +21,7 @@ The fact that you are presently reading this means that you have had knowledge o
 #include <boost/graph/adjacency_list.hpp>
 #include "function.h"
 #include "link.h"
+#include <string>
 
 namespace boost {
     enum vertex_function_t { vertex_function};
@@ -43,6 +44,6 @@ typedef boost::graph_traits<Graph>::vertex_iterator vertex_iter;
 typedef boost::graph_traits<Graph>::out_edge_iterator out_edge_iterator;
 typedef boost::graph_traits<Graph>::in_edge_iterator in_edge_iterator;
 
-void write_graph(Graph& graph);
+void write_graph(const Graph& graph, std::string name);
 
 #endif //__GRAPH_H__
