@@ -413,7 +413,7 @@ void Kernel::bind(IScalar &value, std::string var_name,std::string uuid)
 		
 	if( xs.functions[uuid].inputs.find(var_name) ==  xs.functions[uuid].inputs.end() )  throw std::invalid_argument( "Kernel : unable to find input "+var_name+" for function "+uuid  );
 
-	if(  xs.functions[uuid].inputs[var_name].isAnchor == true)  throw std::invalid_argument( "Kernel : scalar input "+var_name+" could not be an anchor" ); 
+	if(  xs.functions[uuid].inputs[var_name].isAnchor == true)  throw std::invalid_argument( "Kernel : scalar input "+var_name+" must not be an anchor" ); 
 
 	if(  xs.functions[uuid].inputs[var_name].links.size() != 1 ) throw std::invalid_argument( "Kernel : scalar input "+var_name+" should have only one link. "+ std::to_string(xs.functions[uuid].inputs[var_name].links.size())+" given" );	
 	if( xs.functions[uuid].inputs[var_name].links[0].isSparse == true) throw std::invalid_argument( "Kernel : scalar input can't be sparse type"); 
@@ -431,7 +431,6 @@ void Kernel::bind(IScalar &value, std::string var_name,std::string uuid)
 		Function *f =  boost::get(boost::vertex_function, graph, node_map[uuid_pred]) ;
 		if( f->type() == value.type())
 		{
-			Function *f =  boost::get(boost::vertex_function, graph, node_map[uuid_pred]) ;
 			value.i( &(dynamic_cast<FScalar*>(f)->getOutput()) );
 
 		}else throw std::invalid_argument( "Kernel : try to bind no compatible type ");
@@ -453,7 +452,7 @@ void Kernel::bind(IScalarMatrix& value, std::string var_name,std::string uuid)
 		
 	if( xs.functions[uuid].inputs.find(var_name) ==  xs.functions[uuid].inputs.end() )  throw std::invalid_argument( "Kernel : unable to find input "+var_name+" for function "+uuid  );
 
-	if(  xs.functions[uuid].inputs[var_name].isAnchor == true)  throw std::invalid_argument( "Kernel : scalarMatrix input "+var_name+" could not be an anchor" ); 
+	if(  xs.functions[uuid].inputs[var_name].isAnchor == true)  throw std::invalid_argument( "Kernel : scalarMatrix input "+var_name+" must not be an anchor" ); 
 
 	if(  xs.functions[uuid].inputs[var_name].links.size() != 1 ) throw std::invalid_argument( "Kernel : scalarMatrix input "+var_name+" should have only one link. "+ std::to_string(xs.functions[uuid].inputs[var_name].links.size())+" given" );	
 	if( xs.functions[uuid].inputs[var_name].links[0].isSparse == true) throw std::invalid_argument( "Kernel : scalarMatrix input can't be sparse type"); 
@@ -491,6 +490,45 @@ void Kernel::bind(IScalarMatrix& value, std::string var_name,std::string uuid)
 
 void Kernel::bind(ISAnchor& value, std::string var_name,std::string uuid)
 {
+        if( node_map.find(uuid) == node_map.end() || xs.functions.find(uuid) == xs.functions.end() ) throw std::invalid_argument( "Kernel : try to bind a scalarAnchor input to unkown function "+uuid );
+                
+        if( xs.functions[uuid].inputs.find(var_name) ==  xs.functions[uuid].inputs.end() )  throw std::invalid_argument( "Kernel : unable to find input "+var_name+" for function "+uuid  );
+
+        if(  xs.functions[uuid].inputs[var_name].isAnchor == false)  throw std::invalid_argument( "Kernel : scalarAnchor input "+var_name+" must be an anchor" );
+
+        if(  xs.functions[uuid].inputs[var_name].links.size() == 0 ) throw std::invalid_argument( "Kernel : scalarAnchor input "+var_name+" should have at least one link. "+ std::to_string(xs.functions[uuid].inputs[var_name].links.size())+" given" );        
+        if( xs.functions[uuid].inputs[var_name].links[0].isSparse == true) throw std::invalid_argument( "Kernel : scalarAnchor input can't be sparse type");
+
+	for( auto it =  xs.functions[uuid].inputs[var_name].links.begin(); it != xs.functions[uuid].inputs[var_name].links.end(); it++)
+	{
+		IScalar *is = new IScalar();
+		if( it->isCst == true )
+		{
+			is->setCValue( std::stod( it->value) );
+		}
+		else
+		{
+			std::string uuid_pred = it->uuid_pred;
+			
+			if( node_map.find( uuid_pred ) == node_map.end()) throw std::invalid_argument( "Kernel : try to get output from unkown function "+uuid_pred );
+
+			Function *f =  boost::get(boost::vertex_function, graph, node_map[uuid_pred]) ;
+			if( f->type() == value.type())
+			{
+				is->i( &(dynamic_cast<FScalar*>(f)->getOutput()) );
+		 
+			}else throw std::invalid_argument( "Kernel : try to bind no compatible type ");
+		}
+		is->w( it->weight );
+
+		if( it->op == "+" ) is->setOp(ADDITION);
+		else if( it->op == "*" ) is->setOp(MULTIPLICATION);
+		else if( it->op == "-" ) is->setOp(SUBSTRACTION);
+		else if( it->op == "/" ) is->setOp(DIVISION);
+		else throw  std::invalid_argument( "Kernel : unkown operator : "+xs.functions[uuid].inputs[var_name].links[0].op+". Legal operators are +, *, / or -");
+		
+		value.add_input(is);
+	}
 }
 
 void Kernel::bind(ISMAnchor& value, std::string var_name,std::string uuid)
