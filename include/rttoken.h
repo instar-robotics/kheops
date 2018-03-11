@@ -42,15 +42,17 @@ class RtToken : public Runner
 		int state;
                 std::mutex rt_mtx;
                 std::condition_variable rt_cv;
+		
+		bool quiet;
 
 		static RtToken singleton;
 
 	public : 
 
 		// Period in second
-		RtToken() : Runner(),period(0),means(0),nbrun(0),state(PAUSE) {}
-		RtToken(double period) : Runner(),period(period),means(0),nbrun(0),state(PAUSE)  {}
-		RtToken(double value, std::string unit) : Runner(),means(0),nbrun(0),state(PAUSE){ setToken(value, unit);}
+		RtToken() : Runner(),period(0),means(0),nbrun(0),state(PAUSE),quiet(true) {}
+		RtToken(double period) : Runner(),period(period),means(0),nbrun(0),state(PAUSE),quiet(true)  {}
+		RtToken(double value, std::string unit) : Runner(),means(0),nbrun(0),state(PAUSE),quiet(true){ setToken(value, unit);}
                 virtual ~RtToken(){}
                 RtToken(const RtToken&) = delete;
 
@@ -93,6 +95,9 @@ class RtToken : public Runner
                 inline bool is_pause() { return state==PAUSE;}
 
 		static inline RtToken& instance() noexcept {return singleton;}
+
+		inline bool is_quiet(){return quiet;}
+		inline void setQuiet(bool state) {quiet = state;}
 
 }; 
 

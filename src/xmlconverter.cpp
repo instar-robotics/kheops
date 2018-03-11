@@ -17,6 +17,8 @@ The fact that you are presently reading this means that you have had knowledge o
 #include <stdexcept>
 #include "xmlconverter.h"
 
+#include <iostream>
+
 XmlConverter::XmlConverter(std::string filepath) : m_doc(NULL), parser(NULL),errHandler(NULL)
 {
 	parser = new XercesDOMParser();
@@ -27,113 +29,198 @@ XmlConverter::XmlConverter(std::string filepath) : m_doc(NULL), parser(NULL),err
 }
 
 
-
 void XmlConverter::__convertXmlToFunction(const DOMElement &el, XFunction &f)
 {
 	f.uuid = XMLString::transcode( el.getAttribute( XMLString::transcode(  "uuid" )));
 
 	if( f.uuid.size() == 0 ) throw std::invalid_argument("XML : Function uuid is empty");
 
-	if( el.getElementsByTagName(XMLString::transcode("name"))->getLength() == 0) throw std::invalid_argument("Kernel : Function "+f.uuid+" has no name");
+	if( el.getElementsByTagName(XMLString::transcode("name"))->getLength() == 0) throw std::invalid_argument("XML : Function "+f.uuid+" has no name");
 
 	f.name =  XMLString::transcode(  (dynamic_cast<DOMElement *> (el.getElementsByTagName(XMLString::transcode("name"))->item(0))->getTextContent()));
 
-	std::string x = XMLString::transcode( el.getAttribute( XMLString::transcode(  "x" )));
-	if( x.size() == 0 ) throw std::invalid_argument("XML : Function have no X value");
-	f.x = std::stoi(x);
+	//TODO : use output section as mandatory member ?
+	if( el.getElementsByTagName(XMLString::transcode("output"))->getLength() == 0)
+	{
+		f.rows = 0;
+		f.cols = 0;
+	}
+	else
+	{
+		DOMElement * eo = (dynamic_cast<DOMElement *> (el.getElementsByTagName(XMLString::transcode("output"))->item(0)));
 
-	std::string y  = XMLString::transcode( el.getAttribute( XMLString::transcode(  "y" )));
-	if( y.size() == 0 ) throw std::invalid_argument("XML : Function have no Y value");
-	f.y = std::stoi(y);
+		if( eo->getElementsByTagName( XMLString::transcode("rows") )->getLength() == 0) throw std::invalid_argument("XML : Function "+f.uuid+" has no rows size");
+		if( eo->getElementsByTagName( XMLString::transcode("cols") )->getLength() == 0) throw std::invalid_argument("XML : Function "+f.uuid+" has no cols size");
+
+
+		std::string rows = XMLString::transcode( eo->getElementsByTagName( XMLString::transcode("rows"))->item(0)->getTextContent() );
+		f.rows = std::stoi(rows);
+
+		std::string cols =  XMLString::transcode( eo->getElementsByTagName( XMLString::transcode("cols"))->item(0)->getTextContent() );
+		f.cols = std::stoi(cols);
+	}
 }
+
 
 void XmlConverter::__convertXmlToInput( const DOMElement &el, XInput &xi )
 {
-	if( el.getElementsByTagName(XMLString::transcode("name"))->getLength() == 0) throw std::invalid_argument("Kernel : Input has no name (Function "+xi.uuid_suc+")");
+	if( el.getElementsByTagName(XMLString::transcode("name"))->getLength() == 0) throw std::invalid_argument("XML : Input has no name ");
 
 	xi.name =  XMLString::transcode(  (dynamic_cast<DOMElement *> (el.getElementsByTagName(XMLString::transcode("name"))->item(0))->getTextContent()));
+	
+	std::string anchor =  XMLString::transcode( el.getAttribute(  XMLString::transcode( "anchor" )));
+	if( anchor.size() == 0 ) 
+	{
+		xi.isAnchor = false;
+	}
+	else
+	{
+		if( anchor == "true" ) xi.isAnchor = true;
+		else if( anchor == "false" ) xi.isAnchor = false;
+		else throw std::invalid_argument("XML : \"anchor\" attribute is boolean, value must be \"true\" or \"false\" ");
+	}
+}
 
-	if( el.getElementsByTagName(XMLString::transcode("link"))->getLength() == 0) throw std::invalid_argument("Kernel : Input has no predecessor [link tag] (Function "+xi.uuid_suc+")");
+void XmlConverter::__convertXmlToLink( const DOMElement &el, XLink &xi )
+{
+	std::string constant =  XMLString::transcode( el.getAttribute(  XMLString::transcode( "constant" )));
+	if( constant.size() == 0)
+	{
+		xi.isCst = false;
+	}
+	else
+	{
+		if( constant == "true" ) xi.isCst = true;
+		else if( constant == "false" ) xi.isCst = false;
+		else throw std::invalid_argument("XML : \"constant\" attribute is boolean, value must be \"true\" or \"false\" ");
+	}
 
-	xi.uuid_pred =  XMLString::transcode(  (dynamic_cast<DOMElement *> (el.getElementsByTagName(XMLString::transcode("link"))->item(0))->getTextContent()));
+	if( xi.isCst) 
+	{
+		if( el.getElementsByTagName(XMLString::transcode("pred"))->getLength() != 0) throw std::invalid_argument("XML : Constant Input can't have a predecessor ");
 
+		if(el.getElementsByTagName(XMLString::transcode("value"))->getLength() == 0) throw  std::invalid_argument("XML : you should add default value for constant input ");
+		
+		xi.value = XMLString::transcode(  (dynamic_cast<DOMElement *> (el.getElementsByTagName(XMLString::transcode("value"))->item(0))->getTextContent()));
+		
+	}
+	else
+	{
+		if( el.getElementsByTagName(XMLString::transcode("pred"))->getLength() == 0) throw std::invalid_argument("XML : Input has no predecessor ");
+		
+		if(el.getElementsByTagName(XMLString::transcode("value"))->getLength() != 0) throw  std::invalid_argument("XML : a non constant input can't have default value ");
+	
+		xi.uuid_pred = XMLString::transcode(  (dynamic_cast<DOMElement *> (el.getElementsByTagName(XMLString::transcode("pred"))->item(0))->getTextContent()));
+
+	}
+
+	if( el.getElementsByTagName(XMLString::transcode("weight"))->getLength() == 0) throw std::invalid_argument("XML : Input has no weight ");
+
+	std::string weight =  XMLString::transcode(  (dynamic_cast<DOMElement *> (el.getElementsByTagName(XMLString::transcode("weight"))->item(0))->getTextContent()));
+	xi.weight = std::stod( weight);
+	
+	
+	if( el.getElementsByTagName(XMLString::transcode("operator"))->getLength() == 0) throw std::invalid_argument("XML : Input has no operator");
+
+	xi.op = XMLString::transcode(  (dynamic_cast<DOMElement *> (el.getElementsByTagName(XMLString::transcode("operator"))->item(0))->getTextContent()));
+
+	std::string sparse =  XMLString::transcode( el.getAttribute(  XMLString::transcode( "sparse" )));
+	if( sparse.size() == 0 ) 
+	{
+		xi.isSparse = false;
+	}
+	else
+	{
+		if( sparse == "true" ) xi.isSparse = true;
+		else if( sparse == "false" ) xi.isSparse = false;
+		else throw std::invalid_argument("XML : sparse attribute is boolean, value must be \"true\" or \"false\" ");
+	}
+
+	std::string secondary =  XMLString::transcode( el.getAttribute(  XMLString::transcode( "secondary" )));
+	if( secondary.size() == 0 ) 
+	{
+		xi.isSecondary = false;
+	}
+	else
+	{
+		if( secondary == "true" ) xi.isSecondary = true;
+		else if( secondary == "false" ) xi.isSecondary = false;
+		else throw std::invalid_argument("XML : secondary attribute is boolean, value must be \"true\" or \"false\" ");
+	}
 }
 
 
-void XmlConverter::getFunctions(std::vector<XFunction> &functions)
+
+void XmlConverter::loadScript(XScript &xs)
+{
+	__loadScriptName( xs.name );
+	__loadRtToken( xs.rt );
+	__loadFunctions( xs.functions );
+}
+
+
+void XmlConverter::__loadLinks( const DOMElement &el, std::vector<XLink> &links  )
+{
+	DOMElement * xLink;
+	
+	if( el.getElementsByTagName(XMLString::transcode("links"))->getLength() == 0)  throw  std::invalid_argument("XML : Unable to find links section");
+	
+	xLink = dynamic_cast<DOMElement *>( el.getElementsByTagName(XMLString::transcode("links"))->item(0))->getFirstElementChild();
+	
+	if( xLink == NULL)  throw  std::invalid_argument("XML : \"links\" section is empty, any link to load");
+
+	do{
+		XLink l;
+		__convertXmlToLink(*xLink,l );		
+		links.push_back(l);
+
+	}while((xLink = xLink->getNextElementSibling()) != NULL);
+}
+
+void XmlConverter::__loadFunctions(std::map<std::string,XFunction> &functions)
 {
 	DOMElement * xFunc;
-	XFunction f;
 
 	if( m_doc->getElementsByTagName(XMLString::transcode("functions"))->getLength() == 0) throw  std::invalid_argument("XML : Unable to find functions section");
 
 	xFunc = dynamic_cast<DOMElement *>( m_doc->getElementsByTagName(XMLString::transcode("functions"))->item(0))->getFirstElementChild()  ;
-	if( xFunc == NULL) throw  std::invalid_argument("XML : functions section is empty, any function to load");
+	if( xFunc == NULL) throw  std::invalid_argument("XML : \"functions\" section is empty, any function to load");
 
 	do{
+		XFunction f;
 		__convertXmlToFunction( *xFunc, f);
-		functions.push_back(f);
+		__loadInputs( *xFunc, f.inputs );
+		
+		if( functions.find( f.uuid ) == functions.end() ) functions[f.uuid] = f;
+		else throw std::invalid_argument("XML : uuid function in xml file has to be unique");
 
 	}while(  (xFunc = xFunc->getNextElementSibling() ) != NULL);
 }
 
-void XmlConverter::getInputsUuid( std::string FunctUuid, std::vector<XInput> &xinputs  )
+void XmlConverter::__loadInputs( const DOMElement &el, std::map<std::string, XInput> &inputs )
 {
-	if( m_doc->getElementsByTagName(XMLString::transcode("functions"))->getLength() == 0) throw  std::invalid_argument("XML : Unable to find functions section");
+	DOMElement * xInput;
 
-	DOMElement * function = dynamic_cast<DOMElement *>( m_doc->getElementsByTagName(XMLString::transcode("functions"))->item(0))->getFirstElementChild();
-	if (function == NULL)  throw  std::invalid_argument("XML : functions section is empty, any input to load ");
-
+	
+	if( el.getElementsByTagName(XMLString::transcode("inputs"))->getLength() == 0)  return;
+	
+	xInput = dynamic_cast<DOMElement *>( el.getElementsByTagName(XMLString::transcode("inputs"))->item(0))->getFirstElementChild();
+	
+	if( xInput == NULL) return;
+	
 	do{
-		if( XMLString::transcode(function->getAttribute( XMLString::transcode("uuid"))) == FunctUuid )
-		{
-			if(  function->getElementsByTagName(XMLString::transcode("inputs"))->getLength() == 0) return;
-			DOMElement * input = dynamic_cast<DOMElement *>( function->getElementsByTagName(XMLString::transcode("inputs"))->item(0))->getFirstElementChild() ;
-			if( input == NULL) return ;
+		XInput i;
+		__convertXmlToInput( *xInput, i);
+		__loadLinks( *xInput , i.links );
+		inputs[i.name] = i;
+	
+		if( i.isAnchor == false && i.links.size() != 1) throw std::invalid_argument("XML : you should give exactly one link on non anchor input : "+ std::to_string(i.links.size())+" given" );
+		if( i.isAnchor == true && i.links.size() == 0) throw std::invalid_argument("XML : you should give at least one link on anchor input : "+ std::to_string(i.links.size())+" given" );
 
-			do{
-				XInput xi;
-				xi.uuid_suc = FunctUuid;
-				__convertXmlToInput( *input, xi );
-				xinputs.push_back(xi);
-
-			}while( (input = input->getNextElementSibling()) != NULL  );
-
-			return;
-		}
-	}while( (function = function->getNextElementSibling()) != NULL );
+	}while(  (xInput = xInput->getNextElementSibling()) != NULL);
 }
 
-
-void XmlConverter::getInputs( std::vector<XInput> &xinputs)
-{
-	if( m_doc->getElementsByTagName(XMLString::transcode("functions"))->getLength() == 0) throw  std::invalid_argument("XML : Unable to find functions section");
-
-	DOMElement * function = dynamic_cast<DOMElement *>( m_doc->getElementsByTagName(XMLString::transcode("functions"))->item(0))->getFirstElementChild();
-
-	if (function == NULL)  throw  std::invalid_argument("XML : functions section is empty, any input to load ");
-	do{
-		if(  function->getElementsByTagName(XMLString::transcode("inputs"))->getLength() > 0)
-		{
-			std::string FunctUuid = XMLString::transcode( function->getAttribute( XMLString::transcode(  "uuid" )));
-			if( FunctUuid.size() == 0 ) throw std::invalid_argument("XML : Function uuid is empty");
-
-			DOMElement * input = dynamic_cast<DOMElement *>( function->getElementsByTagName(XMLString::transcode("inputs"))->item(0))->getFirstElementChild() ;
-			if( input != NULL)
-			{
-				do{
-					XInput xi;
-					xi.uuid_suc = FunctUuid;
-					__convertXmlToInput( *input, xi );
-					xinputs.push_back(xi);
-
-				}while( (input = input->getNextElementSibling()) != NULL  );
-			}
-		}
-	}while( (function = function->getNextElementSibling()) != NULL );
-}
-
-void XmlConverter::getScriptName(std::string &name)
+void XmlConverter::__loadScriptName(std::string &name)
 {
 	if(  m_doc->getElementsByTagName(XMLString::transcode("script"))->getLength() == 0) throw  std::invalid_argument("XML : Unable to find script tag ");
 
@@ -151,7 +238,7 @@ void XmlConverter::getScriptName(std::string &name)
 	name=XMLString::transcode( el->getTextContent());
 }
 
-void XmlConverter::getRtToken( XRtToken & rt )
+void XmlConverter::__loadRtToken( XRtToken & rt )
 {
 	if(  m_doc->getElementsByTagName(XMLString::transcode("rt_token"))->getLength() == 0) throw  std::invalid_argument("XML : Unable to find \"rt_token\" tag");
 

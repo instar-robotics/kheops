@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<script>
+    <name>Example</name>	
+    <rt_token unit="ms">10</rt_token> 
+    <functions>
+	<function uuid="1">
+		<name>MSum</name>
+		<output>
+			<rows>10</rows>
+			<cols>10</cols>
+		</output>
+		<inputs>
+			<input anchor="true">
+				<name>inMatrix</name>
+				<links>
+					<link constant="true">
+						<value>1</value>
+						<weight>1</weight>
+						<operator>multiplication</operator>
+					</link>
+				</links>
+			</input>	
+		</inputs>
+	</function>
+	<function uuid="3">
+		<name>MSum</name>
+		<output>
+			<rows>10</rows>
+			<cols>10</cols>
+		</output>
+		<inputs>
+			<input anchor="true">
+				<name>inMatrix</name>
+				<links>
+					<link constant="true">
+						<value>3</value>
+						<weight>1</weight>
+						<operator>multiplication</operator>
+					</link>
+				</links>
+			</input>	
+		</inputs>
+	</function>
+	<function uuid="4">
+		<name>SSum</name>
+		<inputs>
+			<input anchor="true">
+				<name>inScalar</name>
+				<links>
+					<link constant="true">
+						<value>0.5</value>
+						<weight>1</weight>
+						<operator>multiplication</operator>
+					</link>
+					<link secondary="true">
+						<weight>0.001</weight>
+						<pred>4</pred>
+						<operator>multiplication</operator>
+					</link>
+				</links>
+			</input>	
+		</inputs>
+	</function>
+			
+	<function uuid="5">
+		<name>MSSum</name>
+		<inputs>
+			<input anchor="true">
+				<name>inMatrix</name>
+				<links>
+					<link>
+						<weight>1</weight>
+						<pred>1</pred>
+						<operator>multiplication</operator>
+					</link>
+					<link>
+						<weight>1</weight>
+						<pred>2</pred>
+						<operator>multiplication</operator>
+					</link>
+				</links>	
+			</input>	
+			<input anchor="true">
+				<name>inScalar</name>
+				<links>
+					<link>
+						<weight>1</weight>
+						<pred>4</pred>
+						<operator>multiplication</operator>
+					</link>
+				</links>	
+			</input>	
+		</inputs>
+	</function>
+	
+	<function uuid="5">
+		<name>LMS</name>
+		<output>
+			<rows>10</rows>
+			<cols>10</cols>
+		</output>
+		<inputs>
+			<input>
+				<name>learning_rate</name>
+				<links>
+					<link constant="true">
+						<value>1</value>
+						<weight>1</weight>
+						<operator>multiplication</operator>
+					</link>
+				</links>	
+			</input>	
+			<input>
+				<name>unconditionnal</name>
+				<links>
+					<link>
+						<weight>1</weight>
+						<pred>5</pred>
+						<operator>multiplication</operator>
+					</link>
+				</links>	
+			</input>	
+			<input anchor="true"> 
+				<name>conditionnals</name>
+				<links>
+					<link constant="true">
+						<operator>multiplication</operator>
+						<weight>0</weight>
+						<value>1</value>
+					</link>
+					<link sparse="true">
+						<weight>0</weight>
+						<pred>1</pred>
+					
+					</link>
+				</links>	
+			</input>
+		</inputs>
+	</function>
+	<function>
+                <name>FExample</name>
+                <inputs>
+                        <input>
+                                <name>is</name>
+				<links>
+					<link constant="true">
+						<value>1</value>
+						<weight>1</weight>
+						<operator>multiplication</operator>
+					</link>
+				</links>	
+                        </input>
+                        <input>
+                                <name>ism</name>
+				<links>
+					<link constant="true">
+						<value>1</value>
+						<weight>1</weight>
+						<operator>multiplication</operator>
+					</link>
+				</links>	
+                        </input>
+                        <input>
+                                <name>str</name>
+				<links>
+					<link constant="true">
+						<value>one string</value>
+					</link>
+				</links>	
+                        </input>
+                        <input anchor="true">
+                                <name>isanc</name>
+				<links>
+					<link constant="true">
+						<value>1</value>
+						<weight>1</weight>
+						<operator>multiplication</operator>
+					</link>
+				</links>	
+                        </input>
+                        <input anchor="true">
+                                <name>ismanc</name>
+				<links>
+					<link constant="true">
+						<value>1</value>
+						<weight>1</weight>
+						<operator>multiplication</operator>
+					</link>
+				</links>	
+                        </input>
+                        <input anchor="true">
+                                <name>immanc</name>
+				<links>
+					<link constant="true">
+						<value>1</value>
+						<weight>1</weight>
+						<operator>multiplication</operator>
+					</link>
+				</links>	
+                        </input>
+                </inputs>
+        </function>
+
+    </functions>
+</script>

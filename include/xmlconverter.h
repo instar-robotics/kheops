@@ -24,28 +24,53 @@ The fact that you are presently reading this means that you have had knowledge o
 #include <xercesc/util/PlatformUtils.hpp>
 #include <string>
 #include <vector>
+#include <map>
 
 using namespace xercesc;
 
-struct XFunction
+struct XLink
 {
-	std::string uuid;
-	std::string name; 
-	int x;
-	int y;
+	std::string uuid_pred;
+	std::string op;
+	double weight;
+
+	bool isSparse;
+	bool isSecondary;
+	bool isCst;
+	
+	std::string value;
 };
 
 struct XInput
 {
 	std::string name;
-	std::string uuid_pred;
-	std::string uuid_suc;
+
+	bool isAnchor;
+	std::vector<XLink> links;
+};
+
+struct XFunction
+{
+	std::string uuid;
+	std::string name; 
+
+	int rows;
+	int cols;
+
+	std::map<std::string,XInput> inputs;
 };
 
 struct XRtToken
 {
 	std::string unit;
 	double value;
+};
+
+struct XScript
+{
+	std::string name;
+	XRtToken rt;	
+	std::map<std::string, XFunction> functions;
 };
 
 class XmlConverter
@@ -58,6 +83,14 @@ class XmlConverter
 	
 	void __convertXmlToFunction(const DOMElement &el, XFunction &f);
 	void __convertXmlToInput( const DOMElement &el, XInput &xi );
+	void __convertXmlToLink( const DOMElement &el, XLink &xi );
+	
+	void __loadInputs( const DOMElement &el, std::map<std::string, XInput> &inputs  );
+	void __loadLinks( const DOMElement &el, std::vector<XLink> &inputs  );
+	void __loadFunctions(std::map<std::string,XFunction> &functions);
+	
+	void __loadScriptName(std::string &name);
+	void __loadRtToken(XRtToken & rt);
 
 	public : 
 	
@@ -72,12 +105,7 @@ class XmlConverter
 
 	static inline void Initialize()	{ XMLPlatformUtils::Initialize();}
 
-	void getFunctions(std::vector<XFunction> &functions);
-	void getInputsUuid( std::string FunctUuid, std::vector<XInput> &xinputs );
-	void getInputs( std::vector<XInput> &xinputs);
-
-	void getScriptName(std::string &name);
-	void getRtToken( XRtToken & rt );
+	void loadScript(XScript& xs);
 };
 
 #endif // __XML_CONVERTER__

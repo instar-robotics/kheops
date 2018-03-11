@@ -20,48 +20,102 @@ The fact that you are presently reading this means that you have had knowledge o
 #include <Eigen/Dense>
 #include <string>
 
-using Eigen::MatrixXd;
+#include "factory.h"
+#include "input.h"
+#include "anchor.h"
+
+#define REGISTER_FUNCTION(classname) \
+   static const BuilderImpl<classname,Function> classname(#classname); 
+
 
 class Function
 {
 	private : 
 		std::string uuid;
 
-	protected :
-
-		MatrixXd output;
-
 	public : 
-	
 		Function(){}
-		Function( int X,int Y) {
-                        output = MatrixXd::Constant( X , Y ,0);
-                }
-                Function(int X,int Y, double dvalue){
-                        output = MatrixXd::Constant( X , Y ,dvalue);
-                }
-
 		virtual ~Function(){}
 
-		inline const MatrixXd& getOutput() const { return output;}
-		inline std::string getUuid() { return uuid;  }
-		inline void setUuid( std::string uuid  ) { this->uuid = uuid;  }
+                virtual void compute() = 0;
+		virtual void setparameters() = 0;
+		virtual size_t type() = 0;
+		//virtual void setValue(double dvalue, int x,int y) = 0;
+		//virtual void setSize(int x,int y) = 0;
+		virtual int getRows()=0;
+		virtual int getCols()=0;
+		
+		inline const std::string& getUuid() { return uuid;  }
+		inline void setUuid(const std::string& uuid  ) { this->uuid = uuid;}
+};
 
-		inline void setSize(int x, int y){ output = MatrixXd::Constant( x , y ,0); }
-		inline void setSize(int x, int y, int dvalue){ output = MatrixXd::Constant( x , y ,dvalue); }
+template<class T>
+class FTemplate : public Function
+{
+	protected : 
 
-		inline int getX(){return output.rows();}
-		inline int getY(){return output.cols();}
+		T output;
 
-                inline const MatrixXd& operator()() const
+	public : 
+
+		FTemplate(){}
+		virtual ~FTemplate(){}
+                
+		virtual void compute() = 0;
+		virtual void setparameters() = 0;
+		virtual size_t type(){ return typeid(T).hash_code();}
+	
+		inline const T& getOutput() const { return output;}
+                operator  T& () { return output; }
+                
+		inline const T& operator()() const
                 {
                         return output;
                 }
+};
 
-                operator  MatrixXd& () { return output; }
-	
+class FMatrix : public FTemplate<MatrixXd>
+{
+	public : 
+		FMatrix() : FTemplate()  {}
+		FMatrix( int X,int Y) : FTemplate()  {
+                        output = MatrixXd::Constant( X , Y ,0);
+                }
+                FMatrix(int X,int Y, double dvalue) : FTemplate() {
+                        output = MatrixXd::Constant( X , Y ,dvalue);
+                }
+		virtual ~FMatrix() {}
+
                 virtual void compute() = 0;
+		virtual void setparameters() = 0;
+		inline virtual int getRows(){return output.rows();}
+		inline virtual int getCols(){return output.cols();}
 
+		inline virtual void setValue(double dvalue, int row,int col) { output = MatrixXd::Constant(row,col,dvalue);}
+		inline virtual void setSize(int rows, int cols){ output = MatrixXd::Constant( rows , cols ,0); }
+
+};
+
+
+class FScalar : public FTemplate<double>
+{
+	public : 
+		FScalar() : FTemplate() {
+                        output = 0;
+                }
+                FScalar( double dvalue) : FTemplate() {
+                        output = dvalue;
+                }
+		virtual ~FScalar() {}
+                
+		virtual void compute() = 0;
+		virtual void setparameters() = 0;
+
+		inline void setValue(double dvalue){ output = dvalue; }
+	//	inline virtual void setSize(int x=1, int y=1){}
+	//	inline virtual void setValue(double dvalue, int x =1 ,int y =1){ output = dvalue; }
+		inline virtual int getRows(){return 1;}
+		inline virtual int getCols(){return 1;}
 };
 
 #endif  // __FUNCTION_H__

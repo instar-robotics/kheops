@@ -25,6 +25,7 @@ The fact that you are presently reading this means that you have had knowledge o
 #include "frunner.h"
 #include "kernel.h"
 #include "xmlconverter.h"
+#include "anchor.h"
 
 void gestionnaire_signaux(int numero)
 {
@@ -114,14 +115,14 @@ int main(int argc, char **argv)
 		syslog( LOG_LOCAL0|LOG_ERR , "Unable to redefine SIGTERM signal" );
 		return 0;
 	}
-        /*************End Signaux handler operation ****************/
+        /************* End Signaux handler operation ****************/
 
 	XmlConverter::Initialize();
 
 	Kernel::init(fscript,fres,libdir);	
 	Kernel::instance().load_lib();
 	Kernel::instance().load_functions();
-	Kernel::instance().load_inputs();
+	Kernel::instance().load_links();
 	Kernel::instance().add_rttoken();
 	Kernel::instance().runner_allocation();
 	
@@ -131,7 +132,6 @@ int main(int argc, char **argv)
 	bool run  = true;
         while(run)
         {
-
                 std::string buffer;
                 getline(std::cin,buffer);
 
@@ -146,7 +146,6 @@ int main(int argc, char **argv)
                 }
 		else if (buffer == "pred")
 		{
-
                 	getline(std::cin,buffer);
                         RtToken::instance().ask_pause();
                         RtToken::instance().wait_for_pause();
@@ -155,7 +154,6 @@ int main(int argc, char **argv)
 		}
 		else if (buffer == "suc")
 		{
-
                 	getline(std::cin,buffer);
                         RtToken::instance().ask_pause();
                         RtToken::instance().wait_for_pause();
@@ -164,7 +162,6 @@ int main(int argc, char **argv)
 		}
 		else if (buffer == "ins")
 		{
-
 			std::string suc;
                 	getline(std::cin,buffer);
                 	getline(std::cin,suc);
@@ -188,6 +185,10 @@ int main(int argc, char **argv)
 		{
 			Kernel::instance().write_graph();
 		}
+		else if(buffer == "quiet")
+		{
+			RtToken::instance().setQuiet(  !RtToken::instance().is_quiet());
+		}
 
                 std::cout << "M state : "  << RtToken::instance().getRequest() << std::endl;
         }
@@ -198,5 +199,4 @@ int main(int argc, char **argv)
 	FRunner::clear();
 
 	return 0;
-
 }

@@ -32,6 +32,14 @@ Kernel Kernel::singleton;
 Kernel::~Kernel()
 {
 	delete xmlc;
+
+	
+	for( auto it = node_map.begin(); it != node_map.end(); it++)
+	{
+		Function *f = boost::get(boost::vertex_function , graph)[ it->second  ];
+		if( f != NULL ) delete(f);
+	}
+
 	graph.clear();
 	node_map.clear();
 }
@@ -44,43 +52,54 @@ void Kernel::init(std::string scriptfile, std::string resfile, std::string libdi
 
 	singleton.xmlc = new  XmlConverter(scriptfile);
 
-	singleton.xmlc->getScriptName( singleton.script_name  );
+	singleton.xmlc->loadScript(singleton.xs);
 
-	std::cout << "Run : " << singleton.script_name << " script"<< std::endl;
+	std::cout << "Run : " << singleton.xs.name << " script"<< std::endl;
 }
 
 void Kernel::load_functions()
 {
-	std::vector<XFunction> functions;
-	xmlc->getFunctions(functions);
-
-	for(auto it = functions.begin(); it != functions.end(); it++)
+	//build function using Factory
+	for(auto it = xs.functions.begin(); it != xs.functions.end(); it++)
 	{
-		if( Factory<Function>::Instance().is_register(it->name) )
+		if( Factory<Function>::Instance().is_register(it->second.name) )
 		{
-			add_function( buildFunction(*it ) );	
+			add_function( buildFunction( it->second ) );	
 		}	
 		else
 		{
-			std::cout << "Function "+it->name+" is not a native function. Try to load it" << std::endl;
+			std::cout << "Function "+it->second.name+" is not a native function. Try to load it" << std::endl;
 		}
+	}
+	
+	//setparameters : call bind function for each inputs
+	for( auto it = node_map.begin(); it != node_map.end(); it++)
+	{
+		Function *f = boost::get(boost::vertex_function , graph)[ it->second  ];
+		if( f != NULL ) f->setparameters();
 	}
 }
 
-void Kernel::load_inputs()
+void Kernel::load_links()
 {
-	std::vector<XInput> inputs;
-	xmlc->getInputs(inputs);
 	
-	for( auto it = inputs.begin(); it != inputs.end(); it++)
+	for(auto funct = xs.functions.begin(); funct != xs.functions.end(); funct++)
 	{
-		if( node_map.find( (*it).uuid_pred ) == node_map.end()) throw  std::invalid_argument( "Kernel : try to add link with unkown source "+(*it).uuid_pred  );
-		if( node_map.find( (*it).uuid_suc ) == node_map.end()) throw   std::invalid_argument( "Kernel : try to add link with unkown target "+(*it).uuid_suc );
+		for( auto input = funct->second.inputs.begin(); input != funct->second.inputs.end(); input++)
+		{
+			for( auto link = input->second.links.begin(); link !=  input->second.links.end(); link++)
+			{
+				if( !link->isCst )
+				{
+					if( node_map.find( link->uuid_pred ) == node_map.end()) throw  std::invalid_argument( "Kernel : try to add link with unkown source "+ link->uuid_pred );
+					if( node_map.find( funct->second.uuid  ) == node_map.end()) throw   std::invalid_argument( "Kernel : try to add link with unkown target "+funct->second.uuid );
 
-		add_edge( node_map[(*it).uuid_pred], node_map[(*it).uuid_suc]  , graph );
-	} 	
-	inputs.clear();
-	
+					std::pair<Graph::edge_descriptor, bool> e = add_edge( node_map[ link->uuid_pred], node_map[funct->second.uuid]  , graph );
+					boost::put( boost::edge_type, graph, e.first , link->isSecondary );
+				}
+			}
+		}
+	}	 	
 }
 
 void Kernel::load_lib()
@@ -106,7 +125,11 @@ Function* Kernel::buildFunction(const XFunction& xf)
       if( f ==  NULL ) throw  std::invalid_argument("Kernel : Unable to build Function "+xf.name);
       else{ 
 		f->setUuid(xf.uuid);
-		f->setSize(xf.x,xf.y,0);
+		if( f->type() == typeid(MatrixXd).hash_code()) 		
+		{
+		  //TODO : Check size here ?
+		  dynamic_cast<FMatrix*>(f)->setSize(xf.rows,xf.cols);
+		}
       }
       return f;
 }
@@ -121,12 +144,12 @@ void Kernel::add_function( Function *funct  )
 			boost::put(boost::vertex_name, graph, vd, -1);
 			node_map[funct->getUuid()] = vd;
 		}
-		else throw  std::invalid_argument("Kernel : uuid function in xml file has to be unique");
+		else throw  std::invalid_argument("Kernel : try to add a function with an existed uuid");
 	}
 	else throw  std::invalid_argument("Kernel : try to add Null Function");
 }
 
-void Kernel::add_function_suc(std::string Fct, std::string pred_uuid, int x, int y)
+void Kernel::add_function_suc(std::string Fct, std::string pred_uuid, int rows, int cols)
 {
 	uuid_t out;
 	uuid_generate(out);
@@ -144,31 +167,41 @@ void Kernel::add_function_suc(std::string Fct, std::string pred_uuid, int x, int
      		else{
                 	f->setUuid(uuid);
 
-			if( x == -1 ){ x=boost::get(boost::vertex_function, graph)[node_map[pred_uuid]]->getX();}
-			if( y == -1 ){ y=boost::get(boost::vertex_function, graph)[node_map[pred_uuid]]->getY();}
+			if( rows == -1 ){ rows=boost::get(boost::vertex_function, graph)[node_map[pred_uuid]]->getRows();}
+			if( cols == -1 ){ cols=boost::get(boost::vertex_function, graph)[node_map[pred_uuid]]->getCols();}
 
-                	f->setSize(x,y,0);
-
+			if( f->type() == typeid(MatrixXd).hash_code()) 		
+			{
+			  dynamic_cast<FMatrix*>(f)->setSize(rows,cols);
+			}
+	
+			// Add function to graph
 			add_function(f);
-			EdgeWeightProperty e =dynamic_cast<Link*>(new Synchronized_Link());
-			add_edge( node_map[pred_uuid] , node_map[uuid] ,e, graph  );
-			
-			EdgeWeightProperty rt_e =dynamic_cast<Link*>(new Synchronized_Link());
-			add_edge( node_map[uuid], RtToken::instance().getRtNode() ,rt_e, graph  );
 
+			// add link between predecessor and new node 
+			std::pair<Graph::edge_descriptor, bool> e = add_edge( node_map[pred_uuid] , node_map[uuid], graph  );
+			boost::put( boost::edge_weight, graph, e.first , new Synchronized_Link()); 
+			
+			// add link between new node and RT Token
+			std::pair<Graph::edge_descriptor, bool>  rt_e = add_edge( node_map[uuid], RtToken::instance().getRtNode() , graph  );
+			boost::put( boost::edge_weight, graph, rt_e.first, new Synchronized_Link()); 
+
+			// add a runner to the new node
+			// NB : naive new runner strategy : to improve performance, explore graph and rebuild runners
 			FRunner * fr = new FRunner();
 			fr->setGraph(&graph);
 			FRunner::add(fr);
 			fr->add_node( node_map[uuid] );
                         boost::put(boost::vertex_name, graph, node_map[uuid], fr->getId());
 
+			// Spawn the runner
 			fr->spawn();
       		}
 	}
 }
 
 
-void Kernel::add_function_pred(std::string Fct, std::string suc_uuid, int x, int y)
+void Kernel::add_function_pred(std::string Fct, std::string suc_uuid, int row, int col)
 {
         uuid_t out;
         uuid_generate(out);
@@ -186,31 +219,37 @@ void Kernel::add_function_pred(std::string Fct, std::string suc_uuid, int x, int
                 else{
                         f->setUuid(uuid);
 
-                        if( x == -1 ){ x=boost::get(boost::vertex_function, graph)[node_map[suc_uuid]]->getX();}
-                        if( y == -1 ){ y=boost::get(boost::vertex_function, graph)[node_map[suc_uuid]]->getY();}
+                        if( row == -1 ){ row=boost::get(boost::vertex_function, graph)[node_map[suc_uuid]]->getRows();}
+                        if( col == -1 ){ col=boost::get(boost::vertex_function, graph)[node_map[suc_uuid]]->getCols();}
 
-                        f->setSize(x,y,0);
+			if( f->type() == typeid(MatrixXd).hash_code()) 		
+			{
+			  dynamic_cast<FMatrix*>(f)->setSize(row,col);
+			}
 
+			// Add Node to the graph
                         add_function(f);
 
-                        EdgeWeightProperty e =dynamic_cast<Link*>(new Synchronized_Link());
-                        add_edge( node_map[uuid],  node_map[suc_uuid] , e, graph  );
-
+			// Add link between new node and successor 
+			std::pair<Graph::edge_descriptor, bool>  e = add_edge( node_map[uuid],  node_map[suc_uuid] , graph  );
+			boost::put( boost::edge_weight, graph , e.first, new Synchronized_Link()); 
 			            
+			// add a runner to the new node
+			// NB : naive new runner strategy : to improve performance, explore graph and rebuild runners
 			FRunner * fr = new FRunner();
 			fr->setGraph(&graph);
                         FRunner::add(fr);
 			fr->add_node( node_map[uuid] );
                         boost::put(boost::vertex_name, graph, node_map[uuid], fr->getId());
 
+			// Spawn the runner
                         fr->spawn();
                 }
         }
 }
 
 
-
-void Kernel::insert_function(std::string Fct, std::string pred_uuid, std::string suc_uuid ,int x, int y)
+void Kernel::insert_function(std::string Fct, std::string pred_uuid, std::string suc_uuid ,int rows, int cols)
 {
         uuid_t out;
         uuid_generate(out);
@@ -229,33 +268,44 @@ void Kernel::insert_function(std::string Fct, std::string pred_uuid, std::string
                 else{
                         f->setUuid(uuid);
         
-                        if( x == -1 ){ x=boost::get(boost::vertex_function, graph)[node_map[pred_uuid]]->getX();}
-                        if( y == -1 ){ y=boost::get(boost::vertex_function, graph)[node_map[pred_uuid]]->getY();}
+                        if( rows == -1 ){ rows=boost::get(boost::vertex_function, graph)[node_map[pred_uuid]]->getRows();}
+                        if( cols == -1 ){ cols=boost::get(boost::vertex_function, graph)[node_map[pred_uuid]]->getCols();}
 
-                        f->setSize(x,y,0);
+			if( f->type() == typeid(MatrixXd).hash_code()) 		
+			{
+			  dynamic_cast<FMatrix*>(f)->setSize(rows,cols);
+			}
   
+			// Add Node to the graph
                         add_function(f);
 
-                        EdgeWeightProperty ep =dynamic_cast<Link*>(new Synchronized_Link());
-                        add_edge( node_map[pred_uuid] , node_map[uuid] ,ep, graph  );
-                        
-                        EdgeWeightProperty es =dynamic_cast<Link*>(new Synchronized_Link());
-                        add_edge( node_map[uuid],  node_map[suc_uuid]  ,es, graph  );
+			// Add link between predecessor and new node
+			std::pair<Graph::edge_descriptor, bool> ep = add_edge( node_map[pred_uuid] , node_map[uuid] ,graph  );
+			boost::put( boost::edge_weight, graph, ep.first, new Synchronized_Link()); 
+			
+			// Add link between new node and successor
+			std::pair<Graph::edge_descriptor, bool> es = add_edge( node_map[uuid], node_map[suc_uuid]  ,graph  );
+			boost::put( boost::edge_weight, graph, es.first, new Synchronized_Link()); 
 /*
+			// Alternative to naive runner strategy : add functuin to pred's runner
                         int idRunner = boost::get( boost::vertex_name, graph, node_map[pred_uuid]  ) ;
                         dynamic_cast<FRunner*>(runners[idRunner])->add_node( node_map[uuid] );
                         boost::put(boost::vertex_name, graph, node_map[uuid], idRunner);
 */			
+			// Add a new Runner 
+			// NB : naive runner strategy : could add the function to pred'runner or remap all the runner using the graph
 			FRunner * fr = new FRunner();
 			fr->setGraph(&graph);
 			FRunner::add(fr);
 			fr->add_node( node_map[uuid] );
                         boost::put(boost::vertex_name, graph, node_map[uuid], fr->getId());
 
+			// Spawn the runner
 			fr->spawn();
                 }
         }
 }
+
 
 void Kernel::del_link(std::string pred_uuid, std::string suc_uuid)
 {
@@ -278,14 +328,24 @@ void Kernel::del_link(std::string pred_uuid, std::string suc_uuid)
 
 void Kernel::del_function( Function * funct)
 {
+	if( funct == NULL) throw  std::invalid_argument( "Kernel : try to delete an NULL Function ");
+	if( node_map.find( funct->getUuid()  ) == node_map.end()) throw  std::invalid_argument( "Kernel : try to delete an unknown function "+ funct->getUuid()  );   
 	clear_vertex( node_map[funct->getUuid()] , graph);
 	remove_vertex( node_map[funct->getUuid()] , graph);
+
+	delete(funct);
 }
 
 void Kernel::del_function(const std::string& uuid)
 {
+	if( node_map.find( uuid  ) == node_map.end()) throw  std::invalid_argument( "Kernel : try to del an unknown function "+ uuid );   
+
+	Function *f =  boost::get(boost::vertex_function , graph)[ node_map[uuid]];
+
 	clear_vertex( node_map[uuid] , graph);
 	remove_vertex( node_map[uuid] , graph);
+
+	delete(f);
 }
 
 void Kernel::add_rttoken()
@@ -296,13 +356,6 @@ void Kernel::add_rttoken()
         {
 		if( *it.first != rt_node)
 		{
-/*
-			auto it_in = boost::in_edges( *it.first  , graph);
-			if( it_in.first == it_in.second )
-			{
-				add_edge( rt_node, *it.first, graph  );
-			}
-*/
 			auto it_out = boost::out_edges(*it.first, graph);
 			if( it_out.first == it_out.second)
 			{
@@ -311,10 +364,7 @@ void Kernel::add_rttoken()
 		}
         }
 
-	XRtToken xrt;
-	xmlc->getRtToken(xrt); 
-
-	RtToken::instance().setToken(xrt.value , xrt.unit );
+	RtToken::instance().setToken(xs.rt.value , xs.rt.unit );
 	RtToken::instance().setGraph(&graph);
 	RtToken::instance().setRtNode(rt_node);
 	boost::put(boost::vertex_name, graph, rt_node, 0);
@@ -323,7 +373,7 @@ void Kernel::add_rttoken()
 
 void Kernel::write_graph()
 {
-	std::string filename = script_name+".dot";
+	std::string filename = xs.name+".dot";
 	std::ofstream ofs (filename);
 	write_graphviz(ofs, graph);
 }
@@ -347,13 +397,114 @@ void Kernel::simple_runner_allocation()
 
 	for( auto it = boost::edges(graph); it.first != it.second; ++it.first)
 	{
-		boost::put(boost::edge_weight, graph, *it.first , new Synchronized_Link());
+		bool type = boost::get( boost::edge_type, graph)[*it.first];
+		boost::put(boost::edge_weight, graph, *it.first , new Synchronized_Link(type));
 	}
 }
 
 void Kernel::runner_allocation()
 {
 	this->simple_runner_allocation();
+}
+
+void Kernel::bind(IScalar &value, std::string var_name,std::string uuid)
+{
+	if( node_map.find(uuid) == node_map.end() || xs.functions.find(uuid) == xs.functions.end() ) throw std::invalid_argument( "Kernel : try to bind a scalar input to unkown function "+uuid );
+		
+	if( xs.functions[uuid].inputs.find(var_name) ==  xs.functions[uuid].inputs.end() )  throw std::invalid_argument( "Kernel : unable to find input "+var_name+" for function "+uuid  );
+
+	if(  xs.functions[uuid].inputs[var_name].isAnchor == true)  throw std::invalid_argument( "Kernel : scalar input "+var_name+" could not be an anchor" ); 
+
+	if(  xs.functions[uuid].inputs[var_name].links.size() != 1 ) throw std::invalid_argument( "Kernel : scalar input "+var_name+" should have only one link. "+ std::to_string(xs.functions[uuid].inputs[var_name].links.size())+" given" );	
+	if( xs.functions[uuid].inputs[var_name].links[0].isSparse == true) throw std::invalid_argument( "Kernel : scalar input can't be sparse type"); 
+	
+	if( xs.functions[uuid].inputs[var_name].links[0].isCst == true )
+	{
+		value.setCValue( std::stod(xs.functions[uuid].inputs[var_name].links[0].value) );
+	}
+	else
+	{
+		std::string uuid_pred = xs.functions[uuid].inputs[var_name].links[0].uuid_pred;
+
+		if( node_map.find( uuid_pred ) == node_map.end()) throw std::invalid_argument( "Kernel : try to get output from unkown function "+uuid_pred );
+
+		Function *f =  boost::get(boost::vertex_function, graph, node_map[uuid_pred]) ;
+		if( f->type() == value.type())
+		{
+			Function *f =  boost::get(boost::vertex_function, graph, node_map[uuid_pred]) ;
+			value.i( &(dynamic_cast<FScalar*>(f)->getOutput()) );
+
+		}else throw std::invalid_argument( "Kernel : try to bind no compatible type ");
+	}
+			
+	value.w( xs.functions[uuid].inputs[var_name].links[0].weight );
+
+	if( xs.functions[uuid].inputs[var_name].links[0].op == "+" ) value.setOp(ADDITION);
+	else if( xs.functions[uuid].inputs[var_name].links[0].op == "*" ) value.setOp(MULTIPLICATION);
+	else if( xs.functions[uuid].inputs[var_name].links[0].op == "-" ) value.setOp(SUBSTRACTION);
+	else if( xs.functions[uuid].inputs[var_name].links[0].op == "/" ) value.setOp(DIVISION);
+	else throw  std::invalid_argument( "Kernel : unkown operator : "+xs.functions[uuid].inputs[var_name].links[0].op+". Legal operators are +, *, / or -");
+
+}
+
+void Kernel::bind(IScalarMatrix& value, std::string var_name,std::string uuid)
+{
+	if( node_map.find(uuid) == node_map.end() || xs.functions.find(uuid) == xs.functions.end() ) throw std::invalid_argument( "Kernel : try to bind a scalarMatrix input to unkown function "+uuid );
+		
+	if( xs.functions[uuid].inputs.find(var_name) ==  xs.functions[uuid].inputs.end() )  throw std::invalid_argument( "Kernel : unable to find input "+var_name+" for function "+uuid  );
+
+	if(  xs.functions[uuid].inputs[var_name].isAnchor == true)  throw std::invalid_argument( "Kernel : scalarMatrix input "+var_name+" could not be an anchor" ); 
+
+	if(  xs.functions[uuid].inputs[var_name].links.size() != 1 ) throw std::invalid_argument( "Kernel : scalarMatrix input "+var_name+" should have only one link. "+ std::to_string(xs.functions[uuid].inputs[var_name].links.size())+" given" );	
+	if( xs.functions[uuid].inputs[var_name].links[0].isSparse == true) throw std::invalid_argument( "Kernel : scalarMatrix input can't be sparse type"); 
+	
+	Function *sf =  boost::get(boost::vertex_function, graph, node_map[uuid]) ;
+
+	if( xs.functions[uuid].inputs[var_name].links[0].isCst == true )
+	{
+		// If value is a constant input, the matrix rows/cols is egal to the rows/cols of the function
+		value.setCValue( MatrixXd::Constant( sf->getRows(),sf->getCols(),  std::stod( xs.functions[uuid].inputs[var_name].links[0].value))); 
+	}
+	else
+	{
+		std::string uuid_pred = xs.functions[uuid].inputs[var_name].links[0].uuid_pred;
+
+		if( node_map.find( uuid_pred ) == node_map.end()) throw std::invalid_argument( "Kernel : try to get output from unkown function "+uuid_pred );
+
+		Function *pf =  boost::get(boost::vertex_function, graph, node_map[uuid_pred]) ;
+		if( pf->type() == value.type())
+		{
+			value.i( &(dynamic_cast<FMatrix*>(pf)->getOutput()) );
+			// TODO : check size input / output ?
+
+		}else throw std::invalid_argument( "Kernel : try to bind no compatible type ");
+	}
+			
+	value.w( xs.functions[uuid].inputs[var_name].links[0].weight );
+
+	if( xs.functions[uuid].inputs[var_name].links[0].op == "+" ) value.setOp(ADDITION);
+	else if( xs.functions[uuid].inputs[var_name].links[0].op == "*" ) value.setOp(MULTIPLICATION);
+	else if( xs.functions[uuid].inputs[var_name].links[0].op == "-" ) value.setOp(SUBSTRACTION);
+	else if( xs.functions[uuid].inputs[var_name].links[0].op == "/" ) value.setOp(DIVISION);
+	else throw  std::invalid_argument( "Kernel : unkown operator : "+xs.functions[uuid].inputs[var_name].links[0].op+". Legal operators are +, *, / or -");
+}
+
+void Kernel::bind(ISAnchor& value, std::string var_name,std::string uuid)
+{
+}
+
+void Kernel::bind(ISMAnchor& value, std::string var_name,std::string uuid)
+{
+}
+
+void Kernel::bind(IMMAnchor& value, std::string var_name,std::string uuid)
+{
+
+	// Default value : should be possible to add a 1x1 matrix 
+}
+
+void Kernel::bind(std::string& value, std::string var_name,std::string uuid)
+{
 }
 
 /*

@@ -17,44 +17,547 @@ The fact that you are presently reading this means that you have had knowledge o
 #ifndef __INPUT_H__
 #define __INPUT_H__
 
+#include <Eigen/Sparse>
 #include <Eigen/Dense>
+#include <iostream>
 
+enum OPERATOR{ ADDITION=1,SUBSTRACTION=2,DIVISION=3,MULTIPLICATION=4};
+
+using Eigen::SparseMatrix;
 using Eigen::MatrixXd;
+using Eigen::VectorXd;
+using Eigen::Map;
 
-
+template<class T>
 class Input
 {
-        protected :
+	protected :
+		T cvalue;
+		T const * input;
 
-                MatrixXd const * input;
-		std::string puuid;
+	public : 
+
+		typedef T type_i;
+		size_t type() { return typeid(T).hash_code();}
+
+		Input() {input = NULL; }	
+		Input(T const * i) : input(i) { }
+		virtual ~Input(){}
+	
+		virtual inline void setCValue(const T& cv){cvalue = cv; input = &cvalue;}
+		virtual inline const T& getCValue(){ return cvalue;}
+
+		virtual inline void i(T const *i){input=i;}
+		virtual inline const T& i() const {return *input;}
+
+		virtual inline bool isSet(){return input!=NULL;}
+		virtual inline bool isCValue(){return input==&cvalue;}
+};
+
+
+template<class T>
+class ICombinator
+{
+	private :
+		
+		OPERATOR op;
+
+	public : 	
+
+		ICombinator( OPERATOR op = MULTIPLICATION ) : op(op)  {}
+		virtual ~ICombinator() {}
+		
+		inline OPERATOR getOp() {return op;}
+		virtual void setOp(OPERATOR OP){ op=OP;}
+
+		virtual T& accumulate(T&)=0;
+		virtual T& mul_accumulate(T&)=0;
+		virtual T& sum_accumulate(T&)=0;
+		virtual T& sub_accumulate(T&)=0;
+		virtual T& div_accumulate(T&)=0;
+		
+};
+
+
+
+class IScalar : public Input<double>, public ICombinator<double>
+{
+	private :
+
+		double weight;
+
+        public:
+		
+		IScalar(OPERATOR op = MULTIPLICATION) : Input(),ICombinator(op) {setOp(op);}	
+		IScalar(double const * i, OPERATOR op = MULTIPLICATION ) : Input(i), ICombinator(op) {setOp(op);}
+		~IScalar(){}
+
+		inline double& w() {return weight;}
+                inline void w(const double& w) { weight = w; }
+
+		inline auto sum(){ return (*input) + weight; }
+		inline auto sub(){ return (*input) - weight; }
+		inline auto mul(){ return (*input) * weight; }
+		inline auto div(){ return (*input) / weight; }
+		
+                std::function<double()> operate;
+		double operator()(){return operate();}
+
+
+		virtual void setOp(OPERATOR OP) 
+                {
+                        ICombinator::setOp(OP);
+                        switch(OP)
+                        {
+                                case ADDITION :
+                                        operate =  std::bind( &IScalar::sum, this ) ;
+                                        break;
+                                case SUBSTRACTION :
+                                        operate =  std::bind( &IScalar::sub, this ) ;
+                                        break;
+                                case DIVISION :
+                                        operate =  std::bind( &IScalar::div, this ) ;
+                                        break;
+                                case MULTIPLICATION :
+                                default :
+                                        operate =  std::bind( &IScalar::mul, this ) ;
+                                        break;
+                        }
+                }
+
+		inline virtual double& accumulate(double& res){return res = operate(); }
+		inline virtual double& mul_accumulate(double& res){return res *= operate(); }
+		inline virtual double& sum_accumulate(double& res){return res += operate(); }
+		inline virtual double& sub_accumulate(double& res){return res -= operate(); }
+		inline virtual double& div_accumulate(double& res){return res /= operate(); }
+
+};
+
+
+class IMatrix : public Input<MatrixXd>
+{
+	public : 
+                
+		IMatrix() : Input() {}
+                IMatrix(MatrixXd const * i) : Input(i){}
+                virtual ~IMatrix() {}
+
+		inline double operator()(int x,int y) const {return (*Input<MatrixXd>::input)(x,y);}
+		
+		inline unsigned int getIRows(){return (*Input<MatrixXd>::input).cols();}
+		inline unsigned int getICols(){return (*Input<MatrixXd>::input).rows();}
+};
+
+class IScalarMatrix : public IMatrix, public ICombinator<MatrixXd>
+{
+	private :
+		double weight;
+	public : 
+
+		IScalarMatrix(OPERATOR op = MULTIPLICATION) : IMatrix(),ICombinator(op) {}
+                IScalarMatrix( MatrixXd const *  i, OPERATOR op = MULTIPLICATION ) : IMatrix(i), ICombinator(op){}
+                virtual ~IScalarMatrix() {}
+
+		inline double& w() {return weight;}
+                inline void w(const double& w) { weight = w; }
+               
+		inline auto sum(){ return (*input).array() + weight; }
+		inline auto sub(){ return (*input).array() - weight; }
+		inline auto mul(){ return (*input) * weight; }
+		inline auto div(){ return (*input) / weight; }
+
+		virtual MatrixXd& accumulate(MatrixXd& res) 
+		{
+			switch( getOp())
+                        {
+                                case ADDITION:
+                                        res.array()=sum();
+                                        break;
+                                case SUBSTRACTION:
+                                        res=sub();
+                                        break;
+                                case DIVISION:
+                                        res=div();
+                                        break;
+                                case MULTIPLICATION:
+                                default:
+                                        res=mul();
+                                        break;
+                        }
+			return res;
+		}
+
+		virtual MatrixXd& mul_accumulate(MatrixXd& res) 
+		{
+			switch( getOp())
+                        {
+                                case ADDITION:
+                                        res.array()*=sum();
+                                        break;
+                                case SUBSTRACTION:
+                                        res.array()*=sub();
+                                        break;
+                                case DIVISION:
+                                        res=res.cwiseProduct(div());
+                                        break;
+                                case MULTIPLICATION:
+                                default:
+                                        res=res.cwiseProduct(mul());
+                                        break;
+                        }
+			return res;
+		}
+
+		virtual MatrixXd& sum_accumulate(MatrixXd& res) 
+		{
+			switch( getOp())
+                        {
+                                case ADDITION:
+                                        res.array()+=sum();
+                                        break;
+                                case SUBSTRACTION:
+                                        res.array()+=sub();
+                                        break;
+                                case DIVISION:
+                                        res+=div();
+                                        break;
+                                case MULTIPLICATION:
+                                default:
+                                        res+=mul();
+                                        break;
+                        }
+			return res;
+		}
+
+		virtual MatrixXd& sub_accumulate(MatrixXd& res) 
+		{
+			switch( getOp())
+                        {
+                                case ADDITION:
+                                        res.array()-=sum();
+                                        break;
+                                case SUBSTRACTION:
+                                        res.array()-=sub();
+                                        break;
+                                case DIVISION:
+                                        res-=div();
+                                        break;
+                                case MULTIPLICATION:
+                                default:
+                                        res-=mul();
+                                        break;
+                        }
+			return res;
+		}
+		
+		virtual MatrixXd& div_accumulate(MatrixXd& res) 
+		{
+
+			switch( getOp())
+                        {
+                                case ADDITION:
+                                        res.array()/=sum();
+                                        break;
+                                case SUBSTRACTION:
+                                        res.array()/=sub();
+                                        break;
+                                case DIVISION:
+                                        res=res.cwiseQuotient(div());
+                                        break;
+                                case MULTIPLICATION:
+                                default:
+                                        res=res.cwiseQuotient(mul());
+                                        break;
+                        }
+			return res;
+		}
+};
+
+class IMMatrix : public IMatrix
+{
+	protected : 
+
+		unsigned int orows;	
+		unsigned int ocols;
+		double dvalue;
+		
+		MatrixXd weight;		
+		
+	public : 
+		IMMatrix(unsigned int rows=0, unsigned int cols=0, double dvalue=0.) : IMatrix(), orows(rows),ocols(cols),dvalue(dvalue) {}
+                IMMatrix( MatrixXd const *  i, unsigned int rows = 0, unsigned int cols=0, double dvalue =0 ) : IMatrix(i), orows(rows), ocols(cols), dvalue(dvalue) {}
+
+                virtual ~IMMatrix(){}
+		
+		inline void setOSize(unsigned int rows, unsigned int cols){ orows = rows; ocols=cols;}
+		inline void setDValue(double dvalue){this->dvalue=dvalue;}
+
+		inline unsigned int getORows(){return ocols;}
+		inline unsigned int getOCols(){return orows;}
+
+		virtual void resizeWeight() 
+		{	
+			if( getIRows()==0 || getICols()==0) throw std::invalid_argument("Input : Matrix try to resize weight without knowing input size");
+			if( getORows()==0 || getOCols()==0) throw std::invalid_argument("Input : Matrix try to resize weight without knowing output size");
+
+			weight.resize(  getORows() * getOCols() , getIRows() * getICols() );
+			weight << MatrixXd::Zero( getORows() * getOCols() , getIRows() * getICols() );
+		} 
+		
+		virtual MatrixXd& weigthedSum(MatrixXd& out) = 0;
+		virtual MatrixXd& weigthedSumAccu(MatrixXd& out) = 0;
+			
+		virtual double w(unsigned int rows, unsigned int cols) 
+		{
+			if(rows > getORows() || cols > getOCols()) throw std::invalid_argument("Input : Matrix output size doesn't match with weight size");
+			return weight(rows,cols);
+		}
+		
+		virtual MatrixXd& w() 
+		{
+			return weight;
+		}
+		
+		virtual void w(double weight, unsigned int row, unsigned int col) = 0;
+		virtual void w(VectorXd &weight,unsigned int col) = 0;
+		virtual void w(MatrixXd &weight) = 0;
+		
+		virtual MatrixXd& add(MatrixXd& out) = 0;
+		virtual MatrixXd& diff(MatrixXd& out) = 0;
+		virtual MatrixXd& prod(MatrixXd& out) = 0;
+		virtual MatrixXd& quot(MatrixXd& out) = 0;
+
+};
+
+// Ajouter un ICombinator ?? 
+//	-> Pas vraiment pareil 
+/*		
+	ICombinator : 
+		sum_accu :
+			res += w op i
+
+	Ici :
+		res += w 	
+
+
+	ICombinator : calcule sortie
+
+	w_acc : mise à jour des poids
+*/	
+class IDenseMatrix : public IMMatrix
+{
 
         public:
 
-                Input( ) {}
-                Input( MatrixXd const *  i ) : input(i){}
-                Input( const MatrixXd &  i ) { input = &i; }
+		IDenseMatrix(unsigned int rows=0, unsigned int cols=0, double dvalue=0.) : IMMatrix(rows,cols,dvalue) {}
 
-                virtual ~Input() {}
+                IDenseMatrix( MatrixXd const *  i,  unsigned int rows = 0, unsigned int cols=0, double dvalue = 0 ) : IMMatrix(i,rows, cols, dvalue) {}
 
-                inline void setInput( MatrixXd const * i  ){ input = i;  }
-                inline void setInput( const MatrixXd & i  ){ input = &i;  }
+                virtual ~IDenseMatrix(){}
+		
+		virtual void w(VectorXd &weight,unsigned int col)
+		{
+			if(col > getOCols()) throw std::invalid_argument("Input : Matrix output size doesn't match with weight size");
+			this->weight.col(col) = weight;
+		}
 
-		inline std::string getUuid(){  return puuid; }
+		virtual void w(MatrixXd &weight)
+		{
+			if(weight.rows() != getORows() || weight.cols() != getOCols()) throw std::invalid_argument("Input : Matrix output size doesn't match with weight size");
+			this->weight = weight;
+		}
+		
+		virtual void w(double weight, unsigned int rows, unsigned int cols) 
+		{
+			if(rows != getORows() || cols != getOCols()) throw std::invalid_argument("Input : Matrix output size doesn't match with weight size");
 
-                inline const MatrixXd& getInput() const { return *input;}
+			this->weight(rows,cols) = weight;
+		}
 
-                inline auto operator()(int x,int y) const
-                {
-                        return (*input)(x,y);
-                }
+		
+		virtual MatrixXd& add(MatrixXd& out) 
+		{
+			if(  out.rows() != getORows() || out.cols() != getOCols()) throw std::invalid_argument("Input : Matrix output size doesn't match with weight size");
+			
+			Map<const MatrixXd> ve( i().data(),1, getIRows()* getICols() ) ;
+			
+			out = weight + ve;
+		
+			return out;
+		}
 
-                inline const MatrixXd& operator()() const
-                {
-                        return *input;
-                }
+		virtual MatrixXd& diff(MatrixXd& out) 
+		{
+			if(  out.rows() != getORows() || out.cols() != getOCols()) throw std::invalid_argument("Input : Matrix output size doesn't match with weight size");
+			
+			Map<const MatrixXd> ve( i().data(),1, getIRows()* getICols() ) ;
+			
+			out = weight - ve;
+		
+			return out;
+		}
+	
+		virtual MatrixXd& prod(MatrixXd& out) 
+		{
+			if(  out.rows() != getORows() || out.cols() != getOCols()) throw std::invalid_argument("Input : Matrix output size doesn't match with weight size");
+			
+			Map<const MatrixXd> ve( i().data(),1, getIRows()* getICols() ) ;
+			
+			out = weight.cwiseProduct(ve);
+		
+			return out;
+		}
 
-                operator const  MatrixXd& () { return *input; }
+		virtual MatrixXd& quot(MatrixXd& out) 
+		{
+			if(  out.rows() != getORows() || out.cols() != getOCols()) throw std::invalid_argument("Input : Matrix output size doesn't match with weight size");
+			
+			Map<const MatrixXd> ve( i().data(),1, getIRows()* getICols() ) ;
+			
+			out = weight.cwiseQuotient(ve);
+		
+			return out;
+		}
+		
+		virtual MatrixXd& weigthedSum(MatrixXd& out)
+		{  
+			if(out.rows() != getORows() || out.cols() != getOCols()) throw std::invalid_argument("Input : DenseMatrix output size doesn't match with weight size");
+
+			Map<const MatrixXd> ve( i().data(),1, getIRows()* getICols() ) ;
+        		Map<MatrixXd> vs(out.data(), out.cols()*out.rows(),1) ;
+		
+			vs = weight * ve;
+
+			return out;	
+		}
+		
+		virtual MatrixXd& weigthedSumAccu(MatrixXd& out)
+		{  
+			if(out.rows() != getORows() || out.cols() != getOCols()) throw std::invalid_argument("Input : DenseMatrix output size doesn't match with weight size");
+
+			Map<const MatrixXd> ve( i().data(),1, getIRows()* getICols() ) ;
+        		Map<MatrixXd> vs(out.data(), out.cols()*out.rows(),1) ;
+		
+			vs += weight * ve;
+
+			return out;	
+		}
 };
+
+class ISparseMatrix : public IMMatrix
+{
+	
+	private : 	
+	
+		SparseMatrix<double> filter;
+		int type;
+        
+	public:
+		ISparseMatrix(unsigned int row=0, unsigned int col=0, double dvalue=0.) : IMMatrix(row,col,dvalue) {}
+                ISparseMatrix( MatrixXd const *  i, unsigned int row = 0, unsigned int col=0, double dvalue = 0 ) : IMMatrix(i,row, col, dvalue) {}
+                virtual ~ISparseMatrix(){}
+		
+		virtual void w(VectorXd &weight,unsigned int col)
+		{
+			if(col > getOCols()) throw std::invalid_argument("Input : Matrix output size doesn't match with weight size");
+			this->weight.col(col) = weight ; 
+			this->weight.col(col) =  this->weight.col(col) * filter.col(col);
+		}
+
+		virtual void w(MatrixXd &weight)
+		{
+			if(weight.rows() != getORows() || weight.cols() != getOCols()) throw std::invalid_argument("Input : Matrix output size doesn't match with weight size");
+			this->weight = weight.cwiseProduct(filter);
+		}
+		
+		virtual void w(double weight, unsigned int rows, unsigned int cols) 
+		{
+			if(rows != getORows() || cols != getOCols()) throw std::invalid_argument("Input : Matrix output size doesn't match with weight size");
+
+			this->weight(rows,cols) = weight * filter.coeffRef(rows,cols);  //filter(row,col);
+		}
+		
+		virtual MatrixXd& add(MatrixXd& out) 
+		{
+			if(  out.rows() != getORows() || out.cols() != getOCols()) throw std::invalid_argument("Input : Matrix output size doesn't match with weight size");
+			
+			Map<const MatrixXd> ve( i().data(),1, getIRows()* getICols() ) ;
+			
+			out =  filter.cwiseProduct(weight + ve);
+		
+			return out;
+		}
+
+		virtual MatrixXd& diff(MatrixXd& out) 
+		{
+			if(  out.rows() != getORows() || out.cols() != getOCols()) throw std::invalid_argument("Input : Matrix output size doesn't match with weight size");
+			
+			Map<const MatrixXd> ve( i().data(),1, getIRows()* getICols() ) ;
+			
+			out =  filter.cwiseProduct(weight - ve);
+		
+			return out;
+		}
+
+		virtual MatrixXd& prod(MatrixXd& out) 
+		{
+			if(  out.rows() != getORows() || out.cols() != getOCols()) throw std::invalid_argument("Input : Matrix output size doesn't match with weight size");
+			
+			Map<const MatrixXd> ve( i().data(),1, getIRows()* getICols() ) ;
+			
+			out =  filter.cwiseProduct(weight.cwiseProduct(ve));
+		
+			return out;
+		}
+
+		virtual MatrixXd& quot(MatrixXd& out) 
+		{
+			if(  out.rows() != getORows() || out.cols() != getOCols()) throw std::invalid_argument("Input : Matrix output size doesn't match with weight size");
+			
+			Map<const MatrixXd> ve( i().data(),1, getIRows()* getICols() ) ;
+			
+			out =  filter.cwiseProduct(weight.cwiseQuotient(ve));
+		
+			return out;
+		}
+		
+		virtual MatrixXd& weigthedSum(MatrixXd& out)
+		{  
+			if(out.rows() != getORows() || out.cols() != getOCols()) throw std::invalid_argument("Input : DenseMatrix output size doesn't match with weight size");
+
+			Map<const MatrixXd> ve( i().data(),1, getIRows()* getICols() ) ;
+        		Map<MatrixXd> vs(out.data(), out.cols()*out.rows(),1) ;
+		
+			vs =  weight.cwiseProduct(filter) * ve;
+
+			return out;	
+		}
+		
+		virtual MatrixXd& weigthedSumAccu(MatrixXd& out)
+		{  
+			if(out.rows() != getORows() || out.cols() != getOCols()) throw std::invalid_argument("Input : DenseMatrix output size doesn't match with weight size");
+
+			Map<const MatrixXd> ve( i().data(),1, getIRows()* getICols() ) ;
+        		Map<MatrixXd> vs(out.data(), out.cols()*out.rows(),1) ;
+		
+			vs += weight.cwiseProduct(filter) * ve;
+
+			return out;	
+		}
+};
+
+/*
+value compute_val()
+
+
+        for(int i = 0;  i < w.cols(); i++)
+        {
+                s(i) = (ve + w.col(i)).sum() ;
+        }
+
+        std::cout << s << std::endl;
+
+        s.colwise().sum();
+*/
 
 #endif // __INPUT_H__

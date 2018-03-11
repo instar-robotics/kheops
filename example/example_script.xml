@@ -3,43 +3,89 @@
     <name>Example</name>	
     <rt_token unit="ms">10</rt_token> 
     <functions>
-	<function uuid="1" x="1" y="1">
-		<name>MyFct</name>
+	<function uuid="1">
+		<name>SSSub</name>
 		<inputs>	
+			<input>
+				<name>diminuende</name>
+				<links>
+					<link constant="true">
+						<value>2</value>
+						<weight>3</weight>
+						<operator>/</operator>
+					</link>
+				</links>	
+			</input>
+			<input>
+				<name>subtrahend</name>
+				<links>
+					<link constant="true">
+						<value>1</value>
+						<weight>1</weight>
+						<operator>*</operator>
+					</link>
+				</links>	
+			</input>
 		</inputs>	
 	</function>
-	
-	<function uuid="2" x="1" y="1">
-		<name>MyFct</name>
-		<inputs>
+	<function uuid="2">
+		<name>MSSub</name>
+		<output>
+			<rows>2</rows>
+			<cols>2</cols>
+		</output>
+		<inputs>	
 			<input>
-				<name>learning</name>
-				<link>1</link>	
+				<name>diminuende</name>
+				<links>
+					<link constant="true">
+						<value>2</value>
+						<weight>3</weight>
+						<operator>*</operator>
+					</link>
+				</links>	
 			</input>
-		</inputs>
+			<input>
+				<name>subtrahend</name>
+				<links>
+					<link constant="true">
+						<value>1</value>
+						<weight>1</weight>
+						<operator>*</operator>
+					</link>
+				</links>	
+			</input>
+		</inputs>	
 	</function>
-	
-	<function uuid="3" x="1" y="1">
-		<name>MyFct</name>
-		<inputs>
+
+	<function uuid="3">
+		<name>MSSub</name>
+<!--		<output>
+			<rows>3</rows>
+			<cols>3</cols>
+		</output>-->
+		<inputs>	
 			<input>
-				<name>icst</name>
-				<link>2</link>	
-			</input>
-		</inputs>
-	</function>
-	<function uuid="4" x="1" y="1">
-		<name>MyFct</name>
-		<inputs>
-			<input>
-				<name>icst</name>
-				<link>1</link>	
+				<name>diminuende</name>
+				<links>
+					<link>
+						<pred>2</pred>
+						<weight>3</weight>
+						<operator>*</operator>
+					</link>
+				</links>	
 			</input>
 			<input>
-				<name>icst</name>
-				<link>2</link>	
+				<name>subtrahend</name>
+				<links>
+					<link>
+						<pred>1</pred>
+						<weight>1</weight>
+						<operator>*</operator>
+					</link>
+				</links>	
 			</input>
-		</inputs>
+		</inputs>	
 	</function>
     </functions>
 </script>

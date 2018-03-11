@@ -28,7 +28,13 @@ namespace boost {
 }
 typedef boost::property <boost::vertex_name_t, int,  boost::property<boost::vertex_function_t, Function*  >> VertexProperties;
 
-typedef boost::property<boost::edge_weight_t, Link*> EdgeWeightProperty;
+
+namespace boost {
+    enum edge_type_t { edge_type};
+    BOOST_INSTALL_PROPERTY(edge, type);
+}
+
+typedef boost::property<boost::edge_weight_t, Link*, boost::property< boost::edge_type_t, bool>> EdgeWeightProperty;
 typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::bidirectionalS , VertexProperties , EdgeWeightProperty>  Graph;
 
 

@@ -29,18 +29,8 @@ void FRunner::exec()
 
 		for(unsigned int i = 0; i < functions.size() ; i++)
 		{
-//			wait_for_produce( functions[i] );
 			consume(functions[i]);
-		//TODO : décider si le runner attend la fin de l'execution de la boite successeur 
-		//      Si UN seul manager et toutes les functions attachées au RT_TOKEN inutile
-		//      Si des functions peuvent ne pas être reliés au RT_TOKEN : 
-		//              - Permet de synchroniser ou de ne pas synchroniser leurs executions
-		//              - Les deux comportements peuvent être intéressant.
-		//      wait_for_consume(**it);
-
-		// Check Here NULL Pointer ? 
 			boost::get(boost::vertex_function , *g)[functions[i]]->compute();
-			//	consume(functions[i]);
 			produce(functions[i]);
 		}
 

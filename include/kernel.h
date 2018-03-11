@@ -21,12 +21,11 @@ The fact that you are presently reading this means that you have had knowledge o
 #include "graph.h"
 #include "xmlconverter.h"
 #include "runner.h"
+#include "input.h"
 
 class Kernel 
 {
 	private :
-
-		std::string script_name;
 
 		std::string scriptfile;
 		std::string resfile;
@@ -39,6 +38,8 @@ class Kernel
 		
 		static Kernel singleton;
 
+		XScript xs;
+
 	public :
 	
 		Kernel() : xmlc(NULL) {}
@@ -50,25 +51,48 @@ class Kernel
 		static inline Kernel& instance() noexcept {return singleton;}
 
 		void load_lib();			
-		void load_inputs();			
+		void load_links();			
 		void load_functions();
 
 		void add_rttoken();
 
 		Function* buildFunction(const XFunction&);
 		void add_function(Function *funct);
-		void del_function(Function * funct);
+		void del_function(Function *funct);
 		void del_function(const std::string & uuid);
+		
+		// Beta function : do not use this for now
+		// Warning 1 : Doesn't remap Input for now !!
+		// Warning 2 : XML Model is not updated
 		void add_function_suc(std::string Fct, std::string pred_uuid, int x=-1, int y=-1);
+		// Beta function : do not use this for now
+		// Warning 1 : Doesn't remap Input for now !!
+		// Warning 2 : XML Model is not updated
 		void add_function_pred(std::string Fct, std::string suc_uuid, int x=-1, int y=-1);
-		// Don't delete the old ling between pred_uuid and suc_uuid
+
+		// Beta function : do not use this for now
+		//Warning 1 : Doesn't delete the old ling between pred_uuid and suc_uuid
+		// Need to call del_link if a link exist before pred and suc
+		//Warning 2 : Doesn't remap Input for now !! 
+		//Warning 3 : XML Model is not updated
 		void insert_function(std::string Fct, std::string pred_uuid, std::string suc_uuid ,int x=-1, int y=-1);
+		// Beta function : do not use this for now
+		// Warning 1 : Doesn't remap Input for now !!
+		// Warning 2 : XML Model is not updated
 		void del_link(std::string pred_uuid, std::string suc_uuid);
 
 		void simple_runner_allocation();
 		void runner_allocation();
 
 		void write_graph();
+
+		void bind( IScalar& value, std::string var_name, std::string uuid );
+		void bind( IScalarMatrix& value, std::string var_name, std::string uuid );
+		void bind( ISAnchor& value, std::string var_name, std::string uuid );
+		void bind( ISMAnchor& value, std::string var_name, std::string uuid );
+		void bind( IMMAnchor& value, std::string var_name, std::string uuid );
+		void bind( std::string& value, std::string var_name, std::string uuid );
+
 };
 
 #endif // __KERNEL_H__
