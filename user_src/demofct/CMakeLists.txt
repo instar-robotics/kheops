@@ -5,7 +5,7 @@ set(CMAKE_BUILD_TYPE Release)
 set(CMAKE_CXX_FLAGS "-std=c++17")
 set(EIGEN3_INCLUDE_DIR  "/usr/include/eigen3" )
 #set(CMAKE_INSTALL_LIBDIR "../lib")
-set(CMAKE_INSTALL_PREFIX "..")
+set(CMAKE_INSTALL_PREFIX "../..")
 
 add_definitions(-Wextra -Wall)
 
