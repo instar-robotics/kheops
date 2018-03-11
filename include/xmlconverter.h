@@ -57,6 +57,7 @@ struct XFunction
 	int rows;
 	int cols;
 
+	// string : input name
 	std::map<std::string,XInput> inputs;
 };
 
@@ -70,6 +71,7 @@ struct XScript
 {
 	std::string name;
 	XRtToken rt;	
+	// string : function uuid
 	std::map<std::string, XFunction> functions;
 };
 

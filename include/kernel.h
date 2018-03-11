@@ -29,14 +29,14 @@ class Kernel
 
 		std::string scriptfile;
 		std::string resfile;
-		std::string libdir;
 
 		Graph graph;
+		// string : uuid function
 		std::map<std::string, Graph::vertex_descriptor> node_map;
 		
-		static Kernel singleton;
-
 		XScript xs;
+
+		static Kernel singleton;
 
 	public :
 	
@@ -45,13 +45,12 @@ class Kernel
 		Kernel(const Kernel&) = delete;
                 Kernel& operator=(const Kernel&) = delete;
 
-		static void init(std::string scriptfile, std::string resfile, std::string libdir);
+		static void init(std::string scriptfile, std::string resfile);
 		static inline Kernel& instance() noexcept {return singleton;}
 
 		inline const Graph& getGraph(){return graph;}
 		inline const std::string& getName(){return xs.name;}
 
-		void load_lib();			
 		void load_links();			
 		void load_functions();
 

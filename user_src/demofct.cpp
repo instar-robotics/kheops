@@ -1,4 +1,3 @@
 #include "demofct.h"
-#include "factory.h"
 
-REGISTER(DemoFct,Function);
+REGISTER(DemoFct,FScalar);

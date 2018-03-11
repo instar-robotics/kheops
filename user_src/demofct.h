@@ -2,18 +2,29 @@
 #define __DEMO_FCT_HPP__
 
 #include "function.h"
+#include "kernel.h"
 #include <iostream>
 
-class DemoFct : public Function
+class DemoFct : public FScalar
 {
+	private : 
+
+		IScalar iscal;
+
         public :
 		
-		DemoFct() : Function() {}
+		DemoFct() : FScalar() {}
 
 		virtual void compute()
 		{
-			std::cout << "demo Box" << std::endl;
+			std::cout << "demo Box : " <<  iscal() << std::endl;
 		}
+
+                virtual void setparameters()
+		{
+			Kernel::instance().bind(iscal,"iscal", getUuid());
+		}
+
 
 };
 

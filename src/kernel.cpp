@@ -14,10 +14,7 @@ and, more generally, to use and operate it in the same conditions as regards sec
 The fact that you are presently reading this means that you have had knowledge of the CeCILL v2.1 license and that you accept its terms.
 */
 
-#include <dlfcn.h>
-#include <sstream>
 #include <iostream>
-
 #include "kernel.h"
 #include "factory.h"
 #include "util.h"
@@ -38,11 +35,10 @@ Kernel::~Kernel()
 	node_map.clear();
 }
 
-void Kernel::init(std::string scriptfile, std::string resfile, std::string libdir)
+void Kernel::init(std::string scriptfile, std::string resfile)
 {
 	singleton.scriptfile=scriptfile;
 	singleton.resfile=resfile;
-	singleton.libdir = libdir;
 
 	XmlConverter * xmlc = new  XmlConverter(scriptfile);
 	xmlc->loadScript(singleton.xs);
@@ -98,24 +94,6 @@ void Kernel::load_links()
 			}
 		}
 	}	 	
-}
-
-
-void Kernel::load_lib()
-{
-  void *handle;	
-  std::vector<std::string> files;
-  getdir (libdir, files);
-
-  for( auto it  = files.begin(); it != files.end(); it++)
-  {
-        std::cout << "Load lib : "  << (*it) << std::endl;
-        handle = dlopen (  (libdir+(*it)).c_str() , RTLD_LAZY);
-        if (!handle) {
-            fputs (dlerror(), stderr);
-            exit(1);
-        }
-  }
 }
 
 

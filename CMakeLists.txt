@@ -16,4 +16,4 @@ add_executable(
         ${sourcefiles}
 )
 
-target_link_libraries(kheops pthread xerces-c dl uuid)
+target_link_libraries(kheops pthread xerces-c dl uuid boost_filesystem boost_system )
