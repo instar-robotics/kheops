@@ -62,11 +62,11 @@ void MSMul::compute()
 	double sMul=0;
         if( inScalar.size() == 0 || inMatrix.size() == 0) return;
 
-        inScalar[0].accumulate(sMul);
+        sMul = inScalar[0]();
 
         for(unsigned int i=1; i < inScalar.size(); i++)
         {
-                inScalar[i].mul_accumulate(sMul);
+        	sMul *= inScalar[i]();
         }
 		
 	inMatrix[0].accumulate(output);	

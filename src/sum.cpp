@@ -42,11 +42,11 @@ void SSum::compute()
 {
 	if( inScalar.size() == 0) return;
 
-	inScalar[0].accumulate(output);	
+	output = inScalar[0]();
 
 	for(unsigned int i=1; i < inScalar.size(); i++)
 	{
-		inScalar[i].sum_accumulate(output);	
+		output += inScalar[i](); 
 	}
 //	std::cout << "SSum : " << getUuid() << " " << output << std::endl;
 }
@@ -69,11 +69,11 @@ void MSSum::compute()
 		inMatrix[i].sum_accumulate(output);	
 	}
 
-	inScalar[0].accumulate(sSum);	
+	sSum = inScalar[0]();	
 
 	for(unsigned int i=1; i < inScalar.size(); i++)
 	{
-		inScalar[i].sum_accumulate(sSum);	
+		sSum += inScalar[i]();	
 	}
 
 	output.array()+=sSum;
