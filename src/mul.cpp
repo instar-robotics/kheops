@@ -22,7 +22,7 @@ REGISTER_FUNCTION(MSMul);
 
 void MMul::compute()
 {
-	if( inMatrix.size() == 0)
+	if( inMatrix.size() == 0) return;
 
 	inMatrix[0].accumulate(output);	
 
@@ -41,13 +41,9 @@ void  MMul::setparameters()
 void SMul::compute()
 {
 
-	if( inScalar.size() == 0)
-
-	//std::cout << inScalar[0]() << std::endl;
+	if( inScalar.size() == 0) return;
 
 	output =  inScalar[0]();
-
-
 	for(unsigned int i=1; i < inScalar.size(); i++)
 	{
 		output *= inScalar[i]();
