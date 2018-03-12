@@ -61,6 +61,9 @@ class Kernel
 		void load_links();			
 		void load_functions();
 
+		void add_link(std::string pred_uuid, std::string suc_uuid, std::string link_uuid , bool isSec);
+		void del_link(std::string pred_uuid, std::string suc_uuid);
+
 		Function* buildFunction(const XFunction&);
 		void add_function(Function *funct);
 		void del_function(Function *funct);
@@ -84,7 +87,7 @@ class Kernel
 		// Beta function : do not use this for now
 		// Warning 1 : Doesn't remap Input for now !!
 		// Warning 2 : XML Model is not updated
-		void del_link(std::string pred_uuid, std::string suc_uuid);
+
 
 		void add_rttoken();
 		void runner_allocation();

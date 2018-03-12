@@ -83,6 +83,10 @@ void XmlConverter::__convertXmlToInput( const DOMElement &el, XInput &xi )
 
 void XmlConverter::__convertXmlToLink( const DOMElement &el, XLink &xi )
 {
+	xi.uuid = XMLString::transcode( el.getAttribute( XMLString::transcode(  "uuid" )));
+
+	if( xi.uuid.size() == 0 ) throw std::invalid_argument("XML : Link uuid is empty");
+
 	std::string constant =  XMLString::transcode( el.getAttribute(  XMLString::transcode( "constant" )));
 	if( constant.size() == 0)
 	{
