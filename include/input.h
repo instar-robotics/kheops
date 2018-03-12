@@ -103,10 +103,10 @@ class IScalar : public Input<double>, public ICombinator<double>
 		inline double& w() {return weight;}
                 inline void w(const double& w) { weight = w; }
 
-		inline auto sum(){ return (*input) + weight; }
-		inline auto sub(){ return (*input) - weight; }
-		inline auto mul(){ return (*input) * weight; }
-		inline auto div(){ return (*input) / weight; }
+		inline double sum(){ return (*input) + weight; }
+		inline double sub(){ return (*input) - weight; }
+		inline double mul(){ return (*input) * weight; }
+		inline double div(){ return (*input) / weight; }
 		
                 std::function<double()> operate;
 		double operator()(){return operate();}

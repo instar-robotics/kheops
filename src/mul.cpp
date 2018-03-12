@@ -26,9 +26,9 @@ void MMul::compute()
 
 	inMatrix[0].accumulate(output);	
 
-	for(unsigned int i=0; i < inMatrix.size(); i++)
+	for(unsigned int i=1; i < inMatrix.size(); i++)
 	{
-		inMatrix[0].mul_accumulate(output);	
+		inMatrix[i].mul_accumulate(output);	
 	}
 }
 
@@ -40,14 +40,19 @@ void  MMul::setparameters()
 
 void SMul::compute()
 {
+
 	if( inScalar.size() == 0)
 
-	inScalar[0].accumulate(output);	
+	//std::cout << inScalar[0]() << std::endl;
 
-	for(unsigned int i=0; i < inScalar.size(); i++)
+	output =  inScalar[0]();
+
+
+	for(unsigned int i=1; i < inScalar.size(); i++)
 	{
-		inScalar[0].mul_accumulate(output);	
+		output *= inScalar[i]();
 	}
+	std::cout << "SMUL " << getUuid() << " " << output << std::endl; 
 }
 
 void  SMul::setparameters()
@@ -63,16 +68,16 @@ void MSMul::compute()
 
         inScalar[0].accumulate(sMul);
 
-        for(unsigned int i=0; i < inScalar.size(); i++)
+        for(unsigned int i=1; i < inScalar.size(); i++)
         {
-                inScalar[0].mul_accumulate(sMul);
+                inScalar[i].mul_accumulate(sMul);
         }
 		
 	inMatrix[0].accumulate(output);	
 
-	for(unsigned int i=0; i < inMatrix.size(); i++)
+	for(unsigned int i=1; i < inMatrix.size(); i++)
 	{
-		inMatrix[0].mul_accumulate(output);	
+		inMatrix[i].mul_accumulate(output);	
 	}
 	output *= sMul;
 }

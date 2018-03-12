@@ -26,9 +26,9 @@ void MSum::compute()
 
 	inMatrix[0].accumulate(output);	
 
-	for(unsigned int i=0; i < inMatrix.size(); i++)
+	for(unsigned int i=1; i < inMatrix.size(); i++)
 	{
-		inMatrix[0].sum_accumulate(output);	
+		inMatrix[i].sum_accumulate(output);	
 	}
 }
 
@@ -40,22 +40,19 @@ void  MSum::setparameters()
 
 void SSum::compute()
 {
-	std::cout << getUuid() << std::endl;
 	if( inScalar.size() == 0) return;
 
 	inScalar[0].accumulate(output);	
 
-	for(unsigned int i=0; i < inScalar.size(); i++)
+	for(unsigned int i=1; i < inScalar.size(); i++)
 	{
-		inScalar[0].sum_accumulate(output);	
+		inScalar[i].sum_accumulate(output);	
 	}
-	
-	std::cout << getUuid() << "" << output << std::endl;
+//	std::cout << "SSum : " << getUuid() << " " << output << std::endl;
 }
 
 void  SSum::setparameters()
 {
-	std::cout << "ZGEG " << std::endl;
         Kernel::instance().bind(inScalar,"inScalar", getUuid());
 }
 
@@ -67,16 +64,16 @@ void MSSum::compute()
 
 	inMatrix[0].accumulate(output);	
 
-	for(unsigned int i=0; i < inMatrix.size(); i++)
+	for(unsigned int i=1; i < inMatrix.size(); i++)
 	{
-		inMatrix[0].sum_accumulate(output);	
+		inMatrix[i].sum_accumulate(output);	
 	}
 
 	inScalar[0].accumulate(sSum);	
 
-	for(unsigned int i=0; i < inScalar.size(); i++)
+	for(unsigned int i=1; i < inScalar.size(); i++)
 	{
-		inScalar[0].sum_accumulate(sSum);	
+		inScalar[i].sum_accumulate(sSum);	
 	}
 
 	output.array()+=sSum;

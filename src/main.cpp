@@ -28,7 +28,7 @@ The fact that you are presently reading this means that you have had knowledge o
 #include "anchor.h"
 #include "libManager.h"
 
-void gestionnaire_signaux(int numero)
+void signals_handler(int numero)
 {
   switch (numero)
     {
@@ -101,7 +101,7 @@ int main(int argc, char **argv)
 
         /*************Signaux handler operation ****************/
 	sigfillset(&action.sa_mask);
-	action.sa_handler = gestionnaire_signaux;
+	action.sa_handler = signals_handler;
   	action.sa_flags = 0;
 
   	if (sigaction(SIGINT, &action, NULL ) != 0)

@@ -504,7 +504,7 @@ void Kernel::bind(ISAnchor& value, std::string var_name,std::string uuid)
 			if( node_map.find( uuid_pred ) == node_map.end()) throw std::invalid_argument( "Kernel : try to get output from unkown function "+uuid_pred );
 
 			Function *f =  boost::get(boost::vertex_function, graph, node_map[uuid_pred]) ;
-			if( f->type() == value.type())
+			if( f->type() == is->type())
 			{
 				is->i( &(dynamic_cast<FScalar*>(f)->getOutput()) );
 		 

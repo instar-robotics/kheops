@@ -41,6 +41,7 @@ class SMul : public FScalar
         private :
 
                 ISAnchor inScalar;
+		double to;
 
         public :
 

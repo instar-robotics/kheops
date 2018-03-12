@@ -9,7 +9,7 @@ set(CMAKE_INSTALL_PREFIX "../..")
 
 add_definitions(-Wextra -Wall)
 
-include_directories(../include ${EIGEN3_INCLUDE_DIR})
+include_directories(../../include ${EIGEN3_INCLUDE_DIR})
 add_library(demofct SHARED demofct.cpp)
 
 install(TARGETS demofct DESTINATION "lib")
