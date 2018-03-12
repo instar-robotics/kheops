@@ -195,7 +195,6 @@ int main(int argc, char **argv)
 
                 std::cout << "M state : "  << RtToken::instance().getRequest() << std::endl;
         }
-
         RtToken::instance().ask_stop();
 	RtToken::instance().join();
 	FRunner::join_all();

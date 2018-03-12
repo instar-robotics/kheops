@@ -33,6 +33,13 @@ class Kernel
 		Graph graph;
 		// string : uuid function
 		std::map<std::string, Graph::vertex_descriptor> node_map;
+		// string : uuid link
+		std::map<std::string, Graph::edge_descriptor> edge_map;
+
+		// string : uuid link
+		// This maps should be useful to debug weight with ROS Topic
+		std::map<std::string, IScalar *> is_input;
+		std::map<std::string, IMatrix *> im_input;
 		
 		XScript xs;
 
@@ -79,17 +86,17 @@ class Kernel
 		// Warning 2 : XML Model is not updated
 		void del_link(std::string pred_uuid, std::string suc_uuid);
 
-
 		void add_rttoken();
 		void runner_allocation();
 		void separate_runner_allocation();
 		void add_runner(const std::string& uuid);
 		void add_separate_runner(const std::string& uuid);
 
-
 		void bind( IScalar& value, std::string var_name, std::string uuid );
 		void bind( IScalarMatrix& value, std::string var_name, std::string uuid );
+		void bind( IMatrix& value, std::string var_name, std::string uuid );
 		void bind( ISAnchor& value, std::string var_name, std::string uuid );
+		void bind( IMAnchor& value, std::string var_name, std::string uuid );
 		void bind( ISMAnchor& value, std::string var_name, std::string uuid );
 		void bind( IMMAnchor& value, std::string var_name, std::string uuid );
 		void bind( std::string& value, std::string var_name, std::string uuid );

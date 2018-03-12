@@ -29,13 +29,18 @@ void LMS::compute()
 	
 	// Update weight
 	MatrixXd grad ; 
-	grad = learning_rate() * (output - unconditionnal.accumulate(grad));
+	grad = learning_rate() * (unconditionnal.accumulate(grad) - output);
+
 	Map<MatrixXd> vgrad( grad.data(), grad.rows()* grad.cols() , 1) ;
 	for(unsigned int i=0; i < conditionnals.size(); i++)
 	{
 		Map<const MatrixXd> ve( conditionnals[i].i().data(),1 , conditionnals[i].getIRows() * conditionnals[i].getICols()) ;
 		conditionnals[i].w() += vgrad * ve ; 
 	}
+
+	std::cout  << " LMS : " << std::endl;
+	std::cout << "Uncond : " << unconditionnal.i() << std::endl;
+	std::cout << "Out : " << output << std::endl;
 }
 
 void  LMS::setparameters()

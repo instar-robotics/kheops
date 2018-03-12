@@ -30,6 +30,8 @@ using namespace xercesc;
 
 struct XLink
 {
+	std::string uuid;
+
 	std::string uuid_pred;
 	std::string op;
 	double weight;
@@ -54,8 +56,8 @@ struct XFunction
 	std::string uuid;
 	std::string name; 
 
-	int rows;
-	int cols;
+	unsigned int rows;
+	unsigned int cols;
 
 	// string : input name
 	std::map<std::string,XInput> inputs;

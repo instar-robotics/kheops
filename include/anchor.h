@@ -30,11 +30,11 @@ class Anchor
 		Anchor(){}
 		virtual ~Anchor()
 		{
+			inputs.clear(); 
 			for(unsigned int i=0; i < inputs.size(); i++)
 			{
 				delete inputs[i];
 			} 
-			inputs.clear(); 
 		}
 
 		void add_input(I * i) 
@@ -51,7 +51,8 @@ class Anchor
 };
 
 typedef Anchor<IScalar> ISAnchor;
+typedef Anchor<IMatrix> IMAnchor;
 typedef Anchor<IScalarMatrix> ISMAnchor;
 typedef Anchor<IMMatrix> IMMAnchor;
 
-#endif // __ANCHOR_H_
+#endif // __ANCHOR_H__

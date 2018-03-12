@@ -30,6 +30,8 @@ void MSum::compute()
 	{
 		inMatrix[i].sum_accumulate(output);	
 	}
+
+	std::cout <<  "MSum " << output << std::endl;
 }
 
 void  MSum::setparameters()
@@ -48,7 +50,6 @@ void SSum::compute()
 	{
 		output += inScalar[i](); 
 	}
-//	std::cout << "SSum : " << getUuid() << " " << output << std::endl;
 }
 
 void  SSum::setparameters()
@@ -77,6 +78,8 @@ void MSSum::compute()
 	}
 
 	output.array()+=sSum;
+	
+	std::cout <<  "MSSum " << output << std::endl;
 }
 
 void  MSSum::setparameters()

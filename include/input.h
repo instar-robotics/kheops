@@ -35,15 +35,23 @@ class Input
 		T cvalue;
 		T const * input;
 
+		T const * b_input;
+		bool isBuffer;
+
+		std::string uuid;
+
 	public : 
 
 		typedef T type_i;
 		size_t type() { return typeid(T).hash_code();}
 
-		Input() {input = NULL; }	
-		Input(T const * i) : input(i) { }
+		Input() : isBuffer(false) {input = NULL; b_input = NULL;}	
+		Input(T const * i) : input(i),isBuffer(false) { b_input = NULL; }
 		virtual ~Input(){}
 	
+		inline const std::string& getUuid() { return uuid;  }
+                inline void setUuid(const std::string& uuid  ) { this->uuid = uuid;}
+
 		virtual inline void setCValue(const T& cv){cvalue = cv; input = &cvalue;}
 		virtual inline const T& getCValue(){ return cvalue;}
 
@@ -52,6 +60,32 @@ class Input
 
 		virtual inline bool isSet(){return input!=NULL;}
 		virtual inline bool isCValue(){return input==&cvalue;}
+
+		virtual inline bool isBufferInput(){return isBuffer;}
+		virtual void activateBufferInput()
+		{
+			isBuffer = true;
+		
+			cvalue = *input;
+			b_input = input;
+			input = &cvalue;
+		}
+		
+		virtual void deactivateBufferInput()
+		{
+			isBuffer = false;
+			
+			input = b_input;
+			b_input = NULL;
+		}
+
+		virtual void copyBuffer()
+		{
+			if( isBuffer )
+			{
+				cvalue = *b_input;
+			}
+		}
 };
 
 
@@ -103,10 +137,10 @@ class IScalar : public Input<double>, public ICombinator<double>
 		inline double& w() {return weight;}
                 inline void w(const double& w) { weight = w; }
 
-		inline double sum(){ return (*input) + weight; }
-		inline double sub(){ return (*input) - weight; }
-		inline double mul(){ return (*input) * weight; }
-		inline double div(){ return (*input) / weight; }
+		inline auto sum(){ return (*input) + weight; }
+		inline auto sub(){ return (*input) - weight; }
+		inline auto mul(){ return (*input) * weight; }
+		inline auto div(){ return (*input) / weight; }
 		
                 std::function<double()> operate;
 		double operator()(){return operate();}
@@ -150,6 +184,8 @@ class IScalarMatrix : public IMatrix, public ICombinator<MatrixXd>
 
 		inline double& w() {return weight;}
                 inline void w(const double& w) { weight = w; }
+		
+		inline virtual void setOp(std::string sOp){ICombinator::setOp(sOp);}
                
 		inline auto sum(){ return (*input).array() + weight; }
 		inline auto sub(){ return (*input).array() - weight; }
@@ -187,6 +223,7 @@ class IMMatrix : public IMatrix
 
 		virtual void resizeWeight(); 
 		
+		// out is an Matrix with output matrix size
 		virtual MatrixXd& weigthedSum(MatrixXd& out) = 0;
 		virtual MatrixXd& weigthedSumAccu(MatrixXd& out) = 0;
 			
@@ -196,11 +233,13 @@ class IMMatrix : public IMatrix
 		virtual void w(double weight, unsigned int row, unsigned int col) = 0;
 		virtual void w(VectorXd &weight,unsigned int col) = 0;
 		virtual void w(MatrixXd &weight) = 0;
-		
-		virtual MatrixXd& add(MatrixXd& out) = 0;
-		virtual MatrixXd& diff(MatrixXd& out) = 0;
-		virtual MatrixXd& prod(MatrixXd& out) = 0;
-		virtual MatrixXd& quot(MatrixXd& out) = 0;
+
+		// wout = weight op input
+		// here wout is an Matrix with weight matrix size 		
+		virtual MatrixXd& add(MatrixXd& wout) = 0;
+		virtual MatrixXd& diff(MatrixXd& wout) = 0;
+		virtual MatrixXd& prod(MatrixXd& wout) = 0;
+		virtual MatrixXd& quot(MatrixXd& wout) = 0;
 
 };
 
@@ -217,10 +256,10 @@ class IDenseMatrix : public IMMatrix
 		virtual void w(MatrixXd &weight);
 		virtual void w(double weight, unsigned int rows, unsigned int cols);
 		
-		virtual MatrixXd& add(MatrixXd& out);
-		virtual MatrixXd& diff(MatrixXd& out);
-		virtual MatrixXd& prod(MatrixXd& out);
-		virtual MatrixXd& quot(MatrixXd& out);
+		virtual MatrixXd& add(MatrixXd& wout);
+		virtual MatrixXd& diff(MatrixXd& wout);
+		virtual MatrixXd& prod(MatrixXd& wout);
+		virtual MatrixXd& quot(MatrixXd& wout);
 
 		virtual MatrixXd& weigthedSum(MatrixXd& out);
 		virtual MatrixXd& weigthedSumAccu(MatrixXd& out);
@@ -242,10 +281,10 @@ class ISparseMatrix : public IMMatrix
 		virtual void w(MatrixXd &weight);
 		virtual void w(double weight, unsigned int rows, unsigned int cols);
 
-		virtual MatrixXd& add(MatrixXd& out);
-		virtual MatrixXd& diff(MatrixXd& out);
-		virtual MatrixXd& prod(MatrixXd& out);
-		virtual MatrixXd& quot(MatrixXd& out);
+		virtual MatrixXd& add(MatrixXd& wout);
+		virtual MatrixXd& diff(MatrixXd& wout);
+		virtual MatrixXd& prod(MatrixXd& wout);
+		virtual MatrixXd& quot(MatrixXd& wout);
 
 		virtual MatrixXd& weigthedSum(MatrixXd& out);
 		virtual MatrixXd& weigthedSumAccu(MatrixXd& out);

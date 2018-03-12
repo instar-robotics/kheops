@@ -33,7 +33,6 @@ class MSum : public FMatrix
 
                 virtual void compute();
                 virtual void setparameters();
-
 };
 
 class SSum : public FScalar

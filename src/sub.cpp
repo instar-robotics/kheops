@@ -24,8 +24,6 @@ void MMSub::compute()
 {
 	 diminuende.accumulate(output);
 	 subtrahend.sub_accumulate(output);
-	
-	std::cout << "MM Out " << output << std::endl;
 }
 
 void MMSub::setparameters()
@@ -38,8 +36,6 @@ void MSSub::compute()
 {
 	diminuende.accumulate(output);
 	output.array() -= subtrahend();
-	
-	std::cout << "MS Out " << output << std::endl;
 }
 
 void MSSub::setparameters()
@@ -51,8 +47,6 @@ void MSSub::setparameters()
 void SSSub::compute()
 {
 	output = diminuende() - subtrahend();
-	
-	std::cout << "SS Out " << output << std::endl;
 }
 
 void SSSub::setparameters()

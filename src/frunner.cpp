@@ -29,9 +29,13 @@ void FRunner::exec()
 
 		for(unsigned int i = 0; i < functions.size() ; i++)
 		{
+			Function * f = boost::get(boost::vertex_function , *g)[functions[i]] ;
+
 			consume(functions[i]);
-			boost::get(boost::vertex_function , *g)[functions[i]]->compute();
+			f->compute();
 			produce(functions[i]);
+
+			f->nsync_management();
 		}
 
 	}
