@@ -433,8 +433,6 @@ void Kernel::bind(IScalar &value, std::string var_name,std::string uuid)
 
 	if(  xs.functions[uuid].inputs[var_name].links.size() != 1 ) throw std::invalid_argument( "Kernel : scalar input "+var_name+" should have only one link. "+ std::to_string(xs.functions[uuid].inputs[var_name].links.size())+" given" );	
 	if( xs.functions[uuid].inputs[var_name].links[0].isSparse == true) throw std::invalid_argument( "Kernel : scalar input can't be sparse type"); 
-	
-	if( edge_map.find( xs.functions[uuid].inputs[var_name].links[0].uuid) == edge_map.end()  ) throw std::invalid_argument( "Kernel : unable to find link "+ xs.functions[uuid].inputs[var_name].links[0].uuid );
 
 	Function *sf =  boost::get(boost::vertex_function, graph, node_map[uuid]) ;
 
@@ -444,6 +442,8 @@ void Kernel::bind(IScalar &value, std::string var_name,std::string uuid)
 	}
 	else
 	{
+		if( edge_map.find( xs.functions[uuid].inputs[var_name].links[0].uuid) == edge_map.end()  ) throw std::invalid_argument( "Kernel : unable to find link "+ xs.functions[uuid].inputs[var_name].links[0].uuid );
+
 		std::string uuid_pred = xs.functions[uuid].inputs[var_name].links[0].uuid_pred;
 
 		if( node_map.find( uuid_pred ) == node_map.end()) throw std::invalid_argument( "Kernel : try to get output from unkown function "+uuid_pred );
@@ -462,6 +462,7 @@ void Kernel::bind(IScalar &value, std::string var_name,std::string uuid)
 	value.setUuid(  xs.functions[uuid].inputs[var_name].links[0].uuid);
 
 	// TODO : How proceed to rebind an input ? 
+	// Add an unbind function ? 
 	is_input[xs.functions[uuid].inputs[var_name].links[0].uuid] = &value;
 	sf->add_input(&value);	
 }
@@ -478,8 +479,6 @@ void Kernel::bind(IScalarMatrix& value, std::string var_name,std::string uuid)
 	if(  xs.functions[uuid].inputs[var_name].links.size() != 1 ) throw std::invalid_argument( "Kernel : scalarMatrix input "+var_name+" should have only one link. "+ std::to_string(xs.functions[uuid].inputs[var_name].links.size())+" given" );	
 	if( xs.functions[uuid].inputs[var_name].links[0].isSparse == true) throw std::invalid_argument( "Kernel : scalarMatrix input can't be sparse type"); 
 	
-	if( edge_map.find( xs.functions[uuid].inputs[var_name].links[0].uuid) == edge_map.end()  ) throw std::invalid_argument( "Kernel : unable to find link "+ xs.functions[uuid].inputs[var_name].links[0].uuid );
-	
 	Function *sf =  boost::get(boost::vertex_function, graph, node_map[uuid]) ;
 
 	if( xs.functions[uuid].inputs[var_name].links[0].isCst == true )
@@ -489,6 +488,7 @@ void Kernel::bind(IScalarMatrix& value, std::string var_name,std::string uuid)
 	}
 	else
 	{
+		if( edge_map.find( xs.functions[uuid].inputs[var_name].links[0].uuid) == edge_map.end()  ) throw std::invalid_argument( "Kernel : unable to find link "+ xs.functions[uuid].inputs[var_name].links[0].uuid );
 		std::string uuid_pred = xs.functions[uuid].inputs[var_name].links[0].uuid_pred;
 
 		if( node_map.find( uuid_pred ) == node_map.end()) throw std::invalid_argument( "Kernel : try to get output from unkown function "+uuid_pred );
@@ -524,7 +524,6 @@ void Kernel::bind( IMatrix& value, std::string var_name, std::string uuid )
         if(  xs.functions[uuid].inputs[var_name].links.size() != 1 ) throw std::invalid_argument( "Kernel : Matrix input "+var_name+" should have only one link. "+ std::to_string(xs.functions[uuid].inputs[var_name].links.size())+" given" );
         if( xs.functions[uuid].inputs[var_name].links[0].isSparse == true) throw std::invalid_argument( "Kernel : Matrix input can't be sparse type");
 
-	if( edge_map.find( xs.functions[uuid].inputs[var_name].links[0].uuid) == edge_map.end()  ) throw std::invalid_argument( "Kernel : unable to find link "+ xs.functions[uuid].inputs[var_name].links[0].uuid );
         Function *sf =  boost::get(boost::vertex_function, graph, node_map[uuid]) ;
 
         if( xs.functions[uuid].inputs[var_name].links[0].isCst == true )
@@ -535,6 +534,8 @@ void Kernel::bind( IMatrix& value, std::string var_name, std::string uuid )
         }
         else
         {
+		if( edge_map.find( xs.functions[uuid].inputs[var_name].links[0].uuid) == edge_map.end()  ) throw std::invalid_argument( "Kernel : unable to find link "+ xs.functions[uuid].inputs[var_name].links[0].uuid );
+
                 std::string uuid_pred = xs.functions[uuid].inputs[var_name].links[0].uuid_pred;
 
                 if( node_map.find( uuid_pred ) == node_map.end()) throw std::invalid_argument( "Kernel : try to get output from unkown function "+uuid_pred );
@@ -567,8 +568,6 @@ void Kernel::bind(ISAnchor& value, std::string var_name,std::string uuid)
 
 	for( auto it =  xs.functions[uuid].inputs[var_name].links.begin(); it != xs.functions[uuid].inputs[var_name].links.end(); it++)
 	{
-		if( edge_map.find( it->uuid) == edge_map.end() ) throw std::invalid_argument( "Kernel : unable to find link "+it->uuid );
-
 		IScalar *is = new IScalar();
 		if( it->isCst == true )
 		{
@@ -576,6 +575,7 @@ void Kernel::bind(ISAnchor& value, std::string var_name,std::string uuid)
 		}
 		else
 		{
+			if( edge_map.find( it->uuid) == edge_map.end() ) throw std::invalid_argument( "Kernel : unable to find link "+it->uuid );
 			std::string uuid_pred = it->uuid_pred;
 			
 			if( node_map.find( uuid_pred ) == node_map.end()) throw std::invalid_argument( "Kernel : try to get output from unkown function "+uuid_pred );
@@ -614,8 +614,6 @@ void Kernel::bind(ISMAnchor& value, std::string var_name,std::string uuid)
 
 	for( auto it =  xs.functions[uuid].inputs[var_name].links.begin(); it != xs.functions[uuid].inputs[var_name].links.end(); it++)
 	{
-		if( edge_map.find( it->uuid) == edge_map.end() ) throw std::invalid_argument( "Kernel : unable to find link "+it->uuid );
-
 		IScalarMatrix * ism = new IScalarMatrix();
 		if( it->isCst == true )
 		{
@@ -623,6 +621,7 @@ void Kernel::bind(ISMAnchor& value, std::string var_name,std::string uuid)
 		}
 		else
 		{
+			if( edge_map.find( it->uuid) == edge_map.end() ) throw std::invalid_argument( "Kernel : unable to find link "+it->uuid );
 			std::string uuid_pred = it->uuid_pred;
 			
 			if( node_map.find( uuid_pred ) == node_map.end()) throw std::invalid_argument( "Kernel : try to get output from unkown function "+uuid_pred );
@@ -663,8 +662,6 @@ void Kernel::bind(IMAnchor& value, std::string var_name, std::string uuid )
 
         for( auto it =  xs.functions[uuid].inputs[var_name].links.begin(); it != xs.functions[uuid].inputs[var_name].links.end(); it++)
         {
-		if( edge_map.find( it->uuid) == edge_map.end() ) throw std::invalid_argument( "Kernel : unable to find link "+it->uuid );
-
                 IMatrix * im = new IMatrix();
                 if( it->isCst == true )
                 {
@@ -672,6 +669,7 @@ void Kernel::bind(IMAnchor& value, std::string var_name, std::string uuid )
                 }
                 else
                 {
+			if( edge_map.find( it->uuid) == edge_map.end() ) throw std::invalid_argument( "Kernel : unable to find link "+it->uuid );
                         std::string uuid_pred = it->uuid_pred;
 
                         if( node_map.find( uuid_pred ) == node_map.end()) throw std::invalid_argument( "Kernel : try to get output from unkown function "+uuid_pred );
@@ -706,8 +704,6 @@ void Kernel::bind(IMMAnchor& value, std::string var_name,std::string uuid)
 
         for( auto it =  xs.functions[uuid].inputs[var_name].links.begin(); it != xs.functions[uuid].inputs[var_name].links.end(); it++)
         {
-		if( edge_map.find( it->uuid) == edge_map.end() ) throw std::invalid_argument( "Kernel : unable to find link "+it->uuid );
-
 		IMMatrix * imm;
 		if( xs.functions[uuid].inputs[var_name].links[0].isSparse == true) 
 		{
@@ -729,6 +725,7 @@ void Kernel::bind(IMMAnchor& value, std::string var_name,std::string uuid)
 		}
 		else
 		{
+			if( edge_map.find( it->uuid) == edge_map.end() ) throw std::invalid_argument( "Kernel : unable to find link "+it->uuid );
 			std::string uuid_pred = it->uuid_pred;
 			if( node_map.find( uuid_pred ) == node_map.end()) throw std::invalid_argument( "Kernel : try to get output from unkown function "+uuid_pred );
 
