@@ -22,6 +22,7 @@ REGISTER_FUNCTION(MSSum);
 
 void MSum::compute()
 {
+
 	if( inMatrix.size() == 0) return;
 
 	inMatrix[0].accumulate(output);	
@@ -36,12 +37,13 @@ void MSum::compute()
 
 void  MSum::setparameters()
 {
+	inMatrix.setMultiple(true);
         Kernel::instance().bind(inMatrix,"inMatrix", getUuid());
-
 }
 
 void SSum::compute()
 {
+
 	if( inScalar.size() == 0) return;
 
 	output = inScalar[0]();
@@ -54,11 +56,13 @@ void SSum::compute()
 
 void  SSum::setparameters()
 {
+	inScalar.setMultiple(true);
         Kernel::instance().bind(inScalar,"inScalar", getUuid());
 }
 
 void MSSum::compute()
 {
+
 	double sSum=0;
 
 	if( inMatrix.size() == 0 || inScalar.size() == 0) return;
@@ -84,6 +88,8 @@ void MSSum::compute()
 
 void  MSSum::setparameters()
 {
+	inScalar.setMultiple(true);
+	inMatrix.setMultiple(true);
         Kernel::instance().bind(inMatrix,"inMatrix", getUuid());
         Kernel::instance().bind(inScalar,"inScalar", getUuid());
 }

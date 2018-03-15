@@ -5,7 +5,7 @@ project(kheops)
 
 find_package(PkgConfig REQUIRED)
 set ( EIGEN3_INCLUDE_DIR  "/usr/include/eigen3" )
-set(CMAKE_CXX_FLAGS "-std=c++17")
+set(CMAKE_CXX_FLAGS "-std=c++17 -O2")
 
 file(GLOB_RECURSE sourcefiles src/*.cpp)
 add_definitions(-Wextra -Wall)

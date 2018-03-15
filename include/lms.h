@@ -25,9 +25,9 @@ class LMS : public FMatrix
 {
 	private :
 
-		IScalar learning_rate;
-		IScalarMatrix unconditionnal;
-		IMMAnchor conditionnals;
+		ISInput learning_rate;
+		ISMInput unconditionnal;
+		IMMInput conditionnals;
 	
         public :
 		

@@ -25,8 +25,8 @@ class MMSub : public FMatrix
 {
         private :
 
-                IScalarMatrix diminuende;
-                IScalarMatrix subtrahend;
+                ISMInput diminuende;
+                ISMInput subtrahend;
 
         public :
 
@@ -41,8 +41,8 @@ class MSSub : public FMatrix
 {
         private :
 
-                IScalarMatrix diminuende;
-                IScalar subtrahend;
+                ISMInput diminuende;
+                ISInput subtrahend;
 
         public :
 
@@ -57,8 +57,8 @@ class SSSub : public FScalar
 {
         private :
 
-                IScalar diminuende;
-                IScalar subtrahend;
+                ISInput diminuende;
+                ISInput subtrahend;
 
         public :
 

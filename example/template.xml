@@ -9,33 +9,29 @@
 			<rows>10</rows>
 			<cols>10</cols>
 		</output>
-		<inputs>
-			<input anchor="true">
+		<inputs uuid="2">
+			<input>
 				<name>inMatrix</name>
 				<links>
-					<link constant="true">
+					<link uuid="3" constant="true">
 						<value>1</value>
-						<weight>1</weight>
-						<operator>multiplication</operator>
 					</link>
 				</links>
 			</input>	
 		</inputs>
 	</function>
-	<function uuid="3">
+	<function uuid="4">
 		<name>MSum</name>
 		<output>
 			<rows>10</rows>
 			<cols>10</cols>
 		</output>
 		<inputs>
-			<input anchor="true">
+			<input uuid="5">
 				<name>inMatrix</name>
 				<links>
-					<link constant="true">
+					<link uuid="6"  constant="true">
 						<value>3</value>
-						<weight>1</weight>
-						<operator>multiplication</operator>
 					</link>
 				</links>
 			</input>	
@@ -44,46 +40,42 @@
 	<function uuid="4">
 		<name>SSum</name>
 		<inputs>
-			<input anchor="true">
+			<input uuid="7">
 				<name>inScalar</name>
 				<links>
-					<link constant="true">
+					<link uuid="8" constant="true">
 						<value>0.5</value>
-						<weight>1</weight>
-						<operator>multiplication</operator>
 					</link>
-					<link secondary="true">
+					<link  uuid="9" secondary="true">
 						<weight>0.001</weight>
-						<pred>4</pred>
-						<operator>multiplication</operator>
 					</link>
 				</links>
 			</input>	
 		</inputs>
 	</function>
 			
-	<function uuid="5">
+	<function uuid="10">
 		<name>MSSum</name>
 		<inputs>
-			<input anchor="true">
+			<input uuid="11">
 				<name>inMatrix</name>
 				<links>
-					<link>
+					<link uuid="12">
 						<weight>1</weight>
 						<pred>1</pred>
 						<operator>multiplication</operator>
 					</link>
-					<link>
+					<link uuid="13">
 						<weight>1</weight>
 						<pred>2</pred>
 						<operator>multiplication</operator>
 					</link>
 				</links>	
 			</input>	
-			<input anchor="true">
+			<input uuid="12">
 				<name>inScalar</name>
 				<links>
-					<link>
+					<link uuid="13">
 						<weight>1</weight>
 						<pred>4</pred>
 						<operator>multiplication</operator>
@@ -93,42 +85,38 @@
 		</inputs>
 	</function>
 	
-	<function uuid="5">
+	<function uuid="14">
 		<name>LMS</name>
 		<output>
 			<rows>10</rows>
 			<cols>10</cols>
 		</output>
 		<inputs>
-			<input>
+			<input uuid="15">
 				<name>learning_rate</name>
 				<links>
-					<link constant="true">
+					<link uuid="16" constant="true">
 						<value>1</value>
-						<weight>1</weight>
-						<operator>multiplication</operator>
 					</link>
 				</links>	
 			</input>	
-			<input>
+			<input uuid="16">
 				<name>unconditionnal</name>
 				<links>
-					<link>
+					<link uuid="17">
 						<weight>1</weight>
 						<pred>5</pred>
 						<operator>multiplication</operator>
 					</link>
 				</links>	
 			</input>	
-			<input anchor="true"> 
+			<input uuid="17"> 
 				<name>conditionnals</name>
 				<links>
-					<link constant="true">
-						<operator>multiplication</operator>
+					<link uuid="18" constant="true">
 						<weight>0</weight>
-						<value>1</value>
 					</link>
-					<link sparse="true">
+					<link uuid="19" sparse="true">
 						<weight>0</weight>
 						<pred>1</pred>
 					
@@ -137,69 +125,5 @@
 			</input>
 		</inputs>
 	</function>
-	<function>
-                <name>FExample</name>
-                <inputs>
-                        <input>
-                                <name>is</name>
-				<links>
-					<link constant="true">
-						<value>1</value>
-						<weight>1</weight>
-						<operator>multiplication</operator>
-					</link>
-				</links>	
-                        </input>
-                        <input>
-                                <name>ism</name>
-				<links>
-					<link constant="true">
-						<value>1</value>
-						<weight>1</weight>
-						<operator>multiplication</operator>
-					</link>
-				</links>	
-                        </input>
-                        <input>
-                                <name>str</name>
-				<links>
-					<link constant="true">
-						<value>one string</value>
-					</link>
-				</links>	
-                        </input>
-                        <input anchor="true">
-                                <name>isanc</name>
-				<links>
-					<link constant="true">
-						<value>1</value>
-						<weight>1</weight>
-						<operator>multiplication</operator>
-					</link>
-				</links>	
-                        </input>
-                        <input anchor="true">
-                                <name>ismanc</name>
-				<links>
-					<link constant="true">
-						<value>1</value>
-						<weight>1</weight>
-						<operator>multiplication</operator>
-					</link>
-				</links>	
-                        </input>
-                        <input anchor="true">
-                                <name>immanc</name>
-				<links>
-					<link constant="true">
-						<value>1</value>
-						<weight>1</weight>
-						<operator>multiplication</operator>
-					</link>
-				</links>	
-                        </input>
-                </inputs>
-        </function>
-
     </functions>
 </script>

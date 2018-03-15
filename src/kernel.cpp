@@ -62,15 +62,23 @@ void Kernel::load_functions()
 		}	
 		else
 		{
-			std::cout << "Function "+it->second.name+" is not a native function. Try to load it" << std::endl;
+//			std::cout << "Function "+it->second.name+" is not a native function. Try to load it" << std::endl;
+			throw  std::invalid_argument("Kernel : Unable to load Function "+it->second.name);
 		}
 	}
+}
+
 	
+void Kernel::bind_functions()
+{
 	//setparameters : call bind function for each inputs
 	for( auto it = node_map.begin(); it != node_map.end(); it++)
 	{
 		Function *f = boost::get(boost::vertex_function , graph)[ it->second  ];
-		if( f != NULL ) f->setparameters();
+		if( f != NULL )
+		{
+		 	f->setparameters();
+		}
 	}
 }
 
@@ -85,7 +93,7 @@ void Kernel::load_links()
 			{
 				if( !link->isCst )
 				{
-					add_link( link->uuid_pred, funct->second.uuid , link->uuid,link->isSecondary);
+					add_klink( link->uuid_pred, funct->second.uuid , link->uuid,link->isSecondary);
 				}
 			}
 		}
@@ -155,11 +163,11 @@ void Kernel::add_function_suc(std::string Fct, std::string pred_uuid, int rows, 
 
 			// add link between predecessor and new node 
 			std::pair<Graph::edge_descriptor, bool> e = add_edge( node_map[pred_uuid] , node_map[uuid], graph  );
-			boost::put( boost::edge_weight, graph, e.first , new Synchronized_Link()); 
+			boost::put( boost::edge_weight, graph, e.first , new Synchronized_kLink()); 
 			
 			// add link between new node and RT Token
 			std::pair<Graph::edge_descriptor, bool>  rt_e = add_edge( node_map[uuid], RtToken::instance().getRtNode() , graph  );
-			boost::put( boost::edge_weight, graph, rt_e.first, new Synchronized_Link()); 
+			boost::put( boost::edge_weight, graph, rt_e.first, new Synchronized_kLink()); 
 
 			// add a runner to the new node
 			add_runner(uuid);
@@ -194,7 +202,7 @@ void Kernel::add_function_pred(std::string Fct, std::string suc_uuid, int rows, 
 
 			// Add link between new node and successor 
 			std::pair<Graph::edge_descriptor, bool>  e = add_edge( node_map[uuid],  node_map[suc_uuid] , graph  );
-			boost::put( boost::edge_weight, graph , e.first, new Synchronized_Link()); 
+			boost::put( boost::edge_weight, graph , e.first, new Synchronized_kLink()); 
 			            
 			// add a runner to the new node
 			add_runner(uuid);
@@ -230,11 +238,11 @@ void Kernel::insert_function(std::string Fct, std::string pred_uuid, std::string
 
 			// Add link between predecessor and new node
 			std::pair<Graph::edge_descriptor, bool> ep = add_edge( node_map[pred_uuid] , node_map[uuid] ,graph  );
-			boost::put( boost::edge_weight, graph, ep.first, new Synchronized_Link()); 
+			boost::put( boost::edge_weight, graph, ep.first, new Synchronized_kLink()); 
 			
 			// Add link between new node and successor
 			std::pair<Graph::edge_descriptor, bool> es = add_edge( node_map[uuid], node_map[suc_uuid]  ,graph  );
-			boost::put( boost::edge_weight, graph, es.first, new Synchronized_Link()); 
+			boost::put( boost::edge_weight, graph, es.first, new Synchronized_kLink()); 
 
 			// Add a new Runner 
 			add_runner(uuid);
@@ -290,7 +298,7 @@ void Kernel::add_rttoken()
 /****************** 			Link Section	 			      *******************/
 /********************************************************************************************************/
 
-void Kernel::add_link(std::string pred_uuid, std::string suc_uuid, std::string link_uuid ,bool isSec)
+void Kernel::add_klink(std::string pred_uuid, std::string suc_uuid, std::string link_uuid ,bool isSec)
 {
 	if( node_map.find( pred_uuid ) == node_map.end()) throw  std::invalid_argument( "Kernel : try to add link with unkown source "+ pred_uuid );
 	if( node_map.find( suc_uuid  ) == node_map.end()) throw  std::invalid_argument( "Kernel : try to add link with unkown target "+suc_uuid );
@@ -304,7 +312,7 @@ void Kernel::add_link(std::string pred_uuid, std::string suc_uuid, std::string l
 	else throw std::invalid_argument("Kernel : uuid link have to be unique. "+link_uuid+" already register");
 }
 
-void Kernel::del_link(std::string pred_uuid, std::string suc_uuid)
+void Kernel::del_klink(std::string pred_uuid, std::string suc_uuid)
 {
 	if( node_map.find( pred_uuid  ) == node_map.end()) throw  std::invalid_argument( "Kernel : try to add function with unkown source "+ pred_uuid );   
         if( node_map.find( suc_uuid  ) == node_map.end()) throw  std::invalid_argument( "Kernel : try to add function with unkown source "+ suc_uuid );
@@ -315,7 +323,7 @@ void Kernel::del_link(std::string pred_uuid, std::string suc_uuid)
 
 	if (succes)
 	{	
-		Link * l = boost::get(boost::edge_weight, graph, e);
+		kLink * l = boost::get(boost::edge_weight, graph, e);
 		boost::remove_edge(e, graph);
 		l->produce();
 		delete(l);
@@ -348,7 +356,7 @@ void Kernel::separate_runner_allocation()
 	for( auto it = boost::edges(graph); it.first != it.second; ++it.first)
 	{
 		bool type = boost::get( boost::edge_type, graph)[*it.first];
-		boost::put(boost::edge_weight, graph, *it.first , new Synchronized_Link(type));
+		boost::put(boost::edge_weight, graph, *it.first , new Synchronized_kLink(type));
 	}
 }
 
@@ -423,155 +431,27 @@ void Kernel::runner_construction()
 /****************** 			Bind Section 				      *******************/
 /********************************************************************************************************/
 
-void Kernel::bind(IScalar &value, std::string var_name,std::string uuid)
+void Kernel::bind(ISInput& value, std::string var_name,std::string uuid)
 {
-	if( node_map.find(uuid) == node_map.end() || xs.functions.find(uuid) == xs.functions.end() ) throw std::invalid_argument( "Kernel : try to bind a scalar input to unkown function "+uuid );
-		
-	if( xs.functions[uuid].inputs.find(var_name) ==  xs.functions[uuid].inputs.end() )  throw std::invalid_argument( "Kernel : unable to find input "+var_name+" for function "+uuid  );
-
-	if(  xs.functions[uuid].inputs[var_name].isAnchor == true)  throw std::invalid_argument( "Kernel : scalar input "+var_name+" must not be an anchor" ); 
-
-	if(  xs.functions[uuid].inputs[var_name].links.size() != 1 ) throw std::invalid_argument( "Kernel : scalar input "+var_name+" should have only one link. "+ std::to_string(xs.functions[uuid].inputs[var_name].links.size())+" given" );	
-	if( xs.functions[uuid].inputs[var_name].links[0].isSparse == true) throw std::invalid_argument( "Kernel : scalar input can't be sparse type"); 
-
-	Function *sf =  boost::get(boost::vertex_function, graph, node_map[uuid]) ;
-
-	if( xs.functions[uuid].inputs[var_name].links[0].isCst == true )
-	{
-		value.setCValue( std::stod(xs.functions[uuid].inputs[var_name].links[0].value) );
-	}
-	else
-	{
-		if( edge_map.find( xs.functions[uuid].inputs[var_name].links[0].uuid) == edge_map.end()  ) throw std::invalid_argument( "Kernel : unable to find link "+ xs.functions[uuid].inputs[var_name].links[0].uuid );
-
-		std::string uuid_pred = xs.functions[uuid].inputs[var_name].links[0].uuid_pred;
-
-		if( node_map.find( uuid_pred ) == node_map.end()) throw std::invalid_argument( "Kernel : try to get output from unkown function "+uuid_pred );
-
-		Function *pf =  boost::get(boost::vertex_function, graph, node_map[uuid_pred]) ;
-		if( pf->type() == value.type())
-		{
-			value.i( &(dynamic_cast<FScalar*>(pf)->getOutput()) );
-
-		}else throw std::invalid_argument( "Kernel : try to bind no compatible type ");
-
-		if( uuid == uuid_pred) value.activateBufferInput();
-	}
-	value.w( xs.functions[uuid].inputs[var_name].links[0].weight );
-	value.setOp( xs.functions[uuid].inputs[var_name].links[0].op );
-	value.setUuid(  xs.functions[uuid].inputs[var_name].links[0].uuid);
-
-	// TODO : How proceed to rebind an input ? 
-	// Add an unbind function ? 
-	is_input[xs.functions[uuid].inputs[var_name].links[0].uuid] = &value;
-	sf->add_input(&value);	
-}
-
-
-void Kernel::bind(IScalarMatrix& value, std::string var_name,std::string uuid)
-{
-	if( node_map.find(uuid) == node_map.end() || xs.functions.find(uuid) == xs.functions.end() ) throw std::invalid_argument( "Kernel : try to bind a scalarMatrix input to unkown function "+uuid );
-		
-	if( xs.functions[uuid].inputs.find(var_name) ==  xs.functions[uuid].inputs.end() )  throw std::invalid_argument( "Kernel : unable to find input "+var_name+" for function "+uuid  );
-
-	if(  xs.functions[uuid].inputs[var_name].isAnchor == true)  throw std::invalid_argument( "Kernel : scalarMatrix input "+var_name+" must not be an anchor" ); 
-
-	if(  xs.functions[uuid].inputs[var_name].links.size() != 1 ) throw std::invalid_argument( "Kernel : scalarMatrix input "+var_name+" should have only one link. "+ std::to_string(xs.functions[uuid].inputs[var_name].links.size())+" given" );	
-	if( xs.functions[uuid].inputs[var_name].links[0].isSparse == true) throw std::invalid_argument( "Kernel : scalarMatrix input can't be sparse type"); 
-	
-	Function *sf =  boost::get(boost::vertex_function, graph, node_map[uuid]) ;
-
-	if( xs.functions[uuid].inputs[var_name].links[0].isCst == true )
-	{
-		// If value is a constant input, the matrix rows/cols is egal to the rows/cols of the function
-		value.setCValue( MatrixXd::Constant( sf->getRows(),sf->getCols(),  std::stod( xs.functions[uuid].inputs[var_name].links[0].value))); 
-	}
-	else
-	{
-		if( edge_map.find( xs.functions[uuid].inputs[var_name].links[0].uuid) == edge_map.end()  ) throw std::invalid_argument( "Kernel : unable to find link "+ xs.functions[uuid].inputs[var_name].links[0].uuid );
-		std::string uuid_pred = xs.functions[uuid].inputs[var_name].links[0].uuid_pred;
-
-		if( node_map.find( uuid_pred ) == node_map.end()) throw std::invalid_argument( "Kernel : try to get output from unkown function "+uuid_pred );
-
-		Function *pf =  boost::get(boost::vertex_function, graph, node_map[uuid_pred]) ;
-		if( pf->type() == value.type())
-		{
-			//check size input / output 
-			if( pf->getRows()!=sf->getRows() || pf->getCols() != sf->getCols()) throw  std::invalid_argument( "Kernel : try to bind scalar matrix with different sizes");
-
-			value.i( &(dynamic_cast<FMatrix*>(pf)->getOutput()) );
-
-		}else throw std::invalid_argument( "Kernel : try to bind no compatible type ");
-		
-		if( uuid == uuid_pred) value.activateBufferInput();
-	}
-	value.w( xs.functions[uuid].inputs[var_name].links[0].weight );
-	value.setOp( xs.functions[uuid].inputs[var_name].links[0].op );
-	
-	im_input[xs.functions[uuid].inputs[var_name].links[0].uuid] = &value;
-	sf->add_input(&value);	
-}
-
-
-void Kernel::bind( IMatrix& value, std::string var_name, std::string uuid )
-{
-        if( node_map.find(uuid) == node_map.end() || xs.functions.find(uuid) == xs.functions.end() ) throw std::invalid_argument( "Kernel : try to bind a Matrix input to unkown function "+uuid );
-
-        if( xs.functions[uuid].inputs.find(var_name) ==  xs.functions[uuid].inputs.end() )  throw std::invalid_argument( "Kernel : unable to find input "+var_name+" for function "+uuid  );
-
-        if(  xs.functions[uuid].inputs[var_name].isAnchor == true)  throw std::invalid_argument( "Kernel : Matrix input "+var_name+" must not be an anchor" );
-
-        if(  xs.functions[uuid].inputs[var_name].links.size() != 1 ) throw std::invalid_argument( "Kernel : Matrix input "+var_name+" should have only one link. "+ std::to_string(xs.functions[uuid].inputs[var_name].links.size())+" given" );
-        if( xs.functions[uuid].inputs[var_name].links[0].isSparse == true) throw std::invalid_argument( "Kernel : Matrix input can't be sparse type");
-
-        Function *sf =  boost::get(boost::vertex_function, graph, node_map[uuid]) ;
-
-        if( xs.functions[uuid].inputs[var_name].links[0].isCst == true )
-        {
-                // If value is a constant input, the matrix rows/cols is egal to the rows/cols of the function
-		// TODO : Add rows/cols options to constant ? 
-                value.setCValue( MatrixXd::Constant( sf->getRows(),sf->getCols(),  std::stod( xs.functions[uuid].inputs[var_name].links[0].value)));
-        }
-        else
-        {
-		if( edge_map.find( xs.functions[uuid].inputs[var_name].links[0].uuid) == edge_map.end()  ) throw std::invalid_argument( "Kernel : unable to find link "+ xs.functions[uuid].inputs[var_name].links[0].uuid );
-
-                std::string uuid_pred = xs.functions[uuid].inputs[var_name].links[0].uuid_pred;
-
-                if( node_map.find( uuid_pred ) == node_map.end()) throw std::invalid_argument( "Kernel : try to get output from unkown function "+uuid_pred );
-
-                Function *pf =  boost::get(boost::vertex_function, graph, node_map[uuid_pred]) ;
-                if( pf->type() == value.type())
-                {
-                        value.i( &(dynamic_cast<FMatrix*>(pf)->getOutput()) );
-
-                }else throw std::invalid_argument( "Kernel : try to bind no compatible type ");
-		
-		if( uuid == uuid_pred) value.activateBufferInput();
-        }
-	im_input[xs.functions[uuid].inputs[var_name].links[0].uuid] = &value;
-	sf->add_input(&value);	
-}
-
-void Kernel::bind(ISAnchor& value, std::string var_name,std::string uuid)
-{
-        if( node_map.find(uuid) == node_map.end() || xs.functions.find(uuid) == xs.functions.end() ) throw std::invalid_argument( "Kernel : try to bind a scalarAnchor input to unkown function "+uuid );
+        if( node_map.find(uuid) == node_map.end() || xs.functions.find(uuid) == xs.functions.end() ) throw std::invalid_argument( "Kernel : try to bind a scalarInput input to unkown function "+uuid );
                 
         if( xs.functions[uuid].inputs.find(var_name) ==  xs.functions[uuid].inputs.end() )  throw std::invalid_argument( "Kernel : unable to find input "+var_name+" for function "+uuid  );
 
-        if(  xs.functions[uuid].inputs[var_name].isAnchor == false)  throw std::invalid_argument( "Kernel : scalarAnchor input "+var_name+" must be an anchor" );
+//        if(  xs.functions[uuid].inputs[var_name].isAnchor == false)  throw std::invalid_argument( "Kernel : scalarInput input "+var_name+" must be an anchor" );
 
-        if(  xs.functions[uuid].inputs[var_name].links.size() == 0 ) throw std::invalid_argument( "Kernel : scalarAnchor input "+var_name+" should have at least one link. "+ std::to_string(xs.functions[uuid].inputs[var_name].links.size())+" given" );        
-        if( xs.functions[uuid].inputs[var_name].links[0].isSparse == true) throw std::invalid_argument( "Kernel : scalarAnchor input can't be sparse type");
+        if(  xs.functions[uuid].inputs[var_name].links.size() == 0 ) throw std::invalid_argument( "Kernel : scalarInput input "+var_name+" should have at least one link. "+ std::to_string(xs.functions[uuid].inputs[var_name].links.size())+" given" );        
+        if( xs.functions[uuid].inputs[var_name].links[0].isSparse == true) throw std::invalid_argument( "Kernel : scalarInput input can't be sparse type");
 
 	Function *sf =  boost::get(boost::vertex_function, graph, node_map[uuid]) ;
 
 	for( auto it =  xs.functions[uuid].inputs[var_name].links.begin(); it != xs.functions[uuid].inputs[var_name].links.end(); it++)
 	{
-		IScalar *is = new IScalar();
+		std::shared_ptr<IScalar> is(new IScalar);
 		if( it->isCst == true )
 		{
 			is->setCValue( std::stod( it->value) );
+			is->w( 0 );
+			is->setOp( "+" );
 		}
 		else
 		{
@@ -587,37 +467,40 @@ void Kernel::bind(ISAnchor& value, std::string var_name,std::string uuid)
 		 
 			}else throw std::invalid_argument( "Kernel : try to bind no compatible type ");
 		
-			if( uuid == uuid_pred) is->activateBufferInput();
+			is->w( it->weight );
+			is->setOp( it->op );
+		
+			if( uuid == uuid_pred) is->activateBuffer();
 		}
-		is->w( it->weight );
-		is->setOp( it->op );
-		value.add_input(is);
-	
-		is_input[it->uuid] = is;
+
+		value.add(is);
+		is_ilink[it->uuid] = is;
 		sf->add_input(is);	
 	}
 }
 
 
-void Kernel::bind(ISMAnchor& value, std::string var_name,std::string uuid)
+void Kernel::bind(ISMInput& value, std::string var_name,std::string uuid)
 {
-        if( node_map.find(uuid) == node_map.end() || xs.functions.find(uuid) == xs.functions.end() ) throw std::invalid_argument( "Kernel : try to bind a smatrixAnchor input to unkown function "+uuid );
+        if( node_map.find(uuid) == node_map.end() || xs.functions.find(uuid) == xs.functions.end() ) throw std::invalid_argument( "Kernel : try to bind a smatrixInput input to unkown function "+uuid );
                 
         if( xs.functions[uuid].inputs.find(var_name) ==  xs.functions[uuid].inputs.end() )  throw std::invalid_argument( "Kernel : unable to find input "+var_name+" for function "+uuid  );
 
-        if(  xs.functions[uuid].inputs[var_name].isAnchor == false)  throw std::invalid_argument( "Kernel : smatrixAnchor input "+var_name+" must be an anchor" );
+//        if(  xs.functions[uuid].inputs[var_name].isAnchor == false)  throw std::invalid_argument( "Kernel : smatrixInput input "+var_name+" must be an anchor" );
 
-        if(  xs.functions[uuid].inputs[var_name].links.size() == 0 ) throw std::invalid_argument( "Kernel : smatrixAnchor input "+var_name+" should have at least one link. "+ std::to_string(xs.functions[uuid].inputs[var_name].links.size())+" given" );        
-        if( xs.functions[uuid].inputs[var_name].links[0].isSparse == true) throw std::invalid_argument( "Kernel : smatrixAnchor input can't be sparse type");
+        if(  xs.functions[uuid].inputs[var_name].links.size() == 0 ) throw std::invalid_argument( "Kernel : smatrixInput input "+var_name+" should have at least one link. "+ std::to_string(xs.functions[uuid].inputs[var_name].links.size())+" given" );        
+        if( xs.functions[uuid].inputs[var_name].links[0].isSparse == true) throw std::invalid_argument( "Kernel : smatrixInput input can't be sparse type");
 	
 	Function *sf =  boost::get(boost::vertex_function, graph, node_map[uuid]) ;
 
 	for( auto it =  xs.functions[uuid].inputs[var_name].links.begin(); it != xs.functions[uuid].inputs[var_name].links.end(); it++)
 	{
-		IScalarMatrix * ism = new IScalarMatrix();
+		std::shared_ptr<IScalarMatrix> ism(new IScalarMatrix);
 		if( it->isCst == true )
 		{
 			ism->setCValue( MatrixXd::Constant( sf->getRows(),sf->getCols(), std::stod( it->value ))); 
+			ism->w( 0 );
+			ism->setOp( "+" );
 		}
 		else
 		{
@@ -635,34 +518,36 @@ void Kernel::bind(ISMAnchor& value, std::string var_name,std::string uuid)
 				ism->i( &(dynamic_cast<FMatrix*>(pf)->getOutput()) );
 		 
 			}else throw std::invalid_argument( "Kernel : try to bind no compatible type ");
-	
-			if( uuid == uuid_pred) ism->activateBufferInput();
-		}
-		ism->w( it->weight );
-		ism->setOp( it->op );
-		value.add_input(ism);
 		
-		im_input[it->uuid] = ism;
+			ism->w( it->weight );
+			ism->setOp( it->op );
+	
+			if( uuid == uuid_pred) ism->activateBuffer();
+		}
+
+		value.add(ism);
+		
+		im_ilink[it->uuid] = ism;
 		sf->add_input(ism);	
 	}
 }
 
-void Kernel::bind(IMAnchor& value, std::string var_name, std::string uuid )
+void Kernel::bind(IMInput& value, std::string var_name, std::string uuid )
 {
-        if( node_map.find(uuid) == node_map.end() || xs.functions.find(uuid) == xs.functions.end() ) throw std::invalid_argument( "Kernel : try to bind a smatrixAnchor input to unkown function "+uuid );
+        if( node_map.find(uuid) == node_map.end() || xs.functions.find(uuid) == xs.functions.end() ) throw std::invalid_argument( "Kernel : try to bind a smatrixInput input to unkown function "+uuid );
 
         if( xs.functions[uuid].inputs.find(var_name) ==  xs.functions[uuid].inputs.end() )  throw std::invalid_argument( "Kernel : unable to find input "+var_name+" for function "+uuid  );
 
-        if(  xs.functions[uuid].inputs[var_name].isAnchor == false)  throw std::invalid_argument( "Kernel : smatrixAnchor input "+var_name+" must be an anchor" );
+//        if(  xs.functions[uuid].inputs[var_name].isAnchor == false)  throw std::invalid_argument( "Kernel : smatrixInput input "+var_name+" must be an anchor" );
 
-        if(  xs.functions[uuid].inputs[var_name].links.size() == 0 ) throw std::invalid_argument( "Kernel : smatrixAnchor input "+var_name+" should have at least one link. "+ std::to_string(xs.functions[uuid].inputs[var_name].links.size())+" given" );
-        if( xs.functions[uuid].inputs[var_name].links[0].isSparse == true) throw std::invalid_argument( "Kernel : smatrixAnchor input can't be sparse type");
+        if(  xs.functions[uuid].inputs[var_name].links.size() == 0 ) throw std::invalid_argument( "Kernel : smatrixInput input "+var_name+" should have at least one link. "+ std::to_string(xs.functions[uuid].inputs[var_name].links.size())+" given" );
+        if( xs.functions[uuid].inputs[var_name].links[0].isSparse == true) throw std::invalid_argument( "Kernel : smatrixInput input can't be sparse type");
 
         Function *sf =  boost::get(boost::vertex_function, graph, node_map[uuid]) ;
 
         for( auto it =  xs.functions[uuid].inputs[var_name].links.begin(); it != xs.functions[uuid].inputs[var_name].links.end(); it++)
         {
-                IMatrix * im = new IMatrix();
+		std::shared_ptr<IMatrix> im(new IMatrix);
                 if( it->isCst == true )
                 {
                         im->setCValue( MatrixXd::Constant( sf->getRows(),sf->getCols(), std::stod( it->value )));
@@ -681,38 +566,37 @@ void Kernel::bind(IMAnchor& value, std::string var_name, std::string uuid )
 
                         }else throw std::invalid_argument( "Kernel : try to bind no compatible type ");
 			
-			if( uuid == uuid_pred) im->activateBufferInput();
+			if( uuid == uuid_pred) im->activateBuffer();
                 }
-                value.add_input(im);
-		im_input[it->uuid] = im;
+                value.add(im);
+		im_ilink[it->uuid] = im;
 		sf->add_input(im);	
-
         }
 }
 
-void Kernel::bind(IMMAnchor& value, std::string var_name,std::string uuid)
+void Kernel::bind(IMMInput& value, std::string var_name,std::string uuid)
 {
-	if( node_map.find(uuid) == node_map.end() || xs.functions.find(uuid) == xs.functions.end() ) throw std::invalid_argument( "Kernel : try to bind a MMAnchor input to unkown function "+uuid );
+	if( node_map.find(uuid) == node_map.end() || xs.functions.find(uuid) == xs.functions.end() ) throw std::invalid_argument( "Kernel : try to bind a MMInput input to unkown function "+uuid );
         
         if( xs.functions[uuid].inputs.find(var_name) ==  xs.functions[uuid].inputs.end() )  throw std::invalid_argument( "Kernel : unable to find input "+var_name+" for function "+uuid  );
         
-        if( xs.functions[uuid].inputs[var_name].isAnchor == false)  throw std::invalid_argument( "Kernel : MMAnchor input "+var_name+" must be an anchor" );
+//        if( xs.functions[uuid].inputs[var_name].isAnchor == false)  throw std::invalid_argument( "Kernel : MMInput input "+var_name+" must be an anchor" );
         
-        if( xs.functions[uuid].inputs[var_name].links.size() == 0 ) throw std::invalid_argument( "Kernel : MMAnchor input "+var_name+" should have at least one link. "+ std::to_string(xs.functions[uuid].inputs[var_name].links.size())+" given" );
+        if( xs.functions[uuid].inputs[var_name].links.size() == 0 ) throw std::invalid_argument( "Kernel : MMInput input "+var_name+" should have at least one link. "+ std::to_string(xs.functions[uuid].inputs[var_name].links.size())+" given" );
         
         Function *sf =  boost::get(boost::vertex_function, graph, node_map[uuid]) ;
 
         for( auto it =  xs.functions[uuid].inputs[var_name].links.begin(); it != xs.functions[uuid].inputs[var_name].links.end(); it++)
         {
-		IMMatrix * imm;
+		std::shared_ptr<IMMatrix> imm ; 
 		if( xs.functions[uuid].inputs[var_name].links[0].isSparse == true) 
 		{
-			imm = new ISparseMatrix( sf->getRows(), sf->getCols(), 0  );
+			imm =  std::shared_ptr<IMMatrix>(new ISparseMatrix( sf->getRows(), sf->getCols(), 0  ));
+			//TODO : add filter management 
 		}
 		else
 		{
-			imm = new IDenseMatrix( sf->getRows(), sf->getCols(), 0  );
-			//TODO : add filter management 
+			imm =  std::shared_ptr<IMMatrix>(new IDenseMatrix( sf->getRows(), sf->getCols(), 0  ));
 		}
 		
 		if( it->isCst == true )
@@ -736,13 +620,13 @@ void Kernel::bind(IMMAnchor& value, std::string var_name,std::string uuid)
 	 
 			}else throw std::invalid_argument( "Kernel : try to bind no compatible type ");
 			
-			if( uuid == uuid_pred) imm->activateBufferInput();
+			if( uuid == uuid_pred) imm->activateBuffer();
 		}
 
 		imm->resizeWeight();
-                value.add_input(imm);
+                value.add(imm);
 		
-		im_input[it->uuid] = imm;
+		im_ilink[it->uuid] = imm;
 		sf->add_input(imm);	
 	}
 }
@@ -755,7 +639,7 @@ void Kernel::bind(std::string& value, std::string var_name,std::string uuid)
 
         if( xs.functions[uuid].inputs.find(var_name) ==  xs.functions[uuid].inputs.end() )  throw std::invalid_argument( "Kernel : unable to find input "+var_name+" for function "+uuid  );
 
-        if(  xs.functions[uuid].inputs[var_name].isAnchor == true)  throw std::invalid_argument( "Kernel : string input "+var_name+" must not be an anchor" );
+//        if(  xs.functions[uuid].inputs[var_name].isAnchor == true)  throw std::invalid_argument( "Kernel : string input "+var_name+" must not be an anchor" );
 
         if(  xs.functions[uuid].inputs[var_name].links.size() != 1 ) throw std::invalid_argument( "Kernel : string input "+var_name+" should have only one link. "+ std::to_string(xs.functions[uuid].inputs[var_name].links.size())+" given" );
         if( xs.functions[uuid].inputs[var_name].links[0].isSparse == true) throw std::invalid_argument( "Kernel : string input can't be sparse type");

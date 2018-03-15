@@ -25,7 +25,7 @@ class MMul : public FMatrix
 {
         private :
 
-                ISMAnchor inMatrix;
+                ISMInput inMatrix;
 
         public :
 
@@ -40,7 +40,7 @@ class SMul : public FScalar
 {
         private :
 
-                ISAnchor inScalar;
+                ISInput inScalar;
 		double to;
 
         public :
@@ -56,8 +56,8 @@ class MSMul : public FMatrix
 {
         private :
 
-                ISMAnchor inMatrix;
-                ISAnchor inScalar;
+                ISMInput inMatrix;
+                ISInput inScalar;
 
         public :
 

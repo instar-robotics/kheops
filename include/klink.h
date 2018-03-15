@@ -14,35 +14,35 @@ and, more generally, to use and operate it in the same conditions as regards sec
 The fact that you are presently reading this means that you have had knowledge of the CeCILL v2.1 license and that you accept its terms.
 */
 
-#ifndef __LINK_H__
-#define __LINK_H__
+#ifndef __KLINK_H__
+#define __KLINK_H__
 
 #include <condition_variable>
 
 
-class Link{
+class kLink{
 
 	public : 
 		
-		Link(){}
-		virtual ~Link(){}
+		kLink(){}
+		virtual ~kLink(){}
 
 		virtual void produce() = 0;
 		virtual void consume() = 0;
 
 };
 
-class Passing_Link : public Link
+class Passing_kLink : public kLink
 {
         public:
-                Passing_Link(){}
-                virtual ~Passing_Link(){}
+                Passing_kLink(){}
+                virtual ~Passing_kLink(){}
 
                 virtual inline void produce() {}
                 virtual inline void consume() {}
 };
 
-class Synchronized_Link : public Link
+class Synchronized_kLink : public kLink
 {
         private :
                 std::mutex mtx;
@@ -52,9 +52,9 @@ class Synchronized_Link : public Link
                 bool __is_produce() { return state;}
                 bool __is_consume() { return state == false;}
         public :
-                Synchronized_Link() : Link(),state(false)  {}
-                Synchronized_Link(bool state) : Link(), state(state)  {}
-                ~Synchronized_Link(){}
+                Synchronized_kLink() : kLink(),state(false)  {}
+                Synchronized_kLink(bool state) : kLink(), state(state)  {}
+                ~Synchronized_kLink(){}
 
                 virtual void produce()
                 {
@@ -69,7 +69,7 @@ class Synchronized_Link : public Link
                 {
                         {
                                 std::unique_lock<std::mutex> lk(mtx);
-                                cv.wait(lk, std::bind( &Synchronized_Link::__is_produce, this));
+                                cv.wait(lk, std::bind( &Synchronized_kLink::__is_produce, this));
 				state = false;
                         }
                 }
@@ -77,4 +77,4 @@ class Synchronized_Link : public Link
 };
 
 
-#endif  // __LINK_H__
+#endif  // __KLINK_H__

@@ -5,17 +5,23 @@
 #include "kernel.h"
 #include <iostream>
 
-class FExample : public FScalar
+class Example : public FScalar
 {
 	private :
 
-		IScalar is;
-		IScalarMatrix ism;
 		std::string str;
 		
-		ISAnchor isanc;
-		ISMAnchor ismanc;
-		IMMAnchor immanc;
+		ISInput u_is;
+		ISInput m_is;
+
+		ISMInput u_ism;
+		ISMInput m_ism;
+
+		IMInput u_im;
+		IMInput m_im;
+
+		IMMInput u_imm;
+		IMMInput m_imm;
 	
         public :
 

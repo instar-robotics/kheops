@@ -22,8 +22,8 @@ REGISTER_FUNCTION(SSSub);
 
 void MMSub::compute()
 {
-	 diminuende.accumulate(output);
-	 subtrahend.sub_accumulate(output);
+	 diminuende().accumulate(output);
+	 subtrahend().sub_accumulate(output);
 }
 
 void MMSub::setparameters()
@@ -34,9 +34,12 @@ void MMSub::setparameters()
 
 void MSSub::compute()
 {
-	diminuende.accumulate(output);
-	output.array() -= subtrahend();
+	diminuende().accumulate(output);
+	output.array() -= subtrahend()();
+
+	std::cout << "MS SUB : " <<  getUuid()  <<" " << output << std::endl;
 }
+
 
 void MSSub::setparameters()
 {
@@ -46,7 +49,7 @@ void MSSub::setparameters()
 
 void SSSub::compute()
 {
-	output = diminuende() - subtrahend();
+	output = diminuende()() - subtrahend()();
 }
 
 void SSSub::setparameters()

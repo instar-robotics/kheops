@@ -20,6 +20,7 @@ REGISTER_FUNCTION(LMS);
 
 void LMS::compute()
 {	
+
 	// Compute activity 
         conditionnals[0].weigthedSum(output); 	
 	for(unsigned int i=1; i < conditionnals.size(); i++)
@@ -29,7 +30,7 @@ void LMS::compute()
 	
 	// Update weight
 	MatrixXd grad ; 
-	grad = learning_rate() * (unconditionnal.accumulate(grad) - output);
+	grad = learning_rate()() * (unconditionnal().accumulate(grad) - output);
 
 	Map<MatrixXd> vgrad( grad.data(), grad.rows()* grad.cols() , 1) ;
 	for(unsigned int i=0; i < conditionnals.size(); i++)
@@ -39,8 +40,9 @@ void LMS::compute()
 	}
 
 	std::cout  << " LMS : " << std::endl;
-	std::cout << "Uncond : " << unconditionnal.i() << std::endl;
+	std::cout << "Uncond : " << unconditionnal().i() << std::endl;
 	std::cout << "Out : " << output << std::endl;
+
 }
 
 void  LMS::setparameters()

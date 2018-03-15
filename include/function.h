@@ -19,11 +19,12 @@ The fact that you are presently reading this means that you have had knowledge o
 
 #include <Eigen/Dense>
 #include <string>
+#include <vector>
+#include <memory>
 
 #include "factory.h"
 #include "input.h"
-#include "anchor.h"
-#include <vector>
+
 
 #define REGISTER_FUNCTION(classname) \
    static const BuilderImpl<classname,Function> classname(#classname); 
@@ -33,8 +34,8 @@ class Function
 	private : 
 		std::string uuid;
 
-		std::vector<IScalar *>  anch_is;
-		std::vector<IMatrix *>  anch_im;
+		std::vector<std::weak_ptr<IScalar>>  anch_is;
+		std::vector<std::weak_ptr<IMatrix>>  anch_im;
 
 	public : 
 		Function(){}
@@ -51,10 +52,11 @@ class Function
 		inline const std::string& getUuid() { return uuid;  }
 		inline void setUuid(const std::string& uuid  ) { this->uuid = uuid;}
 
-		inline void add_input(IScalar *is) {anch_is.push_back(is);}
-		inline void add_input(IMatrix *im) {anch_im.push_back(im);}
+		inline void add_input( std::shared_ptr<IScalar> is) {anch_is.push_back( std::weak_ptr<IScalar>(is));}
+		inline void add_input( std::shared_ptr<IMatrix> im) {anch_im.push_back( std::weak_ptr<IMatrix>(im));}
 
 		virtual void nsync_management();
+		
 };
 
 template<class T>

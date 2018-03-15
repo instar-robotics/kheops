@@ -18,6 +18,7 @@ The fact that you are presently reading this means that you have had knowledge o
 #define __KERNEL_H__
 
 #include <map>
+#include <memory>
 #include "graph.h"
 #include "xmlconverter.h"
 #include "runner.h"
@@ -38,8 +39,15 @@ class Kernel
 
 		// string : uuid link
 		// This maps should be useful to debug weight with ROS Topic
-		std::map<std::string, IScalar *> is_input;
-		std::map<std::string, IMatrix *> im_input;
+		std::map<std::string, std::shared_ptr<IScalar>> is_ilink;
+		std::map<std::string, std::shared_ptr<IMatrix>> im_ilink;
+
+		std::map<std::string, ISInput*> is_input;
+		std::map<std::string, IMInput*> im_input;
+		std::map<std::string, IMMInput*> imm_input;
+
+		// string 1 : uuid ilink, string 2 : uuid input
+		std::map<std::string,std::string> ilink_to_input;
 		
 		XScript xs;
 
@@ -60,9 +68,10 @@ class Kernel
 
 		void load_links();			
 		void load_functions();
+		void bind_functions();
 
-		void add_link(std::string pred_uuid, std::string suc_uuid, std::string link_uuid , bool isSec);
-		void del_link(std::string pred_uuid, std::string suc_uuid);
+		void add_klink(std::string pred_uuid, std::string suc_uuid, std::string link_uuid , bool isSec);
+		void del_klink(std::string pred_uuid, std::string suc_uuid);
 
 		Function* buildFunction(const XFunction&);
 		void add_function(Function *funct);
@@ -95,13 +104,10 @@ class Kernel
 		void add_runner(const std::string& uuid);
 		void add_separate_runner(const std::string& uuid);
 
-		void bind( IScalar& value, std::string var_name, std::string uuid );
-		void bind( IScalarMatrix& value, std::string var_name, std::string uuid );
-		void bind( IMatrix& value, std::string var_name, std::string uuid );
-		void bind( ISAnchor& value, std::string var_name, std::string uuid );
-		void bind( IMAnchor& value, std::string var_name, std::string uuid );
-		void bind( ISMAnchor& value, std::string var_name, std::string uuid );
-		void bind( IMMAnchor& value, std::string var_name, std::string uuid );
+		void bind( ISInput& value, std::string var_name, std::string uuid );
+		void bind( IMInput& value, std::string var_name, std::string uuid );
+		void bind( ISMInput& value, std::string var_name, std::string uuid );
+		void bind( IMMInput& value, std::string var_name, std::string uuid );
 		void bind( std::string& value, std::string var_name, std::string uuid );
 };
 

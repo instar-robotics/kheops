@@ -17,277 +17,74 @@ The fact that you are presently reading this means that you have had knowledge o
 #ifndef __INPUT_H__
 #define __INPUT_H__
 
-#include <Eigen/Sparse>
-#include <Eigen/Dense>
-#include <iostream>
+#include <memory>
+#include "ilink.h" 
 
-enum OPERATOR{ ADDITION=1,SUBSTRACTION=2,DIVISION=3,MULTIPLICATION=4};
-
-using Eigen::SparseMatrix;
-using Eigen::MatrixXd;
-using Eigen::VectorXd;
-using Eigen::Map;
-
-template<class T>
+template<class I>
 class Input
 {
-	protected :
-		T cvalue;
-		T const * input;
+	protected: 
 
-		T const * b_input;
-		bool isBuffer;
-
-		std::string uuid;
+		std::vector<std::weak_ptr<I>> inputs;
+		
+		bool multiple;
 
 	public : 
+		Input() : multiple(false) {}
+		Input(bool m) : multiple(m) {}
+		virtual ~Input() {inputs.clear();}
 
-		typedef T type_i;
-		size_t type() { return typeid(T).hash_code();}
+		inline bool isMultiple(){return multiple;} 
+		inline void setMultiple(bool m){multiple=m;} 
 
-		Input() : isBuffer(false) {input = NULL; b_input = NULL;}	
-		Input(T const * i) : input(i),isBuffer(false) { b_input = NULL; }
-		virtual ~Input(){}
+		void add( std::shared_ptr<I> &i) 
+		{ 
+			if( i == NULL)   throw std::invalid_argument("Input : try to add NULL input");
+
+			if( !multiple &&  inputs.size() >= 1) throw std::invalid_argument("Input : try to add more than one ilink on unique type input");
+				
+			inputs.push_back( std::weak_ptr<I>(i) );
+		}
+
 	
-		inline const std::string& getUuid() { return uuid;  }
-                inline void setUuid(const std::string& uuid  ) { this->uuid = uuid;}
-
-		virtual inline void setCValue(const T& cv){cvalue = cv; input = &cvalue;}
-		virtual inline const T& getCValue(){ return cvalue;}
-
-		virtual inline void i(T const *i){input=i;}
-		virtual inline const T& i() const {return *input;}
-
-		virtual inline bool isSet(){return input!=NULL;}
-		virtual inline bool isCValue(){return input==&cvalue;}
-
-		virtual inline bool isBufferInput(){return isBuffer;}
-		virtual void activateBufferInput()
+		void purge_empty()
 		{
-			isBuffer = true;
-		
-			cvalue = *input;
-			b_input = input;
-			input = &cvalue;
-		}
-		
-		virtual void deactivateBufferInput()
-		{
-			isBuffer = false;
-			
-			input = b_input;
-			b_input = NULL;
-		}
-
-		virtual void copyBuffer()
-		{
-			if( isBuffer )
+			for( auto it = inputs.begin(); it != inputs.end (); it++)
 			{
-				cvalue = *b_input;
+				if( (*it).lock() == NULL ) inputs.erase(it); 
 			}
 		}
-};
-
-
-template<class T>
-class ICombinator
-{
-	private :
 		
-		OPERATOR op;
 
-	public : 	
+		unsigned int size(){return inputs.size();}
 
-		ICombinator( OPERATOR op = MULTIPLICATION ) : op(op)  {}
-		virtual ~ICombinator() {}
-		
-		inline OPERATOR getOp() {return op;}
-		virtual void setOp(OPERATOR OP){ op=OP;}
-		virtual void setOp(std::string sOp)
-		{
-			if( sOp == "+" ) setOp(ADDITION);
-        		else if( sOp == "*" ) setOp(MULTIPLICATION);
-        		else if( sOp == "-" ) setOp(SUBSTRACTION);
-        		else if( sOp == "/" ) setOp(DIVISION);
-        		else throw  std::invalid_argument( "ICombinator : unkown operator : "+sOp+". Legal operators are +, *, / or -");
+		I& operator[](unsigned int i){ 
+			if( i > inputs.size()  )  throw std::invalid_argument("Input : out of number ilink");
+			return *(inputs[i].lock());
 		}
 
-		virtual T& accumulate(T&)=0;
-		virtual T& mul_accumulate(T&)=0;
-		virtual T& sum_accumulate(T&)=0;
-		virtual T& sub_accumulate(T&)=0;
-		virtual T& div_accumulate(T&)=0;
+		I& i(){ 
+			if( inputs.size() == 0 )  throw std::invalid_argument("Input : out of number ilink");
+			return *(inputs[0].lock());
+		}
 		
+		I& operator()(){ 
+			if( inputs.size() == 0 )  throw std::invalid_argument("Input : out of number ilink");
+			return *(inputs[0]).lock();
+		}
+
+		size_t type() { return typeid(I).hash_code();}
 };
 
-
-
-class IScalar : public Input<double>, public ICombinator<double>
-{
-	private :
-
-		double weight;
-
-        public:
-		
-		IScalar(OPERATOR op = MULTIPLICATION) : Input(),ICombinator(op) {setOp(op);}	
-		IScalar(double const * i, OPERATOR op = MULTIPLICATION ) : Input(i), ICombinator(op) {setOp(op);}
-		~IScalar(){}
-
-		inline double& w() {return weight;}
-                inline void w(const double& w) { weight = w; }
-
-		inline auto sum(){ return (*input) + weight; }
-		inline auto sub(){ return (*input) - weight; }
-		inline auto mul(){ return (*input) * weight; }
-		inline auto div(){ return (*input) / weight; }
-		
-                std::function<double()> operate;
-		double operator()(){return operate();}
-
-		inline virtual void setOp(std::string sOp){ICombinator::setOp(sOp);}
-
-		virtual void setOp(OPERATOR OP);
-
-		inline virtual double& accumulate(double& res){return res = operate(); }
-		inline virtual double& mul_accumulate(double& res){return res *= operate(); }
-		inline virtual double& sum_accumulate(double& res){return res += operate(); }
-		inline virtual double& sub_accumulate(double& res){return res -= operate(); }
-		inline virtual double& div_accumulate(double& res){return res /= operate(); }
-
-};
-
-
-class IMatrix : public Input<MatrixXd>
+class IMMInput : public Input<IMMatrix>
 {
 	public : 
-                
-		IMatrix() : Input() {}
-                IMatrix(MatrixXd const * i) : Input(i){}
-                virtual ~IMatrix() {}
-
-		inline double operator()(int x,int y) const {return (*Input<MatrixXd>::input)(x,y);}
-		
-		inline unsigned int getIRows(){return (*Input<MatrixXd>::input).cols();}
-		inline unsigned int getICols(){return (*Input<MatrixXd>::input).rows();}
+		IMMInput() : Input(true) {}
+		virtual ~IMMInput() {}
 };
 
-class IScalarMatrix : public IMatrix, public ICombinator<MatrixXd>
-{
-	private :
-		double weight;
-	public : 
-
-		IScalarMatrix(OPERATOR op = MULTIPLICATION) : IMatrix(),ICombinator(op) {}
-                IScalarMatrix( MatrixXd const *  i, OPERATOR op = MULTIPLICATION ) : IMatrix(i), ICombinator(op){}
-                virtual ~IScalarMatrix() {}
-
-		inline double& w() {return weight;}
-                inline void w(const double& w) { weight = w; }
-		
-		inline virtual void setOp(std::string sOp){ICombinator::setOp(sOp);}
-               
-		inline auto sum(){ return (*input).array() + weight; }
-		inline auto sub(){ return (*input).array() - weight; }
-		inline auto mul(){ return (*input) * weight; }
-		inline auto div(){ return (*input) / weight; }
-
-		virtual MatrixXd& accumulate(MatrixXd& res);
-		virtual MatrixXd& mul_accumulate(MatrixXd& res);
-		virtual MatrixXd& sum_accumulate(MatrixXd& res);
-		virtual MatrixXd& sub_accumulate(MatrixXd& res); 
-		virtual MatrixXd& div_accumulate(MatrixXd& res);
-};
-
-class IMMatrix : public IMatrix
-{
-	protected : 
-
-		unsigned int orows;	
-		unsigned int ocols;
-		double dvalue;
-		
-		MatrixXd weight;		
-		
-	public : 
-		IMMatrix(unsigned int rows=0, unsigned int cols=0, double dvalue=0.) : IMatrix(), orows(rows),ocols(cols),dvalue(dvalue) {}
-                IMMatrix( MatrixXd const *  i, unsigned int rows = 0, unsigned int cols=0, double dvalue =0 ) : IMatrix(i), orows(rows), ocols(cols), dvalue(dvalue) {}
-
-                virtual ~IMMatrix(){}
-		
-		inline void setOSize(unsigned int rows, unsigned int cols){ orows = rows; ocols=cols;}
-		inline void setDValue(double dvalue){this->dvalue=dvalue;}
-
-		inline unsigned int getORows(){return ocols;}
-		inline unsigned int getOCols(){return orows;}
-
-		virtual void resizeWeight(); 
-		
-		// out is an Matrix with output matrix size
-		virtual MatrixXd& weigthedSum(MatrixXd& out) = 0;
-		virtual MatrixXd& weigthedSumAccu(MatrixXd& out) = 0;
-			
-		virtual double w(unsigned int rows, unsigned int cols);
-		virtual inline MatrixXd& w() {	return weight;}
-		
-		virtual void w(double weight, unsigned int row, unsigned int col) = 0;
-		virtual void w(VectorXd &weight,unsigned int col) = 0;
-		virtual void w(MatrixXd &weight) = 0;
-
-		// wout = weight op input
-		// here wout is an Matrix with weight matrix size 		
-		virtual MatrixXd& add(MatrixXd& wout) = 0;
-		virtual MatrixXd& diff(MatrixXd& wout) = 0;
-		virtual MatrixXd& prod(MatrixXd& wout) = 0;
-		virtual MatrixXd& quot(MatrixXd& wout) = 0;
-
-};
-
-class IDenseMatrix : public IMMatrix
-{
-        public:
-
-		IDenseMatrix(unsigned int rows=0, unsigned int cols=0, double dvalue=0.) : IMMatrix(rows,cols,dvalue){}
-                IDenseMatrix( MatrixXd const *  i,  unsigned int rows = 0, unsigned int cols=0, double dvalue = 0 ) : IMMatrix(i,rows, cols, dvalue) {}
-
-                virtual ~IDenseMatrix(){}
-		
-		virtual void w(VectorXd &weight,unsigned int col);
-		virtual void w(MatrixXd &weight);
-		virtual void w(double weight, unsigned int rows, unsigned int cols);
-		
-		virtual MatrixXd& add(MatrixXd& wout);
-		virtual MatrixXd& diff(MatrixXd& wout);
-		virtual MatrixXd& prod(MatrixXd& wout);
-		virtual MatrixXd& quot(MatrixXd& wout);
-
-		virtual MatrixXd& weigthedSum(MatrixXd& out);
-		virtual MatrixXd& weigthedSumAccu(MatrixXd& out);
-};
-
-class ISparseMatrix : public IMMatrix
-{
-	private : 	
-	
-		SparseMatrix<double> filter;
-		int type;
-        
-	public:
-		ISparseMatrix(unsigned int row=0, unsigned int col=0, double dvalue=0.) : IMMatrix(row,col,dvalue) {}
-                ISparseMatrix( MatrixXd const *  i, unsigned int row = 0, unsigned int col=0, double dvalue = 0 ) : IMMatrix(i,row, col, dvalue) {}
-                virtual ~ISparseMatrix(){}
-		
-		virtual void w(VectorXd &weight,unsigned int col);
-		virtual void w(MatrixXd &weight);
-		virtual void w(double weight, unsigned int rows, unsigned int cols);
-
-		virtual MatrixXd& add(MatrixXd& wout);
-		virtual MatrixXd& diff(MatrixXd& wout);
-		virtual MatrixXd& prod(MatrixXd& wout);
-		virtual MatrixXd& quot(MatrixXd& wout);
-
-		virtual MatrixXd& weigthedSum(MatrixXd& out);
-		virtual MatrixXd& weigthedSumAccu(MatrixXd& out);
-};
+typedef Input<IScalar> ISInput;
+typedef Input<IMatrix> IMInput;
+typedef Input<IScalarMatrix> ISMInput;
 
 #endif // __INPUT_H__

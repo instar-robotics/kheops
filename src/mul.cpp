@@ -22,6 +22,7 @@ REGISTER_FUNCTION(MSMul);
 
 void MMul::compute()
 {
+
 	if( inMatrix.size() == 0) return;
 
 	inMatrix[0].accumulate(output);	
@@ -30,12 +31,13 @@ void MMul::compute()
 	{
 		inMatrix[i].mul_accumulate(output);	
 	}
+
 }
 
 void  MMul::setparameters()
 {
+	inMatrix.setMultiple(true);
         Kernel::instance().bind(inMatrix,"inMatrix", getUuid());
-
 }
 
 void SMul::compute()
@@ -53,12 +55,14 @@ void SMul::compute()
 
 void  SMul::setparameters()
 {
+	inScalar.setMultiple(true);
         Kernel::instance().bind(inScalar,"inScalar", getUuid());
 }
 
 
 void MSMul::compute()
 {
+
 	double sMul=0;
         if( inScalar.size() == 0 || inMatrix.size() == 0) return;
 
@@ -80,6 +84,8 @@ void MSMul::compute()
 
 void  MSMul::setparameters()
 {
+	inScalar.setMultiple(true);
+	inMatrix.setMultiple(true);
         Kernel::instance().bind(inScalar,"inScalar", getUuid());
         Kernel::instance().bind(inMatrix,"inMatrix", getUuid());
 }

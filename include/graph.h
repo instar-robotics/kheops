@@ -20,7 +20,7 @@ The fact that you are presently reading this means that you have had knowledge o
 #include <boost/graph/graph_traits.hpp>
 #include <boost/graph/adjacency_list.hpp>
 #include "function.h"
-#include "link.h"
+#include "klink.h"
 #include <string>
 
 namespace boost {
@@ -35,7 +35,7 @@ namespace boost {
     BOOST_INSTALL_PROPERTY(edge, type);
 }
 
-typedef boost::property<boost::edge_weight_t, Link*, boost::property< boost::edge_type_t, bool>> EdgeWeightProperty;
+typedef boost::property<boost::edge_weight_t, kLink*, boost::property< boost::edge_type_t, bool>> EdgeWeightProperty;
 typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::bidirectionalS , VertexProperties , EdgeWeightProperty>  Graph;
 
 

@@ -14,7 +14,7 @@ and, more generally, to use and operate it in the same conditions as regards sec
 The fact that you are presently reading this means that you have had knowledge of the CeCILL v2.1 license and that you accept its terms.
 */
 
-#include "input.h"
+#include "ilink.h"
 
 /********************************************************************************************************/
 /******************                     IScalar Section                           *******************/
@@ -159,8 +159,8 @@ MatrixXd& IScalarMatrix::div_accumulate(MatrixXd& res)
 
 void IMMatrix::resizeWeight()
 {
-	if( getIRows()==0 || getICols()==0) throw std::invalid_argument("Input : Matrix try to resize weight without knowing input size");
-	if( getORows()==0 || getOCols()==0) throw std::invalid_argument("Input : Matrix try to resize weight without knowing output size");
+	if( getIRows()==0 || getICols()==0) throw std::invalid_argument("iLink : Matrix try to resize weight without knowing input size");
+	if( getORows()==0 || getOCols()==0) throw std::invalid_argument("iLink : Matrix try to resize weight without knowing output size");
 
 	weight.resize(  getORows() * getOCols() , getIRows() * getICols() );
 	weight << MatrixXd::Zero( getORows() * getOCols() , getIRows() * getICols() );
@@ -168,7 +168,7 @@ void IMMatrix::resizeWeight()
 
 double IMMatrix::w(unsigned int rows, unsigned int cols)
 {
-	if(rows > getORows() || cols > getOCols()) throw std::invalid_argument("Input : Matrix output size doesn't match with weight size");
+	if(rows > getORows() || cols > getOCols()) throw std::invalid_argument("iLink : Matrix output size doesn't match with weight size");
 	return weight(rows,cols);
 }
 
@@ -178,19 +178,19 @@ double IMMatrix::w(unsigned int rows, unsigned int cols)
 
 void IDenseMatrix::w(VectorXd &weight,unsigned int col)
 {
-	if(col > getOCols()) throw std::invalid_argument("Input : Matrix output size doesn't match with weight size");
+	if(col > getOCols()) throw std::invalid_argument("iLink : Matrix output size doesn't match with weight size");
 	this->weight.col(col) = weight;
 }
 
 void IDenseMatrix::w(MatrixXd &weight)
 {
-	if(weight.rows() != getORows() || weight.cols() != getOCols()) throw std::invalid_argument("Input : Matrix output size doesn't match with weight size");
+	if(weight.rows() != getORows() || weight.cols() != getOCols()) throw std::invalid_argument("iLink : Matrix output size doesn't match with weight size");
 	this->weight = weight;
 }
 
 void IDenseMatrix::w(double weight, unsigned int rows, unsigned int cols)
 {
-	if(rows != getORows() || cols != getOCols()) throw std::invalid_argument("Input : Matrix output size doesn't match with weight size");
+	if(rows != getORows() || cols != getOCols()) throw std::invalid_argument("iLink : Matrix output size doesn't match with weight size");
 
 	this->weight(rows,cols) = weight;
 }
@@ -198,7 +198,7 @@ void IDenseMatrix::w(double weight, unsigned int rows, unsigned int cols)
 
 MatrixXd& IDenseMatrix::add(MatrixXd& out)
 {
-	if(  out.rows() != getORows() || out.cols() != getOCols()) throw std::invalid_argument("Input : Matrix output size doesn't match with weight size");
+	if(  out.rows() != getORows() || out.cols() != getOCols()) throw std::invalid_argument("iLink : Matrix output size doesn't match with weight size");
 
 	Map<const MatrixXd> ve( i().data(),1, getIRows()* getICols() ) ;
 
@@ -209,7 +209,7 @@ MatrixXd& IDenseMatrix::add(MatrixXd& out)
 
 MatrixXd& IDenseMatrix::diff(MatrixXd& out)
 {
-	if(  out.rows() != getORows() || out.cols() != getOCols()) throw std::invalid_argument("Input : Matrix output size doesn't match with weight size");
+	if(  out.rows() != getORows() || out.cols() != getOCols()) throw std::invalid_argument("iLink : Matrix output size doesn't match with weight size");
 
 	Map<const MatrixXd> ve( i().data(),1, getIRows()* getICols() ) ;
 
@@ -220,7 +220,7 @@ MatrixXd& IDenseMatrix::diff(MatrixXd& out)
 
 MatrixXd& IDenseMatrix::prod(MatrixXd& out)
 {
-	if(  out.rows() != getORows() || out.cols() != getOCols()) throw std::invalid_argument("Input : Matrix output size doesn't match with weight size");
+	if(  out.rows() != getORows() || out.cols() != getOCols()) throw std::invalid_argument("iLink : Matrix output size doesn't match with weight size");
 
 	Map<const MatrixXd> ve( i().data(),1, getIRows()* getICols() ) ;
 
@@ -231,7 +231,7 @@ MatrixXd& IDenseMatrix::prod(MatrixXd& out)
 
 MatrixXd& IDenseMatrix::quot(MatrixXd& out)
 {
-	if(  out.rows() != getORows() || out.cols() != getOCols()) throw std::invalid_argument("Input : Matrix output size doesn't match with weight size");
+	if(  out.rows() != getORows() || out.cols() != getOCols()) throw std::invalid_argument("iLink : Matrix output size doesn't match with weight size");
 
 	Map<const MatrixXd> ve( i().data(),1, getIRows()* getICols() ) ;
 
@@ -242,7 +242,7 @@ MatrixXd& IDenseMatrix::quot(MatrixXd& out)
 
 MatrixXd& IDenseMatrix::weigthedSum(MatrixXd& out)
 {
-	if(out.rows() != getORows() || out.cols() != getOCols()) throw std::invalid_argument("Input : DenseMatrix output size doesn't match with weight size");
+	if(out.rows() != getORows() || out.cols() != getOCols()) throw std::invalid_argument("iLink : DenseMatrix output size doesn't match with weight size");
 
 	Map<const MatrixXd> ve( i().data(),1, getIRows()* getICols() ) ;
 	Map<MatrixXd> vs(out.data(), out.cols()*out.rows(),1) ;
@@ -254,7 +254,7 @@ MatrixXd& IDenseMatrix::weigthedSum(MatrixXd& out)
 
 MatrixXd& IDenseMatrix::weigthedSumAccu(MatrixXd& out)
 {
-	if(out.rows() != getORows() || out.cols() != getOCols()) throw std::invalid_argument("Input : DenseMatrix output size doesn't match with weight size");
+	if(out.rows() != getORows() || out.cols() != getOCols()) throw std::invalid_argument("iLink : DenseMatrix output size doesn't match with weight size");
 
 	Map<const MatrixXd> ve( i().data(),1, getIRows()* getICols() ) ;
 	Map<MatrixXd> vs(out.data(), out.cols()*out.rows(),1) ;
@@ -271,27 +271,27 @@ MatrixXd& IDenseMatrix::weigthedSumAccu(MatrixXd& out)
 
 void ISparseMatrix::w(VectorXd &weight,unsigned int col)
 {
-	if(col > getOCols()) throw std::invalid_argument("Input : Matrix output size doesn't match with weight size");
+	if(col > getOCols()) throw std::invalid_argument("iLink : Matrix output size doesn't match with weight size");
 	this->weight.col(col) = weight ; 
 	this->weight.col(col) =  this->weight.col(col) * filter.col(col);
 }
 
 void ISparseMatrix::w(MatrixXd &weight)
 {
-	if(weight.rows() != getORows() || weight.cols() != getOCols()) throw std::invalid_argument("Input : Matrix output size doesn't match with weight size");
+	if(weight.rows() != getORows() || weight.cols() != getOCols()) throw std::invalid_argument("iLink : Matrix output size doesn't match with weight size");
 	this->weight = weight.cwiseProduct(filter);
 }
 
 void ISparseMatrix::w(double weight, unsigned int rows, unsigned int cols)
 {
-	if(rows != getORows() || cols != getOCols()) throw std::invalid_argument("Input : Matrix output size doesn't match with weight size");
+	if(rows != getORows() || cols != getOCols()) throw std::invalid_argument("iLink : Matrix output size doesn't match with weight size");
 
 	this->weight(rows,cols) = weight * filter.coeffRef(rows,cols);  //filter(row,col);
 }
 
 MatrixXd& ISparseMatrix::add(MatrixXd& out)
 {
-	if(  out.rows() != getORows() || out.cols() != getOCols()) throw std::invalid_argument("Input : Matrix output size doesn't match with weight size");
+	if(  out.rows() != getORows() || out.cols() != getOCols()) throw std::invalid_argument("iLink : Matrix output size doesn't match with weight size");
 
 	Map<const MatrixXd> ve( i().data(),1, getIRows()* getICols() ) ;
 
@@ -302,7 +302,7 @@ MatrixXd& ISparseMatrix::add(MatrixXd& out)
 
 MatrixXd& ISparseMatrix::diff(MatrixXd& out)
 {
-	if(  out.rows() != getORows() || out.cols() != getOCols()) throw std::invalid_argument("Input : Matrix output size doesn't match with weight size");
+	if(  out.rows() != getORows() || out.cols() != getOCols()) throw std::invalid_argument("iLink : Matrix output size doesn't match with weight size");
 
 	Map<const MatrixXd> ve( i().data(),1, getIRows()* getICols() ) ;
 
@@ -313,7 +313,7 @@ MatrixXd& ISparseMatrix::diff(MatrixXd& out)
 
 MatrixXd& ISparseMatrix::prod(MatrixXd& out)
 {
-	if(  out.rows() != getORows() || out.cols() != getOCols()) throw std::invalid_argument("Input : Matrix output size doesn't match with weight size");
+	if(  out.rows() != getORows() || out.cols() != getOCols()) throw std::invalid_argument("iLink : Matrix output size doesn't match with weight size");
 
 	Map<const MatrixXd> ve( i().data(),1, getIRows()* getICols() ) ;
 
@@ -324,7 +324,7 @@ MatrixXd& ISparseMatrix::prod(MatrixXd& out)
 
 MatrixXd& ISparseMatrix::quot(MatrixXd& out)
 {
-	if(  out.rows() != getORows() || out.cols() != getOCols()) throw std::invalid_argument("Input : Matrix output size doesn't match with weight size");
+	if(  out.rows() != getORows() || out.cols() != getOCols()) throw std::invalid_argument("iLink : Matrix output size doesn't match with weight size");
 
 	Map<const MatrixXd> ve( i().data(),1, getIRows()* getICols() ) ;
 
@@ -335,7 +335,7 @@ MatrixXd& ISparseMatrix::quot(MatrixXd& out)
 
 MatrixXd& ISparseMatrix::weigthedSum(MatrixXd& out)
 {
-	if(out.rows() != getORows() || out.cols() != getOCols()) throw std::invalid_argument("Input : DenseMatrix output size doesn't match with weight size");
+	if(out.rows() != getORows() || out.cols() != getOCols()) throw std::invalid_argument("iLink : DenseMatrix output size doesn't match with weight size");
 
 	Map<const MatrixXd> ve( i().data(),1, getIRows()* getICols() ) ;
 	Map<MatrixXd> vs(out.data(), out.cols()*out.rows(),1) ;
@@ -347,7 +347,7 @@ MatrixXd& ISparseMatrix::weigthedSum(MatrixXd& out)
 
 MatrixXd& ISparseMatrix::weigthedSumAccu(MatrixXd& out)
 {
-	if(out.rows() != getORows() || out.cols() != getOCols()) throw std::invalid_argument("Input : DenseMatrix output size doesn't match with weight size");
+	if(out.rows() != getORows() || out.cols() != getOCols()) throw std::invalid_argument("iLink : DenseMatrix output size doesn't match with weight size");
 
 	Map<const MatrixXd> ve( i().data(),1, getIRows()* getICols() ) ;
 	Map<MatrixXd> vs(out.data(), out.cols()*out.rows(),1) ;

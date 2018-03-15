@@ -45,9 +45,9 @@ struct XLink
 
 struct XInput
 {
+	std::string uuid;
 	std::string name;
 
-	bool isAnchor;
 	std::vector<XLink> links;
 };
 
@@ -73,6 +73,7 @@ struct XScript
 {
 	std::string name;
 	XRtToken rt;	
+
 	// string : function uuid
 	std::map<std::string, XFunction> functions;
 };

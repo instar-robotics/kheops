@@ -25,7 +25,7 @@ class MSum : public FMatrix
 {
         private :
 
-                ISMAnchor inMatrix;
+                ISMInput inMatrix;
 
         public :
 
@@ -39,7 +39,7 @@ class SSum : public FScalar
 {
         private :
 
-                ISAnchor inScalar;
+                ISInput inScalar;
 
         public :
 
@@ -54,8 +54,8 @@ class MSSum : public FMatrix
 {
         private :
 
-                ISMAnchor inMatrix;
-                ISAnchor inScalar;
+                ISMInput inMatrix;
+                ISInput inScalar;
 
         public :
 

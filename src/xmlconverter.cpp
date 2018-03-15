@@ -14,10 +14,9 @@ and, more generally, to use and operate it in the same conditions as regards sec
 The fact that you are presently reading this means that you have had knowledge of the CeCILL v2.1 license and that you accept its terms.
 */
 
+#include <iostream>
 #include <stdexcept>
 #include "xmlconverter.h"
-
-#include <iostream>
 
 XmlConverter::XmlConverter(std::string filepath) : m_doc(NULL), parser(NULL),errHandler(NULL)
 {
@@ -31,7 +30,7 @@ XmlConverter::XmlConverter(std::string filepath) : m_doc(NULL), parser(NULL),err
 
 void XmlConverter::__convertXmlToFunction(const DOMElement &el, XFunction &f)
 {
-	f.uuid = XMLString::transcode( el.getAttribute( XMLString::transcode(  "uuid" )));
+	f.uuid = XMLString::transcode( el.getAttribute( XMLString::transcode( "uuid" )));
 
 	if( f.uuid.size() == 0 ) throw std::invalid_argument("XML : Function uuid is empty");
 
@@ -64,10 +63,15 @@ void XmlConverter::__convertXmlToFunction(const DOMElement &el, XFunction &f)
 
 void XmlConverter::__convertXmlToInput( const DOMElement &el, XInput &xi )
 {
+	xi.uuid = XMLString::transcode( el.getAttribute( XMLString::transcode( "uuid" )));
+
+	if( xi.uuid.size() == 0 ) throw std::invalid_argument("XML : Input uuid is empty");
+
 	if( el.getElementsByTagName(XMLString::transcode("name"))->getLength() == 0) throw std::invalid_argument("XML : Input has no name ");
 
 	xi.name =  XMLString::transcode(  (dynamic_cast<DOMElement *> (el.getElementsByTagName(XMLString::transcode("name"))->item(0))->getTextContent()));
 	
+/*	
 	std::string anchor =  XMLString::transcode( el.getAttribute(  XMLString::transcode( "anchor" )));
 	if( anchor.size() == 0 ) 
 	{
@@ -78,7 +82,9 @@ void XmlConverter::__convertXmlToInput( const DOMElement &el, XInput &xi )
 		if( anchor == "true" ) xi.isAnchor = true;
 		else if( anchor == "false" ) xi.isAnchor = false;
 		else throw std::invalid_argument("XML : \"anchor\" attribute is boolean, value must be \"true\" or \"false\" ");
+	
 	}
+*/
 }
 
 void XmlConverter::__convertXmlToLink( const DOMElement &el, XLink &xi )
@@ -107,6 +113,26 @@ void XmlConverter::__convertXmlToLink( const DOMElement &el, XLink &xi )
 		
 		xi.value = XMLString::transcode(  (dynamic_cast<DOMElement *> (el.getElementsByTagName(XMLString::transcode("value"))->item(0))->getTextContent()));
 		
+		/*
+		if( el.getElementsByTagName(XMLString::transcode("weight"))->getLength() == 0) 
+		{
+			xi.weight = 0;
+		}	
+		else
+		{
+			std::string weight =  XMLString::transcode(  (dynamic_cast<DOMElement *> (el.getElementsByTagName(XMLString::transcode("weight"))->item(0))->getTextContent()));
+			xi.weight = std::stod( weight);
+		}
+		
+		if( el.getElementsByTagName(XMLString::transcode("operator"))->getLength() == 0)
+		{
+			xi.op="none";	
+		}
+		else
+		{
+			xi.op = XMLString::transcode(  (dynamic_cast<DOMElement *> (el.getElementsByTagName(XMLString::transcode("operator"))->item(0))->getTextContent()));
+		}
+		*/	
 	}
 	else
 	{
@@ -116,17 +142,16 @@ void XmlConverter::__convertXmlToLink( const DOMElement &el, XLink &xi )
 	
 		xi.uuid_pred = XMLString::transcode(  (dynamic_cast<DOMElement *> (el.getElementsByTagName(XMLString::transcode("pred"))->item(0))->getTextContent()));
 
+		if( el.getElementsByTagName(XMLString::transcode("weight"))->getLength() == 0) throw std::invalid_argument("XML : Input has no weight ");
+
+		std::string weight =  XMLString::transcode(  (dynamic_cast<DOMElement *> (el.getElementsByTagName(XMLString::transcode("weight"))->item(0))->getTextContent()));
+		xi.weight = std::stod( weight);
+	
+		if( el.getElementsByTagName(XMLString::transcode("operator"))->getLength() == 0) throw std::invalid_argument("XML : Input has no operator");
+
+		xi.op = XMLString::transcode(  (dynamic_cast<DOMElement *> (el.getElementsByTagName(XMLString::transcode("operator"))->item(0))->getTextContent()));
 	}
-
-	if( el.getElementsByTagName(XMLString::transcode("weight"))->getLength() == 0) throw std::invalid_argument("XML : Input has no weight ");
-
-	std::string weight =  XMLString::transcode(  (dynamic_cast<DOMElement *> (el.getElementsByTagName(XMLString::transcode("weight"))->item(0))->getTextContent()));
-	xi.weight = std::stod( weight);
 	
-	
-	if( el.getElementsByTagName(XMLString::transcode("operator"))->getLength() == 0) throw std::invalid_argument("XML : Input has no operator");
-
-	xi.op = XMLString::transcode(  (dynamic_cast<DOMElement *> (el.getElementsByTagName(XMLString::transcode("operator"))->item(0))->getTextContent()));
 
 	std::string sparse =  XMLString::transcode( el.getAttribute(  XMLString::transcode( "sparse" )));
 	if( sparse.size() == 0 ) 
@@ -217,10 +242,10 @@ void XmlConverter::__loadInputs( const DOMElement &el, std::map<std::string, XIn
 		__convertXmlToInput( *xInput, i);
 		__loadLinks( *xInput , i.links );
 		inputs[i.name] = i;
-	
+/*	
 		if( i.isAnchor == false && i.links.size() != 1) throw std::invalid_argument("XML : you should give exactly one link on non anchor input : "+ std::to_string(i.links.size())+" given" );
 		if( i.isAnchor == true && i.links.size() == 0) throw std::invalid_argument("XML : you should give at least one link on anchor input : "+ std::to_string(i.links.size())+" given" );
-
+*/
 	}while(  (xInput = xInput->getNextElementSibling()) != NULL);
 }
 

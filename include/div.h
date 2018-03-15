@@ -25,8 +25,8 @@ class MMDiv : public FMatrix
 {
         private :
 
-                IScalarMatrix numerator;
-                IScalarMatrix denumerator;
+                ISMInput numerator;
+                ISMInput denumerator;
 
         public :
 
@@ -41,8 +41,8 @@ class MSDiv : public FMatrix
 {
         private :
 
-                IScalarMatrix numerator;
-                IScalar denumerator;
+                ISMInput numerator;
+                ISInput denumerator;
 
         public :
 
@@ -57,8 +57,8 @@ class SSDiv : public FScalar
 {
         private :
 
-                IScalar numerator;
-                IScalar denumerator;
+                ISInput numerator;
+                ISInput denumerator;
 
         public :
 

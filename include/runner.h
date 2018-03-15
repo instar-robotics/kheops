@@ -18,7 +18,7 @@ The fact that you are presently reading this means that you have had knowledge o
 #define  __RUNNER_H__
 
 #include "graph.h"
-#include "link.h"
+#include "klink.h"
 #include <thread>
 
 enum STATE { STOP=0, PAUSE=1, RUN=2 };

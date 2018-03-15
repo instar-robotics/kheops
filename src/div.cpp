@@ -22,8 +22,8 @@ REGISTER_FUNCTION(SSDiv);
 
 void MMDiv::compute()
 {
-	 numerator.accumulate(output);
-	 denumerator.div_accumulate(output);
+	 numerator().accumulate(output);
+	 denumerator().div_accumulate(output);
 }
 
 void  MMDiv::setparameters()
@@ -34,8 +34,8 @@ void  MMDiv::setparameters()
 
 void MSDiv::compute()
 {
-	numerator.accumulate(output);
-	output /= denumerator();
+	numerator().accumulate(output);
+	output /= denumerator()();
 }
 
 void  MSDiv::setparameters()
@@ -46,7 +46,7 @@ void  MSDiv::setparameters()
 
 void SSDiv::compute()
 {
-	output = numerator() / denumerator();
+	output = numerator()() / denumerator()();
 
 	std::cout << "SSDIV : " << getUuid() << " " << output << std::endl;
 }
