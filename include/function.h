@@ -34,12 +34,14 @@ class Function
 	private : 
 		std::string uuid;
 
-		std::vector<std::weak_ptr<IScalar>>  anch_is;
-		std::vector<std::weak_ptr<IMatrix>>  anch_im;
+		std::vector<ISInput*> is_input;
+                std::vector<IMInput*> im_input;
+                std::vector<ISMInput*> ism_input;
+                std::vector<IMMInput*> imm_input;
 
 	public : 
 		Function(){}
-		virtual ~Function(){ }
+		virtual ~Function();
 
                 virtual void compute() = 0;
 		virtual void setparameters() = 0;
@@ -52,11 +54,12 @@ class Function
 		inline const std::string& getUuid() { return uuid;  }
 		inline void setUuid(const std::string& uuid  ) { this->uuid = uuid;}
 
-		inline void add_input( std::shared_ptr<IScalar> is) {anch_is.push_back( std::weak_ptr<IScalar>(is));}
-		inline void add_input( std::shared_ptr<IMatrix> im) {anch_im.push_back( std::weak_ptr<IMatrix>(im));}
+		inline void add_input(ISInput * is) { is_input.push_back(is);}
+		inline void add_input(ISMInput * ism) { ism_input.push_back(ism);}
+		inline void add_input(IMInput * im) { im_input.push_back(im);}
+		inline void add_input(IMMInput * imm) { imm_input.push_back(imm);}
 
-		virtual void nsync_management();
-		
+		virtual void nsync_afterCompute();
 };
 
 template<class T>

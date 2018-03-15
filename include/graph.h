@@ -27,7 +27,12 @@ namespace boost {
     enum vertex_function_t { vertex_function};
     BOOST_INSTALL_PROPERTY(vertex, function);
 }
-typedef boost::property <boost::vertex_name_t, int,  boost::property<boost::vertex_function_t, Function*  >> VertexProperties;
+
+namespace boost {
+    enum vertex_runner_t { vertex_runner};
+    BOOST_INSTALL_PROPERTY(vertex, runner);
+}
+typedef boost::property <boost::vertex_runner_t, int,  boost::property<boost::vertex_function_t, Function*  >> VertexProperties;
 
 
 namespace boost {
@@ -35,7 +40,17 @@ namespace boost {
     BOOST_INSTALL_PROPERTY(edge, type);
 }
 
-typedef boost::property<boost::edge_weight_t, kLink*, boost::property< boost::edge_type_t, bool>> EdgeWeightProperty;
+namespace boost {
+    enum edge_klink_t { edge_klink};
+    BOOST_INSTALL_PROPERTY(edge, klink);
+}
+
+namespace boost {
+    enum edge_uuid_t { edge_uuid};
+    BOOST_INSTALL_PROPERTY(edge, uuid);
+}
+
+typedef boost::property<boost::edge_klink_t, kLink*, boost::property< boost::edge_type_t, bool, boost::property< boost::edge_uuid_t, std::string>>> EdgeWeightProperty;
 typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::bidirectionalS , VertexProperties , EdgeWeightProperty>  Graph;
 
 

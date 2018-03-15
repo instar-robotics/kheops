@@ -128,7 +128,6 @@ int main(int argc, char **argv)
 	Kernel::init(fscript,fres);	
 	Kernel::instance().load_functions();
 	Kernel::instance().load_links();
-	Kernel::instance().bind_functions();
 	Kernel::instance().add_rttoken();
 	Kernel::instance().runner_allocation();
 	
@@ -174,7 +173,7 @@ int main(int argc, char **argv)
                         RtToken::instance().ask_pause();
                         RtToken::instance().wait_for_pause();
 			Kernel::instance().insert_function("MyFct", buffer ,suc ,0,0);
-			Kernel::instance().del_klink(buffer ,suc);
+			//Kernel::instance().del_klink(buffer ,suc);
                         RtToken::instance().ask_resume();
 		}
 		else if(buffer == "rt")

@@ -25,14 +25,18 @@ class Input
 {
 	protected: 
 
-		std::vector<std::weak_ptr<I>> inputs;
-		
+		std::string uuid;
+		std::vector<std::weak_ptr<I>> ilinks;
 		bool multiple;
+
 
 	public : 
 		Input() : multiple(false) {}
 		Input(bool m) : multiple(m) {}
-		virtual ~Input() {inputs.clear();}
+		virtual ~Input() {ilinks.clear();}
+
+		inline const std::string& getUuid() { return uuid; }
+                inline void setUuid(const std::string& uuid  ) { this->uuid = uuid;}
 
 		inline bool isMultiple(){return multiple;} 
 		inline void setMultiple(bool m){multiple=m;} 
@@ -41,36 +45,34 @@ class Input
 		{ 
 			if( i == NULL)   throw std::invalid_argument("Input : try to add NULL input");
 
-			if( !multiple &&  inputs.size() >= 1) throw std::invalid_argument("Input : try to add more than one ilink on unique type input");
+			if( !multiple &&  ilinks.size() >= 1) throw std::invalid_argument("Input : try to add more than one ilink on unique type input");
 				
-			inputs.push_back( std::weak_ptr<I>(i) );
+			ilinks.push_back( std::weak_ptr<I>(i) );
 		}
-
 	
 		void purge_empty()
 		{
-			for( auto it = inputs.begin(); it != inputs.end (); it++)
+			for( auto it = ilinks.begin(); it != ilinks.end (); it++)
 			{
-				if( (*it).lock() == NULL ) inputs.erase(it); 
+				if( (*it).lock() == NULL ) ilinks.erase(it); 
 			}
 		}
-		
 
-		unsigned int size(){return inputs.size();}
+		unsigned int size(){return ilinks.size();}
 
 		I& operator[](unsigned int i){ 
-			if( i > inputs.size()  )  throw std::invalid_argument("Input : out of number ilink");
-			return *(inputs[i].lock());
+			if( i > ilinks.size()  )  throw std::invalid_argument("Input : out of number ilink");
+			return *(ilinks[i].lock());
 		}
 
 		I& i(){ 
-			if( inputs.size() == 0 )  throw std::invalid_argument("Input : out of number ilink");
-			return *(inputs[0].lock());
+			if( ilinks.size() == 0 )  throw std::invalid_argument("Input : out of number ilink");
+			return *(ilinks[0].lock());
 		}
 		
 		I& operator()(){ 
-			if( inputs.size() == 0 )  throw std::invalid_argument("Input : out of number ilink");
-			return *(inputs[0]).lock();
+			if( ilinks.size() == 0 )  throw std::invalid_argument("Input : out of number ilink");
+			return *(ilinks[0]).lock();
 		}
 
 		size_t type() { return typeid(I).hash_code();}

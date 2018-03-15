@@ -22,7 +22,7 @@ void Runner::produce(const Graph::vertex_descriptor  v_mtx)
 {
 	for( auto it =  boost::out_edges(v_mtx, *g); it.first != it.second; ++it.first)
 	{
-		boost::get(boost::edge_weight, *g) [*it.first ]->produce();
+		boost::get(boost::edge_klink, *g) [*it.first ]->produce();
 	}
 }
 
@@ -30,7 +30,7 @@ void Runner::consume(const Graph::vertex_descriptor  v_mtx)
 {
 	for( auto it =  boost::in_edges(v_mtx, *g); it.first != it.second; ++it.first)
 	{
-		boost::get(boost::edge_weight, *g) [*it.first ]->consume();
+		boost::get(boost::edge_klink, *g) [*it.first ]->consume();
 	}
 }
 

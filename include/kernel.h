@@ -44,6 +44,7 @@ class Kernel
 
 		std::map<std::string, ISInput*> is_input;
 		std::map<std::string, IMInput*> im_input;
+		std::map<std::string, ISMInput*> ism_input;
 		std::map<std::string, IMMInput*> imm_input;
 
 		// string 1 : uuid ilink, string 2 : uuid input
@@ -68,10 +69,12 @@ class Kernel
 
 		void load_links();			
 		void load_functions();
-		void bind_functions();
+		
+		void add_ilink(std::string in_uuid,const XLink&);
+		void del_ilink(std::string link_uuid);
 
-		void add_klink(std::string pred_uuid, std::string suc_uuid, std::string link_uuid , bool isSec);
-		void del_klink(std::string pred_uuid, std::string suc_uuid);
+		void add_klink(std::string in_uuid,const XLink&);
+		void del_klink(std::string link_uuid);
 
 		Function* buildFunction(const XFunction&);
 		void add_function(Function *funct);
@@ -93,9 +96,6 @@ class Kernel
 		//Warning 2 : Doesn't remap Input for now !! 
 		//Warning 3 : XML Model is not updated
 		void insert_function(std::string Fct, std::string pred_uuid, std::string suc_uuid ,int x=-1, int y=-1);
-		// Beta function : do not use this for now
-		// Warning 1 : Doesn't remap Input for now !!
-		// Warning 2 : XML Model is not updated
 
 
 		void add_rttoken();
@@ -109,6 +109,7 @@ class Kernel
 		void bind( ISMInput& value, std::string var_name, std::string uuid );
 		void bind( IMMInput& value, std::string var_name, std::string uuid );
 		void bind( std::string& value, std::string var_name, std::string uuid );
+		
 };
 
 #endif // __KERNEL_H__
