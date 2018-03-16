@@ -44,6 +44,7 @@ class iLink
 
 		typedef T type_i;
 		size_t type() { return typeid(T).hash_code();}
+		std::string type_name() { return typeid(T).name();}
 
 		iLink() : buffer(false) {input = NULL; b_input = NULL;}	
 		iLink(T const * i) : input(i),buffer(false) { b_input = NULL; }

@@ -46,6 +46,7 @@ class Function
                 virtual void compute() = 0;
 		virtual void setparameters() = 0;
 		virtual size_t type() = 0;
+		virtual std::string type_name() = 0;
 		//virtual void setValue(double dvalue, int x,int y) = 0;
 		//virtual void setSize(int x,int y) = 0;
 		virtual int getRows()=0;
@@ -58,6 +59,11 @@ class Function
 		inline void add_input(ISMInput * ism) { ism_input.push_back(ism);}
 		inline void add_input(IMInput * im) { im_input.push_back(im);}
 		inline void add_input(IMMInput * imm) { imm_input.push_back(imm);}
+
+		inline std::vector<ISInput*> get_isinput(){ return is_input;}
+		inline std::vector<IMInput*> get_iminput(){ return im_input;}
+		inline std::vector<ISMInput*> get_isminput(){ return ism_input;}
+		inline std::vector<IMMInput*> get_imminput(){ return imm_input;}
 
 		virtual void nsync_afterCompute();
 };
@@ -77,6 +83,7 @@ class FTemplate : public Function
 		virtual void compute() = 0;
 		virtual void setparameters() = 0;
 		virtual size_t type(){ return typeid(T).hash_code();}
+		std::string type_name() { return typeid(T).name();}
 	
 		inline const T& getOutput() const { return output;}
                 operator  T& () { return output; }

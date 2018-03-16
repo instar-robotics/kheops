@@ -42,6 +42,7 @@ class Kernel
 		std::map<std::string, std::shared_ptr<IScalar>> is_ilink;
 		std::map<std::string, std::shared_ptr<IMatrix>> im_ilink;
 
+		// string 1 : input uuid
 		std::map<std::string, ISInput*> is_input;
 		std::map<std::string, IMInput*> im_input;
 		std::map<std::string, ISMInput*> ism_input;
@@ -49,6 +50,8 @@ class Kernel
 
 		// string 1 : uuid ilink, string 2 : uuid input
 		std::map<std::string,std::string> ilink_to_input;
+		// string 1 : uuid input, string 2 : uuid function
+		std::map<std::string,std::string> input_to_funct;
 		
 		XScript xs;
 
@@ -70,18 +73,26 @@ class Kernel
 		void load_links();			
 		void load_functions();
 		
-		void add_ilink(std::string in_uuid,const XLink&);
-		void del_ilink(std::string link_uuid);
+		void add_ilink(const std::string& in_uuid,const XLink&);
+		void add_iscalar(const std::string& in_uuid,const XLink&);
+		void add_imatrix(const std::string& in_uuid,const XLink&);
+		void add_ismatrix(const std::string& in_uuid,const XLink&);
+		void add_immatrix(const std::string& in_uuid,const XLink&);
+		void del_ilink(const std::string& link_uuid);
+		// string 1 : function uuid
+		void purge_output_ilinks(const std::string& uuid);
 
-		void add_klink(std::string in_uuid,const XLink&);
-		void del_klink(std::string link_uuid);
+		// string 1 : function uuid
+		void add_klink(const std::string& in_uuid,const XLink&);
+		// string 1 : link uuid
+		void del_klink(const std::string& link_uuid);
+		// string 1 : function uuid
+		void purge_klinks(const std::string& uuid);
 
 		Function* buildFunction(const XFunction&);
 		void add_function(Function *funct);
-		void del_function(Function *funct);
 		void del_function(const std::string & uuid);
 		
-		// Beta function : do not use this for now
 		// Warning 1 : Doesn't remap Input for now !!
 		// Warning 2 : XML Model is not updated
 		void add_function_suc(std::string Fct, std::string pred_uuid, int x=-1, int y=-1);
@@ -97,19 +108,26 @@ class Kernel
 		//Warning 3 : XML Model is not updated
 		void insert_function(std::string Fct, std::string pred_uuid, std::string suc_uuid ,int x=-1, int y=-1);
 
-
 		void add_rttoken();
 		void runner_allocation();
 		void separate_runner_allocation();
 		void add_runner(const std::string& uuid);
 		void add_separate_runner(const std::string& uuid);
 
-		void bind( ISInput& value, std::string var_name, std::string uuid );
-		void bind( IMInput& value, std::string var_name, std::string uuid );
-		void bind( ISMInput& value, std::string var_name, std::string uuid );
-		void bind( IMMInput& value, std::string var_name, std::string uuid );
-		void bind( std::string& value, std::string var_name, std::string uuid );
-		
+		void bind( ISInput& value,const std::string& var_name,const std::string& uuid );
+		void bind( IMInput& value,const std::string& var_name,const std::string& uuid );
+		void bind( ISMInput& value,const std::string& var_name,const std::string& uuid );
+		void bind( IMMInput& value,const std::string& var_name,const std::string& uuid );
+		void bind( std::string& value,const std::string& var_name,const std::string& uuid );
+
+		// String 1 : input uuid
+		void unbind_isinput(const std::string& uuid);
+		void unbind_iminput(const std::string& uuid);
+		void unbind_isminput(const std::string& uuid);
+		void unbind_imminput(const std::string& uuid);
+
+		// String 1 : input uuid
+		void purge_empty_links(const std::string& in_uuid);
 };
 
 #endif // __KERNEL_H__

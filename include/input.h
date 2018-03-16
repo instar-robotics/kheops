@@ -76,6 +76,7 @@ class Input
 		}
 
 		size_t type() { return typeid(I).hash_code();}
+		std::string type_name() { return typeid(I).name();}
 };
 
 class IMMInput : public Input<IMMatrix>
