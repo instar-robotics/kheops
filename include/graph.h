@@ -51,7 +51,8 @@ namespace boost {
 }
 
 typedef boost::property<boost::edge_klink_t, kLink*, boost::property< boost::edge_type_t, bool, boost::property< boost::edge_uuid_t, std::string>>> EdgeWeightProperty;
-typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::bidirectionalS , VertexProperties , EdgeWeightProperty>  Graph;
+
+typedef boost::adjacency_list<boost::vecS, boost::listS, boost::bidirectionalS , VertexProperties , EdgeWeightProperty>  Graph;
 
 
 typedef boost::graph_traits<Graph>::edge_iterator edge_iter;

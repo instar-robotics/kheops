@@ -29,7 +29,6 @@ class Input
 		std::vector<std::weak_ptr<I>> ilinks;
 		bool multiple;
 
-
 	public : 
 		Input() : multiple(false) {}
 		Input(bool m) : multiple(m) {}

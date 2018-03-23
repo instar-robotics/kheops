@@ -26,7 +26,8 @@ The fact that you are presently reading this means that you have had knowledge o
 
 class Kernel 
 {
-	private :
+//	private :
+	public:
 
 		std::string scriptfile;
 		std::string resfile;
@@ -89,30 +90,21 @@ class Kernel
 		// string 1 : function uuid
 		void purge_klinks(const std::string& uuid);
 
-		Function* buildFunction(const XFunction&);
-		void add_function(Function *funct);
+		void add_function(const XFunction&);
 		void del_function(const std::string & uuid);
 		
-		// Warning 1 : Doesn't remap Input for now !!
-		// Warning 2 : XML Model is not updated
-		void add_function_suc(std::string Fct, std::string pred_uuid, int x=-1, int y=-1);
-		// Beta function : do not use this for now
-		// Warning 1 : Doesn't remap Input for now !!
-		// Warning 2 : XML Model is not updated
-		void add_function_pred(std::string Fct, std::string suc_uuid, int x=-1, int y=-1);
-
-		// Beta function : do not use this for now
-		//Warning 1 : Doesn't delete the old ling between pred_uuid and suc_uuid
-		// Need to call del_link if a link exist before pred and suc
-		//Warning 2 : Doesn't remap Input for now !! 
-		//Warning 3 : XML Model is not updated
-		void insert_function(std::string Fct, std::string pred_uuid, std::string suc_uuid ,int x=-1, int y=-1);
-
 		void add_rttoken();
+		void update_rttoken_value( const XRtToken& xrt );
+		void create_rt_klink();
+		void clear_rt_klink();
+
 		void runner_allocation();
-		void separate_runner_allocation();
 		void add_runner(const std::string& uuid);
+		void remove_runner(const std::string& uuid);
+
+		void separate_runner_allocation();
 		void add_separate_runner(const std::string& uuid);
+		void remove_separate_runner(const std::string& uuid);
 
 		void bind( ISInput& value,const std::string& var_name,const std::string& uuid );
 		void bind( IMInput& value,const std::string& var_name,const std::string& uuid );

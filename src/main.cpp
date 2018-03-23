@@ -30,6 +30,9 @@ The fact that you are presently reading this means that you have had knowledge o
 
 #include <chrono>
 
+#include <uuid/uuid.h>
+
+
 void signals_handler(int numero)
 {
   switch (numero)
@@ -129,9 +132,9 @@ int main(int argc, char **argv)
 	Kernel::instance().load_functions();
 	Kernel::instance().load_links();
 	Kernel::instance().add_rttoken();
+	Kernel::instance().create_rt_klink();
 	Kernel::instance().runner_allocation();
-	
-        RtToken::instance().spawn();
+	RtToken::instance().spawn();
 	FRunner::spawn_all();
 	
 	bool run  = true;
@@ -149,33 +152,6 @@ int main(int argc, char **argv)
                 {
                         run = false;
                 }
-		else if (buffer == "pred")
-		{
-                	getline(std::cin,buffer);
-                        RtToken::instance().ask_pause();
-                        RtToken::instance().wait_for_pause();
-			Kernel::instance().add_function_pred("MyFct", buffer  ,0,0);
-                        RtToken::instance().ask_resume();
-		}
-		else if (buffer == "suc")
-		{
-                	getline(std::cin,buffer);
-                        RtToken::instance().ask_pause();
-                        RtToken::instance().wait_for_pause();
-			Kernel::instance().add_function_suc("MyFct", buffer  ,0,0);
-                        RtToken::instance().ask_resume();
-		}
-		else if (buffer == "ins")
-		{
-			std::string suc;
-                	getline(std::cin,buffer);
-                	getline(std::cin,suc);
-                        RtToken::instance().ask_pause();
-                        RtToken::instance().wait_for_pause();
-			Kernel::instance().insert_function("MyFct", buffer ,suc ,0,0);
-			//Kernel::instance().del_klink(buffer ,suc);
-                        RtToken::instance().ask_resume();
-		}
 		else if(buffer == "rt")
 		{
 			std::string unit;
@@ -193,6 +169,20 @@ int main(int argc, char **argv)
 		else if(buffer == "quiet")
 		{
 			RtToken::instance().setQuiet(  !RtToken::instance().is_quiet());
+		}
+
+		else if( buffer == "stop") 
+		{
+                        RtToken::instance().ask_pause();
+                        RtToken::instance().wait_for_pause();
+			
+			std::cout << "TRY TO DELETE : " << std::endl;
+			Kernel::instance().del_function("10");
+			Kernel::instance().create_rt_klink();
+			std::cout << "STOP : " << std::endl;
+		
+                        RtToken::instance().ask_resume();
+			std::cout << "STOP : " << std::endl;
 		}
 
                 std::cout << "M state : "  << RtToken::instance().getRequest() << std::endl;

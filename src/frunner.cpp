@@ -20,13 +20,13 @@ std::map<int, FRunner *> FRunner::runners;
 
 void FRunner::exec()
 {
-	checkFunction();
+	checkFunctions();
 
-	while( ! __is_asking_stop() )
+	while( ! __is_asking_stop() && ! __is_asking_local_stop() )
 	{
 		wait_for_sync();
-		if( __is_asking_stop()) continue;
-
+		if( __is_asking_stop() || __is_asking_local_stop()) continue;
+		
 		for(unsigned int i = 0; i < functions.size() ; i++)
 		{
 			Function * f = boost::get(boost::vertex_function , *g)[functions[i]] ;
@@ -37,19 +37,23 @@ void FRunner::exec()
 
 			f->nsync_afterCompute();
 		}
-
 	}
 	for(auto it = functions.begin(); it != functions.end(); it++) {produce(*it);}
 }
 
-void FRunner::checkFunction()
+void FRunner::checkFunctions()
 {
 	for(auto it = functions.begin(); it != functions.end(); it++)
 	{
 		if( ( boost::get( boost::vertex_function ,*g  )[*it]) == NULL) {
-			 throw  std::invalid_argument("FRunner "+std::to_string(id)+" : Function uninitialized for node : "+std::to_string(*it));
+			 throw  std::invalid_argument("FRunner "+std::to_string(id)+" : Function uninitialized");
 		}
 	}
+}
+
+void FRunner::clearFunctions()
+{
+	functions.clear();
 }
 
 
@@ -89,9 +93,9 @@ void FRunner::join_all()
 
 void FRunner::sync_all()
 {
-        for(unsigned int i = 0 ; i < FRunner::runners.size(); i++)
+        for( auto it = runners.begin(); it != runners.end(); it++)
         {
-                FRunner::runners[i]->sync();
+                it->second->sync();
         }
 }
 
@@ -99,10 +103,32 @@ int FRunner::add(FRunner * runner)
 {
         if( runner == NULL) throw std::invalid_argument( "FRunner : try to add NULL runner");
 
-        int idr = runners.size();
+        int idr = runners.size() + 1;
         runner->setId(idr);
         runners[idr] = runner;
         return idr;
+}
+
+void FRunner::erase(int id)
+{
+	auto it = runners.find(id);
+        if(it != runners.end())  runners.erase(it);
+}
+
+void FRunner::del(int id)
+{
+	auto it = runners.find(id);
+        if(it != runners.end()) 
+	{
+		Function * f = boost::get(boost::vertex_function ,*(it->second->g))[ it->second->functions[0]] ;
+
+		it->second->clearFunctions();	
+		it->second->local_stop();
+                it->second->sync();
+		it->second->join();
+		if( it->second != NULL) delete( (it->second) );
+		runners.erase(it);
+	}
 }
 
 FRunner * FRunner::get(int id)
