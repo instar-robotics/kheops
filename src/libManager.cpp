@@ -1,5 +1,5 @@
 /*
-Copyright Enacted Robotics
+Copyright INSTAR Robotics
 
 Author: Pierre Delarboulas
 
