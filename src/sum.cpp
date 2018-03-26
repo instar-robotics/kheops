@@ -22,17 +22,12 @@ REGISTER_FUNCTION(MSSum);
 
 void MSum::compute()
 {
-
-	if( inMatrix.size() == 0) return;
-
 	inMatrix[0].accumulate(output);	
 
 	for(unsigned int i=1; i < inMatrix.size(); i++)
 	{
 		inMatrix[i].sum_accumulate(output);	
 	}
-
-	std::cout <<  "MSum " << output << std::endl;
 }
 
 void  MSum::setparameters()
@@ -43,9 +38,6 @@ void  MSum::setparameters()
 
 void SSum::compute()
 {
-
-	if( inScalar.size() == 0) return;
-
 	output = inScalar[0]();
 
 	for(unsigned int i=1; i < inScalar.size(); i++)
@@ -62,10 +54,7 @@ void  SSum::setparameters()
 
 void MSSum::compute()
 {
-
 	double sSum=0;
-
-	if( inMatrix.size() == 0 || inScalar.size() == 0) return;
 
 	inMatrix[0].accumulate(output);	
 
@@ -82,8 +71,6 @@ void MSSum::compute()
 	}
 
 	output.array()+=sSum;
-	
-	std::cout <<  "MSSum " << output << std::endl;
 }
 
 void  MSSum::setparameters()

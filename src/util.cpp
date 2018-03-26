@@ -20,7 +20,6 @@ The fact that you are presently reading this means that you have had knowledge o
 #include <dirent.h>
 #include <errno.h>
 #include <iostream>
-#include <uuid/uuid.h>
 
 int getdir (std::string dir, std::vector<std::string> &files)
 {

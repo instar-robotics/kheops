@@ -14,8 +14,14 @@ and, more generally, to use and operate it in the same conditions as regards sec
 The fact that you are presently reading this means that you have had knowledge of the CeCILL v2.1 license and that you accept its terms.
 */
 
+#ifndef __UTIL_HPP__
+#define __UTIL_HPP__
+
 #include <vector>
 #include <string>
+#include <uuid/uuid.h>
+
+const uuid_t DUUID = {0,0,0,0};
 
 int getdir (std::string dir, std::vector<std::string> &files);
 
@@ -25,3 +31,5 @@ double convert_ms_to_s(double value);
 double convert_period_frequency(double value);
 
 std::string generate_uuid();
+
+#endif // __UTIL_HPP__

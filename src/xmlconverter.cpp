@@ -274,4 +274,8 @@ void XmlConverter::__loadRtToken( XRtToken & rt )
 	rt.value = std::stod(   XMLString::transcode( dynamic_cast<DOMElement *>( m_doc->getElementsByTagName(XMLString::transcode("rt_token"))->item(0))->getTextContent()));
 
 	rt.unit = XMLString::transcode( dynamic_cast<DOMElement *>( m_doc->getElementsByTagName(XMLString::transcode("rt_token"))->item(0))->getAttribute( XMLString::transcode(  "unit" )));
+	
+	rt.uuid = XMLString::transcode( dynamic_cast<DOMElement *>( m_doc->getElementsByTagName(XMLString::transcode("rt_token"))->item(0))->getAttribute( XMLString::transcode(  "uuid" )));
+
+	if( rt.uuid.size() == 0 ) throw std::invalid_argument("XML : RtToken uuid is empty");
 }

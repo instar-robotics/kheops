@@ -20,6 +20,7 @@ The fact that you are presently reading this means that you have had knowledge o
 #include "graph.h"
 #include "klink.h"
 #include <thread>
+#include <uuid/uuid.h>
 
 enum STATE { STOP=0, PAUSE=1, RUN=2 };
 
@@ -39,13 +40,15 @@ class Runner
 
 	public :
 
-                Runner() : id(-1), g(NULL) {}
+                Runner() :id(-1), g(NULL) { }
                 Runner(int id) : id(id), g(NULL){}
 
                 virtual ~Runner(){}
                 inline void setGraph(Graph * g){ this->g=g;}
+
 		inline void setId(int id){  this->id = id; }
 		inline int getId(){ return id; }
+		
 
 		// Payload of the runner
                 virtual void exec() = 0;

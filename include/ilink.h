@@ -282,6 +282,8 @@ class ISparseMatrix : public IMMatrix
 		virtual void w(MatrixXd &weight);
 		virtual void w(double weight, unsigned int rows, unsigned int cols);
 
+		SparseMatrix<double> & f(){ return filter;}
+
 		virtual MatrixXd& add(MatrixXd& wout);
 		virtual MatrixXd& diff(MatrixXd& wout);
 		virtual MatrixXd& prod(MatrixXd& wout);

@@ -40,6 +40,8 @@ class Input
 		inline bool isMultiple(){return multiple;} 
 		inline void setMultiple(bool m){multiple=m;} 
 
+		void clear(){ ilinks.clear(); }
+
 		void add( std::shared_ptr<I> &i) 
 		{ 
 			if( i == NULL)   throw std::invalid_argument("Input : try to add NULL input");
@@ -60,7 +62,7 @@ class Input
 		unsigned int size(){return ilinks.size();}
 
 		I& operator[](unsigned int i){ 
-			if( i > ilinks.size()  )  throw std::invalid_argument("Input : out of number ilink");
+			if( i >= ilinks.size()  )  throw std::invalid_argument("Input : out of number ilink");
 			return *(ilinks[i].lock());
 		}
 

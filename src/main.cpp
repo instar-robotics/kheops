@@ -1,5 +1,5 @@
 /*
-Copyright Enacted Robotics
+Copyright Instar Robotics
 
 Author: Pierre Delarboulas
 
@@ -27,11 +27,6 @@ The fact that you are presently reading this means that you have had knowledge o
 #include "xmlconverter.h"
 #include "input.h"
 #include "libManager.h"
-
-#include <chrono>
-
-#include <uuid/uuid.h>
-
 
 void signals_handler(int numero)
 {
@@ -131,9 +126,9 @@ int main(int argc, char **argv)
 	Kernel::init(fscript,fres);	
 	Kernel::instance().load_functions();
 	Kernel::instance().load_links();
-	Kernel::instance().add_rttoken();
-	Kernel::instance().create_rt_klink();
-	Kernel::instance().runner_allocation();
+	Kernel::instance().load_rttoken();
+	Kernel::instance().load_runners();
+	Kernel::instance().load_res();
 	RtToken::instance().spawn();
 	FRunner::spawn_all();
 	
@@ -191,6 +186,7 @@ int main(int argc, char **argv)
 	RtToken::instance().join();
 	FRunner::join_all();
 	FRunner::clear();
+	Kernel::instance().save_res();
 
 	return 0;
 }

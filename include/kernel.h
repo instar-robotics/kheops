@@ -21,6 +21,7 @@ The fact that you are presently reading this means that you have had knowledge o
 #include <memory>
 #include "graph.h"
 #include "xmlconverter.h"
+#include "resconverter.h"
 #include "runner.h"
 #include "input.h"
 
@@ -73,6 +74,10 @@ class Kernel
 
 		void load_links();			
 		void load_functions();
+		void load_rttoken();
+		void load_runners();
+		void load_res();
+		void save_res();
 		
 		void add_ilink(const std::string& in_uuid,const XLink&);
 		void add_iscalar(const std::string& in_uuid,const XLink&);
@@ -83,26 +88,28 @@ class Kernel
 		// string 1 : function uuid
 		void purge_output_ilinks(const std::string& uuid);
 
+
 		// string 1 : function uuid
 		void add_klink(const std::string& in_uuid,const XLink&);
 		// string 1 : link uuid
 		void del_klink(const std::string& link_uuid);
 		// string 1 : function uuid
 		void purge_klinks(const std::string& uuid);
+		void klinks_allocation();
 
 		void add_function(const XFunction&);
 		void del_function(const std::string & uuid);
 		
-		void add_rttoken();
+		void init_rttoken();
 		void update_rttoken_value( const XRtToken& xrt );
 		void create_rt_klink();
 		void clear_rt_klink();
 
-		void runner_allocation();
+		void runners_allocation();
 		void add_runner(const std::string& uuid);
 		void remove_runner(const std::string& uuid);
 
-		void separate_runner_allocation();
+		void separate_runners_allocation();
 		void add_separate_runner(const std::string& uuid);
 		void remove_separate_runner(const std::string& uuid);
 

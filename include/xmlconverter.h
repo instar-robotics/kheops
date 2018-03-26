@@ -65,6 +65,7 @@ struct XFunction
 
 struct XRtToken
 {
+	std::string uuid;
 	std::string unit;
 	double value;
 };

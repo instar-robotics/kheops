@@ -17,11 +17,12 @@ The fact that you are presently reading this means that you have had knowledge o
 #ifndef __GRAPH_H__
 #define __GRAPH_H__
 
+#include <string>
 #include <boost/graph/graph_traits.hpp>
 #include <boost/graph/adjacency_list.hpp>
 #include "function.h"
 #include "klink.h"
-#include <string>
+
 
 namespace boost {
     enum vertex_function_t { vertex_function};

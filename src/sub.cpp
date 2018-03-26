@@ -36,8 +36,6 @@ void MSSub::compute()
 {
 	diminuende().accumulate(output);
 	output.array() -= subtrahend()();
-
-	std::cout << "MS SUB : " <<  getUuid()  <<" " << output << std::endl;
 }
 
 

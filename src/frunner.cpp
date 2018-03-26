@@ -32,7 +32,7 @@ void FRunner::exec()
 			Function * f = boost::get(boost::vertex_function , *g)[functions[i]] ;
 			
 			consume(functions[i]);
-			f->compute();
+			f->exec();
 			produce(functions[i]);
 
 			f->nsync_afterCompute();
@@ -120,8 +120,6 @@ void FRunner::del(int id)
 	auto it = runners.find(id);
         if(it != runners.end()) 
 	{
-		Function * f = boost::get(boost::vertex_function ,*(it->second->g))[ it->second->functions[0]] ;
-
 		it->second->clearFunctions();	
 		it->second->local_stop();
                 it->second->sync();

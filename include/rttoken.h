@@ -30,6 +30,7 @@ const std::string hertz = "Hz";
 class RtToken : public Runner
 {
         private :
+
                 // In second
                 double period;
 		
@@ -44,6 +45,7 @@ class RtToken : public Runner
                 std::condition_variable rt_cv;
 		
 		bool quiet;
+		std::string uuid;
 
 		static RtToken singleton;
 
@@ -55,6 +57,9 @@ class RtToken : public Runner
 		RtToken(double value, std::string unit) : Runner(),means(0),nbrun(0),state(PAUSE),quiet(true){ setToken(value, unit);}
                 virtual ~RtToken(){}
                 RtToken(const RtToken&) = delete;
+
+		inline const std::string& getUuid() { return uuid;  }
+                inline void setUuid(const std::string& uuid  ) { this->uuid = uuid;}
 
 		inline void setRtNode( Graph::vertex_descriptor rt_node ) { this->rt_node = rt_node;}
 		inline Graph::vertex_descriptor  getRtNode() { return rt_node;}

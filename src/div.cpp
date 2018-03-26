@@ -47,8 +47,6 @@ void  MSDiv::setparameters()
 void SSDiv::compute()
 {
 	output = numerator()() / denumerator()();
-
-	std::cout << "SSDIV : " << getUuid() << " " << output << std::endl;
 }
 
 void  SSDiv::setparameters()

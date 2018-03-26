@@ -20,7 +20,6 @@ REGISTER_FUNCTION(LMS);
 
 void LMS::compute()
 {	
-
 	// Compute activity 
         conditionnals[0].weigthedSum(output); 	
 	for(unsigned int i=1; i < conditionnals.size(); i++)

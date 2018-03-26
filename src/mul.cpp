@@ -22,9 +22,6 @@ REGISTER_FUNCTION(MSMul);
 
 void MMul::compute()
 {
-
-	if( inMatrix.size() == 0) return;
-
 	inMatrix[0].accumulate(output);	
 
 	for(unsigned int i=1; i < inMatrix.size(); i++)
@@ -42,15 +39,11 @@ void  MMul::setparameters()
 
 void SMul::compute()
 {
-
-	if( inScalar.size() == 0) return;
-
 	output =  inScalar[0]();
 	for(unsigned int i=1; i < inScalar.size(); i++)
 	{
 		output *= inScalar[i]();
 	}
-	std::cout << "SMUL " << getUuid() << " " << output << std::endl; 
 }
 
 void  SMul::setparameters()
@@ -62,9 +55,7 @@ void  SMul::setparameters()
 
 void MSMul::compute()
 {
-
 	double sMul=0;
-        if( inScalar.size() == 0 || inMatrix.size() == 0) return;
 
         sMul = inScalar[0]();
 

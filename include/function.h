@@ -43,6 +43,7 @@ class Function
 		Function(){}
 		virtual ~Function();
 
+		virtual void exec();
                 virtual void compute() = 0;
 		virtual void setparameters() = 0;
 		virtual size_t type() = 0;
