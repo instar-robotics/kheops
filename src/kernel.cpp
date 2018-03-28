@@ -564,6 +564,7 @@ void Kernel::add_immatrix(const std::string& in_uuid,const XLink& xl)
 		if( input_to_funct[in_uuid] == xl.uuid_pred) imm->activateBuffer();
 	}
 	imm->resizeWeight();
+	imm->initWeight();
 
 	// Add ilink
 	imm_input[in_uuid]->add(imm);

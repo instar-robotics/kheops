@@ -163,7 +163,18 @@ void IMMatrix::resizeWeight()
 	if( getORows()==0 || getOCols()==0) throw std::invalid_argument("iLink : Matrix try to resize weight without knowing output size");
 
 	weight.resize(  getORows() * getOCols() , getIRows() * getICols() );
-	weight << MatrixXd::Zero( getORows() * getOCols() , getIRows() * getICols() );
+}
+
+void IMMatrix::initWeight()
+{
+	weight << MatrixXd::Zero( weight.rows() , weight.cols() );
+}
+
+bool IMMatrix::checkWeightSize(unsigned int rows, unsigned int cols )
+{
+	if( weight.rows() == rows  && weight.cols() == cols) return true;
+	else return false;
+
 }
 
 double IMMatrix::w(unsigned int rows, unsigned int cols)

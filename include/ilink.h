@@ -222,7 +222,12 @@ class IMMatrix : public IMatrix
 		inline unsigned int getORows(){return ocols;}
 		inline unsigned int getOCols(){return orows;}
 
+		inline unsigned int getWRows(){return weight.rows();}
+		inline unsigned int getWCols(){return weight.cols();}
+
+		virtual void initWeight();
 		virtual void resizeWeight(); 
+		virtual bool checkWeightSize(unsigned int rows, unsigned int cols );
 		
 		// out is an Matrix with output matrix size
 		virtual MatrixXd& weigthedSum(MatrixXd& out) = 0;

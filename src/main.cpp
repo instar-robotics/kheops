@@ -55,7 +55,7 @@ void print_splash(void)
 	std::cout << "#                                                    #" << std::endl;
 	std::cout << "#       Kheops : the neural networks simulator       #" << std::endl;
 	std::cout << "#                                                    #" << std::endl;
-	std::cout << "#  Powered by Enacted Robotics                       #" << std::endl;
+	std::cout << "#  Powered by Instar Robotics                        #" << std::endl;
 	std::cout << "######################################################" << std::endl;
 
 }
