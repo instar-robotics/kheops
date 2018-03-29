@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<functions>
+	<function>
+		<name>SigmaPi</name>
+		<output> 
+			<type>MATRIX</type>
+		</output> 
+		<inputs>
+			<input> 
+				<type>SCALAR_SCALAR</type>
+				<name>vigilence</name>
+			</input>
+		</inputs>
+	</function>	
+<functions>

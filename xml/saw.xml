@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<functions>
+	<function>
+		<name>SAW</name>
+		<output> 
+			<type>MATRIX</type>
+		</output> 
+		<inputs>
+			<input> 
+				<type>SCALAR_SCALAR</type>
+				<name>learning_rate</name>
+			</input>
+			<input> 
+				<type>SCALAR_SCALAR</type>
+				<name>vigilence</name>
+			</input>
+			</input>
+			<input multiple="true">
+				<type>MATRIX_MATRIX</type>
+				<name>inputs</name>
+			</input>
+		</inputs>
+	</function>	
+<functions>
