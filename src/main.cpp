@@ -77,12 +77,15 @@ void print_help(void)
 int main(int argc, char **argv)
 {
 	struct sigaction action;
-	int verbose = 0;
+	bool verbose = 0;
+	bool run = false;
 	char opt;
 	
 	std::string fscript;
 	std::string libdir;
 	std::string fres;
+
+	std::cout << fres.size() << std::endl;
 
 	print_splash();
 
@@ -90,14 +93,26 @@ int main(int argc, char **argv)
 	{
 		switch( opt )	
 		{
-			case 'v' :  verbose=1;break;
+			case 'v' :  verbose=true;break;
 			case 'h' :  print_help(); return 0;
-			case 's' :  fscript = optarg ; break;
+			case 's' :
+				run = true;  
+				fscript = optarg ; 
+				break;
 			case 'r' :  fres = optarg ; break;
 			case 'l' :  libdir = optarg ; break;
 			default : return 0;
 		}	
 	}
+
+	if( !run )
+	{
+		std::cout << "Fatal : need to load a XML Script file \n" << std::endl;
+
+		print_help();
+
+		return 0;
+	} 	
 
         /*************Signaux handler operation ****************/
 	sigfillset(&action.sa_mask);
@@ -132,7 +147,6 @@ int main(int argc, char **argv)
 	RtToken::instance().spawn();
 	FRunner::spawn_all();
 	
-	bool run  = true;
         while(run)
         {
                 std::string buffer;

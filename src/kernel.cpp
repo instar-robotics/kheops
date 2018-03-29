@@ -63,7 +63,6 @@ Kernel::~Kernel()
 void Kernel::init(std::string scriptfile, std::string resfile)
 {
 	singleton.scriptfile=scriptfile;
-	singleton.resfile=resfile;
 
 	XmlConverter * xmlc = new  XmlConverter(scriptfile);
 	xmlc->loadScript(singleton.xs);
@@ -72,6 +71,15 @@ void Kernel::init(std::string scriptfile, std::string resfile)
 	std::cout << "Run : " << singleton.xs.name << " script"<< std::endl;
 
 	singleton.init_rttoken();
+
+	if( resfile.size() == 0) 
+	{
+		singleton.resfile=singleton.xs.name+".res";
+	}
+	else
+	{
+		singleton.resfile=resfile;
+	}
 }
 
 /********************************************************************************************************/
