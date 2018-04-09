@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <functions>
 	<function>
-		<name>SAW</name>
+		<name>Saw</name>
 		<output> 
 			<type>MATRIX</type>
 		</output> 

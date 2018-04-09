@@ -14,28 +14,19 @@ and, more generally, to use and operate it in the same conditions as regards sec
 The fact that you are presently reading this means that you have had knowledge of the CeCILL v2.1 license and that you accept its terms.
 */
 
-#ifndef __SAW_HPP__
-#define __SAW_HPP__
+#include "saw.h"
 
-#include "function.h"
-#include "kernel.h"
-#include <iostream>
+REGISTER_FUNCTION(Saw);
 
-class Saw : public FMatrix
+void Saw::compute()
+{	
+
+}
+
+void Saw::setparameters()
 {
-	private :
+        Kernel::instance().bind(vigilence,"vigilence", getUuid());
+        Kernel::instance().bind(inputs,"inputs", getUuid());
+        Kernel::instance().bind(learning_rate,"learning_rate", getUuid());
+}
 
-		ISInput learning_rate;
-		ISInput vigilence;
-		IMMAnchor inputs;
-	
-        public :
-		
-		virtual ~Saw(){}
-
-		virtual void compute();
-		virtual void setparameters();
-
-};
-
-#endif // __SAW_HPP__
