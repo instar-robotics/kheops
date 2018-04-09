@@ -25,8 +25,8 @@ class SAW : public FMatrix
 {
 	private :
 
-		IScalar learning_rate;
-		IScalar vigilence;
+		ISInput learning_rate;
+		ISInput vigilence;
 		IMMAnchor inputs;
 	
         public :

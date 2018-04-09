@@ -177,7 +177,7 @@ int main(int argc, char **argv)
 		}
 		else if(buffer == "quiet")
 		{
-			RtToken::instance().setQuiet(  !RtToken::instance().is_quiet());
+			RtToken::instance().active_rt_warning(  !RtToken::instance().is_rt_warning_active());
 		}
 
 		else if( buffer == "stop") 
