@@ -31,10 +31,24 @@ void FRunner::exec()
 		{
 			Function * f = boost::get(boost::vertex_function , *g)[functions[i]] ;
 			
-			consume(functions[i]);
+			consume(f);
 			f->exec();
-			produce(functions[i]);
+			produce(f);
 
+			//TODO : The place of this function is not resume easily !
+			// Latency between One Function per Runner model and N Functions per Runner model depend 
+			// how is managed nsync function ! 
+			// In One Function per Runner model (OFPR) :
+				// nsync latency is hidden in multi thread chain
+			// In N Function per Runner model  (NFPR)
+				// nsync latentcy is summed in the N function chain
+
+			// Otherwise : 
+			// In OFPR model produce and consume function add latency	
+			// In NFPR model produce and consume don't add latency
+
+			// So Comparaison between OFPR and NFPR is resumed by 
+				// Compare latency between produce/consume VS nsync !
 			f->nsync_afterCompute();
 		}
 	}

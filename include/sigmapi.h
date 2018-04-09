@@ -25,7 +25,7 @@ class SigmaPi : public FMatrix
 {
 	private :
 	
-		IScalar Vigilence;
+		IScalar vigilence;
 	
         public :
 		

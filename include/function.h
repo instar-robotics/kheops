@@ -32,6 +32,8 @@ The fact that you are presently reading this means that you have had knowledge o
 class Function
 {
 	private : 
+		double timing;
+	
 		std::string uuid;
 
 		std::vector<ISInput*> is_input;
@@ -39,8 +41,10 @@ class Function
                 std::vector<ISMInput*> ism_input;
                 std::vector<IMMInput*> imm_input;
 
+		bool oscillo;
+
 	public : 
-		Function(){}
+		Function(): oscillo(false){}
 		virtual ~Function();
 
 		virtual void exec();
@@ -67,6 +71,10 @@ class Function
 		inline std::vector<IMMInput*>& get_imminput(){ return imm_input;}
 
 		virtual void nsync_afterCompute();
+
+		inline bool is_oscillo_active(){return oscillo;}
+                inline void active_oscillo(bool state) {oscillo = state;}
+
 };
 
 template<class T>

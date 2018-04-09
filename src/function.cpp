@@ -14,6 +14,7 @@ and, more generally, to use and operate it in the same conditions as regards sec
 The fact that you are presently reading this means that you have had knowledge of the CeCILL v2.1 license and that you accept its terms.
 */
 
+#include <chrono>
 #include "function.h"
 
 Function::~Function()
@@ -28,9 +29,14 @@ void Function::exec()
 {
 	try
 	{
+		auto start = std::chrono::system_clock::now();
 		compute();
+		auto end = std::chrono::system_clock::now();
+
+                std::chrono::duration<double> elapsed_seconds = end-start;
+		timing = elapsed_seconds.count();
 	}
-	catch( const std::invalid_argument &e )
+	catch(const std::invalid_argument &e)
 	{
 		std::cerr << " Function "<< getUuid() << " : "  << e.what() << std::endl;
 	}

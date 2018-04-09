@@ -30,6 +30,7 @@ const std::string hertz = "Hz";
 class RtToken : public Runner
 {
         private :
+		std::string uuid;
 
                 // In second
                 double period;
@@ -44,21 +45,21 @@ class RtToken : public Runner
                 std::mutex rt_mtx;
                 std::condition_variable rt_cv;
 		
-		bool quiet;
-		std::string uuid;
+		bool oscillo;
+		bool rt_warning;
 
 		static RtToken singleton;
 
 	public : 
 
 		// Period in second
-		RtToken() : Runner(),period(0),means(0),nbrun(0),state(PAUSE),quiet(true) {}
-		RtToken(double period) : Runner(),period(period),means(0),nbrun(0),state(PAUSE),quiet(true)  {}
-		RtToken(double value, std::string unit) : Runner(),means(0),nbrun(0),state(PAUSE),quiet(true){ setToken(value, unit);}
+		RtToken() : Runner(),period(0),means(0),nbrun(0),state(PAUSE),oscillo(false), rt_warning(false) {}
+		RtToken(double period) : Runner(),period(period),means(0),nbrun(0),state(PAUSE),oscillo(false),rt_warning(false) {}
+		RtToken(double value, std::string unit) : Runner(),means(0),nbrun(0),state(PAUSE),oscillo(false), rt_warning(false) { setToken(value, unit);}
                 virtual ~RtToken(){}
                 RtToken(const RtToken&) = delete;
 
-		inline const std::string& getUuid() { return uuid;  }
+		inline const std::string& getUuid() { return uuid; }
                 inline void setUuid(const std::string& uuid  ) { this->uuid = uuid;}
 
 		inline void setRtNode( Graph::vertex_descriptor rt_node ) { this->rt_node = rt_node;}
@@ -101,9 +102,11 @@ class RtToken : public Runner
 
 		static inline RtToken& instance() noexcept {return singleton;}
 
-		inline bool is_quiet(){return quiet;}
-		inline void setQuiet(bool state) {quiet = state;}
-
+		inline bool is_oscillo_active(){return oscillo;}
+		inline void active_oscillo(bool state) {oscillo = state;}
+		
+		inline bool is_rt_warning_active(){return rt_warning;}
+		inline void active_rt_warning(bool state) {rt_warning = state;}
 }; 
 
 #endif // __RT_TOKEN_H__

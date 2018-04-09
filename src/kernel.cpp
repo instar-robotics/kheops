@@ -236,6 +236,7 @@ void Kernel::del_function(const std::string& uuid)
 
 void Kernel::init_rttoken()
 {
+	//TODO : choose if RtToken UUID is generated or read from the XML ?
 	std::string uuid = xs.rt.uuid;
 	Graph::vertex_descriptor rt_node = boost::add_vertex(graph);
 	boost::put(boost::vertex_runner, graph, rt_node, 0);

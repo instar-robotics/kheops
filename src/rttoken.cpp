@@ -59,14 +59,24 @@ void RtToken::exec()
 
 		if( elapsed_seconds.count() > period  )
 		{
-			if(!quiet) std::cout << "Warning : RT_Token timeout. Waited : " <<  getMsPeriod()  << " ms (freq="<< convert_period_frequency(period) <<" Hz). Reel : " << convert_s_to_ms(elapsed_seconds.count()) << " ms " << std::endl;
+			if( is_rt_warning_active()  )
+			{ 
+				//TODO : here add code to send warning in ROS TOPIC
+				// Send means, last value, rt token value and unit
+				std::cout << "Warning : RT_Token timeout. Waited : " <<  getMsPeriod()  << " ms (freq="<< convert_period_frequency(period) <<" Hz). Reel : " << convert_s_to_ms(elapsed_seconds.count()) << " ms " << std::endl;
+			}
 		}
 		else
 		{
 			double sleep_duration = period - elapsed_seconds.count();
 			usleep( sleep_duration * CONV_S_TO_MS );
 
-			if(!quiet) std::cout << "RT_Token OK (freq=" << convert_period_frequency(period) << "Hz) :" << convert_s_to_ms(elapsed_seconds.count()) << " ms (real freq=" << convert_period_frequency(elapsed_seconds.count())  << " Hz).  Sleep duration :  " <<   convert_s_to_ms(sleep_duration) << " ms" << std::endl;
+			if(  is_rt_warning_active() )
+			{	
+				//TODO : here add code to send warning in ROS TOPIC
+				// Send means, last value, rt token value and unit
+				 std::cout << "RT_Token OK (freq=" << convert_period_frequency(period) << "Hz) :" << convert_s_to_ms(elapsed_seconds.count()) << " ms (real freq=" << convert_period_frequency(elapsed_seconds.count())  << " Hz).  Sleep duration :  " <<   convert_s_to_ms(sleep_duration) << " ms" << std::endl;
+			}
 		}
 
 		means+= elapsed_seconds.count();
