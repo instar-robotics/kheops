@@ -29,6 +29,12 @@ class Kernel
 {
 	private :
 
+		//TODO : 
+		// Rethink container 
+		// Better split between klink and ilink 
+		// remove edge uuid from graph
+		// remove FRunner ID -> change to UUID 
+
 		std::string scriptfile;
 		std::string resfile;
 

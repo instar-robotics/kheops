@@ -39,7 +39,7 @@ void FRunner::exec()
 void FRunner::checkFunction()
 {
 	if( ( boost::get( boost::vertex_function ,*g  )[node]) == NULL) {
-		 throw  std::invalid_argument("FRunner "+std::to_string(id)+" : Function uninitialized");
+		 throw  std::invalid_argument("FRunner "+uuid+" : Function uninitialized");
 	}
 }
 

@@ -320,7 +320,7 @@ void Kernel::del_klink(const std::string& link_uuid)
 		edge_map.erase(it);
 		kLink * l = boost::get(boost::edge_klink, graph, e);
 		boost::remove_edge(e,graph);
-		if( l != NULL) 
+		if(l != NULL) 
 		{
 			l->produce();
 			delete(l);

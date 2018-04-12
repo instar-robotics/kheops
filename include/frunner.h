@@ -35,7 +35,6 @@ class FRunner : public Runner
 
         public :
                 FRunner() : Runner(),bsync(false),local_state(RUN) {}
-                FRunner(int id) :Runner(id),bsync(false),local_state(RUN) {}
                 virtual ~FRunner() {}
 
                 virtual void exec();
