@@ -27,10 +27,12 @@ enum STATE { STOP=0, PAUSE=1, RUN=2 };
 class Runner
 {
         protected :
-
                 int id;
+
+		std::string uuid;
                 std::thread thx;
                 Graph const *g;
+		Graph::vertex_descriptor node;
 		
 		static int request;
 		
@@ -46,12 +48,19 @@ class Runner
                 virtual ~Runner(){}
                 inline void setGraph(Graph * g){ this->g=g;}
 
+		inline const std::string& getUuid() { return uuid; }
+                inline void setUuid(const std::string& uuid  ) { this->uuid = uuid;}
+
+
 		inline void setId(int id){  this->id = id; }
 		inline int getId(){ return id; }
 		
+		inline void setNode( Graph::vertex_descriptor node ) { this->node = node;}
+                inline Graph::vertex_descriptor  getNode() { return node;}
 
 		// Payload of the runner
                 virtual void exec() = 0;
+		virtual void terminate() = 0;
 
                 void produce(const Graph::vertex_descriptor  v_mtx);
                 void consume(const Graph::vertex_descriptor  v_mtx);

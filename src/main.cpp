@@ -140,10 +140,8 @@ int main(int argc, char **argv)
 	Kernel::instance().load_functions();
 	Kernel::instance().load_links();
 	Kernel::instance().load_rttoken();
-	Kernel::instance().load_runners();
 	Kernel::instance().load_res();
-	RtToken::instance().spawn();
-	FRunner::spawn_all();
+	Kernel::instance().spawn_runners();
 	
         while(run)
         {
@@ -194,10 +192,7 @@ int main(int argc, char **argv)
 
                 std::cout << "M state : "  << RtToken::instance().getRequest() << std::endl;
         }
-        RtToken::instance().ask_stop();
-	RtToken::instance().join();
-	FRunner::join_all();
-	FRunner::clear();
+	Kernel::instance().terminate();
 	Kernel::instance().save_res();
 
 	return 0;

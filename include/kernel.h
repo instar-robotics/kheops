@@ -75,7 +75,6 @@ class Kernel
 		void load_links();			
 		void load_functions();
 		void load_rttoken();
-		void load_runners();
 		void load_res();
 		void save_res();
 		
@@ -96,23 +95,20 @@ class Kernel
 		void del_klink(const std::string& link_uuid);
 		// string 1 : function uuid
 		void purge_klinks(const std::string& uuid);
-		void klinks_allocation();
 
 		void add_function(const XFunction&);
 		void del_function(const std::string & uuid);
 		
-		void init_rttoken();
-		void update_rttoken_value( const XRtToken& xrt );
+		void init_rt_token();
+		void update_rt_token_value( const XRtToken& xrt );
 		void create_rt_klink();
 		void clear_rt_klink();
 
-		void runners_allocation();
 		void add_runner(const std::string& uuid);
 		void remove_runner(const std::string& uuid);
-
-		void separate_runners_allocation();
-		void add_separate_runner(const std::string& uuid);
-		void remove_separate_runner(const std::string& uuid);
+		void spawn_runners();
+		void join_runners();
+		void terminate();
 
 		void bind( ISInput& value,const std::string& var_name,const std::string& uuid );
 		void bind( IMInput& value,const std::string& var_name,const std::string& uuid );

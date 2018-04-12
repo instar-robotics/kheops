@@ -70,7 +70,7 @@ void Kernel::init(std::string scriptfile, std::string resfile)
 
 	std::cout << "Run : " << singleton.xs.name << " script"<< std::endl;
 
-	singleton.init_rttoken();
+	singleton.init_rt_token();
 
 	if( resfile.size() == 0) 
 	{
@@ -88,7 +88,6 @@ void Kernel::init(std::string scriptfile, std::string resfile)
 
 void Kernel::load_functions()
 {
-
 	//build function using Factory
 	for(auto it = xs.functions.begin(); it != xs.functions.end(); it++)
 	{
@@ -134,17 +133,10 @@ void Kernel::load_links()
 
 void Kernel::load_rttoken()
 {
-	update_rttoken_value(xs.rt);
+	update_rt_token_value(xs.rt);
 	create_rt_klink();
 	clear_rt_klink();
 }
-
-void Kernel::load_runners()
-{
-	runners_allocation();
-	klinks_allocation();
-}
-
 
 void Kernel::load_res()
 {
@@ -180,8 +172,10 @@ void Kernel::add_function( const XFunction& xf)
 		{
 			Graph::vertex_descriptor vd = boost::add_vertex(graph);
 			boost::put(boost::vertex_function, graph, vd, f);
-			boost::put(boost::vertex_runner, graph, vd, -1);
 			node_map[f->getUuid()] = vd;
+
+			// Add a runner to the function : 
+			add_runner( f->getUuid() );
 		}
 		else throw  std::invalid_argument("Kernel : try to add a function with an existed uuid");
      }
@@ -234,27 +228,27 @@ void Kernel::del_function(const std::string& uuid)
 /****************** 		        	RTTOKEN Section	              	      *******************/
 /********************************************************************************************************/
 
-void Kernel::init_rttoken()
+void Kernel::init_rt_token()
 {
 	//TODO : choose if RtToken UUID is generated or read from the XML ?
 	std::string uuid = xs.rt.uuid;
 	Graph::vertex_descriptor rt_node = boost::add_vertex(graph);
-	boost::put(boost::vertex_runner, graph, rt_node, 0);
+	boost::put(boost::vertex_runner, graph, rt_node, &RtToken::instance());
 	node_map[uuid] = rt_node;
 	
 	RtToken::instance().setUuid(uuid);
-	RtToken::instance().setRtNode(rt_node);
+	RtToken::instance().setNode(rt_node);
 	RtToken::instance().setGraph(&graph);
 }
 
-void Kernel::update_rttoken_value(const XRtToken& xrt)
+void Kernel::update_rt_token_value(const XRtToken& xrt)
 {
 	RtToken::instance().setToken(xrt.value , xrt.unit );
 }
 
 void Kernel::create_rt_klink()
 {
-	Graph::vertex_descriptor rt_node = RtToken::instance().getRtNode();
+	Graph::vertex_descriptor rt_node = RtToken::instance().getNode();
 	for( auto it =  boost::vertices(graph) ; it.first != it.second; ++it.first)
         {
 		if( *it.first != rt_node)
@@ -278,7 +272,7 @@ void Kernel::create_rt_klink()
 
 void Kernel::clear_rt_klink()
 {
-	Graph::vertex_descriptor rt_node = RtToken::instance().getRtNode();
+	Graph::vertex_descriptor rt_node = RtToken::instance().getNode();
 
 	for( auto it = boost::in_edges(rt_node, graph); it.first != it.second; ++it.first)
 	{
@@ -306,7 +300,10 @@ void Kernel::add_klink(const std::string &in_uuid, const XLink& xl)
 	if( edge_map.find( xl.uuid ) == edge_map.end() ) 
 	{
 		std::pair<Graph::edge_descriptor, bool> e = add_edge(node_map[ xl.uuid_pred],node_map[in_uuid],graph);
-		boost::put( boost::edge_type, graph, e.first , xl.isSecondary );
+
+		if(  xl.uuid_pred == in_uuid ) 	boost::put(boost::edge_klink, graph, e.first , new Passing_kLink());
+		else boost::put(boost::edge_klink, graph, e.first , new Synchronized_kLink(xl.isSecondary));
+
 		boost::put( boost::edge_uuid, graph, e.first , xl.uuid );
 		edge_map[xl.uuid] = e.first;
 	}
@@ -347,49 +344,6 @@ void Kernel::purge_klinks(const std::string& uuid)
 	for( ; it_in.first != it_in.second; ++it_in.first)
 	{
 		del_klink(  boost::get( boost::edge_uuid, graph, *it_in.first) );
-	}
-}
-
-void Kernel::klinks_allocation()
-{
-	for( auto it = boost::edges(graph); it.first != it.second; ++it.first)
-	{
-		bool type = boost::get( boost::edge_type, graph)[*it.first];
-		int id_source = boost::get( boost::vertex_runner, graph)[ boost::source(*it.first, graph) ];
-		int id_target = boost::get( boost::vertex_runner, graph)[ boost::target(*it.first, graph) ];
-
-		if( id_source == id_target)
-		{
-			if(  boost::get(boost::edge_klink, graph, *it.first ) == NULL ) 
-			{
-				boost::put(boost::edge_klink, graph, *it.first , new Passing_kLink());
-			}
-			else
-			{
-				kLink * kl =  boost::get(boost::edge_klink, graph, *it.first );
-				if( typeid(kl).hash_code() != typeid(Passing_kLink).hash_code())
-				{
-					delete(kl);
-					boost::put(boost::edge_klink, graph, *it.first , new Passing_kLink());
-				}
-			}
-		}
-		else
-		{
-			if(  boost::get(boost::edge_klink, graph, *it.first ) == NULL ) 
-			{
-				boost::put(boost::edge_klink, graph, *it.first , new Synchronized_kLink(type));
-			}
-			else
-			{
-				kLink * kl =  boost::get(boost::edge_klink, graph, *it.first );
-				if( typeid(kl).hash_code() != typeid(Synchronized_kLink).hash_code())
-				{
-					delete(kl);
-					boost::put(boost::edge_klink, graph, *it.first , new Synchronized_kLink(type));
-				}
-			}
-		} 
 	}
 }
 
@@ -616,7 +570,7 @@ void Kernel::purge_output_ilinks(const std::string& uuid)
 	{
 		std::string l_uuid = boost::get( boost::edge_uuid, graph, *it_out.first); 
 	
-		if(  RtToken::instance().getRtNode() != boost::target( *it_out.first,graph))
+		if(  RtToken::instance().getNode() != boost::target( *it_out.first,graph))
 		{
 			if( ilink_to_input.find(l_uuid) != ilink_to_input.end() ) 
 			{
@@ -633,108 +587,53 @@ void Kernel::purge_output_ilinks(const std::string& uuid)
 /****************** 			Runner Section	 			      *******************/
 /********************************************************************************************************/
 
-void Kernel::runners_allocation()
-{
-	// NB : naive runner strategy : could add the function to pred'runner or remap all the runner using the graph
-	this->separate_runners_allocation();
-}
-
 void Kernel::add_runner(const std::string& uuid)
-{
-	// NB : naive runner strategy : could add the function to pred'runner or remap all the runner using the graph
-	this->add_separate_runner(uuid);
-}
-
-void Kernel::remove_runner(const std::string& uuid)
-{
-	// NB : naive runner strategy : could add the function to pred'runner or remap all the runner using the graph
-	this->remove_separate_runner(uuid);
-}
-
-void Kernel::separate_runners_allocation()
-{
-	// Build all runners
-	for( auto it =  boost::vertices(graph) ; it.first != it.second; ++it.first)
-	{
-		Graph::vertex_descriptor v =  *it.first ;
-
-		if(   boost::get( boost::vertex_runner , graph, v)  == -1 ) 
-		{
-			FRunner * fr = new FRunner();
-			fr->setGraph(&graph);
-			FRunner::add(fr);
-			fr->add_node( v );
-
-			boost::put(boost::vertex_runner, graph, v, fr->getId());
-		}
-	}
-}
-
-
-void Kernel::add_separate_runner(const std::string& uuid)
 {
         if( node_map.find( uuid  ) == node_map.end()) throw  std::invalid_argument( "Kernel : try to add runner to an unkown function "+ uuid ); 
 
 	FRunner * fr = new FRunner();
 	fr->setGraph(&graph);
-	FRunner::add(fr);
-	fr->add_node( node_map[uuid] );
-	boost::put(boost::vertex_runner, graph, node_map[uuid], fr->getId());
-			
-	// Spawn the runner
-	fr->spawn();
+	fr->setNode( node_map[uuid] );
+	boost::put(boost::vertex_runner, graph, node_map[uuid], fr);
 }
 
-void Kernel::remove_separate_runner(const std::string& uuid)
+void Kernel::remove_runner(const std::string& uuid)
 {
         if( node_map.find( uuid  ) == node_map.end()) throw  std::invalid_argument( "Kernel : try to remove runner to an unkown function "+ uuid ); 
 
-	int id = boost::get(boost::vertex_runner, graph, node_map[uuid]);
+	Runner * runner = boost::get(boost::vertex_runner, graph, node_map[uuid]);
 	
-	FRunner::del(id);
+	runner->terminate();
+	delete(runner);
 }
 
-//TODO : under construction. Try to implements better allocation strategies (decrease number of Runner by script
-/*
-	// Alternative to naive runner strategy : add functuin to pred's runner
-	int idRunner = boost::get( boost::vertex_runner, graph, node_map[pred_uuid]  ) ;
-	dynamic_cast<FRunner*>(runners[idRunner])->add_node( node_map[uuid] );
-	boost::put(boost::vertex_runner, graph, node_map[uuid], idRunner);
-*/			
-
-/*
-void Kernel::runner_construction()
+void Kernel::spawn_runners()
 {
-	for( auto it = boost::edges(graph); it.first != it.second; ++it.first)
-	{
-		Link *l;
-		int id_source = boost::get( boost::vertex_runner, graph)[ boost::source(*it.first, graph) ];
-		int id_target = boost::get( boost::vertex_runner, graph)[ boost::target(*it.first, graph) ];
-
-		std::cout << "Runner : " << id_source << " " << id_target << std::endl;
-
-		if( id_source == id_target ) 
-		{
-			l = new Passing_Link();
-		}
-		else
-		{
-			l = new Synchronized_Link();
-		}
-		
-		boost::put(boost::edge_klink, graph, *it.first , l);
+	std::pair<vertex_iter, vertex_iter> it = boost::vertices(graph);
+	for( ; it.first != it.second; ++it.first)
+	{	
+		Runner * runner = boost::get(boost::vertex_runner, graph, *it.first);
+	
+		runner->spawn();
 	}
-
-	for( auto it =  boost::vertices(graph) ; it.first != it.second; ++it.first)
-        {
-        }
 }
 
-	for( auto it = boost::edges(graph); it.first != it.second; ++it.first)
-	{
-		std::cout <<  boost::source(*it.first, graph) << " " <<  boost::target(*it.first, graph) << std::endl;
+void Kernel::join_runners()
+{
+	std::pair<vertex_iter, vertex_iter> it = boost::vertices(graph);
+	for( ; it.first != it.second; ++it.first)
+	{	
+		Runner* runner = boost::get(boost::vertex_runner, graph, *it.first);
+	
+		runner->join();
 	}
-*/
+}
+
+void Kernel::terminate()
+{
+	RtToken::instance().ask_stop();
+	join_runners();
+}
 
 /********************************************************************************************************/
 /****************** 			Bind Section 				      *******************/

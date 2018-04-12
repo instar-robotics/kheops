@@ -30,16 +30,12 @@ const std::string hertz = "Hz";
 class RtToken : public Runner
 {
         private :
-		std::string uuid;
-
                 // In second
                 double period;
 		
 		//TODO : pour l'instant pas de gestion de rebouclage du compteur
                 double means;
                 unsigned long long nbrun;
-
-                Graph::vertex_descriptor rt_node;
 
 		int state;
                 std::mutex rt_mtx;
@@ -59,12 +55,6 @@ class RtToken : public Runner
                 virtual ~RtToken(){}
                 RtToken(const RtToken&) = delete;
 
-		inline const std::string& getUuid() { return uuid; }
-                inline void setUuid(const std::string& uuid  ) { this->uuid = uuid;}
-
-		inline void setRtNode( Graph::vertex_descriptor rt_node ) { this->rt_node = rt_node;}
-		inline Graph::vertex_descriptor  getRtNode() { return rt_node;}
-
 		// Frequency in Hz
 		inline void setFrequency( double frequency ) { period = convert_period_frequency(frequency);}
 		
@@ -80,6 +70,7 @@ class RtToken : public Runner
 
 		void setToken(double value, std::string unit);
 		virtual void exec();
+		virtual void terminate();
 		
 		void wait_ask_resume();
                 void wait_for_pause();
@@ -107,6 +98,8 @@ class RtToken : public Runner
 		
 		inline bool is_rt_warning_active(){return rt_warning;}
 		inline void active_rt_warning(bool state) {rt_warning = state;}
+	
+		void sync_all();
 }; 
 
 #endif // __RT_TOKEN_H__

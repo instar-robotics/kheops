@@ -23,6 +23,7 @@ The fact that you are presently reading this means that you have had knowledge o
 #include "function.h"
 #include "klink.h"
 
+class Runner;
 
 namespace boost {
     enum vertex_function_t { vertex_function};
@@ -33,13 +34,8 @@ namespace boost {
     enum vertex_runner_t { vertex_runner};
     BOOST_INSTALL_PROPERTY(vertex, runner);
 }
-typedef boost::property <boost::vertex_runner_t, int,  boost::property<boost::vertex_function_t, Function*  >> VertexProperties;
+typedef boost::property <boost::vertex_runner_t, Runner* ,  boost::property<boost::vertex_function_t, Function*  >> VertexProperties;
 
-
-namespace boost {
-    enum edge_type_t { edge_type};
-    BOOST_INSTALL_PROPERTY(edge, type);
-}
 
 namespace boost {
     enum edge_klink_t { edge_klink};
@@ -51,7 +47,7 @@ namespace boost {
     BOOST_INSTALL_PROPERTY(edge, uuid);
 }
 
-typedef boost::property<boost::edge_klink_t, kLink*, boost::property< boost::edge_type_t, bool, boost::property< boost::edge_uuid_t, std::string>>> EdgeWeightProperty;
+typedef boost::property<boost::edge_klink_t, kLink*, boost::property< boost::edge_uuid_t, std::string>> EdgeWeightProperty;
 
 typedef boost::adjacency_list<boost::vecS, boost::listS, boost::bidirectionalS , VertexProperties , EdgeWeightProperty>  Graph;
 

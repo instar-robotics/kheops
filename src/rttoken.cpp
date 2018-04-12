@@ -50,8 +50,8 @@ void RtToken::exec()
 
 		auto start = std::chrono::system_clock::now();
 
-		FRunner::sync_all();
-		consume(rt_node);
+		sync_all();
+		consume(node);
 
 		auto end = std::chrono::system_clock::now();
 
@@ -82,8 +82,8 @@ void RtToken::exec()
 		means+= elapsed_seconds.count();
 		nbrun++;
 	}
-	FRunner::sync_all();
-	consume(rt_node);
+	sync_all();
+	consume(node);
 	stop();
 }
 
@@ -125,3 +125,22 @@ void RtToken::change_state(int state)
         rt_cv.notify_all();
 }
 
+void RtToken::sync_all()
+{
+        std::pair<vertex_iter, vertex_iter> it = boost::vertices(*g);
+        for( ; it.first != it.second; ++it.first)
+        {
+            Runner *r = boost::get(boost::vertex_runner, *g, *it.first);
+		
+            if( r != this) 
+	    {                
+          	dynamic_cast<FRunner*>(r)->sync();
+       	    }
+	}
+}
+
+void RtToken::terminate()
+{
+	ask_stop();
+	join();
+}

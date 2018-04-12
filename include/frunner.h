@@ -25,14 +25,10 @@ class FRunner : public Runner
 {
         protected :
 
-                std::vector<Graph::vertex_descriptor> functions;
-
 		bool bsync;
                 std::mutex mtx_sync;
                 std::condition_variable cv_sync;
 
-		static std::map<int, FRunner *> runners;
-		
 		int local_state;
 
 		inline bool __is_asking_local_stop(){ return local_state == STOP;}
@@ -40,36 +36,17 @@ class FRunner : public Runner
         public :
                 FRunner() : Runner(),bsync(false),local_state(RUN) {}
                 FRunner(int id) :Runner(id),bsync(false),local_state(RUN) {}
-                virtual ~FRunner() {functions.clear(); }
+                virtual ~FRunner() {}
 
                 virtual void exec();
+		virtual void terminate();
 
 		void wait_for_sync();
                 void sync();
 		inline void local_stop() { local_state = STOP;}
 		inline void local_run() { local_state = RUN;}
 
-		void checkFunctions();
-		void clearFunctions();
-
-		static void spawn_all();
-		static void join_all();
-                static void sync_all();
-
-		inline static int size(){ return runners.size();  }
-                static int add(FRunner *r);
-		static void del(int id);
-		static void erase(int id);
-                static FRunner* get(int id);
-                static void clear();
-
-		//TODO : pour l'instant les functions sont pushées les unes à la suite des autres
-		// 	Il faut faire attention de les pushés dans l'ordre d'exécution
-		//
-		// 	Faire une fonction qui utilise le graphe pour sélectionner automatiquement 
-		//	le bon ordre d'éxecution ??
-                inline void add_node(Graph::vertex_descriptor node ){functions.push_back(node);}
-
+		void checkFunction();
 };
 
 #endif //__FRUNNER_H__

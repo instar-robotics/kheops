@@ -16,60 +16,32 @@ The fact that you are presently reading this means that you have had knowledge o
 
 #include "frunner.h"
 
-std::map<int, FRunner *> FRunner::runners;
-
 void FRunner::exec()
 {
-	checkFunctions();
+	checkFunction();
+			
+	Function * f = boost::get(boost::vertex_function , *g)[node] ;
 
 	while( ! __is_asking_stop() && ! __is_asking_local_stop() )
 	{
 		wait_for_sync();
 		if( __is_asking_stop() || __is_asking_local_stop()) continue;
 		
-		for(unsigned int i = 0; i < functions.size() ; i++)
-		{
-			Function * f = boost::get(boost::vertex_function , *g)[functions[i]] ;
-			
-			consume(f);
-			f->exec();
-			produce(f);
+		consume(node);
+		f->exec();
+		produce(node);
 
-			//TODO : The place of this function is not resume easily !
-			// Latency between One Function per Runner model and N Functions per Runner model depend 
-			// how is managed nsync function ! 
-			// In One Function per Runner model (OFPR) :
-				// nsync latency is hidden in multi thread chain
-			// In N Function per Runner model  (NFPR)
-				// nsync latentcy is summed in the N function chain
-
-			// Otherwise : 
-			// In OFPR model produce and consume function add latency	
-			// In NFPR model produce and consume don't add latency
-
-			// So Comparaison between OFPR and NFPR is resumed by 
-				// Compare latency between produce/consume VS nsync !
-			f->nsync_afterCompute();
-		}
+		f->nsync_afterCompute();
 	}
-	for(auto it = functions.begin(); it != functions.end(); it++) {produce(*it);}
+	produce(node);
 }
 
-void FRunner::checkFunctions()
+void FRunner::checkFunction()
 {
-	for(auto it = functions.begin(); it != functions.end(); it++)
-	{
-		if( ( boost::get( boost::vertex_function ,*g  )[*it]) == NULL) {
-			 throw  std::invalid_argument("FRunner "+std::to_string(id)+" : Function uninitialized");
-		}
+	if( ( boost::get( boost::vertex_function ,*g  )[node]) == NULL) {
+		 throw  std::invalid_argument("FRunner "+std::to_string(id)+" : Function uninitialized");
 	}
 }
-
-void FRunner::clearFunctions()
-{
-	functions.clear();
-}
-
 
 void FRunner::wait_for_sync()
 {
@@ -89,72 +61,9 @@ void FRunner::sync()
         cv_sync.notify_one();
 }
 
-void FRunner::spawn_all()
+void FRunner::terminate()
 {
-        for( auto it = runners.begin(); it != runners.end(); it++)
-        {
-                it->second->spawn();
-        }
+	local_stop();
+	sync();
+	join();
 }
-
-void FRunner::join_all()
-{
-        for( auto it = runners.begin(); it != runners.end(); it++)
-        {
-                it->second->join();
-        }
-}
-
-void FRunner::sync_all()
-{
-        for( auto it = runners.begin(); it != runners.end(); it++)
-        {
-                it->second->sync();
-        }
-}
-
-int FRunner::add(FRunner * runner)
-{
-        if( runner == NULL) throw std::invalid_argument( "FRunner : try to add NULL runner");
-
-        int idr = runners.size() + 1;
-        runner->setId(idr);
-        runners[idr] = runner;
-        return idr;
-}
-
-void FRunner::erase(int id)
-{
-	auto it = runners.find(id);
-        if(it != runners.end())  runners.erase(it);
-}
-
-void FRunner::del(int id)
-{
-	auto it = runners.find(id);
-        if(it != runners.end()) 
-	{
-		it->second->clearFunctions();	
-		it->second->local_stop();
-                it->second->sync();
-		it->second->join();
-		if( it->second != NULL) delete( (it->second) );
-		runners.erase(it);
-	}
-}
-
-FRunner * FRunner::get(int id)
-{
-        if( runners.find(id) != runners.end() ) return runners[id];
-        else return NULL;
-}
-
-void FRunner::clear()
-{
-        for( auto it = runners.begin(); it != runners.end(); it++)
-        {
-                delete(it->second);
-        }
-        runners.clear();
-}
-
