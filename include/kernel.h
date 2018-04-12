@@ -27,12 +27,12 @@ The fact that you are presently reading this means that you have had knowledge o
 
 class Kernel 
 {
-//	private :
-	public:
+	private :
 
 		std::string scriptfile;
 		std::string resfile;
 
+		// Store graph of Function and klink
 		Graph graph;
 		// string : uuid function
 		std::map<std::string, Graph::vertex_descriptor> node_map;
@@ -79,6 +79,7 @@ class Kernel
 		void load_res();
 		void save_res();
 		
+		// in_uuid = Input Uuid
 		void add_ilink(const std::string& in_uuid,const XLink&);
 		void add_iscalar(const std::string& in_uuid,const XLink&);
 		void add_imatrix(const std::string& in_uuid,const XLink&);
