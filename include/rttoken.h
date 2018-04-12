@@ -30,6 +30,8 @@ const std::string hertz = "Hz";
 class RtToken : public Runner
 {
         private :
+		std::string uuid;
+
                 // In second
                 double period;
 		
@@ -54,6 +56,10 @@ class RtToken : public Runner
 		RtToken(double value, std::string unit) : Runner(),means(0),nbrun(0),state(PAUSE),oscillo(false), rt_warning(false) { setToken(value, unit);}
                 virtual ~RtToken(){}
                 RtToken(const RtToken&) = delete;
+
+		inline const std::string& getUuid() { return uuid; }
+                inline void setUuid(const std::string& uuid  ) { this->uuid = uuid;}
+
 
 		// Frequency in Hz
 		inline void setFrequency( double frequency ) { period = convert_period_frequency(frequency);}

@@ -28,7 +28,6 @@ class Runner
 {
         protected :
 		
-		std::string uuid;
                 std::thread thx;
                 Graph const *g;
 		Graph::vertex_descriptor node;
@@ -45,9 +44,6 @@ class Runner
 
                 virtual ~Runner(){}
                 inline void setGraph(Graph * g){ this->g=g;}
-
-		inline const std::string& getUuid() { return uuid; }
-                inline void setUuid(const std::string& uuid  ) { this->uuid = uuid;}
 
 		inline void setNode( Graph::vertex_descriptor node ) { this->node = node;}
                 inline Graph::vertex_descriptor  getNode() { return node;}

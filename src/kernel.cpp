@@ -297,6 +297,10 @@ void Kernel::add_klink(const std::string &in_uuid, const XLink& xl)
 	if(  node_map.find( xl.uuid_pred ) == node_map.end()) throw  std::invalid_argument( "Kernel : try to add link with unkown source "+xl.uuid_pred );
 	if( node_map.find( in_uuid  ) == node_map.end()) throw  std::invalid_argument( "Kernel : try to add link with unkown target "+in_uuid );
 
+	//TODO : ??
+	// Get vertex source and vertex destination
+	// Count edge between 2 vertex : if 0 : create klink
+
 	if( edge_map.find( xl.uuid ) == edge_map.end() ) 
 	{
 		std::pair<Graph::edge_descriptor, bool> e = add_edge(node_map[ xl.uuid_pred],node_map[in_uuid],graph);
@@ -312,6 +316,9 @@ void Kernel::add_klink(const std::string &in_uuid, const XLink& xl)
 
 void Kernel::del_klink(const std::string& link_uuid)
 {
+	// TODO Comment delete with only ilink_uuid ? 
+	// I lose Pred information .. 
+
 	auto it = edge_map.find(link_uuid);
 
 	if( it != edge_map.end()) 

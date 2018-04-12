@@ -31,9 +31,12 @@ class Kernel
 
 		//TODO : 
 		// Rethink container 
-		// Better split between klink and ilink 
-		// remove edge uuid from graph
-		// remove FRunner ID -> change to UUID 
+		// Better split between klink and ilink ??
+			// remove edge uuid from graph ?
+			// Use different UUID ? 
+		// remove FRunner ID -> change to UUID ?? What is the interest to use UUID to Runner ?
+		
+		// The only no optimal trigs is to add more than one klink between to Runner if there are more than one ilink between the 2 corresponding Function
 
 		std::string scriptfile;
 		std::string resfile;
