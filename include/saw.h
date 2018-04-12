@@ -27,7 +27,7 @@ class Saw : public FMatrix
 
 		ISInput learning_rate;
 		ISInput vigilence;
-		IMMAnchor inputs;
+		IMMInput inputs;
 	
         public :
 		

@@ -85,8 +85,6 @@ int main(int argc, char **argv)
 	std::string libdir;
 	std::string fres;
 
-	std::cout << fres.size() << std::endl;
-
 	print_splash();
 
 	while ((opt = getopt (argc, argv, "vhs:r:l:")) != -1)
@@ -104,7 +102,7 @@ int main(int argc, char **argv)
 			default : return 0;
 		}	
 	}
-
+	
 	if( !run )
 	{
 		std::cout << "Fatal : need to load a XML Script file \n" << std::endl;
