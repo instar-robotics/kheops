@@ -38,7 +38,7 @@ class Kernel
 		std::string scriptfile;
 		std::string resfile;
 
-		// Store graph of Function and klink
+		// Store graph of Function/Runner and klink
 		Graph graph;
 		// string : uuid function
 		std::map<std::string, Graph::vertex_descriptor> node_map;

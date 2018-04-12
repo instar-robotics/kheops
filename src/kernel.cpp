@@ -301,7 +301,7 @@ void Kernel::add_klink(const std::string &in_uuid, const XLink& xl)
 	{
 		std::pair<Graph::edge_descriptor, bool> e = add_edge(node_map[ xl.uuid_pred],node_map[in_uuid],graph);
 
-		if(  xl.uuid_pred == in_uuid ) 	boost::put(boost::edge_klink, graph, e.first , new Passing_kLink());
+		if( xl.uuid_pred == in_uuid ) boost::put(boost::edge_klink, graph, e.first , new Passing_kLink());
 		else boost::put(boost::edge_klink, graph, e.first , new Synchronized_kLink(xl.isSecondary));
 
 		boost::put( boost::edge_uuid, graph, e.first , xl.uuid );
