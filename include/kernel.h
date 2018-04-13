@@ -21,28 +21,22 @@ The fact that you are presently reading this means that you have had knowledge o
 #include <memory>
 #include "graph.h"
 #include "xmlconverter.h"
-#include "resconverter.h"
 #include "runner.h"
 #include "input.h"
+#include "rttoken.h"
 
 class Kernel 
 {
 	private :
 
-		//TODO : 
-		// Rethink container 
-		// Better split between klink and ilink ??
-			// remove edge uuid from graph ?
-			// Use different UUID ? 
-		// remove FRunner ID -> change to UUID ?? What is the interest to use UUID to Runner ?
-		
-		// The only no optimal trigs is to add more than one klink between to Runner if there are more than one ilink between the 2 corresponding Function
-
-		std::string scriptfile;
-		std::string resfile;
+		std::string script_file;
+		std::string weight_file;
 
 		// Store graph of Function/Runner and klink
 		Graph graph;
+
+		RtToken rttoken;
+
 		// string : uuid function
 		std::map<std::string, Graph::vertex_descriptor> node_map;
 		// string : uuid link
@@ -75,17 +69,14 @@ class Kernel
 		Kernel(const Kernel&) = delete;
                 Kernel& operator=(const Kernel&) = delete;
 
-		static void init(std::string scriptfile, std::string resfile);
-		static inline Kernel& instance() noexcept {return singleton;}
-
 		inline const Graph& getGraph(){return graph;}
 		inline const std::string& getName(){return xs.name;}
 
 		void load_links();			
 		void load_functions();
 		void load_rttoken();
-		void load_res();
-		void save_res();
+		void load_weight();
+		void save_weight();
 		
 		// in_uuid = Input Uuid
 		void add_ilink(const std::string& in_uuid,const XLink&);
@@ -117,7 +108,7 @@ class Kernel
 		void remove_runner(const std::string& uuid);
 		void spawn_runners();
 		void join_runners();
-		void terminate();
+
 
 		void bind( ISInput& value,const std::string& var_name,const std::string& uuid );
 		void bind( IMInput& value,const std::string& var_name,const std::string& uuid );
@@ -133,6 +124,18 @@ class Kernel
 
 		// String 1 : input uuid
 		void purge_empty_links(const std::string& in_uuid);
+
+		// CMD Section 
+		void resume(); 
+		void pause(); 
+
+		// Static member : 
+		static inline Kernel& instance() noexcept {return singleton;}
+		static void init(std::string scriptfile, std::string resfile);
+		static void load(); 	
+		static void terminate();
+		static void start();
+
 };
 
 #endif // __KERNEL_H__

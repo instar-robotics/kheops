@@ -18,8 +18,6 @@ The fact that you are presently reading this means that you have had knowledge o
 #include "frunner.h"
 #include <iostream>
 
-RtToken RtToken::singleton;
-
 void RtToken::setToken(double value, std::string unit)
 {
 	if( unit == second )

@@ -1,5 +1,5 @@
 /*
-Copyright INSTAR Robotics
+Copyright Instar Robotics
 
 Author: Pierre Delarboulas
 
@@ -14,35 +14,51 @@ and, more generally, to use and operate it in the same conditions as regards sec
 The fact that you are presently reading this means that you have had knowledge of the CeCILL v2.1 license and that you accept its terms.
 */
 
-#ifndef __LIB_MANAGER_H__
-#define __LIB_MANAGER_H__
+#ifndef __COM_INTERFACE_H__
+#define __COM_INTERFACE_H__
 
-#include <map>
-#include <string>
 
-const std::string libExt = ".so";
+// 2 Service 
+// - 1 Help
+//    List Cmd
+// - Cmd
+// 1 action : string action(string) 		
+//	- run
+//	- pause
+//	- quit
+// 2 rt_stat :  string[] rt_stat()  
+//	- stat : retourne les infos du RT Token en One shot	
+//	- debug_start : active un topic qui stream les infos
+//	- debug_stop : ferle le topic de debug
+// 3 function :
+//	- stat + UUID : retourne les infos de la functions
+//	- debug start + UUID
+//	- debug stop + UUID
+// 4 links : 
+//	- stat + UUID
+// 5 Res :
+//	- save
+//	- load
 
-class LibManager 
-{
-	private :
-		// string 1 : lib name. string 2 : lib path
-		//std::map<std::string, std::string> libs;
-		std::string libdir;
+class ComInterface{
+
+	private : 
 		
-		static LibManager singleton;
+		std::string prog_name;
+		std::string script_name;
 
-	public :
-	
-		LibManager(){}
-		LibManager(std::string libdir) : libdir(libdir) {}
-		~LibManager(){}
+	public : 
 
-		static void init(std::string libdir);
-		static inline LibManager& instance() noexcept {return singleton;}
-		static inline void load(){ singleton.load_libs(); }
+		ComInterface(){}
+		~ComInterface(){}
 
-		void load_lib(std::string name);			
-		void load_libs();			
+		init(int argc, char ** argv, std::string prog_name, std::string script_name);
+
+		virtual void registerListener() = 0;
+		virtual void quit() = 0;	
+		virtual void enter() = 0;
+
 };
 
-#endif // __KERNEL_H__
+#endif // __COM_INTERFACE_H__
+

@@ -14,8 +14,8 @@ and, more generally, to use and operate it in the same conditions as regards sec
 The fact that you are presently reading this means that you have had knowledge of the CeCILL v2.1 license and that you accept its terms.
 */
 
-#ifndef __RES_CONVERTER__
-#define __RES_CONVERTER__
+#ifndef __WEIGHT_CONVERTER__
+#define __WEIGHT_CONVERTER__
 
 #include <Eigen/Sparse>
 #include <Eigen/Dense>
@@ -33,15 +33,15 @@ The fact that you are presently reading this means that you have had knowledge o
 const int SPARSE = 0;
 const int  DENSE = 1;
 
-class ResConverter
+class WeightConverter
 {
 	private:
 			
 		std::string file;	
 
 	public : 
-		ResConverter(const std::string& path) : file(path) {}
-		~ResConverter(){}
+		WeightConverter(const std::string& path) : file(path) {}
+		~WeightConverter(){}
 
 		void load(std::map<std::string, IMMInput*> &inputs);
 		void save(std::map<std::string, IMMInput*> &inputs);

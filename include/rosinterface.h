@@ -1,5 +1,5 @@
 /*
-Copyright INSTAR Robotics
+Copyright Instar Robotics
 
 Author: Pierre Delarboulas
 
@@ -14,35 +14,26 @@ and, more generally, to use and operate it in the same conditions as regards sec
 The fact that you are presently reading this means that you have had knowledge of the CeCILL v2.1 license and that you accept its terms.
 */
 
-#ifndef __LIB_MANAGER_H__
-#define __LIB_MANAGER_H__
+#ifndef __ROS_INTERFACE_H__
+#define __ROS_INTERFACE_H__
 
-#include <map>
-#include <string>
+#include "cominterface.h"
+#include "ros/ros.h"
 
-const std::string libExt = ".so";
+class RosInterface : public ComInterface{
 
-class LibManager 
-{
-	private :
-		// string 1 : lib name. string 2 : lib path
-		//std::map<std::string, std::string> libs;
-		std::string libdir;
-		
-		static LibManager singleton;
+	public : 
 
-	public :
-	
-		LibManager(){}
-		LibManager(std::string libdir) : libdir(libdir) {}
-		~LibManager(){}
+		RosInterface(){}
+		~RosInterface(){}
 
-		static void init(std::string libdir);
-		static inline LibManager& instance() noexcept {return singleton;}
-		static inline void load(){ singleton.load_libs(); }
+		init(int argc, char ** argv, std::string prog_name, std::string script_name);
 
-		void load_lib(std::string name);			
-		void load_libs();			
+		virtual void registerListener();
+		virtual void quit();	
+		virtual void enter();
+
 };
 
-#endif // __KERNEL_H__
+#endif // __COM_INTERFACE_H__
+

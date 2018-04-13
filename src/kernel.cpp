@@ -19,7 +19,7 @@ The fact that you are presently reading this means that you have had knowledge o
 #include "factory.h"
 #include "util.h"
 #include "frunner.h"
-#include "rttoken.h"
+#include "weightconverter.h"
 
 Kernel Kernel::singleton;
 
@@ -58,28 +58,6 @@ Kernel::~Kernel()
 	im_input.clear();
 	ism_input.clear();
 	imm_input.clear();
-}
-
-void Kernel::init(std::string scriptfile, std::string resfile)
-{
-	singleton.scriptfile=scriptfile;
-
-	XmlConverter * xmlc = new  XmlConverter(scriptfile);
-	xmlc->loadScript(singleton.xs);
-	delete xmlc;
-
-	std::cout << "Run : " << singleton.xs.name << " script"<< std::endl;
-
-	singleton.init_rt_token();
-
-	if( resfile.size() == 0) 
-	{
-		singleton.resfile=singleton.xs.name+".res";
-	}
-	else
-	{
-		singleton.resfile=resfile;
-	}
 }
 
 /********************************************************************************************************/
@@ -138,17 +116,17 @@ void Kernel::load_rttoken()
 	clear_rt_klink();
 }
 
-void Kernel::load_res()
+void Kernel::load_weight()
 {
-	ResConverter rc(resfile);
-	rc.load(imm_input);
+	WeightConverter wc(weight_file);
+	wc.load(imm_input);
 }
 
 
-void Kernel::save_res()
+void Kernel::save_weight()
 {
-	ResConverter rc(resfile);
-	rc.save(imm_input);
+	WeightConverter wc(weight_file);
+	wc.save(imm_input);
 }
 
 /********************************************************************************************************/
@@ -233,22 +211,22 @@ void Kernel::init_rt_token()
 	//TODO : choose if RtToken UUID is generated or read from the XML ?
 	std::string uuid = xs.rt.uuid;
 	Graph::vertex_descriptor rt_node = boost::add_vertex(graph);
-	boost::put(boost::vertex_runner, graph, rt_node, &RtToken::instance());
+	boost::put(boost::vertex_runner, graph, rt_node, &rttoken);
 	node_map[uuid] = rt_node;
 	
-	RtToken::instance().setUuid(uuid);
-	RtToken::instance().setNode(rt_node);
-	RtToken::instance().setGraph(&graph);
+	rttoken.setUuid(uuid);
+	rttoken.setNode(rt_node);
+	rttoken.setGraph(&graph);
 }
 
 void Kernel::update_rt_token_value(const XRtToken& xrt)
 {
-	RtToken::instance().setToken(xrt.value , xrt.unit );
+	rttoken.setToken(xrt.value , xrt.unit );
 }
 
 void Kernel::create_rt_klink()
 {
-	Graph::vertex_descriptor rt_node = RtToken::instance().getNode();
+	Graph::vertex_descriptor rt_node = rttoken.getNode();
 	for( auto it =  boost::vertices(graph) ; it.first != it.second; ++it.first)
         {
 		if( *it.first != rt_node)
@@ -264,7 +242,7 @@ void Kernel::create_rt_klink()
 				if( f == NULL ) throw std::invalid_argument( "Kernel : try to add RT klink to a NULL Function " );
 				xl.uuid_pred = f->getUuid();
 
-				add_klink( RtToken::instance().getUuid() , xl );
+				add_klink( rttoken.getUuid() , xl );
 			}
 		}
 	}
@@ -272,7 +250,7 @@ void Kernel::create_rt_klink()
 
 void Kernel::clear_rt_klink()
 {
-	Graph::vertex_descriptor rt_node = RtToken::instance().getNode();
+	Graph::vertex_descriptor rt_node = rttoken.getNode();
 
 	for( auto it = boost::in_edges(rt_node, graph); it.first != it.second; ++it.first)
 	{
@@ -297,10 +275,6 @@ void Kernel::add_klink(const std::string &in_uuid, const XLink& xl)
 	if(  node_map.find( xl.uuid_pred ) == node_map.end()) throw  std::invalid_argument( "Kernel : try to add link with unkown source "+xl.uuid_pred );
 	if( node_map.find( in_uuid  ) == node_map.end()) throw  std::invalid_argument( "Kernel : try to add link with unkown target "+in_uuid );
 
-	//TODO : ??
-	// Get vertex source and vertex destination
-	// Count edge between 2 vertex : if 0 : create klink
-
 	if( edge_map.find( xl.uuid ) == edge_map.end() ) 
 	{
 		std::pair<Graph::edge_descriptor, bool> e = add_edge(node_map[ xl.uuid_pred],node_map[in_uuid],graph);
@@ -316,9 +290,6 @@ void Kernel::add_klink(const std::string &in_uuid, const XLink& xl)
 
 void Kernel::del_klink(const std::string& link_uuid)
 {
-	// TODO Comment delete with only ilink_uuid ? 
-	// I lose Pred information .. 
-
 	auto it = edge_map.find(link_uuid);
 
 	if( it != edge_map.end()) 
@@ -577,7 +548,7 @@ void Kernel::purge_output_ilinks(const std::string& uuid)
 	{
 		std::string l_uuid = boost::get( boost::edge_uuid, graph, *it_out.first); 
 	
-		if(  RtToken::instance().getNode() != boost::target( *it_out.first,graph))
+		if(  rttoken.getNode() != boost::target( *it_out.first,graph))
 		{
 			if( ilink_to_input.find(l_uuid) != ilink_to_input.end() ) 
 			{
@@ -636,11 +607,6 @@ void Kernel::join_runners()
 	}
 }
 
-void Kernel::terminate()
-{
-	RtToken::instance().ask_stop();
-	join_runners();
-}
 
 /********************************************************************************************************/
 /****************** 			Bind Section 				      *******************/
@@ -804,4 +770,66 @@ void Kernel::purge_empty_links(const std::string& uuid)
                 imm_input[uuid]->purge_empty();
         }
         else throw std::invalid_argument("Kernel : unable to purge ilink from input "+uuid );
+}
+
+
+/********************************************************************************************************/
+/****************** 			CMD Section 				      *******************/
+/********************************************************************************************************/
+
+void Kernel::resume()
+{
+	rttoken.ask_resume();
+}
+
+void Kernel::pause()
+{
+ 	rttoken.ask_pause();
+        rttoken.wait_for_pause();
+}
+
+
+/********************************************************************************************************/
+/****************** 			Static Section 				      *******************/
+/********************************************************************************************************/
+
+void Kernel::init(std::string script_file, std::string weight_file)
+{
+	singleton.script_file=script_file;
+
+	XmlConverter * xmlc = new  XmlConverter(script_file);
+	xmlc->loadScript(singleton.xs);
+	delete xmlc;
+
+	std::cout << "Run : " << singleton.xs.name << " script"<< std::endl;
+
+	singleton.init_rt_token();
+
+	if( weight_file.size() == 0) 
+	{
+		singleton.weight_file=singleton.xs.name+".res";
+	}
+	else
+	{
+		singleton.weight_file=weight_file;
+	}
+}
+
+void Kernel::terminate()
+{
+	singleton.rttoken.ask_stop();
+	singleton.join_runners();
+}
+
+void Kernel::load()
+{
+	singleton.load_functions();
+        singleton.load_links();
+        singleton.load_rttoken();
+        singleton.load_weight();
+}
+
+void Kernel::start()
+{
+        singleton.spawn_runners();
 }

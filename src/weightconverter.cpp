@@ -18,9 +18,9 @@ The fact that you are presently reading this means that you have had knowledge o
 #include <boost/archive/binary_oarchive.hpp>
 
 #include <fstream>
-#include "resconverter.h"
+#include "weightconverter.h"
 
-void ResConverter::load(std::map<std::string, IMMInput*> &inputs )
+void WeightConverter::load(std::map<std::string, IMMInput*> &inputs )
 {
 	std::string in_uuid;
 	unsigned int nb_link = 0;
@@ -109,7 +109,7 @@ void ResConverter::load(std::map<std::string, IMMInput*> &inputs )
 
 }
 
-void ResConverter::save(std::map<std::string, IMMInput*> &inputs)
+void WeightConverter::save(std::map<std::string, IMMInput*> &inputs)
 {
 	std::ofstream out;
 	out.exceptions ( std::ofstream::failbit | std::ofstream::badbit);

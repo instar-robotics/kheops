@@ -46,8 +46,6 @@ class RtToken : public Runner
 		bool oscillo;
 		bool rt_warning;
 
-		static RtToken singleton;
-
 	public : 
 
 		// Period in second
@@ -96,8 +94,6 @@ class RtToken : public Runner
 		inline bool is_run() { return state==RUN;}
                 inline bool is_stop() { return state==STOP;}
                 inline bool is_pause() { return state==PAUSE;}
-
-		static inline RtToken& instance() noexcept {return singleton;}
 
 		inline bool is_oscillo_active(){return oscillo;}
 		inline void active_oscillo(bool state) {oscillo = state;}

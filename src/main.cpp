@@ -81,9 +81,9 @@ int main(int argc, char **argv)
 	bool run = false;
 	char opt;
 	
-	std::string fscript;
+	std::string script;
 	std::string libdir;
-	std::string fres;
+	std::string weight;
 
 	print_splash();
 
@@ -95,9 +95,9 @@ int main(int argc, char **argv)
 			case 'h' :  print_help(); return 0;
 			case 's' :
 				run = true;  
-				fscript = optarg ; 
+				script = optarg ; 
 				break;
-			case 'r' :  fres = optarg ; break;
+			case 'r' :  weight = optarg ; break;
 			case 'l' :  libdir = optarg ; break;
 			default : return 0;
 		}	
@@ -134,14 +134,11 @@ int main(int argc, char **argv)
 	XmlConverter::Initialize();
 
 	LibManager::init(libdir);
-	LibManager::instance().load_libs();
+	LibManager::load();
 
-	Kernel::init(fscript,fres);	
-	Kernel::instance().load_functions();
-	Kernel::instance().load_links();
-	Kernel::instance().load_rttoken();
-	Kernel::instance().load_res();
-	Kernel::instance().spawn_runners();
+	Kernel::init(script,weight);	
+	Kernel::load();
+	Kernel::start();
 	
         while(run)
         {
@@ -149,10 +146,9 @@ int main(int argc, char **argv)
                 getline(std::cin,buffer);
 
                 if(buffer == "pause") {
-                        RtToken::instance().ask_pause();
-                        RtToken::instance().wait_for_pause();
+			Kernel::instance().pause();
                 }
-                else if (buffer == "run" ) RtToken::instance().ask_resume();
+                else if (buffer == "run" ) Kernel::instance().resume();
                 else if (buffer == "q")
                 {
                         run = false;
@@ -162,10 +158,9 @@ int main(int argc, char **argv)
 			std::string unit;
                 	getline(std::cin,buffer);
                 	getline(std::cin,unit);
-                        RtToken::instance().ask_pause();
-                        RtToken::instance().wait_for_pause();
-			RtToken::instance().setToken( std::stoi(buffer),  unit );
-                        RtToken::instance().ask_resume();
+			Kernel::instance().pause();
+		//	RtToken::instance().setToken( std::stoi(buffer),  unit );
+			Kernel::instance().resume();
 		}
 		else if(buffer == "w")
 		{
@@ -173,27 +168,27 @@ int main(int argc, char **argv)
 		}
 		else if(buffer == "quiet")
 		{
-			RtToken::instance().active_rt_warning(  !RtToken::instance().is_rt_warning_active());
+		//	RtToken::instance().active_rt_warning(  !RtToken::instance().is_rt_warning_active());
 		}
 
 		else if( buffer == "stop") 
 		{
-                        RtToken::instance().ask_pause();
-                        RtToken::instance().wait_for_pause();
+                  //      RtToken::instance().ask_pause();
+                  //      RtToken::instance().wait_for_pause();
 			
 			std::cout << "TRY TO DELETE : " << std::endl;
 			Kernel::instance().del_function("10");
 			Kernel::instance().create_rt_klink();
 			std::cout << "STOP : " << std::endl;
 		
-                        RtToken::instance().ask_resume();
+                    //    RtToken::instance().ask_resume();
 			std::cout << "STOP : " << std::endl;
 		}
 
-                std::cout << "M state : "  << RtToken::instance().getRequest() << std::endl;
+               // std::cout << "M state : "  << RtToken::instance().getRequest() << std::endl;
         }
-	Kernel::instance().terminate();
-	Kernel::instance().save_res();
+	Kernel::terminate();
+//	Kernel::instance().save_res();
 
 	return 0;
 }
