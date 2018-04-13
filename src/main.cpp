@@ -29,12 +29,19 @@ The fact that you are presently reading this means that you have had knowledge o
 #include "libManager.h"
 #include "rosinterface.h"
 
+ComInterface * cinter = NULL;
+
 void signals_handler(int numero)
 {
   switch (numero)
     {
     case SIGINT:
       syslog( LOG_LOCAL0|LOG_LOCAL0 , "KHEOPS SIGINT received : terminaison " );
+      if( cinter != NULL)
+      {	
+	 cinter->quit();
+	 delete(cinter);
+      }
       break;
     case SIGTERM :
       syslog( LOG_LOCAL0|LOG_LOCAL0 , "KHEOPS SIGTERM received : terminaison" );
