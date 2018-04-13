@@ -97,12 +97,12 @@ void WeightConverter::load(std::map<std::string, IMMInput*> &inputs )
 	}
 	}
  	catch (std::ifstream::failure e) {
-    		std::cout << "Unable to open \""+file+"\" RES file : weight will be not loaded." << std::endl;
+    		std::cout << "Unable to open \""+file+"\" WEIGHT file : weight will be not loaded." << std::endl;
   	}
 	catch(boost::archive::archive_exception e )
 	{
 		in.close();
-    		std::cout << "Unable to read \""+file+"\" RES file : file is corrupted. weight will be not loaded." << std::endl;
+    		std::cout << "Unable to read \""+file+"\" WEIGHT file : file is corrupted. weight will be not loaded." << std::endl;
 		std::cout << e.what() << std::endl;
 		exit(0);
 	}

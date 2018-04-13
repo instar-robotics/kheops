@@ -16,7 +16,6 @@ The fact that you are presently reading this means that you have had knowledge o
 
 #include "libManager.h"
 #include "util.h"
-#include <boost/filesystem.hpp>
 #include <iostream>
 #include <dlfcn.h>
 
@@ -41,10 +40,10 @@ void LibManager::load_libs()
 
   for( auto it  = files.begin(); it != files.end(); it++)
   {
-	boost::filesystem::path p(*it);
-
-	std::string file_extension = p.extension().string();
-	std::string file_name = p.stem().string(); 
+	std::string file_extension,file_name;
+	
+	get_file_extension( *it, file_extension );
+	get_file_name(*it, file_name);
 
 	//check .so
 	if( file_extension == libExt ) 

@@ -26,7 +26,9 @@ The fact that you are presently reading this means that you have had knowledge o
 #include "kernel.h"
 #include "xmlconverter.h"
 #include "input.h"
+#include "util.h"
 #include "libManager.h"
+#include "rosinterface.h"
 
 void signals_handler(int numero)
 {
@@ -69,7 +71,7 @@ void print_help(void)
 	std::cout << "  -h : display this menu" << std::endl;
 	std::cout << "  -v : verbose mode " << std::endl;	
 	std::cout << "  -s : xml script file path " << std::endl;	
-	std::cout << "  -r : res (neural weight) file path" << std::endl;	
+	std::cout << "  -w : weight (neural weight) file path" << std::endl;	
 	std::cout << "  -l : path to external lib" << std::endl;	
 }
 
@@ -86,8 +88,11 @@ int main(int argc, char **argv)
 	std::string weight;
 
 	print_splash();
+	
+	std::string progname;
+	get_file_name( argv[0], progname);
 
-	while ((opt = getopt (argc, argv, "vhs:r:l:")) != -1)
+	while ((opt = getopt (argc, argv, "vhs:w:l:")) != -1)
 	{
 		switch( opt )	
 		{
@@ -97,7 +102,7 @@ int main(int argc, char **argv)
 				run = true;  
 				script = optarg ; 
 				break;
-			case 'r' :  weight = optarg ; break;
+			case 'w' :  weight = optarg ; break;
 			case 'l' :  libdir = optarg ; break;
 			default : return 0;
 		}	
@@ -129,6 +134,7 @@ int main(int argc, char **argv)
 		syslog( LOG_LOCAL0|LOG_ERR , "Unable to redefine SIGTERM signal" );
 		return 0;
 	}
+
         /************* End Signaux handler operation ****************/
 
 	XmlConverter::Initialize();
@@ -139,20 +145,14 @@ int main(int argc, char **argv)
 	Kernel::init(script,weight);	
 	Kernel::load();
 	Kernel::start();
-	
-        while(run)
-        {
-                std::string buffer;
-                getline(std::cin,buffer);
 
-                if(buffer == "pause") {
-			Kernel::instance().pause();
-                }
-                else if (buffer == "run" ) Kernel::instance().resume();
-                else if (buffer == "q")
-                {
-                        run = false;
-                }
+	ComInterface * cinter  = new RosInterface();
+
+	cinter->init( argc, argv, progname , Kernel::instance().getName() );	
+	cinter->registerListener();
+	cinter->enter();
+                
+	/*
 		else if(buffer == "rt")
 		{
 			std::string unit;
@@ -184,9 +184,7 @@ int main(int argc, char **argv)
                     //    RtToken::instance().ask_resume();
 			std::cout << "STOP : " << std::endl;
 		}
-
-               // std::cout << "M state : "  << RtToken::instance().getRequest() << std::endl;
-        }
+	*/
 	Kernel::terminate();
 //	Kernel::instance().save_res();
 

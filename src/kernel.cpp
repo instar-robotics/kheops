@@ -122,10 +122,27 @@ void Kernel::load_weight()
 	wc.load(imm_input);
 }
 
+void Kernel::load_weight(const std::string& filename)
+{
+	std::string tmp_file = filename;
+	if( !check_file_extension(filename, ".weight")) tmp_file+=".weight";
+
+	WeightConverter wc(tmp_file);
+	wc.load(imm_input);
+}
 
 void Kernel::save_weight()
 {
 	WeightConverter wc(weight_file);
+	wc.save(imm_input);
+}
+
+void Kernel::save_weight(const std::string& filename)
+{
+	std::string tmp_file = filename;
+	if( !check_file_extension(filename, ".weight")) tmp_file+=".weight";
+
+	WeightConverter wc(tmp_file);
 	wc.save(imm_input);
 }
 
@@ -807,7 +824,7 @@ void Kernel::init(std::string script_file, std::string weight_file)
 
 	if( weight_file.size() == 0) 
 	{
-		singleton.weight_file=singleton.xs.name+".res";
+		singleton.weight_file=singleton.xs.name+".weight";
 	}
 	else
 	{

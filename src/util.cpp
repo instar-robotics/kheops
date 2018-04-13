@@ -20,6 +20,7 @@ The fact that you are presently reading this means that you have had knowledge o
 #include <dirent.h>
 #include <errno.h>
 #include <iostream>
+#include <boost/filesystem.hpp>
 
 int getdir (std::string dir, std::vector<std::string> &files)
 {
@@ -38,6 +39,28 @@ int getdir (std::string dir, std::vector<std::string> &files)
     }
     closedir(dp);
     return 0;
+}
+
+bool check_file_extension(const std::string& path, const std::string& extension )
+{
+	boost::filesystem::path p(path);
+      
+	std::cout << "MARDE ! "  <<  extension << " "  << p.extension().string() << std::endl;
+
+	if( extension == p.extension().string()) return true;
+	return false;
+}
+
+void get_file_extension(const std::string& path, std::string& extension)
+{
+	boost::filesystem::path p(path);
+        extension = p.extension().string();
+}
+
+void get_file_name(const std::string& path, std::string& filename)
+{
+	boost::filesystem::path p(path);
+	filename = p.stem().string();
 }
 
 double convert_s_to_micros(double value)

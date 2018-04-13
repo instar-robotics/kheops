@@ -17,22 +17,38 @@ The fact that you are presently reading this means that you have had knowledge o
 #ifndef __ROS_INTERFACE_H__
 #define __ROS_INTERFACE_H__
 
+#include <vector>
 #include "cominterface.h"
+#include "kernel.h"
 #include "ros/ros.h"
+#include "hieroglyph/Help.h"
+#include "hieroglyph/Cmd.h"
+#include "hieroglyph/Weight.h"
 
 class RosInterface : public ComInterface{
+	
+	private :
+
+		std::string node_name;
+
+		ros::ServiceServer sHelper;
+		ros::ServiceServer sCmd;
+		ros::ServiceServer sWeight;
+		ros::NodeHandle * n;
 
 	public : 
 
 		RosInterface(){}
-		~RosInterface(){}
+		~RosInterface(){ delete(n); }
 
-		init(int argc, char ** argv, std::string prog_name, std::string script_name);
-
+		virtual void init(int argc, char ** argv, std::string prog_name, std::string script_name);
 		virtual void registerListener();
-		virtual void quit();	
-		virtual void enter();
+		virtual void quit() {ros::shutdown();}	
+		virtual void enter(){ros::spin();}
 
+		bool callback_weight( hieroglyph::Weight::Request& request, hieroglyph::Weight::Response& response);
+		bool callback_cmd( hieroglyph::Cmd::Request& request, hieroglyph::Cmd::Response& response);
+		bool callback_helper( hieroglyph::Help::Request& request, hieroglyph::Help::Response& response);
 };
 
 #endif // __COM_INTERFACE_H__

@@ -17,15 +17,19 @@ The fact that you are presently reading this means that you have had knowledge o
 #ifndef __COM_INTERFACE_H__
 #define __COM_INTERFACE_H__
 
+#include <string>
 
-// 2 Service 
-// - 1 Help
-//    List Cmd
-// - Cmd
-// 1 action : string action(string) 		
-//	- run
-//	- pause
-//	- quit
+/******  List of interfaces ******
+*  1- Help : list all the request supported by kheops
+*  2- Cmd :  general command
+*	a- resume 	
+*       b- pause 
+*	c- quit
+*  3- Weight : command relative to the weight file
+*	a- save 'path'  (path is not mandatory, take the default weigth path)
+*	b- load 'path'  (path is not mandatory, take the default weigth path)
+*
+*********************************/
 // 2 rt_stat :  string[] rt_stat()  
 //	- stat : retourne les infos du RT Token en One shot	
 //	- debug_start : active un topic qui stream les infos
@@ -36,24 +40,19 @@ The fact that you are presently reading this means that you have had knowledge o
 //	- debug stop + UUID
 // 4 links : 
 //	- stat + UUID
-// 5 Res :
-//	- save
-//	- load
+
+const std::string UNKNOWN("unknown");
+const std::string CMD[] = {"resume", "quit","pause"};
+const std::string WEIGHT[] = {"save", "load"};
 
 class ComInterface{
-
-	private : 
-		
-		std::string prog_name;
-		std::string script_name;
 
 	public : 
 
 		ComInterface(){}
 		~ComInterface(){}
 
-		init(int argc, char ** argv, std::string prog_name, std::string script_name);
-
+		virtual void init(int argc, char ** argv, std::string prog_name, std::string script_name) = 0;
 		virtual void registerListener() = 0;
 		virtual void quit() = 0;	
 		virtual void enter() = 0;

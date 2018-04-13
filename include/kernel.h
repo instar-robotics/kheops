@@ -77,6 +77,8 @@ class Kernel
 		void load_rttoken();
 		void load_weight();
 		void save_weight();
+		void load_weight(const std::string& filename);
+		void save_weight(const std::string& filename);
 		
 		// in_uuid = Input Uuid
 		void add_ilink(const std::string& in_uuid,const XLink&);
@@ -128,6 +130,7 @@ class Kernel
 		// CMD Section 
 		void resume(); 
 		void pause(); 
+		inline int getState(){ return rttoken.getState();}
 
 		// Static member : 
 		static inline Kernel& instance() noexcept {return singleton;}
