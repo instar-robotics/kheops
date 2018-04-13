@@ -186,6 +186,7 @@ int main(int argc, char **argv)
 			std::cout << "STOP : " << std::endl;
 		}
 	*/
+	delete(cinter);
 	Kernel::terminate();
 
 	return 0;
