@@ -14,7 +14,6 @@ and, more generally, to use and operate it in the same conditions as regards sec
 The fact that you are presently reading this means that you have had knowledge of the CeCILL v2.1 license and that you accept its terms.
 */
 
-
 #include <iostream>
 #include <cstdint>
 #include <unistd.h>
@@ -69,6 +68,7 @@ void print_help(void)
 
 	std::cout << "options : " << std::endl;
 	std::cout << "  -h : display this menu" << std::endl;
+	std::cout << "  -r : resume mode " << std::endl;	
 	std::cout << "  -v : verbose mode " << std::endl;	
 	std::cout << "  -s : xml script file path " << std::endl;	
 	std::cout << "  -w : weight (neural weight) file path" << std::endl;	
@@ -79,7 +79,8 @@ void print_help(void)
 int main(int argc, char **argv)
 {
 	struct sigaction action;
-	bool verbose = 0;
+	bool verbose = false;
+	bool resume = false;
 	bool run = false;
 	char opt;
 	
@@ -92,10 +93,11 @@ int main(int argc, char **argv)
 	std::string progname;
 	get_file_name( argv[0], progname);
 
-	while ((opt = getopt (argc, argv, "vhs:w:l:")) != -1)
+	while ((opt = getopt (argc, argv, "vrhs:w:l:")) != -1)
 	{
 		switch( opt )	
 		{
+			case 'r' :  resume=true;break;
 			case 'v' :  verbose=true;break;
 			case 'h' :  print_help(); return 0;
 			case 's' :
@@ -111,7 +113,6 @@ int main(int argc, char **argv)
 	if( !run )
 	{
 		std::cout << "Fatal : need to load a XML Script file \n" << std::endl;
-
 		print_help();
 
 		return 0;
@@ -144,7 +145,7 @@ int main(int argc, char **argv)
 
 	Kernel::init(script,weight);	
 	Kernel::load();
-	Kernel::start();
+	Kernel::start(resume);
 
 	ComInterface * cinter  = new RosInterface();
 
@@ -186,7 +187,6 @@ int main(int argc, char **argv)
 		}
 	*/
 	Kernel::terminate();
-//	Kernel::instance().save_res();
 
 	return 0;
 }

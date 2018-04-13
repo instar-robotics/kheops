@@ -846,7 +846,8 @@ void Kernel::load()
         singleton.load_weight();
 }
 
-void Kernel::start()
+void Kernel::start(bool run)
 {
         singleton.spawn_runners();
+	if( run ) singleton.resume();
 }

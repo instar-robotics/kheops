@@ -137,7 +137,7 @@ class Kernel
 		static void init(std::string scriptfile, std::string resfile);
 		static void load(); 	
 		static void terminate();
-		static void start();
+		static void start(bool run);
 
 };
 
