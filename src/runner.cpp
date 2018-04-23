@@ -17,6 +17,7 @@ The fact that you are presently reading this means that you have had knowledge o
 #include "runner.h"
 
 int Runner::request = PAUSE;
+bool Runner::oscillo = false;
 
 void Runner::produce(const Graph::vertex_descriptor  v_mtx)
 {

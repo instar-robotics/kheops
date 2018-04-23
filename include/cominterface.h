@@ -20,30 +20,28 @@ The fact that you are presently reading this means that you have had knowledge o
 #include <string>
 
 /******  List of interfaces ******
-*  1- Help : list all the request supported by kheops
-*  2- Cmd :  general command
+*  1- help : list all the request supported by kheops
+*  2- cmd :  general command
 *	a- resume 	
 *       b- pause 
 *	c- quit
-*  3- Weight : command relative to the weight file
+*  3- weight : command relative to the weight file
 *	a- save 'path'  (path is not mandatory, take the default weigth path)
 *	b- load 'path'  (path is not mandatory, take the default weigth path)
-*
+*  4- rt_stat : get rt_token status 
+*  5- oscillo : 
+* 	a- start  (active oscillo)
+*	b- stop   (stop oscillo)
+*  6- output :
+* 	a- start 'str'  (active oscillo str : can be 'uuid' or 'all' )
+*	b- stop  'str'  (stop oscillo str : can be 'uuid' or 'all' )
 *********************************/
-// 2 rt_stat :  string[] rt_stat()  
-//	- stat : retourne les infos du RT Token en One shot	
-//	- debug_start : active un topic qui stream les infos
-//	- debug_stop : ferle le topic de debug
-// 3 function :
-//	- stat + UUID : retourne les infos de la functions
-//	- debug start + UUID
-//	- debug stop + UUID
-// 4 links : 
-//	- stat + UUID
 
 const std::string UNKNOWN("unknown");
 const std::string CMD[] = {"resume", "quit","pause"};
 const std::string WEIGHT[] = {"save", "load"};
+const std::string OUTPUT[] = {"start", "stop"};
+const std::string OSCILLO[] = {"start", "stop"};
 
 class ComInterface{
 

@@ -24,6 +24,9 @@ The fact that you are presently reading this means that you have had knowledge o
 #include "hieroglyph/Help.h"
 #include "hieroglyph/Cmd.h"
 #include "hieroglyph/Weight.h"
+#include "hieroglyph/RtStat.h"
+#include "hieroglyph/Oscillo.h"
+#include "hieroglyph/Output.h"
 
 class RosInterface : public ComInterface{
 	
@@ -34,6 +37,9 @@ class RosInterface : public ComInterface{
 		ros::ServiceServer sHelper;
 		ros::ServiceServer sCmd;
 		ros::ServiceServer sWeight;
+		ros::ServiceServer sRtStat;
+		ros::ServiceServer sOutput;
+		ros::ServiceServer sOscillo;
 		ros::NodeHandle * n;
 
 	public : 
@@ -46,10 +52,12 @@ class RosInterface : public ComInterface{
 		virtual void quit() {ros::shutdown();}	
 		virtual void enter(){ros::spin();}
 
+		bool callback_oscillo( hieroglyph::Oscillo::Request& request, hieroglyph::Oscillo::Response& response);
+		bool callback_output( hieroglyph::Output::Request& request, hieroglyph::Output::Response& response);
+		bool callback_rt_stat( hieroglyph::RtStat::Request& request, hieroglyph::RtStat::Response& response);
 		bool callback_weight( hieroglyph::Weight::Request& request, hieroglyph::Weight::Response& response);
 		bool callback_cmd( hieroglyph::Cmd::Request& request, hieroglyph::Cmd::Response& response);
 		bool callback_helper( hieroglyph::Help::Request& request, hieroglyph::Help::Response& response);
 };
 
 #endif // __COM_INTERFACE_H__
-

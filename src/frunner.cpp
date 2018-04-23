@@ -22,16 +22,33 @@ void FRunner::exec()
 			
 	Function * f = boost::get(boost::vertex_function , *g)[node] ;
 
+	std::chrono::time_point<std::chrono::system_clock> start,end;
+
 	while( ! __is_asking_stop() && ! __is_asking_local_stop() )
 	{
 		wait_for_sync();
 		if( __is_asking_stop() || __is_asking_local_stop()) continue;
 		
 		consume(node);
+		
+		if(is_oscillo_active() ) start = std::chrono::system_clock::now();
+
 		f->exec();
+
+		if( is_oscillo_active() ) end = std::chrono::system_clock::now();	
+
 		produce(node);
 
 		f->nsync_afterCompute();
+			
+		if( is_oscillo_active() ) 
+		{
+			std::chrono::duration<double> elapsed_seconds = end-start;
+			date_start = start.time_since_epoch().count();
+			last_duration = elapsed_seconds.count();
+			means+= elapsed_seconds.count();
+			nbrun++;
+		}
 	}
 	produce(node);
 }

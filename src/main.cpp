@@ -160,39 +160,6 @@ int main(int argc, char **argv)
 	cinter->registerListener();
 	cinter->enter();
                 
-	/*
-		else if(buffer == "rt")
-		{
-			std::string unit;
-                	getline(std::cin,buffer);
-                	getline(std::cin,unit);
-			Kernel::instance().pause();
-		//	RtToken::instance().setToken( std::stoi(buffer),  unit );
-			Kernel::instance().resume();
-		}
-		else if(buffer == "w")
-		{
-			write_graph(Kernel::instance().getGraph(), Kernel::instance().getName());
-		}
-		else if(buffer == "quiet")
-		{
-		//	RtToken::instance().active_rt_warning(  !RtToken::instance().is_rt_warning_active());
-		}
-
-		else if( buffer == "stop") 
-		{
-                  //      RtToken::instance().ask_pause();
-                  //      RtToken::instance().wait_for_pause();
-			
-			std::cout << "TRY TO DELETE : " << std::endl;
-			Kernel::instance().del_function("10");
-			Kernel::instance().create_rt_klink();
-			std::cout << "STOP : " << std::endl;
-		
-                    //    RtToken::instance().ask_resume();
-			std::cout << "STOP : " << std::endl;
-		}
-	*/
 	delete(cinter);
 	Kernel::terminate();
 

@@ -35,23 +35,18 @@ class RtToken : public Runner
                 // In second
                 double period;
 		
-		//TODO : pour l'instant pas de gestion de rebouclage du compteur
-                double means;
-                unsigned long long nbrun;
-
 		int state;
                 std::mutex rt_mtx;
                 std::condition_variable rt_cv;
 		
-		bool oscillo;
-		bool rt_warning;
+		bool output;
 
 	public : 
 
 		// Period in second
-		RtToken() : Runner(),period(0),means(0),nbrun(0),state(PAUSE),oscillo(false), rt_warning(false) {}
-		RtToken(double period) : Runner(),period(period),means(0),nbrun(0),state(PAUSE),oscillo(false),rt_warning(false) {}
-		RtToken(double value, std::string unit) : Runner(),means(0),nbrun(0),state(PAUSE),oscillo(false), rt_warning(false) { setToken(value, unit);}
+		RtToken() : Runner(),period(0), state(PAUSE), output(false) {}
+		RtToken(double period) : Runner(),period(period),state(PAUSE),output(false) {}
+		RtToken(double value, std::string unit) : Runner(),state(PAUSE), output(false) {setToken(value,unit);}
                 virtual ~RtToken(){}
                 RtToken(const RtToken&) = delete;
 
@@ -95,11 +90,8 @@ class RtToken : public Runner
                 inline bool is_stop() { return state==STOP;}
                 inline bool is_pause() { return state==PAUSE;}
 
-		inline bool is_oscillo_active(){return oscillo;}
-		inline void active_oscillo(bool state) {oscillo = state;}
-		
-		inline bool is_rt_warning_active(){return rt_warning;}
-		inline void active_rt_warning(bool state) {rt_warning = state;}
+		inline bool is_output_active(){return output;}
+		inline void active_output(bool state) {output = state;}
 	
 		void sync_all();
 }; 

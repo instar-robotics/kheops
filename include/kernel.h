@@ -131,6 +131,8 @@ class Kernel
 		void resume(); 
 		void pause(); 
 		inline int getState(){ return rttoken.getState();}
+		RtToken& getRtToken() {return rttoken;}
+		
 
 		// Static member : 
 		static inline Kernel& instance() noexcept {return singleton;}

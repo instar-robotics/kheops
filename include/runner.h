@@ -31,7 +31,15 @@ class Runner
                 std::thread thx;
                 Graph const *g;
 		Graph::vertex_descriptor node;
-		
+
+		//TODO : pour l'instant pas de gestion de rebouclage du compteur
+                unsigned long long nbrun;
+                double means;    
+                double last_sleep;
+                double last_duration;
+		double date_start;
+	
+		static bool oscillo;
 		static int request;
 		
 		inline bool __is_asking_stop() {return Runner::request == STOP; }
@@ -40,13 +48,18 @@ class Runner
 
 	public :
 
-                Runner() : g(NULL) { }
+                Runner() : g(NULL),nbrun(0),means(0),last_sleep(0),last_duration(0),date_start(0) { }
 
                 virtual ~Runner(){}
                 inline void setGraph(Graph * g){ this->g=g;}
 
 		inline void setNode( Graph::vertex_descriptor node ) { this->node = node;}
                 inline Graph::vertex_descriptor  getNode() { return node;}
+
+		inline double getLastStart(){ return date_start;}
+		inline double getLastDuratuon(){ return last_duration;}
+                inline double getLastSleep() { return last_sleep;}
+                inline double getMeanDuration() { if( nbrun == 0) return 0;  return means/nbrun;}
 
 		// Payload of the runner
                 virtual void exec() = 0;
@@ -60,6 +73,8 @@ class Runner
 		inline std::thread & getThread() {return thx;}
 
                 static inline int getRequest(){ return request;}
+		static inline bool is_oscillo_active(){return oscillo;}
+                static inline void active_oscillo(bool state) {oscillo = state;}
 };
 
 #endif //__RUNNER_H__
