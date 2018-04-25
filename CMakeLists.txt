@@ -116,7 +116,7 @@ catkin_package(
 ###########
 
 set ( EIGEN3_INCLUDE_DIR  "/usr/include/eigen3" )
-set(CMAKE_CXX_FLAGS "-std=c++17 -O2  -msse2 -mtune=native -march=native  ")
+set(CMAKE_CXX_FLAGS "-std=c++17 -O2  -msse2 -mtune=native -march=native")
 add_definitions(-Wextra -Wall)
 
 file(GLOB_RECURSE sourcefiles src/*.cpp)

@@ -77,3 +77,45 @@ void Function::nsync_afterCompute()
 		}
 	}
 }
+
+void FMatrix::active_output(bool state)
+{
+        t_output = state;
+
+        if( t_output )
+        {
+                if( m_pub != NULL )
+                {
+                        m_pub->open();
+                }
+                else throw std::invalid_argument("Function : failed to open Matrix output publisher");
+        }
+        else
+        {
+                if( m_pub != NULL)
+                {
+                        m_pub->close();
+                }
+        }
+}
+
+void FScalar::active_output(bool state)
+{
+        t_output = state;
+
+        if( t_output )
+        {
+                if( s_pub != NULL )
+                {
+                        s_pub->open();
+                }
+                else throw std::invalid_argument("Function : failed to open Scalar output publisher");
+        }
+        else
+        {
+                if( s_pub != NULL)
+                {
+                        s_pub->close();
+                }
+        }
+}

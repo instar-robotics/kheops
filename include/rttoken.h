@@ -21,7 +21,6 @@ The fact that you are presently reading this means that you have had knowledge o
 #include "runner.h"
 #include "util.h"
 #include "publisher.h"
-#include "rospublisher.h"
 
 #define CONV_S_TO_MS 1000000
 
@@ -44,7 +43,7 @@ class RtToken : public Runner
 		bool output;
 	
 		OscilloPublisher *o_pub;
-		DataPublisher<RtTokenOutputMessage> *rt_pub;	
+		RtTokenOutputPublisher *rt_pub;	
 
 	public : 
 
@@ -96,7 +95,8 @@ class RtToken : public Runner
                 inline bool is_pause() { return state==PAUSE;}
 
 		inline bool is_output_active(){return output;}
-		inline void active_output(bool state) {output = state;}
+		void active_output(bool state);
+		void send_output_message();
 	
 		void sync_all();
 

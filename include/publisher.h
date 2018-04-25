@@ -32,19 +32,6 @@ class Publisher
 		virtual bool is_open() {return state;}
 };
 
-class OscilloPublisher : public Publisher
-{
-	public : 
-		
-		OscilloPublisher() {}
-		virtual ~OscilloPublisher(){}	
-
-		virtual void add(const std::string & uuid, double period, double means, double sleep, double duration, double start) = 0; 
-		virtual void clear() = 0;
-		virtual void resize(int size) = 0;
-};
-
-
 template<class Message>
 class ArrayPublisher : public Publisher
 {
@@ -58,7 +45,6 @@ class ArrayPublisher : public Publisher
 		virtual void resize(int size) = 0;
 };
 
-
 template<class Message>
 class DataPublisher : public Publisher
 {
@@ -69,25 +55,23 @@ class DataPublisher : public Publisher
 		virtual void setMessage(const Message& m) = 0;
 };
 
-
 class OscilloMessage{
 
-		const std::string &uuid =  *(std::string*)(0); 
+	public : 
+		const std::string &uuid;
 		double period;
 		double means;
 		double sleep;
 		double duration;
 		double start; 
+		bool warning;
+
+		OscilloMessage(const std::string &uuid) : uuid(uuid) {}
 };
 
-class RtTokenOutputMessage{
-
-	public : 
-		std::string message;
-		double period; 
-		double duration;
-		double sleep;
-		double means;
-};
+typedef ArrayPublisher<OscilloMessage> OscilloPublisher;
+typedef DataPublisher<OscilloMessage> RtTokenOutputPublisher;
+typedef DataPublisher<MatrixXd> MatrixPublisher;
+typedef DataPublisher<double> ScalarPublisher;
 
 #endif // __PUBLISHER_H__

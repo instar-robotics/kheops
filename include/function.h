@@ -24,7 +24,7 @@ The fact that you are presently reading this means that you have had knowledge o
 
 #include "factory.h"
 #include "input.h"
-
+#include "publisher.h"
 
 #define REGISTER_FUNCTION(classname) \
    static const BuilderImpl<classname,Function> classname(#classname); 
@@ -41,10 +41,12 @@ class Function
                 std::vector<ISMInput*> ism_input;
                 std::vector<IMMInput*> imm_input;
 
-		bool output;
+	protected:
+
+		bool t_output;
 
 	public : 
-		Function(): output(false){}
+		Function(): t_output(false){}
 		virtual ~Function();
 
 		virtual void exec();
@@ -72,9 +74,8 @@ class Function
 
 		virtual void nsync_afterCompute();
 
-		inline bool is_output_active(){return output;}
-                inline void active_output(bool state) {output = state;}
-
+		inline bool is_output_active(){return t_output;}
+                virtual void active_output(bool state) = 0; 
 };
 
 template<class T>
@@ -105,6 +106,8 @@ class FTemplate : public Function
 
 class FMatrix : public FTemplate<MatrixXd>
 {
+	private:
+		MatrixPublisher* m_pub;
 	public : 
 		FMatrix() : FTemplate()  {}
 		FMatrix( int X,int Y) : FTemplate()  {
@@ -123,11 +126,15 @@ class FMatrix : public FTemplate<MatrixXd>
 		inline virtual void setValue(double dvalue, int row,int col) { output = MatrixXd::Constant(row,col,dvalue);}
 		inline virtual void setSize(int rows, int cols){ output = MatrixXd::Constant( rows , cols ,0); }
 
+                virtual void active_output(bool state);
 };
 
 
 class FScalar : public FTemplate<double>
 {
+	private : 
+		ScalarPublisher * s_pub;
+
 	public : 
 		FScalar() : FTemplate() {
                         output = 0;
@@ -145,6 +152,8 @@ class FScalar : public FTemplate<double>
 	//	inline virtual void setValue(double dvalue, int x =1 ,int y =1){ output = dvalue; }
 		inline virtual int getRows(){return 1;}
 		inline virtual int getCols(){return 1;}
+                
+		virtual void active_output(bool state);
 };
 
 #endif  // __FUNCTION_H__

@@ -23,6 +23,12 @@ The fact that you are presently reading this means that you have had knowledge o
 #include "hieroglyph/OscilloArray.h"
 #include "std_msgs/Float64MultiArray.h"
 
+#include <Eigen/Core>
+#include <Eigen/Dense>
+
+using Eigen::Map;
+using Eigen::MatrixXd;
+
 class RosTopic 
 {
 	protected : 
@@ -55,39 +61,41 @@ class RosDataPublisher : public DataPublisher<Message>, public RosTopic
 };
 
 template<class Message>
-class RosArrayPublisher : public ArrayPublisher<Message>, public RosTopic
+class RosArrayPublisher : public ArrayPublisher<Message> , public RosTopic
 {
 	public : 
-		RosArrayPublisher(int size) : ArrayPublisher<Message>() ,  RosTopic(size) {}
+		RosArrayPublisher(int size) : ArrayPublisher<Message>(), RosTopic(size) {}
 		virtual ~RosArrayPublisher() {}
 
 		virtual void close()
 		{ 
-			state = false;
+			Publisher::state = false;
 			pub.shutdown(); 
 		}
+		
 };
 
-class RosOscilloPublisher : public OscilloPublisher, public RosTopic
+class RosOscilloPublisher : public RosArrayPublisher<OscilloMessage>
 {
 	private :
 
 		hieroglyph::OscilloArray msg;  
 
 	public : 
-		RosOscilloPublisher(int size) : OscilloPublisher(), RosTopic(size) {}
+		RosOscilloPublisher(int size) : RosArrayPublisher(size) {}
 		virtual ~RosOscilloPublisher(){}
 
-		virtual void add( const std::string & uuid, double period, double means, double sleep, double duration, double start) 
+		virtual void add(const OscilloMessage &m) 
 		{
 			hieroglyph::OscilloData osc_data;	
 
-			osc_data.uuid = uuid;
-			osc_data.period = period;
-			osc_data.means = means;
-			osc_data.sleep = sleep;
-			osc_data.duration = duration;
-			osc_data.start = start;
+			osc_data.uuid = m.uuid;
+			osc_data.period = m.period;
+			osc_data.means = m.means;
+			osc_data.sleep = m.sleep;
+			osc_data.duration = m.duration;
+			osc_data.start = m.start;
+			osc_data.warning = m.warning;
 
 			msg.array.push_back(osc_data);		
 		}
@@ -109,61 +117,76 @@ class RosOscilloPublisher : public OscilloPublisher, public RosTopic
 			state = true;
 			pub = RosWrapper::getNodeHandle()->advertise<hieroglyph::OscilloArray>( RosWrapper::getNodeName() +"/oscillo", size_queue);
 		}
-
-		virtual void close()
-		{ 
-			state = false;
-			pub.shutdown(); 
-		}
 };
 
-/*
-class RosRtTokenOutputPublisher : public DataPublisher<RtTokenOutputMessage>, public RosTopic
+
+class RosRtTokenOutputPublisher : public RosDataPublisher<OscilloMessage>
 {
 	private : 
 		
+		hieroglyph::OscilloData msg;	
 
 	public : 
 
-		RosMatrixPublisher(int size) : DataPublisher<MatrixXd>(), RosTopic(size){}
-		virtual ~RosMatrixPublisher(){}
+		RosRtTokenOutputPublisher(int size) : RosDataPublisher(size) {}
+		virtual ~RosRtTokenOutputPublisher(){}
+
+		virtual void setMessage(const OscilloMessage& m)
+                {
+			msg.uuid = m.uuid;
+			msg.period = m.period;
+			msg.means = m.means;
+			msg.sleep = m.sleep;
+			msg.duration = m.duration;
+			msg.start = m.start;
+			msg.warning = m.warning;
+                }
+
+		virtual void open()
+		{
+			state = true;
+			pub = RosWrapper::getNodeHandle()->advertise<hieroglyph::OscilloData>( RosWrapper::getNodeName() +"/rt_token", size_queue);
+		}
+
+		virtual void publish(){	pub.publish(msg);}
 };
-*/
 
 class RosMatrixPublisher : public RosDataPublisher<MatrixXd>
 {
 	private : 
 
 		std_msgs::Float64MultiArray msg;
+		std::string topic_name;
 
 	public : 
 
-		RosMatrixPublisher(int size) : RosDataPublisher(size){}
+		RosMatrixPublisher(int size, std::string topic_name) : RosDataPublisher(size),topic_name(topic_name){}
 		virtual ~RosMatrixPublisher(){}
 
 		virtual void setMessage(const MatrixXd& m)
 		{
-			msg.layout.dim.resize(2);
-        		msg.layout.dim[0].stride = m.rows()  * m.cols() ;
-        		msg.layout.dim[0].size = m.rows();
-        		msg.layout.dim[1].stride = m.cols();
-        		msg.layout.dim[1].size = m.cols();
-
-			msg.data.resize( m.rows() * m.cols()  );
-
-			Map<MatrixXd> mEnc ( msg.data.data() , m.rows(),m.cols());
-
+			Map<MatrixXd> mEnc( msg.data.data() , msg.layout.dim[0].size ,msg.layout.dim[1].size );
 			mEnc = m;
+		}
+
+		virtual void setSize(int rows, int cols)
+		{
+			msg.layout.dim.resize(2);
+        		msg.layout.dim[0].stride = rows  * cols ;
+        		msg.layout.dim[0].size = rows;
+        		msg.layout.dim[1].stride = cols;
+        		msg.layout.dim[1].size = cols;
+
+			msg.data.resize( rows * cols  );
 		}
 		
 		virtual void open()
 		{
 			state = true;
-			pub = RosWrapper::getNodeHandle()->advertise<std_msgs::Float64MultiArray>( RosWrapper::getNodeName() +"/rt_token", size_queue);
+			pub = RosWrapper::getNodeHandle()->advertise<std_msgs::Float64MultiArray>( RosWrapper::getNodeName() +topic_name, size_queue);
 		}
 
 		virtual void publish(){	pub.publish(msg);}
-		
 };
 
 #endif // __ROS_PUBLISHER_H__

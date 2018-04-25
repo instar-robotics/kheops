@@ -16,24 +16,26 @@ The fact that you are presently reading this means that you have had knowledge o
 
 #include "rttoken.h"
 #include "frunner.h"
-#include "publisher.h"
+#include "rospublisher.h"
 #include <iostream>
 
 RtToken::RtToken() : Runner(),period(0), state(PAUSE), output(false) 
 {
 	o_pub = new RosOscilloPublisher(1);
-	//rt_pub = new 
+	rt_pub = new RosRtTokenOutputPublisher(1); 
 }
 
 RtToken::RtToken(double period) : Runner(),period(period),state(PAUSE),output(false)
 { 
 	o_pub = new RosOscilloPublisher(1);
+	rt_pub = new RosRtTokenOutputPublisher(1); 
 }
 
 RtToken::RtToken(double value, std::string unit) : Runner(),state(PAUSE), output(false)
 {
 	setToken(value,unit); 
 	o_pub = new RosOscilloPublisher(1);
+	rt_pub = new RosRtTokenOutputPublisher(1); 
 }
 
 
@@ -43,6 +45,12 @@ RtToken::~RtToken()
 	{
 		if( o_pub->is_open() ) o_pub->close();	
 		delete(o_pub);
+	}
+	
+	if( rt_pub != NULL )
+	{
+		if( rt_pub->is_open() ) rt_pub->close();
+		delete(rt_pub);
 	}
 }
 
@@ -105,10 +113,10 @@ void RtToken::exec()
 	
 		if( is_output_active() )
 		{
-			// String OK/Warning
-			// Period 
-			// duration 
-			// sleep	
+			if( rt_pub->is_open() )
+			{
+				send_output_message();
+			}
 		}
 	}
 	sync_all();
@@ -194,7 +202,7 @@ void RtToken::stop_oscillo_publisher()
 
 void RtToken::send_oscillo_message()
 {
-//	 num_vertices(graph);
+
 	o_pub->clear();
 	
 	std::pair<vertex_iter, vertex_iter> it = boost::vertices(*g);
@@ -202,16 +210,73 @@ void RtToken::send_oscillo_message()
         {
             Runner *r = boost::get(boost::vertex_runner, *g, *it.first);
 
+
             if( r == this)
             {
-        	o_pub->add( getUuid(), getPeriod(), getMeanDuration(), getLastSleep(), getLastDuration() , getLastStart()  );	
+	    	OscilloMessage om( getUuid() );
+		om.period = getPeriod();
+		om.means = getMeanDuration();
+		om.sleep = getLastSleep();
+		om.duration = getLastDuration();
+		om.start = getLastStart(); 
+
+		if( om.duration >= om.period ) om.warning = true;
+		else  om.warning = false; 
+            
+		o_pub->add( om );	
+
             }
 	    else
 	    {
 		Function * f = boost::get(boost::vertex_function, *g, *it.first);
-        	o_pub->add( f->getUuid(), getPeriod(), r->getMeanDuration(), r->getLastSleep(), r->getLastDuration() , r->getLastStart()  );	
-
+		
+	    	OscilloMessage om( f->getUuid() );
+		om.period = getPeriod();
+		om.means = r->getMeanDuration();
+		om.sleep = r->getLastSleep();
+		om.duration = r->getLastDuration();
+		om.start = r->getLastStart(); 
+		om.warning = false;
+            	
+		o_pub->add( om );	
 	    }
         }
 	o_pub->publish();
+}
+
+void RtToken::active_output(bool state) 
+{
+	output = state;
+
+	if( output )
+	{
+		if( rt_pub != NULL )
+		{
+			rt_pub->open();
+		}
+		else throw std::invalid_argument("RtToken : failed to open rt_token output publisher");
+	}
+	else
+	{
+		if( rt_pub != NULL) 
+		{
+			rt_pub->close();
+		}
+	}
+}
+
+void RtToken::send_output_message()
+{
+	OscilloMessage om( getUuid() );
+	om.period = getPeriod();
+	om.means = getMeanDuration();
+	om.sleep = getLastSleep();
+	om.duration = getLastDuration();
+	om.start = getLastStart(); 
+
+	if( om.duration >= om.period ) om.warning = true;
+	else  om.warning = false; 
+    
+	rt_pub->setMessage( om );	
+	rt_pub->publish();	
 }
