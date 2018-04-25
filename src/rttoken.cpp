@@ -16,7 +16,35 @@ The fact that you are presently reading this means that you have had knowledge o
 
 #include "rttoken.h"
 #include "frunner.h"
+#include "publisher.h"
 #include <iostream>
+
+RtToken::RtToken() : Runner(),period(0), state(PAUSE), output(false) 
+{
+	o_pub = new RosOscilloPublisher(1);
+	//rt_pub = new 
+}
+
+RtToken::RtToken(double period) : Runner(),period(period),state(PAUSE),output(false)
+{ 
+	o_pub = new RosOscilloPublisher(1);
+}
+
+RtToken::RtToken(double value, std::string unit) : Runner(),state(PAUSE), output(false)
+{
+	setToken(value,unit); 
+	o_pub = new RosOscilloPublisher(1);
+}
+
+
+RtToken::~RtToken()
+{
+	if( o_pub != NULL )
+	{
+		if( o_pub->is_open() ) o_pub->close();	
+		delete(o_pub);
+	}
+}
 
 void RtToken::setToken(double value, std::string unit)
 {
@@ -69,18 +97,18 @@ void RtToken::exec()
 
 		if( is_oscillo_active() )
 		{
-			// Send to OSCILLO TOPIC
-
+			if( o_pub->is_open() )
+			{
+				send_oscillo_message();
+			}
 		}
 	
 		if( is_output_active() )
 		{
-				//TODO : here add code to send warning in ROS TOPIC
-				// Send means, last value, rt token value and unit
-				//std::cout << "Warning : RT_Token timeout. Waited : " <<  getMsPeriod()  << " ms (freq="<< convert_period_frequency(period) <<" Hz). Reel : " << convert_s_to_ms(elapsed_seconds.count()) << " ms " << std::endl;
-				//TODO : here add code to send warning in ROS TOPIC
-				// Send means, last value, rt token value and unit
-				// std::cout << "RT_Token OK (freq=" << convert_period_frequency(period) << "Hz) :" << convert_s_to_ms(elapsed_seconds.count()) << " ms (real freq=" << convert_period_frequency(elapsed_seconds.count())  << " Hz).  Sleep duration :  " <<   convert_s_to_ms(sleep_duration) << " ms" << std::endl;
+			// String OK/Warning
+			// Period 
+			// duration 
+			// sleep	
 		}
 	}
 	sync_all();
@@ -144,4 +172,46 @@ void RtToken::terminate()
 {
 	ask_stop();
 	join();
+}
+
+void RtToken::start_oscillo_publisher()
+{
+	if( o_pub != NULL ) 
+	{
+		o_pub->open();	
+	}
+	else throw std::invalid_argument("RtToken : failed to open oscillo publisher");
+}
+
+
+void RtToken::stop_oscillo_publisher()
+{
+	if( o_pub != NULL) 
+	{
+		o_pub->close();
+	}
+}
+
+void RtToken::send_oscillo_message()
+{
+//	 num_vertices(graph);
+	o_pub->clear();
+	
+	std::pair<vertex_iter, vertex_iter> it = boost::vertices(*g);
+        for( ; it.first != it.second; ++it.first)
+        {
+            Runner *r = boost::get(boost::vertex_runner, *g, *it.first);
+
+            if( r == this)
+            {
+        	o_pub->add( getUuid(), getPeriod(), getMeanDuration(), getLastSleep(), getLastDuration() , getLastStart()  );	
+            }
+	    else
+	    {
+		Function * f = boost::get(boost::vertex_function, *g, *it.first);
+        	o_pub->add( f->getUuid(), getPeriod(), r->getMeanDuration(), r->getLastSleep(), r->getLastDuration() , r->getLastStart()  );	
+
+	    }
+        }
+	o_pub->publish();
 }

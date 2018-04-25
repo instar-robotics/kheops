@@ -20,6 +20,8 @@ The fact that you are presently reading this means that you have had knowledge o
 #include <condition_variable>
 #include "runner.h"
 #include "util.h"
+#include "publisher.h"
+#include "rospublisher.h"
 
 #define CONV_S_TO_MS 1000000
 
@@ -40,19 +42,22 @@ class RtToken : public Runner
                 std::condition_variable rt_cv;
 		
 		bool output;
+	
+		OscilloPublisher *o_pub;
+		DataPublisher<RtTokenOutputMessage> *rt_pub;	
 
 	public : 
 
 		// Period in second
-		RtToken() : Runner(),period(0), state(PAUSE), output(false) {}
-		RtToken(double period) : Runner(),period(period),state(PAUSE),output(false) {}
-		RtToken(double value, std::string unit) : Runner(),state(PAUSE), output(false) {setToken(value,unit);}
-                virtual ~RtToken(){}
+		RtToken();
+		RtToken(double period);
+		RtToken(double value, std::string unit);
+                virtual ~RtToken();
+
                 RtToken(const RtToken&) = delete;
 
 		inline const std::string& getUuid() { return uuid; }
                 inline void setUuid(const std::string& uuid  ) { this->uuid = uuid;}
-
 
 		// Frequency in Hz
 		inline void setFrequency( double frequency ) { period = convert_period_frequency(frequency);}
@@ -94,6 +99,10 @@ class RtToken : public Runner
 		inline void active_output(bool state) {output = state;}
 	
 		void sync_all();
+
+		void start_oscillo_publisher();
+		void stop_oscillo_publisher();
+		void send_oscillo_message();
 }; 
 
 #endif // __RT_TOKEN_H__

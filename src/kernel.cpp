@@ -805,6 +805,47 @@ void Kernel::pause()
         rttoken.wait_for_pause();
 }
 
+/********************************************************************************************************/
+/****************** 			CMD Section 				      *******************/
+/********************************************************************************************************/
+
+bool Kernel::active_output(const std::string& uuid, bool state)
+{
+
+	bool ret = true;
+	//TODO : Should Be useful to add an Object class which factorises some members and methods
+
+	// Active RtToken Output
+	if( uuid == rttoken.getUuid() )
+	{
+		rttoken.active_output(state);
+	}
+	// Active Function Output 
+	else if( node_map.find( uuid ) != node_map.end() )
+	{
+		Function *f =  boost::get(boost::vertex_function , graph)[ node_map[uuid]];
+
+		if( f != NULL ) f->active_output(state);
+		else ret = false;
+			
+	}
+	// Active Scalar ilink Output
+	else if( is_ilink.find( uuid ) != is_ilink.end() ) 
+	{
+		is_ilink[uuid]->active_output(state);		
+	}
+	// Active Matrix ilink Output
+	else if( im_ilink.find( uuid ) != im_ilink.end() )
+	{
+		im_ilink[uuid]->active_output(state);		
+	}
+	else 
+	{
+		ret = false;
+	}
+
+	return ret;
+}
 
 /********************************************************************************************************/
 /****************** 			Static Section 				      *******************/

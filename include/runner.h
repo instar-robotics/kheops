@@ -57,7 +57,7 @@ class Runner
                 inline Graph::vertex_descriptor  getNode() { return node;}
 
 		inline double getLastStart(){ return date_start;}
-		inline double getLastDuratuon(){ return last_duration;}
+		inline double getLastDuration(){ return last_duration;}
                 inline double getLastSleep() { return last_sleep;}
                 inline double getMeanDuration() { if( nbrun == 0) return 0;  return means/nbrun;}
 

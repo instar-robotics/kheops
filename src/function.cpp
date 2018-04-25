@@ -29,12 +29,7 @@ void Function::exec()
 {
 	try
 	{
-		auto start = std::chrono::system_clock::now();
 		compute();
-		auto end = std::chrono::system_clock::now();
-
-                std::chrono::duration<double> elapsed_seconds = end-start;
-		timing = elapsed_seconds.count();
 	}
 	catch(const std::invalid_argument &e)
 	{

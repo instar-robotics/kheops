@@ -28,6 +28,7 @@ The fact that you are presently reading this means that you have had knowledge o
 #include "util.h"
 #include "libManager.h"
 #include "rosinterface.h"
+#include "publisher.h"
 
 ComInterface * cinter = NULL;
 

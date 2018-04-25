@@ -132,7 +132,9 @@ class Kernel
 		void pause(); 
 		inline int getState(){ return rttoken.getState();}
 		RtToken& getRtToken() {return rttoken;}
-		
+
+		// Output 		
+		bool active_output(const std::string& uuid, bool state);
 
 		// Static member : 
 		static inline Kernel& instance() noexcept {return singleton;}

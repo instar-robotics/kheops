@@ -14,50 +14,29 @@ and, more generally, to use and operate it in the same conditions as regards sec
 The fact that you are presently reading this means that you have had knowledge of the CeCILL v2.1 license and that you accept its terms.
 */
 
-#ifndef __COM_INTERFACE_H__
-#define __COM_INTERFACE_H__
+#ifndef __ROS_WRAPPER_H__
+#define __ROS_WRAPPER_H__
 
 #include <string>
+#include "ros/ros.h"
 
-/******  List of interfaces ******
-*  1- help : list all the request supported by kheops
-*  2- cmd :  general command
-*	a- resume 	
-*       b- pause 
-*	c- quit
-*  3- weight : command relative to the weight file
-*	a- save 'path'  (path is not mandatory, take the default weigth path)
-*	b- load 'path'  (path is not mandatory, take the default weigth path)
-*  4- rt_stat : get rt_token status 
-*  5- oscillo : 
-* 	a- start  (active oscillo)
-*	b- stop   (stop oscillo)
-*  6- output :
-* 	a- start 'uuid'  (active output for uuid object )
-*	b- stop  'uuid'  (stop output for uuid object )
-*  7- objects :
-	a- list : get the list of uuid/type of all the objects
-*********************************/
+class RosWrapper
+{
+	private : 
 
-const std::string RETURN[] = {"unknown command","unknown uuid"};
-const std::string CMD[] = {"resume", "quit","pause"};
-const std::string WEIGHT[] = {"save", "load"};
-const std::string OUTPUT[] = {"start", "stop"};
-const std::string OSCILLO[] = {"start", "stop"};
+		std::string node_name;
+		ros::NodeHandle * n;
 
-class ComInterface{
+		static RosWrapper singleton;
 
-	public : 
+	public :
 
-		ComInterface(){}
-		virtual ~ComInterface(){}
+		RosWrapper(){}
+		~RosWrapper(){if(n != NULL) delete(n);} 
 
-		virtual void init(int argc, char ** argv, std::string prog_name, std::string script_name) = 0;
-		virtual void registerListener() = 0;
-		virtual void quit() = 0;	
-		virtual void enter() = 0;
-
+		static void init(int argc, char ** argv, std::string prog_name, std::string script_name);
+		static ros::NodeHandle* getNodeHandle(){return singleton.n;}
+		static std::string getNodeName() {return singleton.node_name;}
 };
 
-#endif // __COM_INTERFACE_H__
-
+#endif // __ROS_WRAPPER_H__

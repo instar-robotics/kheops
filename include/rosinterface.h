@@ -18,15 +18,17 @@ The fact that you are presently reading this means that you have had knowledge o
 #define __ROS_INTERFACE_H__
 
 #include <vector>
+#include "roswrapper.h"
 #include "cominterface.h"
 #include "kernel.h"
 #include "ros/ros.h"
 #include "hieroglyph/Help.h"
-#include "hieroglyph/Cmd.h"
+#include "hieroglyph/Control.h"
 #include "hieroglyph/Weight.h"
 #include "hieroglyph/RtStat.h"
 #include "hieroglyph/Oscillo.h"
 #include "hieroglyph/Output.h"
+
 
 class RosInterface : public ComInterface{
 	
@@ -35,17 +37,17 @@ class RosInterface : public ComInterface{
 		std::string node_name;
 
 		ros::ServiceServer sHelper;
-		ros::ServiceServer sCmd;
+		ros::ServiceServer sControl;
 		ros::ServiceServer sWeight;
 		ros::ServiceServer sRtStat;
 		ros::ServiceServer sOutput;
 		ros::ServiceServer sOscillo;
-		ros::NodeHandle * n;
+		ros::ServiceServer sObjects;
 
 	public : 
 
 		RosInterface(){}
-		~RosInterface(){ delete(n); }
+		virtual ~RosInterface(){}
 
 		virtual void init(int argc, char ** argv, std::string prog_name, std::string script_name);
 		virtual void registerListener();
@@ -56,8 +58,8 @@ class RosInterface : public ComInterface{
 		bool callback_output( hieroglyph::Output::Request& request, hieroglyph::Output::Response& response);
 		bool callback_rt_stat( hieroglyph::RtStat::Request& request, hieroglyph::RtStat::Response& response);
 		bool callback_weight( hieroglyph::Weight::Request& request, hieroglyph::Weight::Response& response);
-		bool callback_cmd( hieroglyph::Cmd::Request& request, hieroglyph::Cmd::Response& response);
+		bool callback_control( hieroglyph::Control::Request& request, hieroglyph::Control::Response& response);
 		bool callback_helper( hieroglyph::Help::Request& request, hieroglyph::Help::Response& response);
 };
 
-#endif // __COM_INTERFACE_H__
+#endif // __ROS_INTERFACE_H__

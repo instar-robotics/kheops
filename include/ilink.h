@@ -40,14 +40,16 @@ class iLink
 
 		std::string uuid;
 
+		bool output; 
+
 	public : 
 
 		typedef T type_i;
 		size_t type() { return typeid(T).hash_code();}
 		std::string type_name() { return typeid(T).name();}
 
-		iLink() : buffer(false) {input = NULL; b_input = NULL;}	
-		iLink(T const * i) : input(i),buffer(false) { b_input = NULL; }
+		iLink() : buffer(false), output(false) {input = NULL; b_input = NULL;}	
+		iLink(T const * i) : input(i),buffer(false), output(false) { b_input = NULL; }
 		virtual ~iLink(){}
 	
 		inline const std::string& getUuid() { return uuid;  }
@@ -87,6 +89,10 @@ class iLink
 				cvalue = *b_input;
 			}
 		}
+
+		inline bool is_output_active(){return output;}
+                inline void active_output(bool state) {output = state;}
+
 };
 
 

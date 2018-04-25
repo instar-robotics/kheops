@@ -41,10 +41,10 @@ class Function
                 std::vector<ISMInput*> ism_input;
                 std::vector<IMMInput*> imm_input;
 
-		bool oscillo;
+		bool output;
 
 	public : 
-		Function(): oscillo(false){}
+		Function(): output(false){}
 		virtual ~Function();
 
 		virtual void exec();
@@ -72,8 +72,8 @@ class Function
 
 		virtual void nsync_afterCompute();
 
-		inline bool is_oscillo_active(){return oscillo;}
-                inline void active_oscillo(bool state) {oscillo = state;}
+		inline bool is_output_active(){return output;}
+                inline void active_output(bool state) {output = state;}
 
 };
 

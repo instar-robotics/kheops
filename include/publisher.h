@@ -1,5 +1,5 @@
 /*
-Copyright Instar Robotics
+Copyright INSTAR Robotics
 
 Author: Pierre Delarboulas
 
@@ -14,50 +14,80 @@ and, more generally, to use and operate it in the same conditions as regards sec
 The fact that you are presently reading this means that you have had knowledge of the CeCILL v2.1 license and that you accept its terms.
 */
 
-#ifndef __COM_INTERFACE_H__
-#define __COM_INTERFACE_H__
+#ifndef __PUBLISHER_H__
+#define __PUBLISHER_H__
 
-#include <string>
-
-/******  List of interfaces ******
-*  1- help : list all the request supported by kheops
-*  2- cmd :  general command
-*	a- resume 	
-*       b- pause 
-*	c- quit
-*  3- weight : command relative to the weight file
-*	a- save 'path'  (path is not mandatory, take the default weigth path)
-*	b- load 'path'  (path is not mandatory, take the default weigth path)
-*  4- rt_stat : get rt_token status 
-*  5- oscillo : 
-* 	a- start  (active oscillo)
-*	b- stop   (stop oscillo)
-*  6- output :
-* 	a- start 'uuid'  (active output for uuid object )
-*	b- stop  'uuid'  (stop output for uuid object )
-*  7- objects :
-	a- list : get the list of uuid/type of all the objects
-*********************************/
-
-const std::string RETURN[] = {"unknown command","unknown uuid"};
-const std::string CMD[] = {"resume", "quit","pause"};
-const std::string WEIGHT[] = {"save", "load"};
-const std::string OUTPUT[] = {"start", "stop"};
-const std::string OSCILLO[] = {"start", "stop"};
-
-class ComInterface{
+class Publisher
+{
+	protected : 
+		bool state;
 
 	public : 
+		Publisher() : state(false) {}
+		virtual ~Publisher(){}
 
-		ComInterface(){}
-		virtual ~ComInterface(){}
-
-		virtual void init(int argc, char ** argv, std::string prog_name, std::string script_name) = 0;
-		virtual void registerListener() = 0;
-		virtual void quit() = 0;	
-		virtual void enter() = 0;
-
+		virtual void open() = 0;
+		virtual void close() = 0;
+		virtual void publish() = 0;
+		virtual bool is_open() {return state;}
 };
 
-#endif // __COM_INTERFACE_H__
+class OscilloPublisher : public Publisher
+{
+	public : 
+		
+		OscilloPublisher() {}
+		virtual ~OscilloPublisher(){}	
 
+		virtual void add(const std::string & uuid, double period, double means, double sleep, double duration, double start) = 0; 
+		virtual void clear() = 0;
+		virtual void resize(int size) = 0;
+};
+
+
+template<class Message>
+class ArrayPublisher : public Publisher
+{
+	public : 
+		
+		ArrayPublisher() {}
+		virtual ~ArrayPublisher(){}	
+
+		virtual void add(const Message& m) = 0; 
+		virtual void clear() = 0;
+		virtual void resize(int size) = 0;
+};
+
+
+template<class Message>
+class DataPublisher : public Publisher
+{
+	public :
+		DataPublisher(){}
+		virtual ~DataPublisher(){}
+
+		virtual void setMessage(const Message& m) = 0;
+};
+
+
+class OscilloMessage{
+
+		const std::string &uuid =  *(std::string*)(0); 
+		double period;
+		double means;
+		double sleep;
+		double duration;
+		double start; 
+};
+
+class RtTokenOutputMessage{
+
+	public : 
+		std::string message;
+		double period; 
+		double duration;
+		double sleep;
+		double means;
+};
+
+#endif // __PUBLISHER_H__
