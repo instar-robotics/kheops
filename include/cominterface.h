@@ -38,16 +38,16 @@ The fact that you are presently reading this means that you have had knowledge o
 *  7- objects :
 *	a- all : get the list of uuid/type of all the objects
 *	b- ilink : get list of uuid of ilink
-	c- input : get list of uuid of input 
-	d- function  get list of uuid of function
-	c- rt_token :  get list of uuid of rt_token
+*	c- input : get list of uuid of input 
+*	d- function  get list of uuid of function
+*	c- rt_token :  get list of uuid of rt_token
 *  8- rt_token : 
 *	a- start (active rt_token topic)
 *	b- stop  (stop rt_token topic)
 ********************************************************************************/
 
 const std::string RETURN[] = {"unknown command","unknown uuid"};
-const std::string CMD[] = {"resume", "quit","pause", "save","load","start", "stop","all","rt_token","functions","inputs","ilinks"};
+const std::string CMD[] = {"resume","quit","pause","save","load","start","stop","all","rt_token","functions","inputs","ilinks"};
 
 const int S_RESUME=0; 
 const int S_QUIT=1; 
@@ -64,7 +64,6 @@ const int S_ILINKS=11;
 
 class ComInterface
 {
-
 	public : 
 
 		ComInterface(){}

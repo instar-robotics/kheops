@@ -58,6 +58,9 @@ void XmlConverter::__convertXmlToFunction(const DOMElement &el, XFunction &f)
 		std::string cols =  XMLString::transcode( eo->getElementsByTagName( XMLString::transcode("cols"))->item(0)->getTextContent() );
 		f.cols = std::stoi(cols);
 	}
+
+	//TODO : Manage flag into XML file
+	f.active_output = false;
 }
 
 

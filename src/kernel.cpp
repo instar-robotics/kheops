@@ -157,6 +157,7 @@ void Kernel::add_function( const XFunction& xf)
       else
       { 
 		f->setUuid(xf.uuid);
+		f->active_output(xf.active_output);
 		if( f->type() == typeid(MatrixXd).hash_code()) 		
 		{
 		  if( xf.rows <= 0 || xf.cols <= 0)  throw  std::invalid_argument("Kernel : Can't build Matrix without valid rows/cols value");

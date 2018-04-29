@@ -223,7 +223,10 @@ bool RosInterface::callback_control(hieroglyph::SimpleCmd::Request& request, hie
 //bool RosInterface::callback_helper( hieroglyph::Help::Request& request, hieroglyph::Help::Response& response)
 bool RosInterface::callback_helper( hieroglyph::Help::Request& request, hieroglyph::Help::Response& response)
 {
-	std::cout << "HELP " << std::endl;
+	response.help = " 1-cmd : list toto \n 2-titi : titi \t a- titu";
+	
+	std::cout <<  response.help  << std::endl;
+
 	return true;
 }
 
