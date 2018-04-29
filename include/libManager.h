@@ -41,7 +41,7 @@ class LibManager
 		static inline LibManager& instance() noexcept {return singleton;}
 		static inline void load(){ singleton.load_libs(); }
 
-		void load_lib(std::string name);			
+		//void load_lib(std::string name);			
 		void load_libs();			
 };
 

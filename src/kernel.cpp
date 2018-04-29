@@ -382,7 +382,7 @@ void Kernel::add_ilink(const std::string& in_uuid, const XLink& xl)
 void Kernel::add_iscalar(const std::string& in_uuid,const XLink& xl)	
 {
 	// Build ilink
-	std::shared_ptr<IScalar> is  (new IScalar);
+	std::shared_ptr<IScalar> is (new IScalar);
 
 	//set is
 	is->setUuid(xl.uuid);
@@ -806,7 +806,7 @@ void Kernel::pause()
 }
 
 /********************************************************************************************************/
-/****************** 			CMD Section 				      *******************/
+/****************** 			Output Section 				      *******************/
 /********************************************************************************************************/
 
 bool Kernel::active_output(const std::string& uuid, bool state)
@@ -827,7 +827,6 @@ bool Kernel::active_output(const std::string& uuid, bool state)
 
 		if( f != NULL ) f->active_output(state);
 		else ret = false;
-			
 	}
 	// Active Scalar ilink Output
 	else if( is_ilink.find( uuid ) != is_ilink.end() ) 
@@ -846,6 +845,68 @@ bool Kernel::active_output(const std::string& uuid, bool state)
 
 	return ret;
 }
+
+/********************************************************************************************************/
+/****************** 			Objects Section 			      *******************/
+/********************************************************************************************************/
+
+void Kernel::get_objects(std::vector<std::string> & objects)
+{
+	get_rt_token(objects);
+	get_functions(objects);
+	get_inputs(objects);
+	get_ilinks(objects);
+}
+
+void Kernel::get_inputs(std::vector<std::string> & objects)
+{
+	for(auto it = is_input.begin(); it != is_input.end(); ++it)
+	{
+		objects.push_back("input:"+it->first);
+	}
+	
+	for(auto it = im_input.begin(); it != im_input.end(); ++it)
+	{
+		objects.push_back("input:"+it->first);
+	}
+	
+	for(auto it = ism_input.begin(); it != ism_input.end(); ++it)
+	{
+		objects.push_back("input:"+it->first);
+	}
+	
+	for(auto it = imm_input.begin(); it != imm_input.end(); ++it)
+	{
+		objects.push_back("input:"+it->first);
+	}
+}
+
+void Kernel::get_ilinks(std::vector<std::string> & objects)
+{
+	for(auto it = is_ilink.begin(); it != is_ilink.end(); ++it)
+	{
+		objects.push_back("link:"+it->first);
+	}
+	
+	for(auto it = im_ilink.begin(); it != im_ilink.end(); ++it)
+	{
+		objects.push_back("link:"+it->first);
+	}
+}
+
+void Kernel::get_functions(std::vector<std::string> & objects)
+{
+	for(auto it = node_map.begin(); it != node_map.end(); ++it)
+	{
+		if( it->first != rttoken.getUuid() ) objects.push_back("function:"+it->first);
+	}
+}
+
+void Kernel::get_rt_token(std::vector<std::string> & objects)
+{
+	objects.push_back("rt_token:"+rttoken.getUuid());
+}
+
 
 /********************************************************************************************************/
 /****************** 			Static Section 				      *******************/

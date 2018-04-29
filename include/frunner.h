@@ -14,8 +14,8 @@ and, more generally, to use and operate it in the same conditions as regards sec
 The fact that you are presently reading this means that you have had knowledge of the CeCILL v2.1 license and that you accept its terms.
 */
 
-#ifndef __FRUNNER_H__
-#define __FRUNNER_H__
+#ifndef __FR_RUNNER_H__
+#define __FR_RUNNER_H__
 
 #include "runner.h"
 #include "function.h"
@@ -31,10 +31,10 @@ class FRunner : public Runner
 
 		int local_state;
 
-		inline bool __is_asking_local_stop(){ return local_state == STOP;}
+		inline bool __is_asking_local_stop(){ return local_state == R_STOP;}
 
         public :
-                FRunner() : Runner(),bsync(false),local_state(RUN) {}
+                FRunner() : Runner(),bsync(false),local_state(R_RUN) {}
                 virtual ~FRunner() {}
 
                 virtual void exec();
@@ -42,10 +42,10 @@ class FRunner : public Runner
 
 		void wait_for_sync();
                 void sync();
-		inline void local_stop() { local_state = STOP;}
-		inline void local_run() { local_state = RUN;}
+		inline void local_stop() { local_state = R_STOP;}
+		inline void local_run() { local_state = R_RUN;}
 
 		void checkFunction();
 };
 
-#endif //__FRUNNER_H__
+#endif //__FR_RUNNER_H__

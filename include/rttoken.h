@@ -79,23 +79,25 @@ class RtToken : public Runner
                 void wait_for_pause();
 
                 void change_request(int request);
-                inline void ask_stop() {change_request(STOP); }
-                inline void ask_pause() {change_request(PAUSE);}
-                inline void ask_resume() {change_request(RUN); }
+                inline void ask_stop() {change_request(R_STOP); }
+                inline void ask_pause() {change_request(R_PAUSE);}
+                inline void ask_resume() {change_request(R_RUN); }
                 inline int getRequest(){ return request;}
 
                 void change_state(int state);
-                inline void stop() {change_state(STOP);}
-                inline void pause() {change_state(PAUSE);}
-                inline void resume() {change_state(RUN);}
+                inline void stop() {change_state(R_STOP);}
+                inline void pause() {change_state(R_PAUSE);}
+                inline void resume() {change_state(R_RUN);}
                 inline int getState(){ return state;}
                 
-		inline bool is_run() { return state==RUN;}
-                inline bool is_stop() { return state==STOP;}
-                inline bool is_pause() { return state==PAUSE;}
+		inline bool is_run() { return state==R_RUN;}
+                inline bool is_stop() { return state==R_STOP;}
+                inline bool is_pause() { return state==R_PAUSE;}
 
 		inline bool is_output_active(){return output;}
 		void active_output(bool state);
+		void start_rt_token_output();
+		void stop_rt_token_output();
 		void send_output_message();
 	
 		void sync_all();

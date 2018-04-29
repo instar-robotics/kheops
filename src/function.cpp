@@ -16,6 +16,11 @@ The fact that you are presently reading this means that you have had knowledge o
 
 #include <chrono>
 #include "function.h"
+#include "rospublisher.h"
+
+/********************************************************************************************************/
+/********************************************* FUNCTION *************************************************/
+/********************************************************************************************************/
 
 Function::~Function()
 {
@@ -50,6 +55,11 @@ void Function::nsync_afterCompute()
 		for( unsigned int i = 0 ; i < (*input)->size(); i++ )
 		{
 			(**input)[i].copyBuffer();
+			
+			if( (**input)[i].is_output_active() ) 
+			{
+				(**input)[i].publish();
+			}
 		}
 	}
 	
@@ -66,6 +76,11 @@ void Function::nsync_afterCompute()
 		for( unsigned int i = 0 ; i < (*input)->size(); i++ )
 		{
 			(**input)[i].copyBuffer();
+			
+			if( (**input)[i].is_output_active() ) 
+			{
+				(**input)[i].publish();
+			}
 		}
 	}
 	
@@ -74,48 +89,52 @@ void Function::nsync_afterCompute()
 		for( unsigned int i = 0 ; i < (*input)->size(); i++ )
 		{
 			(**input)[i].copyBuffer();
+			
+			if( (**input)[i].is_output_active() ) 
+			{
+				(**input)[i].publish();
+			}
 		}
 	}
 }
 
-void FMatrix::active_output(bool state)
-{
-        t_output = state;
 
-        if( t_output )
-        {
-                if( m_pub != NULL )
-                {
-                        m_pub->open();
-                }
-                else throw std::invalid_argument("Function : failed to open Matrix output publisher");
-        }
-        else
-        {
-                if( m_pub != NULL)
-                {
-                        m_pub->close();
-                }
-        }
+/********************************************************************************************************/
+/********************************************** FMATRIX *************************************************/
+/********************************************************************************************************/
+
+FMatrix::FMatrix() : FTemplate()  
+{
+	o_pub = new RosMatrixPublisher(1);
 }
 
-void FScalar::active_output(bool state)
-{
-        t_output = state;
-
-        if( t_output )
-        {
-                if( s_pub != NULL )
-                {
-                        s_pub->open();
-                }
-                else throw std::invalid_argument("Function : failed to open Scalar output publisher");
-        }
-        else
-        {
-                if( s_pub != NULL)
-                {
-                        s_pub->close();
-                }
-        }
+FMatrix::FMatrix( int X,int Y) : FTemplate()  
+{ 
+	output = MatrixXd::Constant( X , Y ,0);
+	
+	o_pub = new  RosMatrixPublisher(1);
 }
+
+FMatrix::FMatrix(int X,int Y, double dvalue) : FTemplate() 
+{
+	output = MatrixXd::Constant( X , Y ,dvalue);
+	
+	o_pub = new RosMatrixPublisher(1);
+}
+
+/********************************************************************************************************/
+/********************************************** FSCALAR *************************************************/
+/********************************************************************************************************/
+
+FScalar::FScalar() : FTemplate() {
+	output = 0;
+	
+	o_pub = new RosScalarPublisher(1);
+}
+
+FScalar::FScalar( double dvalue) : FTemplate() {
+	output = dvalue;
+	
+	o_pub = new RosScalarPublisher(1);
+}
+

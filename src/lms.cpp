@@ -37,11 +37,6 @@ void LMS::compute()
 		Map<const MatrixXd> ve( conditionnals[i].i().data(),1 , conditionnals[i].getIRows() * conditionnals[i].getICols()) ;
 		conditionnals[i].w() += vgrad * ve ; 
 	}
-
-	std::cout  << " LMS : " << std::endl;
-	std::cout << "Uncond : " << unconditionnal().i() << std::endl;
-	std::cout << "Out : " << output << std::endl;
-
 }
 
 void  LMS::setparameters()

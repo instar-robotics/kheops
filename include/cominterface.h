@@ -19,9 +19,9 @@ The fact that you are presently reading this means that you have had knowledge o
 
 #include <string>
 
-/******  List of interfaces ******
+/**************************  List of interfaces *******************************
 *  1- help : list all the request supported by kheops
-*  2- cmd :  general command
+*  2- control :  general command
 *	a- resume 	
 *       b- pause 
 *	c- quit
@@ -36,16 +36,34 @@ The fact that you are presently reading this means that you have had knowledge o
 * 	a- start 'uuid'  (active output for uuid object )
 *	b- stop  'uuid'  (stop output for uuid object )
 *  7- objects :
-	a- list : get the list of uuid/type of all the objects
-*********************************/
+*	a- all : get the list of uuid/type of all the objects
+*	b- ilink : get list of uuid of ilink
+	c- input : get list of uuid of input 
+	d- function  get list of uuid of function
+	c- rt_token :  get list of uuid of rt_token
+*  8- rt_token : 
+*	a- start (active rt_token topic)
+*	b- stop  (stop rt_token topic)
+********************************************************************************/
 
 const std::string RETURN[] = {"unknown command","unknown uuid"};
-const std::string CMD[] = {"resume", "quit","pause"};
-const std::string WEIGHT[] = {"save", "load"};
-const std::string OUTPUT[] = {"start", "stop"};
-const std::string OSCILLO[] = {"start", "stop"};
+const std::string CMD[] = {"resume", "quit","pause", "save","load","start", "stop","all","rt_token","functions","inputs","ilinks"};
 
-class ComInterface{
+const int S_RESUME=0; 
+const int S_QUIT=1; 
+const int S_PAUSE=2; 
+const int S_SAVE=3;
+const int S_LOAD=4; 
+const int S_START=5; 
+const int S_STOP=6;
+const int S_ALL=7;
+const int S_RTTOKEN=8;
+const int S_FUNCTIONS=9;
+const int S_INPUTS=10;
+const int S_ILINKS=11;
+
+class ComInterface
+{
 
 	public : 
 
@@ -56,7 +74,6 @@ class ComInterface{
 		virtual void registerListener() = 0;
 		virtual void quit() = 0;	
 		virtual void enter() = 0;
-
 };
 
 #endif // __COM_INTERFACE_H__

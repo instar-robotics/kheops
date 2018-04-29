@@ -19,23 +19,23 @@ The fact that you are presently reading this means that you have had knowledge o
 #include "rospublisher.h"
 #include <iostream>
 
-RtToken::RtToken() : Runner(),period(0), state(PAUSE), output(false) 
+RtToken::RtToken() : Runner(),period(0), state(R_PAUSE), output(false) 
 {
 	o_pub = new RosOscilloPublisher(1);
-	rt_pub = new RosRtTokenOutputPublisher(1); 
+	rt_pub = new RosRtTokenOutputPublisher(1, "rt_token"); 
 }
 
-RtToken::RtToken(double period) : Runner(),period(period),state(PAUSE),output(false)
+RtToken::RtToken(double period) : Runner(),period(period),state(R_PAUSE),output(false)
 { 
 	o_pub = new RosOscilloPublisher(1);
-	rt_pub = new RosRtTokenOutputPublisher(1); 
+	rt_pub = new RosRtTokenOutputPublisher(1, "rt_token"); 
 }
 
-RtToken::RtToken(double value, std::string unit) : Runner(),state(PAUSE), output(false)
+RtToken::RtToken(double value, std::string unit) : Runner(),state(R_PAUSE), output(false)
 {
 	setToken(value,unit); 
 	o_pub = new RosOscilloPublisher(1);
-	rt_pub = new RosRtTokenOutputPublisher(1); 
+	rt_pub = new RosRtTokenOutputPublisher(1, "rt_token"); 
 }
 
 
@@ -105,18 +105,12 @@ void RtToken::exec()
 
 		if( is_oscillo_active() )
 		{
-			if( o_pub->is_open() )
-			{
-				send_oscillo_message();
-			}
+			send_oscillo_message();
 		}
 	
 		if( is_output_active() )
 		{
-			if( rt_pub->is_open() )
-			{
-				send_output_message();
-			}
+			send_output_message();
 		}
 	}
 	sync_all();
@@ -186,7 +180,9 @@ void RtToken::start_oscillo_publisher()
 {
 	if( o_pub != NULL ) 
 	{
-		o_pub->open();	
+		if( !o_pub->is_open()) o_pub->open();	
+
+		Runner::active_oscillo(true);
 	}
 	else throw std::invalid_argument("RtToken : failed to open oscillo publisher");
 }
@@ -194,14 +190,18 @@ void RtToken::start_oscillo_publisher()
 
 void RtToken::stop_oscillo_publisher()
 {
+	if( Runner::is_oscillo_active() ) Runner::active_oscillo(false);
+
 	if( o_pub != NULL) 
 	{
-		o_pub->close();
+		if( o_pub->is_open() )  o_pub->close();
 	}
 }
 
 void RtToken::send_oscillo_message()
 {
+	if( o_pub == NULL ) return;
+	if( !o_pub->is_open() ) return;
 
 	o_pub->clear();
 	
@@ -246,23 +246,22 @@ void RtToken::send_oscillo_message()
 
 void RtToken::active_output(bool state) 
 {
-	output = state;
-
-	if( output )
+	if( state )
 	{
-		if( rt_pub != NULL )
+		if( rt_pub != NULL && !output)
 		{
-			rt_pub->open();
+			if( !rt_pub->is_open()) rt_pub->open();
 		}
 		else throw std::invalid_argument("RtToken : failed to open rt_token output publisher");
 	}
 	else
 	{
-		if( rt_pub != NULL) 
+		if( rt_pub != NULL && output) 
 		{
-			rt_pub->close();
+		 	if( rt_pub->is_open()) rt_pub->close();
 		}
 	}
+	output = state;
 }
 
 void RtToken::send_output_message()
@@ -277,6 +276,12 @@ void RtToken::send_output_message()
 	if( om.duration >= om.period ) om.warning = true;
 	else  om.warning = false; 
     
-	rt_pub->setMessage( om );	
-	rt_pub->publish();	
+	if( rt_pub != NULL )
+	{
+		if( rt_pub->is_open() )
+		{
+			rt_pub->setMessage( om );	
+			rt_pub->publish();	
+		}
+	}
 }

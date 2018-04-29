@@ -136,6 +136,13 @@ class Kernel
 		// Output 		
 		bool active_output(const std::string& uuid, bool state);
 
+		//Objects
+		void get_objects(std::vector<std::string> & objects);
+		void get_inputs(std::vector<std::string> & objects);
+		void get_ilinks(std::vector<std::string> & objects);
+		void get_functions(std::vector<std::string> & objects);
+		void get_rt_token(std::vector<std::string> & objects);
+
 		// Static member : 
 		static inline Kernel& instance() noexcept {return singleton;}
 		static void init(std::string scriptfile, std::string resfile);

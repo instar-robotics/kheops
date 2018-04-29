@@ -17,6 +17,8 @@ The fact that you are presently reading this means that you have had knowledge o
 #ifndef __ILINK_H__
 #define __ILINK_H__
 
+#include "publisher.h"
+
 #include <Eigen/Sparse>
 #include <Eigen/Dense>
 #include <iostream>
@@ -53,7 +55,7 @@ class iLink
 		virtual ~iLink(){}
 	
 		inline const std::string& getUuid() { return uuid;  }
-                inline void setUuid(const std::string& uuid  ) { this->uuid = uuid;}
+                inline virtual void setUuid(const std::string& uuid  ) { this->uuid = uuid;}
 
 		virtual inline void setCValue(const T& cv){cvalue = cv; input = &cvalue;}
 		virtual inline const T& getCValue(){ return cvalue;}
@@ -89,10 +91,9 @@ class iLink
 				cvalue = *b_input;
 			}
 		}
-
+		
 		inline bool is_output_active(){return output;}
-                inline void active_output(bool state) {output = state;}
-
+                virtual void active_output(bool state){ output = state; }
 };
 
 
@@ -124,22 +125,23 @@ class ICombinator
 		virtual T& sum_accumulate(T&)=0;
 		virtual T& sub_accumulate(T&)=0;
 		virtual T& div_accumulate(T&)=0;
-		
 };
 
-
-
+		
 class IScalar : public iLink<double>, public ICombinator<double>
 {
 	private :
 
 		double weight;
+		ScalarPublisher * o_pub;
 
         public:
 		
-		IScalar(OPERATOR op = MULTIPLICATION) : iLink(),ICombinator(op) {setOp(op);}	
-		IScalar(double const * i, OPERATOR op = MULTIPLICATION ) : iLink(i), ICombinator(op) {setOp(op);}
-		~IScalar(){}
+		IScalar(OPERATOR op = MULTIPLICATION);	
+		IScalar(double const * i, OPERATOR op );
+		virtual ~IScalar();
+                
+		virtual void setUuid(const std::string& uuid);
 
 		inline double& w() {return weight;}
                 inline void w(const double& w) { weight = w; }
@@ -162,6 +164,8 @@ class IScalar : public iLink<double>, public ICombinator<double>
 		inline virtual double& sub_accumulate(double& res){return res -= operate(); }
 		inline virtual double& div_accumulate(double& res){return res /= operate(); }
 
+		virtual void publish();
+                virtual void active_output(bool state);
 };
 
 
@@ -183,11 +187,16 @@ class IScalarMatrix : public IMatrix, public ICombinator<MatrixXd>
 {
 	private :
 		double weight;
+
+		ScalarPublisher * o_pub;
+
 	public : 
 
-		IScalarMatrix(OPERATOR op = MULTIPLICATION) : IMatrix(),ICombinator(op) {}
-                IScalarMatrix( MatrixXd const *  i, OPERATOR op = MULTIPLICATION ) : IMatrix(i), ICombinator(op){}
-                virtual ~IScalarMatrix() {}
+		IScalarMatrix(OPERATOR op = MULTIPLICATION);
+                IScalarMatrix( MatrixXd const *  i, OPERATOR op = MULTIPLICATION );
+                virtual ~IScalarMatrix();
+		
+		virtual void setUuid(const std::string& uuid);
 
 		inline double& w() {return weight;}
                 inline void w(const double& w) { weight = w; }
@@ -204,6 +213,9 @@ class IScalarMatrix : public IMatrix, public ICombinator<MatrixXd>
 		virtual MatrixXd& sum_accumulate(MatrixXd& res);
 		virtual MatrixXd& sub_accumulate(MatrixXd& res); 
 		virtual MatrixXd& div_accumulate(MatrixXd& res);
+		
+		virtual void publish();
+                virtual void active_output(bool state);
 };
 
 class IMMatrix : public IMatrix
@@ -216,11 +228,14 @@ class IMMatrix : public IMatrix
 		
 		MatrixXd weight;		
 		
+		MatrixPublisher * o_pub;
+		
 	public : 
-		IMMatrix(unsigned int rows=0, unsigned int cols=0, double dvalue=0.) : IMatrix(), orows(rows),ocols(cols),dvalue(dvalue) {}
-                IMMatrix( MatrixXd const *  i, unsigned int rows = 0, unsigned int cols=0, double dvalue =0 ) : IMatrix(i), orows(rows), ocols(cols), dvalue(dvalue) {}
-
-                virtual ~IMMatrix(){}
+		IMMatrix(unsigned int rows=0, unsigned int cols=0, double dvalue=0.);
+                IMMatrix( MatrixXd const *  i, unsigned int rows = 0, unsigned int cols=0, double dvalue =0 );
+                virtual ~IMMatrix();
+		
+		virtual void setUuid(const std::string& uuid);
 		
 		inline void setOSize(unsigned int rows, unsigned int cols){ orows = rows; ocols=cols;}
 		inline void setDValue(double dvalue){this->dvalue=dvalue;}
@@ -252,7 +267,9 @@ class IMMatrix : public IMatrix
 		virtual MatrixXd& diff(MatrixXd& wout) = 0;
 		virtual MatrixXd& prod(MatrixXd& wout) = 0;
 		virtual MatrixXd& quot(MatrixXd& wout) = 0;
-
+		
+		virtual void publish();
+                virtual void active_output(bool state);
 };
 
 class IDenseMatrix : public IMMatrix
@@ -302,6 +319,8 @@ class ISparseMatrix : public IMMatrix
 
 		virtual MatrixXd& weigthedSum(MatrixXd& out);
 		virtual MatrixXd& weigthedSumAccu(MatrixXd& out);
+		
+		virtual void publish();
 };
 
 #endif // __ILINK_H__

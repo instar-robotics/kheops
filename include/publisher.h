@@ -17,10 +17,18 @@ The fact that you are presently reading this means that you have had knowledge o
 #ifndef __PUBLISHER_H__
 #define __PUBLISHER_H__
 
+#include <Eigen/Core>
+#include <Eigen/Dense>
+
+using Eigen::Map;
+using Eigen::MatrixXd;
+
+
 class Publisher
 {
 	protected : 
 		bool state;
+		std::string pub_name;
 
 	public : 
 		Publisher() : state(false) {}
@@ -30,6 +38,11 @@ class Publisher
 		virtual void close() = 0;
 		virtual void publish() = 0;
 		virtual bool is_open() {return state;}
+	
+		virtual void setPubName(const std::string & pub_name) 
+		{
+			this->pub_name = pub_name;
+		}
 };
 
 template<class Message>

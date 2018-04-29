@@ -23,11 +23,11 @@ The fact that you are presently reading this means that you have had knowledge o
 #include "kernel.h"
 #include "ros/ros.h"
 #include "hieroglyph/Help.h"
-#include "hieroglyph/Control.h"
-#include "hieroglyph/Weight.h"
 #include "hieroglyph/RtStat.h"
-#include "hieroglyph/Oscillo.h"
-#include "hieroglyph/Output.h"
+#include "hieroglyph/SimpleCmd.h"
+#include "hieroglyph/ArgCmd.h"
+#include "hieroglyph/ArgsCmd.h"
+#include "hieroglyph/Objects.h"
 
 
 class RosInterface : public ComInterface{
@@ -43,6 +43,7 @@ class RosInterface : public ComInterface{
 		ros::ServiceServer sOutput;
 		ros::ServiceServer sOscillo;
 		ros::ServiceServer sObjects;
+		ros::ServiceServer sRtToken;
 
 	public : 
 
@@ -54,11 +55,13 @@ class RosInterface : public ComInterface{
 		virtual void quit() {ros::shutdown();}	
 		virtual void enter(){ros::spin();}
 
-		bool callback_oscillo( hieroglyph::Oscillo::Request& request, hieroglyph::Oscillo::Response& response);
-		bool callback_output( hieroglyph::Output::Request& request, hieroglyph::Output::Response& response);
+		bool callback_rt_token(hieroglyph::SimpleCmd::Request& request, hieroglyph::SimpleCmd::Response& response);
+		bool callback_objects(hieroglyph::Objects::Request& request, hieroglyph::Objects::Response& response);
+		bool callback_oscillo(hieroglyph::SimpleCmd::Request& request, hieroglyph::SimpleCmd::Response& response);
+		bool callback_output( hieroglyph::ArgCmd::Request& request, hieroglyph::ArgCmd::Response& response);
 		bool callback_rt_stat( hieroglyph::RtStat::Request& request, hieroglyph::RtStat::Response& response);
-		bool callback_weight( hieroglyph::Weight::Request& request, hieroglyph::Weight::Response& response);
-		bool callback_control( hieroglyph::Control::Request& request, hieroglyph::Control::Response& response);
+		bool callback_weight( hieroglyph::ArgCmd::Request& request, hieroglyph::ArgCmd::Response& response);
+		bool callback_control( hieroglyph::SimpleCmd::Request& request, hieroglyph::SimpleCmd::Response& response);
 		bool callback_helper( hieroglyph::Help::Request& request, hieroglyph::Help::Response& response);
 };
 

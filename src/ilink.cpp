@@ -15,11 +15,33 @@ The fact that you are presently reading this means that you have had knowledge o
 */
 
 #include "ilink.h"
+#include "rospublisher.h"
 
 /********************************************************************************************************/
 /******************                     IScalar Section                           *******************/
 /********************************************************************************************************/
 
+IScalar::IScalar(OPERATOR op) : iLink(),ICombinator(op) 
+{
+	setOp(op);
+	o_pub = new RosScalarPublisher(1); 
+}    
+
+
+IScalar::IScalar(double const * i, OPERATOR op = MULTIPLICATION ) : iLink(i), ICombinator(op) 
+{
+	setOp(op);
+	o_pub = new RosScalarPublisher(1); 
+}
+
+IScalar::~IScalar()
+{
+	if( o_pub != NULL )
+	{
+		if( o_pub->is_open() ) o_pub->close();
+		delete(o_pub);
+	}
+}
 
 void IScalar::setOp(OPERATOR OP)
 {
@@ -42,9 +64,63 @@ void IScalar::setOp(OPERATOR OP)
 	}
 }
 
+void IScalar::active_output(bool state)
+{
+	if( state )
+	{
+		if( o_pub != NULL  )
+		{
+			if( !o_pub->is_open() )  o_pub->open();
+		}
+		else throw std::invalid_argument("Weight : failed to open output publisher");
+	}
+	else
+	{
+		if( o_pub != NULL)
+		{
+			if( o_pub->is_open()) o_pub->close();
+		}
+	}
+	output = state;
+}
+
+void IScalar::publish()
+{
+	if( o_pub->is_open() )
+	{
+		o_pub->setMessage(weight);
+		o_pub->publish();
+	}
+}
+
+void IScalar::setUuid(const std::string& uuid  )
+{
+	iLink::setUuid(uuid);
+	o_pub->setPubName("ilink_"+getUuid());
+}
+
 /********************************************************************************************************/
 /******************                   IScalarMatrix Section                           *******************/
 /********************************************************************************************************/
+
+IScalarMatrix::IScalarMatrix(OPERATOR op) : IMatrix(),ICombinator(op) 
+{
+	o_pub = new RosScalarPublisher(1); 
+}
+
+IScalarMatrix::IScalarMatrix( MatrixXd const *  i, OPERATOR op) : IMatrix(i), ICombinator(op)
+{
+	o_pub = new RosScalarPublisher(1); 
+}
+
+IScalarMatrix::~IScalarMatrix()
+{
+	if( o_pub != NULL )
+	{
+		if( o_pub->is_open() ) o_pub->close();
+		delete(o_pub);
+	}
+}
 
 MatrixXd& IScalarMatrix::accumulate(MatrixXd& res)
 {
@@ -153,9 +229,63 @@ MatrixXd& IScalarMatrix::div_accumulate(MatrixXd& res)
 	return res;
 }
 
+void IScalarMatrix::active_output(bool state)
+{
+	if( state )
+	{
+		if( o_pub != NULL  )
+		{
+			if( !o_pub->is_open() )  o_pub->open();
+		}
+		else throw std::invalid_argument("Weight : failed to open output publisher");
+	}
+	else
+	{
+		if( o_pub != NULL)
+		{
+			if( o_pub->is_open()) o_pub->close();
+		}
+	}
+	output = state;
+}
+
+void IScalarMatrix::publish()
+{
+	if( o_pub->is_open() )
+	{
+		o_pub->setMessage(weight);
+		o_pub->publish();
+	}
+}
+
+void IScalarMatrix::setUuid(const std::string& uuid  )
+{
+	iLink::setUuid(uuid);
+	o_pub->setPubName("ilink_"+getUuid());
+}
+
 /********************************************************************************************************/
 /******************                   IMMatrix Section                           *******************/
 /********************************************************************************************************/
+
+IMMatrix::IMMatrix(unsigned int rows, unsigned int cols, double dvalue) : IMatrix(), orows(rows),ocols(cols),dvalue(dvalue) 
+{
+	o_pub = new RosMatrixPublisher(1);
+}
+
+IMMatrix::IMMatrix( MatrixXd const *  i, unsigned int rows , unsigned int cols, double dvalue ) : IMatrix(i), orows(rows), ocols(cols), dvalue(dvalue) 
+{
+	o_pub = new RosMatrixPublisher(1);
+}
+
+IMMatrix::~IMMatrix()
+{
+        if( o_pub != NULL )
+        {
+                if( o_pub->is_open() ) o_pub->close();
+                delete(o_pub);
+        }
+}
 
 void IMMatrix::resizeWeight()
 {
@@ -181,6 +311,41 @@ double IMMatrix::w(unsigned int rows, unsigned int cols)
 {
 	if(rows > getORows() || cols > getOCols()) throw std::invalid_argument("iLink : Matrix output size doesn't match with weight size");
 	return weight(rows,cols);
+}
+
+void IMMatrix::active_output(bool state)
+{
+	if( state )
+	{
+		if( o_pub != NULL  )
+		{
+			if( !o_pub->is_open() )  o_pub->open();
+		}
+		else throw std::invalid_argument("Weight : failed to open output publisher");
+	}
+	else
+	{
+		if( o_pub != NULL)
+		{
+			if( o_pub->is_open()) o_pub->close();
+		}
+	}
+	output = state;
+}
+
+void IMMatrix::publish()
+{
+	if( o_pub->is_open() )
+	{
+		o_pub->setMessage(weight);
+		o_pub->publish();
+	}
+}
+
+void IMMatrix::setUuid(const std::string& uuid  )
+{
+	iLink::setUuid(uuid);
+	o_pub->setPubName("ilink_"+getUuid());
 }
 
 /********************************************************************************************************/
@@ -368,6 +533,14 @@ MatrixXd& ISparseMatrix::weigthedSumAccu(MatrixXd& out)
 	return out;
 }
 
+void ISparseMatrix::publish()
+{
+	if( o_pub->is_open() )
+	{
+		o_pub->setMessage(weight.cwiseProduct(filter));
+		o_pub->publish();
+	}
+}
 
 /*
 value compute_val()

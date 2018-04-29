@@ -22,7 +22,7 @@ The fact that you are presently reading this means that you have had knowledge o
 #include <thread>
 #include <uuid/uuid.h>
 
-enum STATE { STOP=0, PAUSE=1, RUN=2 };
+enum STATE { R_STOP=0, R_PAUSE=1, R_RUN=2 };
 
 class Runner
 {
@@ -42,9 +42,9 @@ class Runner
 		static bool oscillo;
 		static int request;
 		
-		inline bool __is_asking_stop() {return Runner::request == STOP; }
-		inline bool __is_asking_running() {return Runner::request==RUN;}
-                inline bool __is_asking_pause() {return Runner::request==PAUSE;}
+		inline bool __is_asking_stop() {return Runner::request == R_STOP; }
+		inline bool __is_asking_running() {return Runner::request==R_RUN;}
+                inline bool __is_asking_pause() {return Runner::request==R_PAUSE;}
 
 	public :
 
