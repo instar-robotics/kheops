@@ -42,27 +42,6 @@ __cd /home/johndoe/catkin_workspace__
 
 * And run __catkin_make__
 
-### Run Kheops ###
-
-* To run kheops you can use __rosrun__ command :
-
-__rosrun kheops kheops -s path-to-script-file__
-
-* print Help menu 
-
-__rosrun kheops kheops -h __
-
-* Launch script and load weight from weight_file to the neural network
-
-__rosrun kheops kheops -s path-to-script-file -w path-to-weight-file __
-
-### Using User functions libraries ###
-
-* Kheops is build to be modular. This means you can load function at the runtime like import lib in python.
-* When you launch __kheops__ you can specify the directory where __kheops__ will search the library : 
-
-__rosrun kheops kheops -l /path/to/lib/directory__
-
 ### Building User functions libraries
 
 * For example, we create user_src directory with a demofct inside 
@@ -79,11 +58,57 @@ __cmake \.__
 __make__
 
 * After the compilation, you get a __libdeomfct.so__
-* You can copy this file in your library directory and run kheops with -l option
+* You can copy this file in your library directory and run kheops with -l option (see __Run__ section)
 
-## Run kheops with ROS ##
+## Run kheops ##
 
+### Run Kheops : quick version ###
 
+* Kheops is builded on top of ROS system. (In futur version, kheops will support other bus like dbus/yarp) 
+* Kheops need roscore to run properly. 
+* Launch roscore with :
 
+__roscore__
+
+* To run kheops you can use __rosrun__ command :
+
+__rosrun kheops kheops -s path-to-script-file__
+
+* print Help menu 
+
+__rosrun kheops kheops -h __
+
+* Launch script and load weight from weight_file to the neural network
+
+__rosrun kheops kheops -s path-to-script-file -w path-to-weight-file __
+
+* By default, kheops start in __pause__ mode
+* To start kheops in __resume__ mode, run : 
+
+__rosrun kheops kheops -r __
+
+### Load user functions libraries ###
+
+* Kheops is build to be modular. This means you can load function at the runtime like import lib in python.
+* When you launch __kheops__ you can specify the directory where __kheops__ will search the library : 
+
+__rosrun kheops kheops -l /path/to/lib/directory__
+
+### Information about kheops services/messages ### 
+
+* All messages and services are defined in the __hieroglyph project__
+* To list __hieroglyph__ messages , run : 
+
+__rosmsg package hieroglyph__
+
+* To list __hieroglyph__ services, run :
+
+__rossrv package hieroglyph__
+
+### Name convention ###
+
+### Command kheops with rosservice ### 
+
+* We assume you launch a kheops script with rosrun 
 
 
