@@ -13,8 +13,8 @@ This README would normally document whatever steps are necessary to get your app
 ### Install dependancies ###
 * On ubuntu 16.04 : 
 
-apt-get update 
-apt-get install libeigen3-dev libxerces-c-dev libxerces-c3.1 libboost-graph-dev libboost-graph1.58.0 libboost-all-dev libboost-all-dev libboost1.58-dev
+ apt-get update 
+ apt-get install libeigen3-dev libxerces-c-dev libxerces-c3.1 libboost-graph-dev libboost-graph1.58.0 libboost-all-dev libboost-all-dev libboost1.58-dev
 
 * For ROS installation please refer here : http://wiki.ros.org/lunar/Installation/Ubuntu
 * For ROS workspace configuration please refer here : http://wiki.ros.org/lunar/Installation/Ubuntu
