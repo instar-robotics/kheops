@@ -26,7 +26,7 @@ class DemoFct : public FScalar
 {
 	private : 
 
-		IScalar iscal;
+		ISInput iscal;
 
         public :
 		
@@ -34,7 +34,7 @@ class DemoFct : public FScalar
 
 		virtual void compute()
 		{
-			std::cout << "demo Box : " <<  iscal() << std::endl;
+			std::cout << "demo Box : " <<  iscal[0]() << std::endl;
 		}
 
                 virtual void setparameters()
@@ -44,6 +44,5 @@ class DemoFct : public FScalar
 
 
 };
-
 
 #endif // __DEMO_FCT_HPP__
