@@ -2,7 +2,7 @@
 
 This README would normally document whatever steps are necessary to get your application up and running.
 
-### Dependancy 
+### Dependancy ###
 * ubuntu 16.04
 * libboost 1.58
 * libboost BGL 1.58
@@ -10,7 +10,7 @@ This README would normally document whatever steps are necessary to get your app
 * libeigen 3.3
 * ROS Lunar 
 
-### Install dependancies ### 
+### Install dependancies ###
 * On ubuntu 16.04 : 
 
 apt-get update 
