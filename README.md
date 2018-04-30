@@ -74,12 +74,14 @@ __cd /home/johndoe/catkin_workspace/src/kheops/user_src/demofct__
 
 * then, run the classical cmake/make command : 
 
-__cmake .__
+__cmake \.__
 
-__make __
+__make__
 
 * After the compilation, you get a __libdeomfct.so__
 * You can copy this file in your library directory and run kheops with -l option
+
+## Run kheops with ROS ##
 
 
 
