@@ -13,8 +13,9 @@ This README would normally document whatever steps are necessary to get your app
 ### Install dependancies ###
 * On ubuntu 16.04 : 
 
-__apt-get update__. 
-__apt-get install libeigen3-dev libxerces-c-dev libxerces-c3.1 libboost-graph-dev libboost-graph1.58.0 libboost-all-dev libboost-all-dev libboost1.58-dev__.
+__apt-get update__
+
+__apt-get install libeigen3-dev libxerces-c-dev libxerces-c3.1 libboost-graph-dev libboost-graph1.58.0 libboost-all-dev libboost-all-dev libboost1.58-dev__
 
 * For ROS installation please refer here : http://wiki.ros.org/lunar/Installation/Ubuntu
 * For ROS workspace configuration please refer here : http://wiki.ros.org/lunar/Installation/Ubuntu
@@ -27,8 +28,9 @@ __/home/johndoe/catkin_workspace__.
 ### Install Kheops ###
 * clone the repository in your catkin workspace
 
-__cd /home/johndoe/catkin_workspace/src__.
-__git clone http://wiki.ros.org/lunar/Installation/Ubuntu__.
+__cd /home/johndoe/catkin_workspace/src__
+
+__git clone http://wiki.ros.org/lunar/Installation/Ubuntu__
 
 ### Help menu ###
 * ./kheops -h 
