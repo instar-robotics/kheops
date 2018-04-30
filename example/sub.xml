@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<script>
+    <name>Example</name>	
+    <rt_token unit="ms">10</rt_token> 
+    <functions>
+	<function uuid="1">
+		<name>SSSub</name>
+		<inputs uuid="16">	
+			<input uuid="2">
+				<name>diminuende</name>
+				<links>
+					<link uuid="3" constant="true">
+						<value>2</value>
+					</link>
+				</links>	
+			</input>
+			<input uuid="14" >
+				<name>subtrahend</name>
+				<links>
+					<link uuid="4" constant="true">
+						<value>1</value>
+					</link>
+				</links>	
+			</input>
+		</inputs>	
+	</function>
+	<function uuid="5">
+		<name>MSSub</name>
+		<output>
+			<rows>2</rows>
+			<cols>2</cols>
+		</output>
+		<inputs>	
+			<input uuid="6">
+				<name>diminuende</name>
+				<links>
+					<link uuid="7" constant="true">
+						<value>2</value>
+					</link>
+				</links>	
+			</input>
+			<input uuid="8">
+				<name>subtrahend</name>
+				<links>
+					<link uuid="9" constant="true">
+						<value>1</value>
+					</link>
+				</links>	
+			</input>
+		</inputs>	
+	</function>
+
+	<function uuid="10">
+		<name>MSSub</name>
+		<output>
+			<rows>2</rows>
+			<cols>2</cols>
+		</output>
+		<inputs>	
+			<input uuid="11">
+				<name>diminuende</name>
+				<links>
+					<link uuid="12">
+						<pred>5</pred>
+						<weight>3</weight>
+						<operator>*</operator>
+					</link>
+				</links>	
+			</input>
+			<input uuid="15">
+				<name>subtrahend</name>
+				<links>
+					<link uuid="13">
+						<pred>1</pred>
+						<weight>1</weight>
+						<operator>*</operator>
+					</link>
+				</links>	
+			</input>
+		</inputs>	
+	</function>
+    </functions>
+</script>

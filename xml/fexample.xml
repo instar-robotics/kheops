@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<functions>
+	<function>
+		<name>Example</name>
+		<output> 
+			<type>SCALAR</type>
+		</output> 
+		<inputs>
+			<input> 
+				<type>STRING</type>
+				<name>str</name>
+			</input>
+			<input> 
+				<type>SCALAR_SCALAR</type>
+				<name>u_is</name>
+			</input>
+			<input multiple="true">
+				<type>SCALAR_SCALAR</type>
+				<name>m_is</name>
+			</input>
+			<input> 
+				<type>SCALAR_MATRIX</type>
+				<name>u_ism</name>
+			</input>
+			<input multiple="true">
+				<type>SCALAR_MATRIX</type>
+				<name>m_ism</name>
+			</input>
+			<input> 
+				<type>SIMPLE_MATRIX</type>
+				<name>u_im</name>
+			</input>
+			<input multiple="true">
+				<type>SIMPLE_MATRIX</type>
+				<name>m_im</name>
+			</input>
+			<input>
+				<type>MATRIX_MATRIX</type>
+				<name>m_imm</name>
+			</input>
+			<input multiple="false">
+				<type>MATRIX_MATRIX</type>
+				<name>u_imm</name>
+			</input>
+		</inputs>
+	</function>	
+<functions>

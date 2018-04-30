@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<functions>
+	<function>
+		<name>MMul</name>
+		<output>
+			<type>MATRIX</type>
+		</output>
+		<inputs>
+			<input multiple="true">
+				<type>SCALAR_MATRIX</type>
+				<name>inMatrix</name>
+			</input>
+		</inputs>
+	</function>	
+	<function>
+		<name>SMul</name>
+		<output>
+			<type>SCALAR</type>
+		</output>
+		<inputs>
+			<input multiple="true">
+				<type>SCALAR_SCALAR</type>
+				<name>inScalar</name>
+			</input>
+		</inputs>
+	</function>	
+	<function>
+		<name>MSMul</name>
+		<output>
+			<type>MATRIX</type>
+		</output>
+		<inputs>
+			<input mulitple="true">
+				<type>SCALAR_MATRIX</type>
+				<name>inMatrix</name>
+			</input>
+			<input multiple="true">
+				<type>SCALAR_SCALAR</type>
+				<name>inScalar</name>
+			</input>
+		</inputs>
+	</function>	
+<functions>

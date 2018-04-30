@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<script>
+    <name>Example</name>	
+    <rt_token unit="ms">10</rt_token> 
+    <functions>
+	<function uuid="1">
+		<name>SSum</name>
+		<inputs>	
+			<input>
+				<name>inScalar</name>
+				<links>
+					<link constant="true">
+						<value>2</value>
+					</link>
+					<link constant="true">
+						<value>2</value>
+					</link>
+				</links>	
+			</input>
+		</inputs>	
+	</function>
+
+	<function uuid="2">
+		<name>SSum</name>
+		<inputs>	
+			<input>
+				<name>inScalar</name>
+				<links>
+					<link>
+						<pred>1</pred>
+						<weight>3</weight>
+						<operator>*</operator>
+					</link>
+					<link constant="true">
+						<value>2</value>
+					</link>
+				</links>	
+			</input>
+		</inputs>	
+	</function>
+
+	<function uuid="3">
+		<name>SMul</name>
+		<inputs>	
+			<input>
+				<name>inScalar</name>
+				<links>
+					<link>
+						<pred>2</pred>
+						<weight>3</weight>
+						<operator>*</operator>
+					</link>
+					<link>
+						<pred>1</pred>
+						<weight>1</weight>
+						<operator>*</operator>
+					</link>
+				</links>	
+			</input>
+		</inputs>	
+	</function>
+	<function uuid="4">
+		<name>SMul</name>
+		<inputs>	
+			<input>
+				<name>inScalar</name>
+				<links>
+					<link>
+						<pred>3</pred>
+						<weight>1</weight>
+						<operator>*</operator>
+					</link>
+					<link>
+						<pred>1</pred>
+						<weight>1</weight>
+						<operator>*</operator>
+					</link>
+				</links>	
+			</input>
+		</inputs>	
+	</function>
+	<function uuid="5">
+		<name>SSSub</name>
+		<inputs>	
+			 <input>
+                                <name>diminuende</name>
+                                <links>
+                                        <link>
+                                                <pred>4</pred>
+                                                <weight>1</weight>
+                                                <operator>*</operator>
+                                        </link>
+                                </links>
+                        </input>
+                        <input>
+                                <name>subtrahend</name>
+                                <links>
+                                        <link>
+                                                <pred>3</pred>
+                                                <weight>1</weight>
+                                                <operator>*</operator>
+                                        </link>
+                                </links>
+                        </input>
+
+		</inputs>	
+	</function>
+	<function uuid="6">
+		<name>SSDiv</name>
+		<inputs>	
+			 <input>
+                                <name>numerator</name>
+                                <links>
+                                        <link>
+                                                <pred>5</pred>
+                                                <weight>1</weight>
+                                                <operator>*</operator>
+                                        </link>
+                                </links>
+                        </input>
+                        <input>
+                                <name>denumerator</name>
+                                <links>
+                                        <link constant="true">
+                                                <value>3</value>
+                                        </link>
+                                </links>
+                        </input>
+
+		</inputs>	
+	</function> 
+    </functions>
+</script>

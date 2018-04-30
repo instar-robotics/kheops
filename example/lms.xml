@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<script>
+    <name>Example</name>	
+    <rt_token uuid="100"  unit="ms">10</rt_token> 
+    <functions>
+	<function uuid="1">
+		<name>MSum</name>
+                <output>
+			<rows>2</rows>
+			<cols>2</cols>
+		</output>
+		<inputs>	
+			<input uuid="2">
+				<name>inMatrix</name>
+				<links>
+					<link uuid="3" constant="true">
+						<value>1</value>
+					</link>
+					<link uuid="4" >
+						<pred>1</pred>
+						<weight>0.998</weight>
+						<operator>*</operator>
+					</link>
+					<link uuid="5">
+						<pred>1</pred>
+						<weight>0.001</weight>
+						<operator>*</operator>
+					</link>
+				</links>	
+			</input>
+		</inputs>	
+	</function>
+	<function uuid="6">
+                <name>LMS</name>
+                <output>
+			<rows>2</rows>
+			<cols>2</cols>
+		</output>
+                <inputs>
+                        <input uuid="7">
+                                <name>learning_rate</name>
+				<links>
+					<link uuid="8"  constant="true">
+						<value>0.1</value>
+					</link>
+				</links>	
+                        </input>
+                        <input uuid="9">
+                                <name>unconditionnal</name>
+				<links>
+					<link uuid="10">
+						<pred>1</pred>
+						<weight>1</weight>
+						<operator>*</operator>
+					</link>
+				</links>	
+                        </input>
+                        <input uuid="11">
+                                <name>conditionnals</name>
+				<links>
+					<link uuid="12" constant="true">
+						<value>1</value>
+					</link>
+					<link uuid="101" constant="true">
+						<value>1</value>
+					</link>
+				</links>	
+                        </input>
+                </inputs>
+        </function>
+    </functions>
+</script>
