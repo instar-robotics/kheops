@@ -1,6 +1,6 @@
 # README #
 
-This README would normally document whatever steps are necessary to get your application up and running.
+## I- Installation ##
 
 ### Dependancy ###
 * ubuntu 16.04
@@ -52,12 +52,36 @@ __rosrun kheops kheops -s path-to-script-file__
 
 __rosrun kheops kheops -h __
 
-### User function exampe ###
+* Launch script and load weight from weight_file to the neural network
 
-* Building demofct by hand :
-mkdir lib
-g++ -c user_src/demofct.cpp -o user_src/demofct.o -I include -I user_src -I /usr/include/eigen3 -fpic -std=c++17
-gcc -shared -o  lib/demofct.so  user_src/demofct.o
+__rosrun kheops kheops -s path-to-script-file -w path-to-weight-file __
+
+### Using User functions libraries ###
+
+* Kheops is build to be modular. This means you can load function at the runtime like import lib in python.
+* When you launch __kheops__ you can specify the directory where __kheops__ will search the library : 
+
+__rosrun kheops kheops -l /path/to/lib/directory__
+
+### Building User functions libraries
+
+* For example, we create user_src directory with a demofct inside 
+* Users who want to build could reuse the example
+
+* To build __demofct__, go to the demofct directory :
+
+__cd /home/johndoe/catkin_workspace/src/kheops/user_src/demofct__
+
+* then, run the classical cmake/make command : 
+
+__cmake .__
+
+__make __
+
+* After the compilation, you get a __libdeomfct.so__
+* You can copy this file in your library directory and run kheops with -l option
+
+
 
 
 
