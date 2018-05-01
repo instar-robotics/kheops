@@ -127,7 +127,7 @@
 
 **_rosrun kheops kheops -s action.script_**
 
-* At launch, kheops register some services : 
+1. At launch, kheops register some services : 
 ..1. help : print help message, list of services and arguments
 ..2. control : basic command, "resume", "pause", "quit"
 ..3. oscillo : create oscillo rostopic
