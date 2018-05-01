@@ -1,6 +1,29 @@
 # README #
 
-## I- Installation ##
+## I Description ##
+
+* What is kheops : a Neural Network and dynamical function simulator
+  1. Neural Network is reprented by a graph strucutre.
+  2. Each neurons layer or group are graph vertex and are connected to other layer by link (edge of the graph).
+  3. The weight of the neurons are contains into the link.
+  4. And neural activities are propagated accros the link.
+  5. Coonection could be feedforward or recurent  
+  6. A neural layer or group is called a function. 
+  7. Each function is executed by a separte thread called a Runner
+
+* Kheops uses dataflow paradigm to process the neural network :
+  1. A neural script had a defined period 
+  2. At the begenning of each period, kheops launch a wave into the graph
+  3. A function can be executed only if all this input link are available or if the function doesn't havce anny input (first layer)
+  4. Each function is exectued by his runner and spread the wave accros output link.
+  5. When the last layer is executed, kheops sleeps until the new period.
+
+* Neural Network graph are described in an XML file called a neural script (the scruture of the XML file is described in section file :Neural Script developpers guide)
+* Kheops should be use in interaction with Papyrus, an IHM design to generate neural script.
+* Kheops are design to be used in online environnement, mainly to design robotics controller.
+* Kheops uses ROS communication tools to stream data betwwen different neural script, get sensors data and send motor orders.
+
+## II- Installation ##
 
 ### Dependancy ###
 * ubuntu 16.04
@@ -60,7 +83,7 @@
 * After the compilation, you get a __libdeomfct.so__
 * You can copy this file in your library directory and run kheops with -l option (see __Run__ section)
 
-## Run kheops ##
+## III Run kheops ##
 
 ### Run Kheops : quick version ###
 
@@ -105,7 +128,7 @@
 
 **_rossrv package hieroglyph_**
 
-* __rosmsg__ and __rossrv__ command can print details of messages and services
+* __rosmsg__ and __rossrv__ command can print details of messages and services. See ROS wiki for details
 
 ### Name convention ###
 
@@ -127,15 +150,15 @@
 
 **_rosrun kheops kheops -s action.script_**
 
-1. At launch, kheops register some services : 
-..1. help : print help message, list of services and arguments
-..2. control : basic command, "resume", "pause", "quit"
-..3. oscillo : create oscillo rostopic
-..4. output : create data rostopic for both links and functions
-..5. objects : print list of the objects (functions, links, inputs, rt\_token)
-..6. weight : load/save neural network weight
-..7. rt\_token : create data topic for rt\_token
-..8. rt\_stat : get rt\_token stat
+* At launch, kheops register some services : 
+  1. help : print help message, list of services and arguments
+  2. control : basic command, "resume", "pause", "quit"
+  3. oscillo : create oscillo rostopic
+  4. output : create data rostopic for both links and functions
+  5. objects : print list of the objects (functions, links, inputs, rt\_token)
+  6. weight : load/save neural network weight
+  7. rt\_token : create data topic for rt\_token
+  8. rt\_stat : get rt\_token stat
 
 
 * To run services, you can use ROS command __rosservice__ 
@@ -154,9 +177,9 @@
 #### Control service ####
 
 * Control service add 3 arguments : 
-..1. "quit" : stop the program
-..2. "resume" : start node execution
-..3. "pause" : stop node execution until resave a "quit" or "resume" command
+  1. "quit" : stop the program
+  2. "resume" : start node execution
+  3. "pause" : stop node execution until resave a "quit" or "resume" command
 
 * For example, to shutdown action script : 
 
@@ -176,11 +199,11 @@
 * Each object (link, function, rt_token, input) are identified by an UUID
 * The object service provide the list of all the object of a script with associated UUID
 * The argument of the command are :
-..1. "all" : provide all the object
-..2. "rt\_token" : provide rt\_token UUID
-..3. "functions" : provide functions UUID
-..4. "links" : provide links UUID
-..5. "inputs" : provide inputs UUID
+  1. "all" : provide all the object
+  2. "rt\_token" : provide rt\_token UUID
+  3. "functions" : provide functions UUID
+  4. "links" : provide links UUID
+  5. "inputs" : provide inputs UUID
 
 * For example, to list all functions UUID, run :
 
@@ -241,6 +264,9 @@
 
 **_rostopic list_**
 
+* To stream the contents of a rostopic, run :
+
+**_rostopic echo /kheops\_script\_name/topic\_name_**
 
 #### Output Topic ####
 
@@ -249,13 +275,40 @@
 
 * Rostopic output are created by default using XML script file (See Script developpers guide) or using the output service 
 * When a topic is created, the name conventions are :
-..1. 
+  1. The prefix is the type of the object (link or function)
+  2. The suffix is the UUID of the object
+  3. An underscore is used as a separator
 
+* For example, the output of the link {64a9913c-ac60-4b2a-bbd6-f0c868190b3f} from the action script will be :
+
+**_/kheops\_action/link_{64a9913c-ac60-4b2a-bbd6-f0c868190b3f}_** 
+
+* Scalar topic are simply a ros standard message Float64 
+* Matrix topic are a ros standard message Float64MultipleArray
 
 #### Oscillo and Rt_Token Topic ####
 
+* Oscillo and rt\_token topic are created using services.
+* This two topîcs are useful for debug information.
 
-## kheops and functions developpers guide ##
+* rt\_token topîcs uses __OscilloData__ message defined in hieroglyph.
+* __OscilloData__ contains following information :
+  1. string uuid 
+  2. float64 period : theoric period of the script
+  3. float64 means : average period 
+  4. float64 sleep : time spend to sleep
+  5. float64 duration : execution time
+  6. float64 start : date when last run was started
+  7. bool warning : real time constraint wasn't respected (duration > period)
+
+* Oscillo topics uses __OscilloArray__ message defined in hieroglyph.
+* An __OscilloArray__ message is an array of __OscilloData__ message
+* One __OscilloData__ message for each function in the script 
+
+## IV kheops and functions developpers guide ##
 
 
-## Neural Script developpers guide ##
+## V Neural Script developpers guide ##
+
+* Main information are provide in the papyrus software description. 
+* 
