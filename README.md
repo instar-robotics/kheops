@@ -76,16 +76,16 @@ __rosrun kheops kheops -s path-to-script-file__
 
 * print Help menu 
 
-__rosrun kheops kheops -h __
+__rosrun kheops kheops -h__
 
 * Launch script and load weight from weight_file to the neural network
 
-__rosrun kheops kheops -s path-to-script-file -w path-to-weight-file __
+__rosrun kheops kheops -s path-to-script-file -w path-to-weight-file__
 
 * By default, kheops start in __pause__ mode
 * To start kheops in __resume__ mode, run : 
 
-__rosrun kheops kheops -r __
+__rosrun kheops kheops -r__
 
 ### Load user functions libraries ###
 
