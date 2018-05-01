@@ -18,10 +18,11 @@
   4. Each function is exectued by his runner and spread the wave accros output link.
   5. When the last layer is executed, kheops sleeps until the new period.
 
-* Neural Network graph are described in an XML file called a neural script (the scruture of the XML file is described in section file :Neural Script developpers guide)
+* Neural Network graph are described in an XML file called a neural script (the scruture of the XML file is described in section : Neural Script developpers guide)
 * Kheops should be use in interaction with Papyrus, an IHM design to generate neural script.
 * Kheops are design to be used in online environnement, mainly to design robotics controller.
 * Kheops uses ROS communication tools to stream data betwwen different neural script, get sensors data and send motor orders.
+* Kheops is strongly typed : each function could be Scalar type or Matrix type (Eigen Matrix)
 
 ## II- Installation ##
 
@@ -305,10 +306,40 @@
 * An __OscilloArray__ message is an array of __OscilloData__ message
 * One __OscilloData__ message for each function in the script 
 
-## IV kheops and functions developpers guide ##
 
-
-## V Neural Script developpers guide ##
+## IV Neural Script developpers guide ##
 
 * Main information are provide in the papyrus software description. 
-* 
+* TODO : describe XML structure
+
+* Object : link, input an Function
+
+* Function : Strongly typed, output can be Scalar (double) or Matrix (double unit)
+* Functions have a number of defines inputs
+* Each input have a define name and a type, and could have a weight 
+  1. String : 
+  2. Scalar_Scalar : Input from Scalar output function. Weight is a scalar
+  3. Simple_Matrix : Input from Matrix output function. No weight 
+  3. Scalar_Matrix : Input from Matrix output function. Weight is a scalar and is apply globaly on every neurons of the Matrix
+  4. Matrix_Matrix : Input from Matrix output function. Weight is a Matrix.
+
+* Matrix_Matrix details : 
+  1. Dense Matrix : One to All connections
+  2. Sparse Matrix : Connections is define is a Sparse Matrix Filter and we can generate every topology
+
+## V kheops and functions developpers guide ##
+
+TODO: 
+
+* Howto develop is own function : 
+* demofct example 
+  1. CMakeList.txt 
+  2. Class Function : FScalar or FMatrix
+  3. Files header : function.h and kernel.h
+  3. Inputs defintions : add each input in private part
+  4. Input register : setparameters functions and input bind
+  5. Function register : Macro Register
+
+  
+
+
