@@ -94,7 +94,7 @@
 
 **_rosrun kheops kheops -l /path/to/lib/directory_**
 
-### kheops services and messages ### 
+### Kheops services and messages ###
 
 * All messages and services are defined in the __hieroglyph project__
 * To list __hieroglyph__ messages , run : 
