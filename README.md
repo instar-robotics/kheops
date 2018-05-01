@@ -229,3 +229,33 @@
 **__rosservice call /kheops\_action/rt\_stat_**
 
 ### Rostopic section ###
+
+* kheops use rostopic to stream data accros script and/or to the IHM Papyrus
+* Rostopic could be data send accros script or script management information send Papyrus 
+* Each topic are stored in the script rosnode tree.
+* For example, each topic of the action script will be inside : 
+
+**_/kheops\_action/_**
+
+* To display the list of topic, you can use __rostopic__ command :
+
+**_rostopic list_**
+
+
+#### Output Topic ####
+
+* Data strucutre inside kheops functions and links are strongly typed. They could be Scalar (double) or Matrix (Using Eigen Matrix)
+* So, each function or link could output a Scalar Rostopic or a Matrix Rostopic depand of the type of the object.
+
+* Rostopic output are created by default using XML script file (See Script developpers guide) or using the output service 
+* When a topic is created, the name conventions are :
+..1. 
+
+
+#### Oscillo and Rt_Token Topic ####
+
+
+## kheops and functions developpers guide ##
+
+
+## Neural Script developpers guide ##
