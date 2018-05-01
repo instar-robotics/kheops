@@ -111,9 +111,9 @@
 
 * The ROS name convention are defined here : http://wiki.ros.org/ROS/Patterns/Conventions#Naming_ROS_Resources
 * We follow the same convention with adding the following rule : 
-..1. Each node have "__kheops__" as prefix 
-..2. We had the neural script name as suffix
-..3. We use __underscore__ (\_) as separator
+  1. Each node have "__kheops__" as prefix 
+  2. We had the neural script name as suffix
+  3. We use __underscore__ (\_) as separator
 
 * For example, a kheops script name "action.script" will have "kheops_action" as node name
 
