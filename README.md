@@ -46,7 +46,7 @@
 * For __ROS Lunar__ installation, please refer to : http://wiki.ros.org/lunar/Installation/Ubuntu
 * For __ROS Lunar__ workspace configuration, please refer to : http://wiki.ros.org/lunar/Installation/Ubuntu
 
-* For the next section, we admit you have install __ROS Luna__ and configure a workspace using catkin_make
+* For the next section, we admit you have install __ROS Lunar__ and configure a workspace using catkin_make
 * The workspace directory will be :
 
 **_/home/johndoe/catkin_workspace_**
