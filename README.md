@@ -28,6 +28,7 @@
 
 ### Dependancy ###
 * ubuntu 16.04
+* cmake 3.5
 * libboost 1.58
 * libboost BGL 1.58
 * libxerces 3.1
