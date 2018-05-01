@@ -14,7 +14,7 @@
 ### Install dependancies ###
 * On ubuntu 16.04 : 
 
-**__apt-get update__**
+**_apt-get update_**
 
 **__apt-get install libeigen3-dev libxerces-c-dev libxerces-c3.1 libboost-graph-dev libboost-graph1.58.0 libboost-all-dev libboost-all-dev libboost1.58-dev__**
 
