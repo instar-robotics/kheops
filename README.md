@@ -16,7 +16,7 @@
 
 **_apt-get update_**
 
-**__apt-get install libeigen3-dev libxerces-c-dev libxerces-c3.1 libboost-graph-dev libboost-graph1.58.0 libboost-all-dev libboost-all-dev libboost1.58-dev__**
+**_apt-get install libeigen3-dev libxerces-c-dev libxerces-c3.1 libboost-graph-dev libboost-graph1.58.0 libboost-all-dev libboost-all-dev libboost1.58-dev_**
 
 * For __ROS Lunar__ installation, please refer to : http://wiki.ros.org/lunar/Installation/Ubuntu
 * For __ROS Lunar__ workspace configuration, please refer to : http://wiki.ros.org/lunar/Installation/Ubuntu
@@ -24,7 +24,7 @@
 * For the next section, we admit you have install __ROS Luna__r and configure a workspace using catkin_make
 * The workspace directory will be :
 
-**__/home/johndoe/catkin_workspace__**
+**_/home/johndoe/catkin_workspace_**
 
 * For __hieroglyph__ installation, please go to : https://git.instar-robotics.com/software/NeuralNetwork/hieroglyph
 * For the next step, we assume you have __hieroglyph__ install in your catkin\_workspace (home/johndoe/catkin\_workspace/src/hieroglyph)
@@ -32,15 +32,15 @@
 ### Install Kheops ###
 * clone the repository in your catkin workspace :
 
-**__cd /home/johndoe/catkin_workspace/src__**
+**_cd /home/johndoe/catkin_workspace/src_**
 
-**__git clone http://wiki.ros.org/lunar/Installation/Ubuntu__**
+**_git clone http://wiki.ros.org/lunar/Installation/Ubuntu_**
 
 * go to your root catkin workspace :
 
-**__cd /home/johndoe/catkin_workspace__**
+**_cd /home/johndoe/catkin_workspace_**
 
-* And run **__catkin_make__**
+* And run **_catkin_make_**
 
 ### Building User functions libraries
 
@@ -49,13 +49,13 @@
 
 * To build __demofct__, go to the demofct directory :
 
-**__cd /home/johndoe/catkin_workspace/src/kheops/user_src/demofct__**
+**_cd /home/johndoe/catkin_workspace/src/kheops/user_src/demofct_**
 
 * then, run the classical cmake/make command : 
 
-**__cmake \.__**
+**_cmake \._**
 
-**__make__**
+**_make_**
 
 * After the compilation, you get a __libdeomfct.so__
 * You can copy this file in your library directory and run kheops with -l option (see __Run__ section)
@@ -68,42 +68,42 @@
 * Kheops need roscore to run properly. 
 * Launch roscore with :
 
-**__roscore__**
+**_roscore_**
 
 * To run kheops you can use __rosrun__ command :
 
-**__rosrun kheops kheops -s path-to-script-file__**
+**_rosrun kheops kheops -s path-to-script-file_**
 
 * print Help menu 
 
-**__rosrun kheops kheops -h__**
+**_rosrun kheops kheops -h_**
 
 * Launch script and load weight from weight_file to the neural network
 
-**__rosrun kheops kheops -s path-to-script-file -w path-to-weight-file__**
+**_rosrun kheops kheops -s path-to-script-file -w path-to-weight-file_**
 
 * By default, kheops start in __pause__ mode
 * To start kheops in __resume__ mode, run : 
 
-**__rosrun kheops kheops -r__**
+**_rosrun kheops kheops -r_**
 
 ### Load user functions libraries ###
 
 * Kheops is build to be modular. This means you can load function at the runtime like import lib in python.
 * When you launch __kheops__ you can specify the directory where __kheops__ will search the library : 
 
-**__rosrun kheops kheops -l /path/to/lib/directory__**
+**_rosrun kheops kheops -l /path/to/lib/directory_**
 
 ### Information about kheops services/messages ### 
 
 * All messages and services are defined in the __hieroglyph project__
 * To list __hieroglyph__ messages , run : 
 
-**__rosmsg package hieroglyph__**
+**_rosmsg package hieroglyph_**
 
 * To list __hieroglyph__ services, run :
 
-**__rossrv package hieroglyph__**
+**_rossrv package hieroglyph_**
 
 * __rosmsg__ and __rossrv__ command can print details of messages and services
 
@@ -119,13 +119,13 @@
 
 * To list the ROS node, use rosnode command :  
 
-**__rosnode list__**
+**_rosnode list_**
 
 ### Command kheops with rosservice ### 
 
 * We assume you launch a kheops script "__action.script__" with rosrun, like this : 
 
-**__ rosrun kheops kheops -s action.script__**
+**_ rosrun kheops kheops -s action.script_**
 
 * At launch, kheops register some services : 
 ..1. help : print help message, list of services and arguments
@@ -141,15 +141,15 @@
 * To run services, you can use ROS command __rosservice__ 
 * To list services : 
 
-**__rosservice list__**
+**_rosservice list_**
 
 * To call a service : 
 
-**__rosservice call /node\_name/service\_name  args1 args2 ... argsN__**
+**_rosservice call /node\_name/service\_name  args1 args2 ... argsN_**
 
 * For example, to call help service for action srcipt: 
 
-**__rosservice call /kheops\_action/help__**
+**_rosservice call /kheops\_action/help_**
 
 #### Control service ####
 
@@ -160,7 +160,7 @@
 
 * For example, to shutdown action script : 
 
-**__rosservice call /kheops\_action/control quit__**
+**_rosservice call /kheops\_action/control quit_**
 
 #### Oscillo service ####
 
@@ -169,7 +169,7 @@
 
 * For example, to create and publish on oscillo rostopic, run : 
 
-**__rosservice call /kheops\_action/oscillo start__**
+**_rosservice call /kheops\_action/oscillo start_**
 
 #### Objects service ###
 
@@ -184,7 +184,7 @@
 
 * For example, to list all functions UUID, run :
 
-**__rosservice call /kheops\_action/objects functions__**
+**_rosservice call /kheops\_action/objects functions_**
 
 #### Output service ####
 
@@ -193,7 +193,7 @@
 
 * For example, to create an output for object with UUID {70a19c5c-fc60-4275-bbd6-aac857190b3d} : 
 
-**__rosservice call /kheops\_action/output start {70a19c5c-fc60-4275-bbd6-aac857190b3d}__**
+**_rosservice call /kheops\_action/output start {70a19c5c-fc60-4275-bbd6-aac857190b3d}_**
 
 #### Weight service ####
 
@@ -206,6 +206,26 @@
 
 * For example, to load a weight file : 
 
-**__rosservice call /kheops/\weight load path\_to\_weight\_file__**
+**_rosservice call /kheops\_action/weight load path\_to\_weight\_file_**
+
+#### Rt\_token service ####
+
+* The oscillo rostopic contains data for all runners. This could be represent a huge amont of data.
+* Some times, we just want monitor script perfomance without all the details
+* THe rt\_token service can create a rostopic where only global performance are printed. 
+* The argument of the service are simply start or stop.
+
+* For example to create and publish into the rt\_token topic, run : 
+
+**_rosservice call /kheops\_action/rt\_token start_**
+
+#### Rt\_stat service ####
+
+* Sometimes we just want to read instant information about the script without stream the information.
+* The rt\_stat service provide instant information about the running script.
+
+* For example, to read global information for action script, run : 
+
+**__rosservice call /kheops\_action/rt\_stat_**
 
 ### Rostopic section ###
