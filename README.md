@@ -121,11 +121,11 @@
 
 **_rosnode list_**
 
-### Command kheops with rosservice ### 
+### Command kheops with rosservice
 
 * We assume you launch a kheops script "__action.script__" with rosrun, like this : 
 
-**_ rosrun kheops kheops -s action.script_**
+**_rosrun kheops kheops -s action.script_**
 
 * At launch, kheops register some services : 
 ..1. help : print help message, list of services and arguments
@@ -171,7 +171,7 @@
 
 **_rosservice call /kheops\_action/oscillo start_**
 
-#### Objects service ###
+#### Objects service ####
 
 * Each object (link, function, rt_token, input) are identified by an UUID
 * The object service provide the list of all the object of a script with associated UUID
