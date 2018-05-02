@@ -26,7 +26,8 @@ void MSum::compute()
 
 	for(unsigned int i=1; i < inMatrix.size(); i++)
 	{
-		inMatrix[i].sum_accumulate(output);	
+//		inMatrix[i].sum_accumulate(output);	
+		output += inMatrix[i] ;	
 	}
 }
 
@@ -42,7 +43,7 @@ void SSum::compute()
 
 	for(unsigned int i=1; i < inScalar.size(); i++)
 	{
-		output += inScalar[i](); 
+		output += inScalar[i] ; 
 	}
 }
 

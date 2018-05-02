@@ -35,16 +35,16 @@ class Function
 		std::string uuid;
 
 		std::vector<ISInput*> is_input;
-                std::vector<IMInput*> im_input;
                 std::vector<ISMInput*> ism_input;
                 std::vector<IMMInput*> imm_input;
 
 	protected:
 
-		bool p_output;
+		bool publish;
+		bool save;
 
 	public : 
-		Function(): p_output(false){}
+		Function(): publish(false),save(false){}
 		virtual ~Function();
 
 		virtual void exec();
@@ -62,18 +62,19 @@ class Function
 
 		inline void add_input(ISInput * is) { is_input.push_back(is);}
 		inline void add_input(ISMInput * ism) { ism_input.push_back(ism);}
-		inline void add_input(IMInput * im) { im_input.push_back(im);}
 		inline void add_input(IMMInput * imm) { imm_input.push_back(imm);}
 
 		inline std::vector<ISInput*>& get_isinput(){ return is_input;}
-		inline std::vector<IMInput*>& get_iminput(){ return im_input;}
 		inline std::vector<ISMInput*>& get_isminput(){ return ism_input;}
 		inline std::vector<IMMInput*>& get_imminput(){ return imm_input;}
 
 		virtual void nsync_afterCompute();
 
-		inline bool is_output_active(){return p_output;}
-                virtual void active_output(bool state) = 0; 
+		inline bool is_publish_active(){return publish;}
+                virtual void active_publish(bool state) = 0; 
+		
+		inline bool is_save_active(){return save;}
+                virtual void active_save(bool state) = 0; 
 };
 
 template<class T>
@@ -87,26 +88,13 @@ class FTemplate : public Function
 	public : 
 
 		FTemplate() : o_pub(NULL) {}
-		virtual ~FTemplate()
-		{
-			if( o_pub != NULL )
-			{
-				if( o_pub->is_open() ) o_pub->close();
-				delete(o_pub);
-			}
-		}
+		virtual ~FTemplate();
                 
 		virtual void compute() = 0;
 		virtual void setparameters() = 0;
 		virtual size_t type(){ return typeid(T).hash_code();}
 		std::string type_name() { return typeid(T).name();}
 		
-		virtual void setUuid(const std::string& uuid) 
-		{ 
-			Function::setUuid(uuid);
-			o_pub->setPubName("function_"+getUuid());
-		}
-	
 		inline const T& getOutput() const { return output;}
                 operator  T& () { return output; }
                 
@@ -114,40 +102,11 @@ class FTemplate : public Function
                 {
                         return output;
                 }
-                
-		virtual void active_output(bool state)
-		{
-			if( state )
-			{
-				if( o_pub != NULL  )
-				{
-					if( !o_pub->is_open() )  o_pub->open();
-				}
-				else throw std::invalid_argument("Function : failed to open output publisher");
-			}
-			else
-			{
-				if( o_pub != NULL)
-				{
-					if( o_pub->is_open()) o_pub->close();
-				}
-			}
-			p_output = state;
-		}
 		
-		virtual void nsync_afterCompute()
-		{
-			Function::nsync_afterCompute();
-
-			if( is_output_active() && o_pub != NULL)	
-			{
-				if( o_pub->is_open() )
-				{
-					o_pub->setMessage(output);
-					o_pub->publish();
-				}
-			}
-		}
+		virtual void setUuid(const std::string& uuid);
+		virtual void active_publish(bool state);
+		virtual void active_save(bool state);
+		virtual void nsync_afterCompute();
 };
 
 class FMatrix : public FTemplate<MatrixXd>

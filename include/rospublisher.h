@@ -153,7 +153,6 @@ class RosOscilloPublisher : public RosArrayPublisher<OscilloMessage,hieroglyph::
 		}
 };
 
-
 class RosRtTokenOutputPublisher : public RosDataPublisher<OscilloMessage, hieroglyph::OscilloData>
 {
 	public : 

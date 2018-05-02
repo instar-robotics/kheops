@@ -40,7 +40,7 @@ class RtToken : public Runner
                 std::mutex rt_mtx;
                 std::condition_variable rt_cv;
 		
-		bool output;
+		bool publish;
 	
 		OscilloPublisher *o_pub;
 		RtTokenOutputPublisher *rt_pub;	
@@ -93,18 +93,15 @@ class RtToken : public Runner
 		inline bool is_run() { return state==R_RUN;}
                 inline bool is_stop() { return state==R_STOP;}
                 inline bool is_pause() { return state==R_PAUSE;}
-
-		inline bool is_output_active(){return output;}
-		void active_output(bool state);
-		void start_rt_token_output();
-		void stop_rt_token_output();
-		void send_output_message();
-	
+		
 		void sync_all();
 
-		void start_oscillo_publisher();
-		void stop_oscillo_publisher();
-		void send_oscillo_message();
+		inline bool is_publish_active(){return publish;}
+		void active_publish(bool state);
+		void publish_message();
+
+		void active_oscillo(bool state);
+		void publish_oscillo();
 }; 
 
 #endif // __RT_TOKEN_H__

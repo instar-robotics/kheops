@@ -59,7 +59,8 @@ struct XFunction
 	unsigned int rows;
 	unsigned int cols;
 
-	bool active_output;
+	bool publish;
+	bool save;
 
 	// string : input name
 	std::map<std::string,XInput> inputs;

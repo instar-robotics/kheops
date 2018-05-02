@@ -36,4 +36,6 @@ double convert_period_frequency(double value);
 
 std::string generate_uuid();
 
+int isBool(std::string value);
+
 #endif // __UTIL_HPP__

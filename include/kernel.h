@@ -45,11 +45,11 @@ class Kernel
 		// string : uuid link
 		// This maps should be useful to debug weight with ROS Topic
 		std::map<std::string, std::shared_ptr<IScalar>> is_ilink;
-		std::map<std::string, std::shared_ptr<IMatrix>> im_ilink;
+		std::map<std::string, std::shared_ptr<IScalarMatrix>> ism_ilink;
+		std::map<std::string, std::shared_ptr<IMMatrix>> imm_ilink;
 
 		// string 1 : input uuid
 		std::map<std::string, ISInput*> is_input;
-		std::map<std::string, IMInput*> im_input;
 		std::map<std::string, ISMInput*> ism_input;
 		std::map<std::string, IMMInput*> imm_input;
 
@@ -83,7 +83,6 @@ class Kernel
 		// in_uuid = Input Uuid
 		void add_ilink(const std::string& in_uuid,const XLink&);
 		void add_iscalar(const std::string& in_uuid,const XLink&);
-		void add_imatrix(const std::string& in_uuid,const XLink&);
 		void add_ismatrix(const std::string& in_uuid,const XLink&);
 		void add_immatrix(const std::string& in_uuid,const XLink&);
 		void del_ilink(const std::string& link_uuid);
@@ -113,14 +112,12 @@ class Kernel
 
 
 		void bind( ISInput& value,const std::string& var_name,const std::string& uuid );
-		void bind( IMInput& value,const std::string& var_name,const std::string& uuid );
 		void bind( ISMInput& value,const std::string& var_name,const std::string& uuid );
 		void bind( IMMInput& value,const std::string& var_name,const std::string& uuid );
 		void bind( std::string& value,const std::string& var_name,const std::string& uuid );
 
 		// String 1 : input uuid
 		void unbind_isinput(const std::string& uuid);
-		void unbind_iminput(const std::string& uuid);
 		void unbind_isminput(const std::string& uuid);
 		void unbind_imminput(const std::string& uuid);
 
@@ -134,7 +131,7 @@ class Kernel
 		RtToken& getRtToken() {return rttoken;}
 
 		// Output 		
-		bool active_output(const std::string& uuid, bool state);
+		bool active_publish(const std::string& uuid, bool state);
 
 		//Objects
 		void get_objects(std::vector<std::string> & objects);

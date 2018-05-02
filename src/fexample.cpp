@@ -29,9 +29,6 @@ void  Example::setparameters()
 	u_is.setMultiple(false);
 	m_is.setMultiple(true);
 	
-	u_im.setMultiple(false);
-	m_im.setMultiple(true);
-
 	u_ism.setMultiple(false);
 	m_ism.setMultiple(true);
 	
@@ -45,7 +42,5 @@ void  Example::setparameters()
 	Kernel::instance().bind(m_ism,"m_ism", getUuid());
 	Kernel::instance().bind(u_imm,"u_imm", getUuid());
 	Kernel::instance().bind(m_imm,"m_imm", getUuid());
-	Kernel::instance().bind(u_im,"u_im", getUuid());
-	Kernel::instance().bind(m_im,"u_im", getUuid());
 }
 

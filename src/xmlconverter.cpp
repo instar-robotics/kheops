@@ -37,6 +37,32 @@ void XmlConverter::__convertXmlToFunction(const DOMElement &el, XFunction &f)
 	if( el.getElementsByTagName(XMLString::transcode("name"))->getLength() == 0) throw std::invalid_argument("XML : Function "+f.uuid+" has no name");
 
 	f.name =  XMLString::transcode(  (dynamic_cast<DOMElement *> (el.getElementsByTagName(XMLString::transcode("name"))->item(0))->getTextContent()));
+	
+	if( el.getElementsByTagName(XMLString::transcode("save"))->getLength() == 0)
+	{
+		f.save = false;
+	}
+	else
+	{
+		std::string save = XMLString::transcode(  (dynamic_cast<DOMElement *> (el.getElementsByTagName(XMLString::transcode("save"))->item(0))->getTextContent()));
+
+		if( save == "true" ) f.save = true;
+		else if( save == "false" ) f.save = false;
+		else throw std::invalid_argument("XML : \"save\" attribute is boolean, value must be \"true\" or \"false\" ");
+	}
+	
+	if( el.getElementsByTagName(XMLString::transcode("publish"))->getLength() == 0)
+	{
+		f.publish = false;
+	}
+	else
+	{
+		std::string publish = XMLString::transcode(  (dynamic_cast<DOMElement *> (el.getElementsByTagName(XMLString::transcode("publish"))->item(0))->getTextContent()));
+
+		if( publish == "true" ) f.publish = true;
+		else if( publish == "false" ) f.publish = false;
+		else throw std::invalid_argument("XML : \"publish\" attribute is boolean, value must be \"true\" or \"false\" ");
+	}
 
 	//TODO : use output section as mandatory member ?
 	if( el.getElementsByTagName(XMLString::transcode("output"))->getLength() == 0)
@@ -58,9 +84,6 @@ void XmlConverter::__convertXmlToFunction(const DOMElement &el, XFunction &f)
 		std::string cols =  XMLString::transcode( eo->getElementsByTagName( XMLString::transcode("cols"))->item(0)->getTextContent() );
 		f.cols = std::stoi(cols);
 	}
-
-	//TODO : Manage flag into XML file
-	f.active_output = false;
 }
 
 

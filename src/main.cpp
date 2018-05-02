@@ -145,19 +145,18 @@ int main(int argc, char **argv)
 	}
 
         /************* End Signaux handler operation ****************/
+	ComInterface * cinter  = new RosInterface();
 
 	XmlConverter::Initialize();
-
 	LibManager::init(libdir);
 	LibManager::load();
 
 	Kernel::init(script,weight);	
+	cinter->init( argc, argv, progname , Kernel::instance().getName() );	
+
 	Kernel::load();
 	Kernel::start(resume);
 
-	ComInterface * cinter  = new RosInterface();
-
-	cinter->init( argc, argv, progname , Kernel::instance().getName() );	
 	cinter->registerListener();
 	cinter->enter();
                 

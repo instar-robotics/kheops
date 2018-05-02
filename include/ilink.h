@@ -30,47 +30,51 @@ using Eigen::MatrixXd;
 using Eigen::VectorXd;
 using Eigen::Map;
 
-template<class T>
+template<class I, class W>
 class iLink
 {
 	protected :
-		T cvalue;
-		T const * input;
-
-		T const * b_input;
+		I cvalue;
+		I const * input;
+		I const * b_input;
 		bool buffer;
-
+	
+		W weight;
+		DataPublisher<W>* o_pub;
+		bool publish; 
+		
 		std::string uuid;
 
-		bool output; 
-
 	public : 
-
-		typedef T type_i;
-		size_t type() { return typeid(T).hash_code();}
-		std::string type_name() { return typeid(T).name();}
-
-		iLink() : buffer(false), output(false) {input = NULL; b_input = NULL;}	
-		iLink(T const * i) : input(i),buffer(false), output(false) { b_input = NULL; }
+		iLink() : input(NULL), b_input(NULL), buffer(false), publish(false) {}
+		iLink(I const * i) : input(i), b_input(NULL),buffer(false), publish(false) {}
 		virtual ~iLink(){}
 	
-		inline const std::string& getUuid() { return uuid;  }
-                inline virtual void setUuid(const std::string& uuid  ) { this->uuid = uuid;}
+		inline const std::string& getUuid() { return uuid; }
+                inline virtual void setUuid(const std::string& uuid)
+		{
+			this->uuid = uuid;
+        		o_pub->setPubName("ilink_"+getUuid());
+		}
 
-		virtual inline void setCValue(const T& cv){cvalue = cv; input = &cvalue;}
-		virtual inline const T& getCValue(){ return cvalue;}
+		/***********************************************************************/
+		/*************************  Constant Value API *************************/
+		/***********************************************************************/
 
-		virtual inline void i(T const *i){input=i;}
-		virtual inline const T& i() const {return *input;}
-
+		virtual inline void setCValue(const I& cv){cvalue = cv; input = &cvalue;}
+		virtual inline const I& getCValue(){ return cvalue;}
 		virtual inline bool isSet(){return input!=NULL;}
 		virtual inline bool isCValue(){return input==&cvalue;}
+
+
+		/***********************************************************************/
+		/*****************************  Buffer API *****************************/
+		/***********************************************************************/
 
 		virtual inline bool isBuffer(){return buffer;}
 		virtual void activateBuffer()
 		{
 			buffer = true;
-		
 			cvalue = *input;
 			b_input = input;
 			input = &cvalue;
@@ -79,7 +83,6 @@ class iLink
 		virtual void deactivateBuffer()
 		{
 			buffer = false;
-			
 			input = b_input;
 			b_input = NULL;
 		}
@@ -92,12 +95,66 @@ class iLink
 			}
 		}
 		
-		inline bool is_output_active(){return output;}
-                virtual void active_output(bool state){ output = state; }
+		/***********************************************************************/
+		/************************  Weight publish API  *************************/
+		/***********************************************************************/
+		
+		inline bool is_publish_active(){return publish;}
+
+                void active_publish(bool state)
+		{
+			if( state )
+			{
+				if( o_pub != NULL  )
+				{
+					if( !o_pub->is_open() )  o_pub->open();
+				}
+				else throw std::invalid_argument("Weight : failed to open output publisher");
+			}
+			else
+			{
+				if( o_pub != NULL)
+				{
+					if( o_pub->is_open()) o_pub->close();
+				}
+			}
+			publish = state;
+		}
+
+		void publish_message()
+		{
+			if( o_pub->is_open() )
+			{
+				o_pub->setMessage(weight);
+				o_pub->publish();
+			}
+		}
+		
+		/***********************************************************************/
+		/************************  Input Accessor API  *************************/
+		/***********************************************************************/
+
+		typedef I type_i;
+		size_t type() { return typeid(I).hash_code();}
+		std::string type_name() { return typeid(I).name();}
+
+		virtual inline void i(I const *i){input=i;}
+		virtual inline const I& i() const {return *input;}
+		
+		/***********************************************************************/
+		/************************  Weight Accessor API  *************************/
+		/***********************************************************************/
+
+		typedef W type_w;
+		size_t w_type() { return typeid(W).hash_code();}
+		std::string w_type_name() { return typeid(W).name();}
+		
+		inline virtual W& w() {return weight;}
+                inline virtual void w(const W& w) { weight = w; }
 };
 
 
-template<class T>
+template<class I>
 class ICombinator
 {
 	private :
@@ -120,32 +177,22 @@ class ICombinator
         		else throw  std::invalid_argument( "ICombinator : unkown operator : "+sOp+". Legal operators are +, *, / or -");
 		}
 
-		virtual T& accumulate(T&)=0;
-		virtual T& mul_accumulate(T&)=0;
-		virtual T& sum_accumulate(T&)=0;
-		virtual T& sub_accumulate(T&)=0;
-		virtual T& div_accumulate(T&)=0;
+		virtual I& accumulate(I&)=0;
+		virtual I& mul_accumulate(I&)=0;
+		virtual I& sum_accumulate(I&)=0;
+		virtual I& sub_accumulate(I&)=0;
+		virtual I& div_accumulate(I&)=0;
 };
 
 		
-class IScalar : public iLink<double>, public ICombinator<double>
+class IScalar : public iLink<double,double>, public ICombinator<double>
 {
-	private :
-
-		double weight;
-		ScalarPublisher * o_pub;
-
         public:
 		
 		IScalar(OPERATOR op = MULTIPLICATION);	
 		IScalar(double const * i, OPERATOR op );
 		virtual ~IScalar();
                 
-		virtual void setUuid(const std::string& uuid);
-
-		inline double& w() {return weight;}
-                inline void w(const double& w) { weight = w; }
-
 		inline auto sum(){ return (*input) + weight; }
 		inline auto sub(){ return (*input) - weight; }
 		inline auto mul(){ return (*input) * weight; }
@@ -163,62 +210,63 @@ class IScalar : public iLink<double>, public ICombinator<double>
 		inline virtual double& sum_accumulate(double& res){return res += operate(); }
 		inline virtual double& sub_accumulate(double& res){return res -= operate(); }
 		inline virtual double& div_accumulate(double& res){return res /= operate(); }
+		
+		friend double& operator+=(double& res, IScalar& val)
+		{  
+			return res += val.operate() ;
+		}
 
-		virtual void publish();
-                virtual void active_output(bool state);
+		friend double& operator+(double& res,  IScalar& val )
+		{
+			return res = res + val.operate() ;
+		}	
+
+		friend double& operator+(IScalar& val,double& res)
+		{
+			return res = res + val.operate() ;
+		}
 };
 
 
-class IMatrix : public iLink<MatrixXd>
+template<class W>
+class IMatrix : public iLink<MatrixXd,W>
 {
 	public : 
                 
-		IMatrix() : iLink() {}
-                IMatrix(MatrixXd const * i) : iLink(i){}
+		IMatrix() : iLink<MatrixXd,W>() {}
+                IMatrix(MatrixXd const * i) : iLink<MatrixXd,W>(i){}
                 virtual ~IMatrix() {}
 
-		inline double operator()(int x,int y) const {return (*iLink<MatrixXd>::input)(x,y);}
+		inline double operator()(int x,int y) const {return (*iLink<MatrixXd,W>::input)(x,y);}
 		
-		inline unsigned int getIRows(){return (*iLink<MatrixXd>::input).cols();}
-		inline unsigned int getICols(){return (*iLink<MatrixXd>::input).rows();}
+		inline unsigned int getIRows(){return (*iLink<MatrixXd,W>::input).cols();}
+		inline unsigned int getICols(){return (*iLink<MatrixXd,W>::input).rows();}
 };
 
-class IScalarMatrix : public IMatrix, public ICombinator<MatrixXd>
+class IScalarMatrix : public IMatrix<double>, public ICombinator<MatrixXd>
 {
-	private :
-		double weight;
-
-		ScalarPublisher * o_pub;
-
 	public : 
 
 		IScalarMatrix(OPERATOR op = MULTIPLICATION);
                 IScalarMatrix( MatrixXd const *  i, OPERATOR op = MULTIPLICATION );
                 virtual ~IScalarMatrix();
 		
-		virtual void setUuid(const std::string& uuid);
-
-		inline double& w() {return weight;}
-                inline void w(const double& w) { weight = w; }
-		
 		inline virtual void setOp(std::string sOp){ICombinator::setOp(sOp);}
                
-		inline auto sum(){ return (*input).array() + weight; }
-		inline auto sub(){ return (*input).array() - weight; }
-		inline auto mul(){ return (*input) * weight; }
-		inline auto div(){ return (*input) / weight; }
-
 		virtual MatrixXd& accumulate(MatrixXd& res);
 		virtual MatrixXd& mul_accumulate(MatrixXd& res);
 		virtual MatrixXd& sum_accumulate(MatrixXd& res);
 		virtual MatrixXd& sub_accumulate(MatrixXd& res); 
 		virtual MatrixXd& div_accumulate(MatrixXd& res);
+
+		friend MatrixXd& operator+=(MatrixXd& res, IScalarMatrix& val)
+		{  
+			return val.sum_accumulate(res);
+		}
 		
-		virtual void publish();
-                virtual void active_output(bool state);
 };
 
-class IMMatrix : public IMatrix
+class IMMatrix : public IMatrix<MatrixXd>
 {
 	protected : 
 
@@ -226,16 +274,10 @@ class IMMatrix : public IMatrix
 		unsigned int ocols;
 		double dvalue;
 		
-		MatrixXd weight;		
-		
-		MatrixPublisher * o_pub;
-		
 	public : 
 		IMMatrix(unsigned int rows=0, unsigned int cols=0, double dvalue=0.);
                 IMMatrix( MatrixXd const *  i, unsigned int rows = 0, unsigned int cols=0, double dvalue =0 );
                 virtual ~IMMatrix();
-		
-		virtual void setUuid(const std::string& uuid);
 		
 		inline void setOSize(unsigned int rows, unsigned int cols){ orows = rows; ocols=cols;}
 		inline void setDValue(double dvalue){this->dvalue=dvalue;}
@@ -254,12 +296,10 @@ class IMMatrix : public IMatrix
 		virtual MatrixXd& weigthedSum(MatrixXd& out) = 0;
 		virtual MatrixXd& weigthedSumAccu(MatrixXd& out) = 0;
 			
+		inline virtual MatrixXd& w() {return  IMatrix<MatrixXd>::w(); }
 		virtual double w(unsigned int rows, unsigned int cols);
-		virtual inline MatrixXd& w() {	return weight;}
-		
 		virtual void w(double weight, unsigned int row, unsigned int col) = 0;
 		virtual void w(VectorXd &weight,unsigned int col) = 0;
-		virtual void w(MatrixXd &weight) = 0;
 
 		// wout = weight op input
 		// here wout is an Matrix with weight matrix size 		
@@ -267,9 +307,6 @@ class IMMatrix : public IMatrix
 		virtual MatrixXd& diff(MatrixXd& wout) = 0;
 		virtual MatrixXd& prod(MatrixXd& wout) = 0;
 		virtual MatrixXd& quot(MatrixXd& wout) = 0;
-		
-		virtual void publish();
-                virtual void active_output(bool state);
 };
 
 class IDenseMatrix : public IMMatrix
@@ -280,9 +317,9 @@ class IDenseMatrix : public IMMatrix
                 IDenseMatrix( MatrixXd const *  i,  unsigned int rows = 0, unsigned int cols=0, double dvalue = 0 ) : IMMatrix(i,rows, cols, dvalue) {}
 
                 virtual ~IDenseMatrix(){}
-		
+
 		virtual void w(VectorXd &weight,unsigned int col);
-		virtual void w(MatrixXd &weight);
+		virtual void w(const MatrixXd &weight);
 		virtual void w(double weight, unsigned int rows, unsigned int cols);
 		
 		virtual MatrixXd& add(MatrixXd& wout);
@@ -307,7 +344,7 @@ class ISparseMatrix : public IMMatrix
                 virtual ~ISparseMatrix(){}
 		
 		virtual void w(VectorXd &weight,unsigned int col);
-		virtual void w(MatrixXd &weight);
+		virtual void w(const MatrixXd &weight);
 		virtual void w(double weight, unsigned int rows, unsigned int cols);
 
 		SparseMatrix<double> & f(){ return filter;}
@@ -320,7 +357,7 @@ class ISparseMatrix : public IMMatrix
 		virtual MatrixXd& weigthedSum(MatrixXd& out);
 		virtual MatrixXd& weigthedSumAccu(MatrixXd& out);
 		
-		virtual void publish();
+		virtual void publish_message();
 };
 
 #endif // __ILINK_H__

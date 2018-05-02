@@ -4,7 +4,9 @@
     <rt_token uuid="100"  unit="ms">10</rt_token> 
     <functions>
 	<function uuid="1">
-		<name>MSum</name>
+		<name>MSum</name>  <!-- default : false --> 
+		<save>true</save>  <!-- default : false  -->  
+		<publish>true</publish>
                 <output>
 			<rows>2</rows>
 			<cols>2</cols>

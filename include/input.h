@@ -88,7 +88,6 @@ class IMMInput : public Input<IMMatrix>
 };
 
 typedef Input<IScalar> ISInput;
-typedef Input<IMatrix> IMInput;
 typedef Input<IScalarMatrix> ISMInput;
 
 #endif // __INPUT_H__

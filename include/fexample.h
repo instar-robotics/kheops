@@ -33,9 +33,6 @@ class Example : public FScalar
 		ISMInput u_ism;
 		ISMInput m_ism;
 
-		IMInput u_im;
-		IMInput m_im;
-
 		IMMInput u_imm;
 		IMMInput m_imm;
 	

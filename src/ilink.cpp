@@ -21,7 +21,7 @@ The fact that you are presently reading this means that you have had knowledge o
 /******************                     IScalar Section                           *******************/
 /********************************************************************************************************/
 
-IScalar::IScalar(OPERATOR op) : iLink(),ICombinator(op) 
+IScalar::IScalar(OPERATOR op) : iLink(), ICombinator(op) 
 {
 	setOp(op);
 	o_pub = new RosScalarPublisher(1); 
@@ -64,40 +64,6 @@ void IScalar::setOp(OPERATOR OP)
 	}
 }
 
-void IScalar::active_output(bool state)
-{
-	if( state )
-	{
-		if( o_pub != NULL  )
-		{
-			if( !o_pub->is_open() )  o_pub->open();
-		}
-		else throw std::invalid_argument("Weight : failed to open output publisher");
-	}
-	else
-	{
-		if( o_pub != NULL)
-		{
-			if( o_pub->is_open()) o_pub->close();
-		}
-	}
-	output = state;
-}
-
-void IScalar::publish()
-{
-	if( o_pub->is_open() )
-	{
-		o_pub->setMessage(weight);
-		o_pub->publish();
-	}
-}
-
-void IScalar::setUuid(const std::string& uuid  )
-{
-	iLink::setUuid(uuid);
-	o_pub->setPubName("ilink_"+getUuid());
-}
 
 /********************************************************************************************************/
 /******************                   IScalarMatrix Section                           *******************/
@@ -127,17 +93,17 @@ MatrixXd& IScalarMatrix::accumulate(MatrixXd& res)
 	switch( getOp())
 	{
 		case ADDITION:
-			res.array()=sum();
+			res = (*input).array() + weight;
 			break;
 		case SUBSTRACTION:
-			res=sub();
+			res=  (*input).array() - weight; 
 			break;
 		case DIVISION:
-			res=div();
+			res= (*input) / weight; 
 			break;
 		case MULTIPLICATION:
 		default:
-			res=mul();
+			res= (*input) * weight; 
 			break;
 	}
 	return res;
@@ -148,17 +114,17 @@ MatrixXd& IScalarMatrix::mul_accumulate(MatrixXd& res)
 	switch( getOp())
 	{
 		case ADDITION:
-			res.array()*=sum();
+			res.array() *= (*input).array() + weight;
 			break;
 		case SUBSTRACTION:
-			res.array()*=sub();
+			res.array() *= (*input).array() - weight ;
 			break;
 		case DIVISION:
-			res=res.cwiseProduct(div());
+			res=res.cwiseProduct( (*input) / weight );
 			break;
 		case MULTIPLICATION:
 		default:
-			res=res.cwiseProduct(mul());
+			res=res.cwiseProduct( (*input) * weight );
 			break;
 	}
 	return res;
@@ -169,17 +135,17 @@ MatrixXd& IScalarMatrix::sum_accumulate(MatrixXd& res)
 	switch( getOp())
 	{
 		case ADDITION:
-			res.array()+=sum();
+			res.array()+= (*input).array() + weight;
 			break;
 		case SUBSTRACTION:
-			res.array()+=sub();
+			res.array()+= (*input).array() - weight;
 			break;
 		case DIVISION:
-			res+=div();
+			res+= (*input) / weight;
 			break;
 		case MULTIPLICATION:
 		default:
-			res+=mul();
+			res+= (*input) * weight; 
 			break;
 	}
 	return res;
@@ -191,17 +157,17 @@ MatrixXd& IScalarMatrix::sub_accumulate(MatrixXd& res)
 	switch( getOp())
 	{
 		case ADDITION:
-			res.array()-=sum();
+			res.array()-= (*input).array() + weight;
 			break;
 		case SUBSTRACTION:
-			res.array()-=sub();
+			res.array()-= (*input).array() - weight;
 			break;
 		case DIVISION:
-			res-=div();
+			res-= (*input) / weight;
 			break;
 		case MULTIPLICATION:
 		default:
-			res-=mul();
+			res-= (*input) * weight;
 			break;
 	}
 	return res;
@@ -213,55 +179,20 @@ MatrixXd& IScalarMatrix::div_accumulate(MatrixXd& res)
 	switch( getOp())
 	{
 		case ADDITION:
-			res.array()/=sum();
+			res.array()/= (*input).array() + weight;
 			break;
 		case SUBSTRACTION:
-			res.array()/=sub();
+			res.array()/= (*input).array() - weight;
 			break;
 		case DIVISION:
-			res=res.cwiseQuotient(div());
+			res=res.cwiseQuotient( (*input) / weight  );
 			break;
 		case MULTIPLICATION:
 		default:
-			res=res.cwiseQuotient(mul());
+			res=res.cwiseQuotient( (*input) * weight );
 			break;
 	}
 	return res;
-}
-
-void IScalarMatrix::active_output(bool state)
-{
-	if( state )
-	{
-		if( o_pub != NULL  )
-		{
-			if( !o_pub->is_open() )  o_pub->open();
-		}
-		else throw std::invalid_argument("Weight : failed to open output publisher");
-	}
-	else
-	{
-		if( o_pub != NULL)
-		{
-			if( o_pub->is_open()) o_pub->close();
-		}
-	}
-	output = state;
-}
-
-void IScalarMatrix::publish()
-{
-	if( o_pub->is_open() )
-	{
-		o_pub->setMessage(weight);
-		o_pub->publish();
-	}
-}
-
-void IScalarMatrix::setUuid(const std::string& uuid  )
-{
-	iLink::setUuid(uuid);
-	o_pub->setPubName("ilink_"+getUuid());
 }
 
 /********************************************************************************************************/
@@ -313,41 +244,6 @@ double IMMatrix::w(unsigned int rows, unsigned int cols)
 	return weight(rows,cols);
 }
 
-void IMMatrix::active_output(bool state)
-{
-	if( state )
-	{
-		if( o_pub != NULL  )
-		{
-			if( !o_pub->is_open() )  o_pub->open();
-		}
-		else throw std::invalid_argument("Weight : failed to open output publisher");
-	}
-	else
-	{
-		if( o_pub != NULL)
-		{
-			if( o_pub->is_open()) o_pub->close();
-		}
-	}
-	output = state;
-}
-
-void IMMatrix::publish()
-{
-	if( o_pub->is_open() )
-	{
-		o_pub->setMessage(weight);
-		o_pub->publish();
-	}
-}
-
-void IMMatrix::setUuid(const std::string& uuid  )
-{
-	iLink::setUuid(uuid);
-	o_pub->setPubName("ilink_"+getUuid());
-}
-
 /********************************************************************************************************/
 /******************                   IDenseMatrix Section                           *******************/
 /********************************************************************************************************/
@@ -358,11 +254,13 @@ void IDenseMatrix::w(VectorXd &weight,unsigned int col)
 	this->weight.col(col) = weight;
 }
 
-void IDenseMatrix::w(MatrixXd &weight)
+
+void IDenseMatrix::w(const MatrixXd &weight)
 {
 	if(weight.rows() != getORows() || weight.cols() != getOCols()) throw std::invalid_argument("iLink : Matrix output size doesn't match with weight size");
 	this->weight = weight;
 }
+
 
 void IDenseMatrix::w(double weight, unsigned int rows, unsigned int cols)
 {
@@ -452,11 +350,13 @@ void ISparseMatrix::w(VectorXd &weight,unsigned int col)
 	this->weight.col(col) =  this->weight.col(col) * filter.col(col);
 }
 
-void ISparseMatrix::w(MatrixXd &weight)
+
+void ISparseMatrix::w(const MatrixXd &weight)
 {
 	if(weight.rows() != getORows() || weight.cols() != getOCols()) throw std::invalid_argument("iLink : Matrix output size doesn't match with weight size");
 	this->weight = weight.cwiseProduct(filter);
 }
+
 
 void ISparseMatrix::w(double weight, unsigned int rows, unsigned int cols)
 {
@@ -533,7 +433,7 @@ MatrixXd& ISparseMatrix::weigthedSumAccu(MatrixXd& out)
 	return out;
 }
 
-void ISparseMatrix::publish()
+void ISparseMatrix::publish_message()
 {
 	if( o_pub->is_open() )
 	{

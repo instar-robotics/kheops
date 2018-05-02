@@ -25,7 +25,6 @@ The fact that you are presently reading this means that you have had knowledge o
 Function::~Function()
 {
 	is_input.clear();
-	im_input.clear();
 	ism_input.clear();
 	imm_input.clear();
 }
@@ -56,18 +55,10 @@ void Function::nsync_afterCompute()
 		{
 			(**input)[i].copyBuffer();
 			
-			if( (**input)[i].is_output_active() ) 
+			if( (**input)[i].is_publish_active() ) 
 			{
-				(**input)[i].publish();
+				(**input)[i].publish_message();
 			}
-		}
-	}
-	
-	for( auto input = im_input.begin() ; input != im_input.end(); input++  )
-	{
-		for( unsigned int i = 0 ; i < (*input)->size(); i++ )
-		{
-			(**input)[i].copyBuffer();
 		}
 	}
 	
@@ -77,9 +68,9 @@ void Function::nsync_afterCompute()
 		{
 			(**input)[i].copyBuffer();
 			
-			if( (**input)[i].is_output_active() ) 
+			if( (**input)[i].is_publish_active() ) 
 			{
-				(**input)[i].publish();
+				(**input)[i].publish_message();
 			}
 		}
 	}
@@ -90,14 +81,74 @@ void Function::nsync_afterCompute()
 		{
 			(**input)[i].copyBuffer();
 			
-			if( (**input)[i].is_output_active() ) 
+			if( (**input)[i].is_publish_active() ) 
 			{
-				(**input)[i].publish();
+				(**input)[i].publish_message();
 			}
 		}
 	}
 }
 
+/********************************************************************************************************/
+/********************************************** FTEMPLATE ***********************************************/
+/********************************************************************************************************/
+
+template<class T>
+FTemplate<T>::~FTemplate()
+{
+	if( o_pub != NULL )
+	{
+		if( o_pub->is_open() ) o_pub->close();
+		delete(o_pub);
+	}
+}
+
+template<class T>
+void FTemplate<T>::setUuid(const std::string& uuid)
+{
+	Function::setUuid(uuid);
+	o_pub->setPubName("function_"+getUuid());
+}
+
+template<class T>
+void FTemplate<T>::active_publish(bool state)
+{
+	if( state )
+	{
+		if( o_pub != NULL  )
+		{
+			if( !o_pub->is_open() )  o_pub->open();
+		}
+		else throw std::invalid_argument("Function : failed to open output publisher");
+	}
+	else
+	{
+		if( o_pub != NULL)
+		{
+			if( o_pub->is_open()) o_pub->close();
+		}
+	}
+	publish = state;
+}
+
+template<class T>
+void FTemplate<T>::active_save(bool state)
+{}
+
+template<class T>
+void FTemplate<T>::nsync_afterCompute()
+{
+	Function::nsync_afterCompute();
+
+	if( is_publish_active() && o_pub != NULL)
+	{
+		if( o_pub->is_open() )
+		{
+			o_pub->setMessage(output);
+			o_pub->publish();
+		}
+	}
+}
 
 /********************************************************************************************************/
 /********************************************** FMATRIX *************************************************/
