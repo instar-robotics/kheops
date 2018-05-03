@@ -4,29 +4,22 @@
     <rt_token uuid="100"  unit="ms">10</rt_token> 
     <functions>
 	<function uuid="1">
-		<name>MSum</name>  <!-- default : false --> 
-		<save>true</save>  <!-- default : false  -->  
-		<publish>true</publish>
+		<name>MSum</name>   
+		<save>true</save>            <!-- default : false -->  
                 <output>
 			<rows>2</rows>
 			<cols>2</cols>
 		</output>
 		<inputs>	
-			<input uuid="2">
+			<input uuid="2" multiple="true">
 				<name>inMatrix</name>
 				<links>
 					<link uuid="3" constant="true">
-						<value>1</value>
+						<weight>1</weight>
 					</link>
 					<link uuid="4" >
-						<pred>1</pred>
+						<from>1</from>
 						<weight>0.998</weight>
-						<operator>*</operator>
-					</link>
-					<link uuid="5">
-						<pred>1</pred>
-						<weight>0.001</weight>
-						<operator>*</operator>
 					</link>
 				</links>	
 			</input>
@@ -34,6 +27,7 @@
 	</function>
 	<function uuid="6">
                 <name>LMS</name>
+		<publish topic="lms out">true</publish>      <!-- default : false -->
                 <output>
 			<rows>2</rows>
 			<cols>2</cols>
@@ -43,7 +37,7 @@
                                 <name>learning_rate</name>
 				<links>
 					<link uuid="8"  constant="true">
-						<value>0.1</value>
+						<weight>0.1</weight>
 					</link>
 				</links>	
                         </input>
@@ -51,9 +45,8 @@
                                 <name>unconditionnal</name>
 				<links>
 					<link uuid="10">
-						<pred>1</pred>
+						<from>1</from>
 						<weight>1</weight>
-						<operator>*</operator>
 					</link>
 				</links>	
                         </input>
@@ -61,10 +54,10 @@
                                 <name>conditionnals</name>
 				<links>
 					<link uuid="12" constant="true">
-						<value>1</value>
+						<weight>1</weight>
 					</link>
 					<link uuid="101" constant="true">
-						<value>1</value>
+						<weight>1</weight>
 					</link>
 				</links>	
                         </input>

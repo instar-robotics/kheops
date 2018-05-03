@@ -21,16 +21,14 @@ The fact that you are presently reading this means that you have had knowledge o
 /******************                     IScalar Section                           *******************/
 /********************************************************************************************************/
 
-IScalar::IScalar(OPERATOR op) : iLink(), ICombinator(op) 
+IScalar::IScalar() : iLink(), ICombinator() 
 {
-	setOp(op);
 	o_pub = new RosScalarPublisher(1); 
 }    
 
 
-IScalar::IScalar(double const * i, OPERATOR op = MULTIPLICATION ) : iLink(i), ICombinator(op) 
+IScalar::IScalar(double const * i) : iLink(i), ICombinator() 
 {
-	setOp(op);
 	o_pub = new RosScalarPublisher(1); 
 }
 
@@ -43,38 +41,16 @@ IScalar::~IScalar()
 	}
 }
 
-void IScalar::setOp(OPERATOR OP)
-{
-	ICombinator::setOp(OP);
-	switch(OP)
-	{
-		case ADDITION :
-			operate =  std::bind( &IScalar::sum, this ) ;
-			break;
-		case SUBSTRACTION :
-			operate =  std::bind( &IScalar::sub, this ) ;
-			break;
-		case DIVISION :
-			operate =  std::bind( &IScalar::div, this ) ;
-			break;
-		case MULTIPLICATION :
-		default :
-			operate =  std::bind( &IScalar::mul, this ) ;
-			break;
-	}
-}
-
-
 /********************************************************************************************************/
 /******************                   IScalarMatrix Section                           *******************/
 /********************************************************************************************************/
 
-IScalarMatrix::IScalarMatrix(OPERATOR op) : IMatrix(),ICombinator(op) 
+IScalarMatrix::IScalarMatrix() : IMatrix(),ICombinator() 
 {
 	o_pub = new RosScalarPublisher(1); 
 }
 
-IScalarMatrix::IScalarMatrix( MatrixXd const *  i, OPERATOR op) : IMatrix(i), ICombinator(op)
+IScalarMatrix::IScalarMatrix( MatrixXd const *  i) : IMatrix(i), ICombinator()
 {
 	o_pub = new RosScalarPublisher(1); 
 }
@@ -90,109 +66,30 @@ IScalarMatrix::~IScalarMatrix()
 
 MatrixXd& IScalarMatrix::accumulate(MatrixXd& res)
 {
-	switch( getOp())
-	{
-		case ADDITION:
-			res = (*input).array() + weight;
-			break;
-		case SUBSTRACTION:
-			res=  (*input).array() - weight; 
-			break;
-		case DIVISION:
-			res= (*input) / weight; 
-			break;
-		case MULTIPLICATION:
-		default:
-			res= (*input) * weight; 
-			break;
-	}
-	return res;
+	return res = (*input) * weight;
 }
 
 MatrixXd& IScalarMatrix::mul_accumulate(MatrixXd& res)
 {
-	switch( getOp())
-	{
-		case ADDITION:
-			res.array() *= (*input).array() + weight;
-			break;
-		case SUBSTRACTION:
-			res.array() *= (*input).array() - weight ;
-			break;
-		case DIVISION:
-			res=res.cwiseProduct( (*input) / weight );
-			break;
-		case MULTIPLICATION:
-		default:
-			res=res.cwiseProduct( (*input) * weight );
-			break;
-	}
-	return res;
+	return res=res.cwiseProduct( (*input) * weight );
 }
 
 MatrixXd& IScalarMatrix::sum_accumulate(MatrixXd& res)
 {
-	switch( getOp())
-	{
-		case ADDITION:
-			res.array()+= (*input).array() + weight;
-			break;
-		case SUBSTRACTION:
-			res.array()+= (*input).array() - weight;
-			break;
-		case DIVISION:
-			res+= (*input) / weight;
-			break;
-		case MULTIPLICATION:
-		default:
-			res+= (*input) * weight; 
-			break;
-	}
+	res.array() += (*input).array() * weight;
 	return res;
 }
 
 
 MatrixXd& IScalarMatrix::sub_accumulate(MatrixXd& res)
 {
-	switch( getOp())
-	{
-		case ADDITION:
-			res.array()-= (*input).array() + weight;
-			break;
-		case SUBSTRACTION:
-			res.array()-= (*input).array() - weight;
-			break;
-		case DIVISION:
-			res-= (*input) / weight;
-			break;
-		case MULTIPLICATION:
-		default:
-			res-= (*input) * weight;
-			break;
-	}
+	res.array()-= (*input).array() - weight;
 	return res;
 }
 
 MatrixXd& IScalarMatrix::div_accumulate(MatrixXd& res)
 {
-
-	switch( getOp())
-	{
-		case ADDITION:
-			res.array()/= (*input).array() + weight;
-			break;
-		case SUBSTRACTION:
-			res.array()/= (*input).array() - weight;
-			break;
-		case DIVISION:
-			res=res.cwiseQuotient( (*input) / weight  );
-			break;
-		case MULTIPLICATION:
-		default:
-			res=res.cwiseQuotient( (*input) * weight );
-			break;
-	}
-	return res;
+	return res=res.cwiseQuotient( (*input) * weight );
 }
 
 /********************************************************************************************************/
@@ -226,9 +123,9 @@ void IMMatrix::resizeWeight()
 	weight.resize(  getORows() * getOCols() , getIRows() * getICols() );
 }
 
-void IMMatrix::initWeight()
+void IMMatrix::initWeight(double w)
 {
-	weight << MatrixXd::Zero( weight.rows() , weight.cols() );
+	weight << MatrixXd::Constant( weight.rows() , weight.cols(),w);
 }
 
 bool IMMatrix::checkWeightSize(unsigned int rows, unsigned int cols )

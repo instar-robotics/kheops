@@ -161,6 +161,7 @@ void Kernel::add_function( const XFunction& xf)
       else
       { 
 		f->setUuid(xf.uuid);
+		f->set_topic_name(xf.topic_name);
 		f->active_publish(xf.publish);
 		f->active_save(xf.save);
 
@@ -374,7 +375,6 @@ void Kernel::add_ilink(const std::string& in_uuid, const XLink& xl)
 		add_immatrix(in_uuid, xl);
 	}
 	else throw std::invalid_argument( "Kernel : try to add ilink to unkown input "+in_uuid );
-	
 }
 	
 void Kernel::add_iscalar(const std::string& in_uuid,const XLink& xl)	
@@ -384,11 +384,11 @@ void Kernel::add_iscalar(const std::string& in_uuid,const XLink& xl)
 
 	//set is
 	is->setUuid(xl.uuid);
+	is->w( xl.weight );
+
 	if( xl.isCst == true )
 	{
-		is->setCValue( std::stod( xl.value) );
-		is->w( 0 );
-		is->setOp( "+" );
+		is->setCValue(1);
 	}
 	else
 	{
@@ -398,9 +398,6 @@ void Kernel::add_iscalar(const std::string& in_uuid,const XLink& xl)
 			is->i( &(dynamic_cast<FScalar*>(f)->getOutput()) );
 	 
 		}else throw std::invalid_argument( "Kernel : try to bind no compatible type. Input "+is->type_name()+" on  Function "+f->type_name());
-	
-		is->w( xl.weight );
-		is->setOp( xl.op );
        
 		if( input_to_funct[in_uuid] == xl.uuid_pred) is->activateBuffer();
 	}
@@ -420,11 +417,11 @@ void Kernel::add_ismatrix(const std::string& in_uuid,const XLink& xl)
 
 	//set is
 	ism->setUuid(xl.uuid);
+	ism->w( xl.weight );
+
 	if( xl.isCst == true )
 	{
-		ism->setCValue( MatrixXd::Constant( sf->getRows(),sf->getCols(), std::stod( xl.value ))); 
-		ism->w( 0 );
-		ism->setOp( "+" );
+		ism->setCValue( MatrixXd::Constant( sf->getRows(),sf->getCols(), 1 )); 
 	}
 	else
 	{
@@ -438,9 +435,6 @@ void Kernel::add_ismatrix(const std::string& in_uuid,const XLink& xl)
 	 
 		}else throw std::invalid_argument( "Kernel : try to bind no compatible type. Input "+ism->type_name()+" on  Function "+pf->type_name());
 	
-		ism->w( xl.weight );
-		ism->setOp( xl.op );
-
 		if( input_to_funct[in_uuid] == xl.uuid_pred) ism->activateBuffer();
 	}
 	// Add ilink
@@ -472,7 +466,7 @@ void Kernel::add_immatrix(const std::string& in_uuid,const XLink& xl)
 	if( xl.isCst == true )
 	{
 		//By default constant are 1x1 Matrix 
-		imm->setCValue( MatrixXd::Constant( 1, 1 , std::stod( xl.value ))); 
+		imm->setCValue( MatrixXd::Constant( 1, 1 , 1 )); 
 
 		//TODO : should be possible to and rows/cols size into XLink to custom the constant size
 		//imm->setCValue( MatrixXd::Constant( sf->getRows(),sf->getCols(), std::stod( it->value ))); 
@@ -489,7 +483,7 @@ void Kernel::add_immatrix(const std::string& in_uuid,const XLink& xl)
 		if( input_to_funct[in_uuid] == xl.uuid_pred) imm->activateBuffer();
 	}
 	imm->resizeWeight();
-	imm->initWeight();
+	imm->initWeight(xl.weight);
 
 	// Add ilink
 	imm_input[in_uuid]->add(imm);

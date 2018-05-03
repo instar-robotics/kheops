@@ -104,11 +104,18 @@ FTemplate<T>::~FTemplate()
 }
 
 template<class T>
-void FTemplate<T>::setUuid(const std::string& uuid)
+void FTemplate<T>::set_topic_name(const std::string& topic)
 {
-	Function::setUuid(uuid);
-	o_pub->setPubName("function_"+getUuid());
+	std::string name = "function_";
+	if(topic.size()==0 )
+	{
+		name+=getUuid();
+	}
+	else name+=topic;
+
+	o_pub->setPubName(name);
 }
+
 
 template<class T>
 void FTemplate<T>::active_publish(bool state)

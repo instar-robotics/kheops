@@ -22,11 +22,10 @@ REGISTER_FUNCTION(MSSum);
 
 void MSum::compute()
 {
-	inMatrix[0].accumulate(output);	
+	inMatrix[0](output);	
 
 	for(unsigned int i=1; i < inMatrix.size(); i++)
 	{
-//		inMatrix[i].sum_accumulate(output);	
 		output += inMatrix[i] ;	
 	}
 }

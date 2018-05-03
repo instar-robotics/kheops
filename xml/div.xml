@@ -2,48 +2,39 @@
 <functions>
 	<function>
 		<name>MMDiv</name>
-		<output>
-			<type>MATRIX</type>
+		<output type="MATRIX">
 		</output>
 		<inputs>
-			<input> 
-				<type>SCALAR_MATRIX</type>
+			<input type="SCALAR_MATRIX"> 
 				<name>numerator</name>
 			</input>
-			<input> 
-				<type>SCALAR_MATRIX</type>
+			<input type="SCALAR_MATRIX"> 
 				<name>denumerator</name>
 			</input>
 		</inputs>
 	</function>	
 	<function>
 		<name>SSDiv</name>
-		<output>
-			<type>SCALAR</type>
+		<output type="SCALAR">
 		</output>
 		<inputs>
-			<input> 
-				<type>SCALAR_SCALAR</type>
+			<input type="SCALAR_SCALAR"> 
 				<name>numerator</name>
 			</input>
-			<input> 
-				<type>SCALAR_SCALAR</type>
+			<input type="SCALAR_SCALAR"> 
 				<name>denumerator</name>
 			</input>
 		</inputs>
 	</function>	
 	<function>
 		<name>MSDiv</name>
-		<output>
-			<type>MATRIX</type>
+		<output type="MATRIX">
 		</output>
 		<inputs>
-			<input> 
-				<type>SCALAR_MATRIX</type>
+			<input type="SCALAR_MATRIX"> 
 				<name>numerator</name>
 			</input>
-			<input> 
-				<type>SCALAR_MATRIX</type>
+			<input type="SCALAR_MATRIX"> 
 				<name>denumerator</name>
 			</input>
 		</inputs>

@@ -2,21 +2,16 @@
 <functions>
 	<function>
 		<name>Saw</name>
-		<output> 
-			<type>MATRIX</type>
+		<output type="MATRIX"> 
 		</output> 
 		<inputs>
-			<input> 
-				<type>SCALAR_SCALAR</type>
+			<input type="SCALAR_SCALAR"> 
 				<name>learning_rate</name>
 			</input>
-			<input> 
-				<type>SCALAR_SCALAR</type>
+			<input type="SCALAR_SCALAR"> 
 				<name>vigilence</name>
 			</input>
-			</input>
-			<input multiple="true">
-				<type>MATRIX_MATRIX</type>
+			<input multiple="true" type="MATRIX_MATRIX">
 				<name>inputs</name>
 			</input>
 		</inputs>

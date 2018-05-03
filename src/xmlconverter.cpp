@@ -14,6 +14,7 @@ and, more generally, to use and operate it in the same conditions as regards sec
 The fact that you are presently reading this means that you have had knowledge of the CeCILL v2.1 license and that you accept its terms.
 */
 
+#include <algorithm>
 #include <iostream>
 #include <stdexcept>
 #include "xmlconverter.h"
@@ -62,6 +63,14 @@ void XmlConverter::__convertXmlToFunction(const DOMElement &el, XFunction &f)
 		if( publish == "true" ) f.publish = true;
 		else if( publish == "false" ) f.publish = false;
 		else throw std::invalid_argument("XML : \"publish\" attribute is boolean, value must be \"true\" or \"false\" ");
+
+		if( f.publish )
+		{
+			DOMElement * ep = (dynamic_cast<DOMElement *> ( el.getElementsByTagName(XMLString::transcode("publish"))->item(0)));
+			f.topic_name = XMLString::transcode( ep->getAttribute( XMLString::transcode( "topic" )));
+			std::replace( f.topic_name.begin(), f.topic_name.end(), ' ', '_');
+			std::replace( f.topic_name.begin(), f.topic_name.end(), '-', '_');
+		}
 	}
 
 	//TODO : use output section as mandatory member ?
@@ -96,21 +105,8 @@ void XmlConverter::__convertXmlToInput( const DOMElement &el, XInput &xi )
 	if( el.getElementsByTagName(XMLString::transcode("name"))->getLength() == 0) throw std::invalid_argument("XML : Input has no name ");
 
 	xi.name =  XMLString::transcode(  (dynamic_cast<DOMElement *> (el.getElementsByTagName(XMLString::transcode("name"))->item(0))->getTextContent()));
+
 	
-/*	
-	std::string anchor =  XMLString::transcode( el.getAttribute(  XMLString::transcode( "anchor" )));
-	if( anchor.size() == 0 ) 
-	{
-		xi.isAnchor = false;
-	}
-	else
-	{
-		if( anchor == "true" ) xi.isAnchor = true;
-		else if( anchor == "false" ) xi.isAnchor = false;
-		else throw std::invalid_argument("XML : \"anchor\" attribute is boolean, value must be \"true\" or \"false\" ");
-	
-	}
-*/
 }
 
 void XmlConverter::__convertXmlToLink( const DOMElement &el, XLink &xi )
@@ -133,51 +129,33 @@ void XmlConverter::__convertXmlToLink( const DOMElement &el, XLink &xi )
 
 	if( xi.isCst) 
 	{
-		if( el.getElementsByTagName(XMLString::transcode("pred"))->getLength() != 0) throw std::invalid_argument("XML : Constant Input can't have a predecessor ");
+		if( el.getElementsByTagName(XMLString::transcode("from"))->getLength() != 0) throw std::invalid_argument("XML : Constant Input can't have a predecessor ");
 
-		if(el.getElementsByTagName(XMLString::transcode("value"))->getLength() == 0) throw  std::invalid_argument("XML : you should add default value for constant input ");
-		
-		xi.value = XMLString::transcode(  (dynamic_cast<DOMElement *> (el.getElementsByTagName(XMLString::transcode("value"))->item(0))->getTextContent()));
-		
-		/*
-		if( el.getElementsByTagName(XMLString::transcode("weight"))->getLength() == 0) 
-		{
-			xi.weight = 0;
-		}	
-		else
-		{
+		if(el.getElementsByTagName(XMLString::transcode("value"))->getLength() != 0 && el.getElementsByTagName(XMLString::transcode("weight"))->getLength() != 0) throw std::invalid_argument("XML : Constant Input can't be string and value : \"weight\" or \"value\" "); 
+
+		if(el.getElementsByTagName(XMLString::transcode("value"))->getLength() == 0 && el.getElementsByTagName(XMLString::transcode("weight"))->getLength() == 0) throw std::invalid_argument("XML : Constant Input must have \"weight\" or \"value\" tag "); 
+
+		if(el.getElementsByTagName(XMLString::transcode("value"))->getLength() != 0) xi.value = XMLString::transcode(  (dynamic_cast<DOMElement *> (el.getElementsByTagName(XMLString::transcode("value"))->item(0))->getTextContent()));
+		if( el.getElementsByTagName(XMLString::transcode("weight"))->getLength() != 0)
+		{ 
 			std::string weight =  XMLString::transcode(  (dynamic_cast<DOMElement *> (el.getElementsByTagName(XMLString::transcode("weight"))->item(0))->getTextContent()));
 			xi.weight = std::stod( weight);
 		}
 		
-		if( el.getElementsByTagName(XMLString::transcode("operator"))->getLength() == 0)
-		{
-			xi.op="none";	
-		}
-		else
-		{
-			xi.op = XMLString::transcode(  (dynamic_cast<DOMElement *> (el.getElementsByTagName(XMLString::transcode("operator"))->item(0))->getTextContent()));
-		}
-		*/	
 	}
 	else
 	{
-		if( el.getElementsByTagName(XMLString::transcode("pred"))->getLength() == 0) throw std::invalid_argument("XML : Input has no predecessor ");
+		if( el.getElementsByTagName(XMLString::transcode("from"))->getLength() == 0) throw std::invalid_argument("XML : Input has no predecessor ");
 		
 		if(el.getElementsByTagName(XMLString::transcode("value"))->getLength() != 0) throw  std::invalid_argument("XML : a non constant input can't have default value ");
 	
-		xi.uuid_pred = XMLString::transcode(  (dynamic_cast<DOMElement *> (el.getElementsByTagName(XMLString::transcode("pred"))->item(0))->getTextContent()));
+		xi.uuid_pred = XMLString::transcode(  (dynamic_cast<DOMElement *> (el.getElementsByTagName(XMLString::transcode("from"))->item(0))->getTextContent()));
 
-		if( el.getElementsByTagName(XMLString::transcode("weight"))->getLength() == 0) throw std::invalid_argument("XML : Input has no weight ");
+		if( el.getElementsByTagName(XMLString::transcode("weight"))->getLength() == 0) throw std::invalid_argument("XML : Link has no weight ");
 
 		std::string weight =  XMLString::transcode(  (dynamic_cast<DOMElement *> (el.getElementsByTagName(XMLString::transcode("weight"))->item(0))->getTextContent()));
 		xi.weight = std::stod( weight);
-	
-		if( el.getElementsByTagName(XMLString::transcode("operator"))->getLength() == 0) throw std::invalid_argument("XML : Input has no operator");
-
-		xi.op = XMLString::transcode(  (dynamic_cast<DOMElement *> (el.getElementsByTagName(XMLString::transcode("operator"))->item(0))->getTextContent()));
 	}
-	
 
 	std::string sparse =  XMLString::transcode( el.getAttribute(  XMLString::transcode( "sparse" )));
 	if( sparse.size() == 0 ) 

@@ -31,9 +31,8 @@ using namespace xercesc;
 struct XLink
 {
 	std::string uuid;
-
 	std::string uuid_pred;
-	std::string op;
+
 	double weight;
 
 	bool isSparse;
@@ -49,6 +48,8 @@ struct XInput
 	std::string name;
 
 	std::vector<XLink> links;
+
+	bool multiple;
 };
 
 struct XFunction
@@ -61,6 +62,7 @@ struct XFunction
 
 	bool publish;
 	bool save;
+	std::string topic_name;
 
 	// string : input name
 	std::map<std::string,XInput> inputs;

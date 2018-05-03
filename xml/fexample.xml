@@ -2,44 +2,27 @@
 <functions>
 	<function>
 		<name>Example</name>
-		<output> 
-			<type>SCALAR</type>
-		</output> 
+		<output type="SCALAR"></output> 
 		<inputs>
-			<input> 
-				<type>STRING</type>
+			<input type="STRING"> 
 				<name>str</name>
 			</input>
-			<input> 
-				<type>SCALAR_SCALAR</type>
+			<input type="SCALAR_SCALAR" > 
 				<name>u_is</name>
 			</input>
-			<input multiple="true">
-				<type>SCALAR_SCALAR</type>
+			<input multiple="true" type="SCALAR_SCALAR" > 
 				<name>m_is</name>
 			</input>
-			<input> 
-				<type>SCALAR_MATRIX</type>
+			<input type="SCALAR_MATRIX"> 
 				<name>u_ism</name>
 			</input>
-			<input multiple="true">
-				<type>SCALAR_MATRIX</type>
+			<input multiple="true" type="SCALAR_MATRIX">
 				<name>m_ism</name>
 			</input>
-			<input> 
-				<type>SIMPLE_MATRIX</type>
-				<name>u_im</name>
-			</input>
-			<input multiple="true">
-				<type>SIMPLE_MATRIX</type>
-				<name>m_im</name>
-			</input>
-			<input>
-				<type>MATRIX_MATRIX</type>
+			<input multiple="true" type="MATRIX_MATRIX">
 				<name>m_imm</name>
 			</input>
-			<input multiple="false">
-				<type>MATRIX_MATRIX</type>
+			<input type="MATRIX_MATRIX">
 				<name>u_imm</name>
 			</input>
 		</inputs>

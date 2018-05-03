@@ -2,40 +2,33 @@
 <functions>
 	<function>
 		<name>MSum</name>
-		<output>	
-			<type>MATRIX</type>
+		<output type="MATRIX">	
 		</output>	
 		<inputs>
-			<input multiple="true">
-				<type>SCALAR_MATRIX</type>
+			<input multiple="true" type="SCALAR_MATRIX">
 				<name>inMatrix</name>
 			</input>
 		</inputs>
 	</function>	
 	<function>
 		<name>SSum</name>
-		<output> 
-			<type>SCALAR</type>
+		<output type="SCALAR"> 
 		</output> 
 		<inputs>
-			<input multiple="true">
-				<type>SCALAR_SCALAR</type>
+			<input multiple="true" type="SCALAR_SCALAR">
 				<name>inScalar</name>
 			</input>
 		</inputs>
 	</function>	
 	<function>
 		<name>MSSum</name>
-		<output> 
-			<type>MATRIX</type>
+		<output type="MATRIX"> 
 		</output> 
 		<inputs>
-			<input multiple="true">
-				<type>SCALAR_MATRIX</type>
+			<input multiple="true" type="SCALAR_MATRIX">
 				<name>inMatrix</name>
 			</input>
-			<input multiple="true">
-				<type>SCALAR_SCALAR</type>
+			<input multiple="true" type="SCALAR_SCALAR">
 				<name>inScalar</name>
 			</input>
 		</inputs>

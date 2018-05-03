@@ -72,6 +72,7 @@ class Function
 
 		inline bool is_publish_active(){return publish;}
                 virtual void active_publish(bool state) = 0; 
+		virtual void set_topic_name(const std::string &topic) = 0;
 		
 		inline bool is_save_active(){return save;}
                 virtual void active_save(bool state) = 0; 
@@ -103,7 +104,7 @@ class FTemplate : public Function
                         return output;
                 }
 		
-		virtual void setUuid(const std::string& uuid);
+		virtual void set_topic_name(const std::string &topic);
 		virtual void active_publish(bool state);
 		virtual void active_save(bool state);
 		virtual void nsync_afterCompute();

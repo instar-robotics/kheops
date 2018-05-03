@@ -157,31 +157,21 @@ class iLink
 template<class I>
 class ICombinator
 {
-	private :
-		
-		OPERATOR op;
-
 	public : 	
 
-		ICombinator( OPERATOR op = MULTIPLICATION ) : op(op)  {}
+		ICombinator(){}
 		virtual ~ICombinator() {}
 		
-		inline OPERATOR getOp() {return op;}
-		virtual void setOp(OPERATOR OP){ op=OP;}
-		virtual void setOp(std::string sOp)
-		{
-			if( sOp == "+" ) setOp(ADDITION);
-        		else if( sOp == "*" ) setOp(MULTIPLICATION);
-        		else if( sOp == "-" ) setOp(SUBSTRACTION);
-        		else if( sOp == "/" ) setOp(DIVISION);
-        		else throw  std::invalid_argument( "ICombinator : unkown operator : "+sOp+". Legal operators are +, *, / or -");
-		}
-
 		virtual I& accumulate(I&)=0;
 		virtual I& mul_accumulate(I&)=0;
 		virtual I& sum_accumulate(I&)=0;
 		virtual I& sub_accumulate(I&)=0;
 		virtual I& div_accumulate(I&)=0;
+		
+		friend I& operator+=(I& res, ICombinator<I>& val) {return val.sum_accumulate(res);}
+		friend I& operator-=(I& res, ICombinator<I>& val) {return val.sub_accumulate(res);}
+		friend I& operator/=(I& res, ICombinator<I>& val) {return val.div_accumulate(res);}
+		friend I& operator*=(I& res, ICombinator<I>& val) {return val.sub_accumulate(res);}
 };
 
 		
@@ -189,42 +179,18 @@ class IScalar : public iLink<double,double>, public ICombinator<double>
 {
         public:
 		
-		IScalar(OPERATOR op = MULTIPLICATION);	
-		IScalar(double const * i, OPERATOR op );
+		IScalar();
+		IScalar(double const * i);
 		virtual ~IScalar();
                 
-		inline auto sum(){ return (*input) + weight; }
-		inline auto sub(){ return (*input) - weight; }
-		inline auto mul(){ return (*input) * weight; }
-		inline auto div(){ return (*input) / weight; }
+		double operator()(){return (*input) * weight;}
+
+		inline virtual double& accumulate(double& res){return res = (*input) * weight;}
+		inline virtual double& mul_accumulate(double& res){return res *= (*input) * weight;}
+		inline virtual double& sum_accumulate(double& res){return res += (*input) * weight;}
+		inline virtual double& sub_accumulate(double& res){return res -= (*input) * weight;}
+		inline virtual double& div_accumulate(double& res){return res /= (*input) * weight;}
 		
-                std::function<double()> operate;
-		double operator()(){return operate();}
-
-		inline virtual void setOp(std::string sOp){ICombinator::setOp(sOp);}
-
-		virtual void setOp(OPERATOR OP);
-
-		inline virtual double& accumulate(double& res){return res = operate(); }
-		inline virtual double& mul_accumulate(double& res){return res *= operate(); }
-		inline virtual double& sum_accumulate(double& res){return res += operate(); }
-		inline virtual double& sub_accumulate(double& res){return res -= operate(); }
-		inline virtual double& div_accumulate(double& res){return res /= operate(); }
-		
-		friend double& operator+=(double& res, IScalar& val)
-		{  
-			return res += val.operate() ;
-		}
-
-		friend double& operator+(double& res,  IScalar& val )
-		{
-			return res = res + val.operate() ;
-		}	
-
-		friend double& operator+(IScalar& val,double& res)
-		{
-			return res = res + val.operate() ;
-		}
 };
 
 
@@ -247,11 +213,11 @@ class IScalarMatrix : public IMatrix<double>, public ICombinator<MatrixXd>
 {
 	public : 
 
-		IScalarMatrix(OPERATOR op = MULTIPLICATION);
-                IScalarMatrix( MatrixXd const *  i, OPERATOR op = MULTIPLICATION );
+		IScalarMatrix();
+                IScalarMatrix( MatrixXd const *  i);
                 virtual ~IScalarMatrix();
 		
-		inline virtual void setOp(std::string sOp){ICombinator::setOp(sOp);}
+		MatrixXd& operator()(MatrixXd& res){return accumulate(res);}
                
 		virtual MatrixXd& accumulate(MatrixXd& res);
 		virtual MatrixXd& mul_accumulate(MatrixXd& res);
@@ -259,11 +225,6 @@ class IScalarMatrix : public IMatrix<double>, public ICombinator<MatrixXd>
 		virtual MatrixXd& sub_accumulate(MatrixXd& res); 
 		virtual MatrixXd& div_accumulate(MatrixXd& res);
 
-		friend MatrixXd& operator+=(MatrixXd& res, IScalarMatrix& val)
-		{  
-			return val.sum_accumulate(res);
-		}
-		
 };
 
 class IMMatrix : public IMatrix<MatrixXd>
@@ -288,7 +249,7 @@ class IMMatrix : public IMatrix<MatrixXd>
 		inline unsigned int getWRows(){return weight.rows();}
 		inline unsigned int getWCols(){return weight.cols();}
 
-		virtual void initWeight();
+		virtual void initWeight(double weight);
 		virtual void resizeWeight(); 
 		virtual bool checkWeightSize(unsigned int rows, unsigned int cols );
 		

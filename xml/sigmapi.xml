@@ -2,12 +2,10 @@
 <functions>
 	<function>
 		<name>SigmaPi</name>
-		<output> 
-			<type>MATRIX</type>
+		<output type="MATRIX"> 
 		</output> 
 		<inputs>
-			<input> 
-				<type>SCALAR_SCALAR</type>
+			<input type="SCALAR_SCALAR"> 
 				<name>vigilence</name>
 			</input>
 		</inputs>
