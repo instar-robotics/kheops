@@ -105,8 +105,17 @@ void XmlConverter::__convertXmlToInput( const DOMElement &el, XInput &xi )
 	if( el.getElementsByTagName(XMLString::transcode("name"))->getLength() == 0) throw std::invalid_argument("XML : Input has no name ");
 
 	xi.name =  XMLString::transcode(  (dynamic_cast<DOMElement *> (el.getElementsByTagName(XMLString::transcode("name"))->item(0))->getTextContent()));
-
 	
+	std::string multiple = XMLString::transcode( el.getAttribute( XMLString::transcode( "multiple" )));
+
+	if( multiple.size() == 0 ) xi.multiple = false;
+	else
+	{
+		if( multiple == "true" ) xi.multiple = true;
+		else if( multiple == "false" ) xi.multiple = false;
+		else throw std::invalid_argument("XML : \"mulitple\" attribute is boolean, value must be \"true\" or \"false\" ");
+	}
+
 }
 
 void XmlConverter::__convertXmlToLink( const DOMElement &el, XLink &xi )

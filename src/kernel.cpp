@@ -606,6 +606,12 @@ void Kernel::bind(ISInput& value,const  std::string& var_name,const std::string&
 
         if( xs.functions[uuid].inputs.find(var_name) ==  xs.functions[uuid].inputs.end() )  throw std::invalid_argument( "Kernel : unable to find input \""+var_name+"\", a SCALAR_SCALAR input from function "+uuid  );
 
+	if( value.isMultiple() != xs.functions[uuid].inputs.find(var_name)->second.multiple)
+	{
+		if(  value.isMultiple()  ) throw std::invalid_argument( "Kernel : input \""+var_name+"\" is define as multiple and mark as not multiple in XML file" );
+		else throw std::invalid_argument( "Kernel : input \""+var_name+"\" is define as not multiple and mark as multiple in XML file" ); 
+	}
+
 	is_input[ xs.functions[uuid].inputs.find(var_name)->second.uuid ] = &value;	
 	input_to_funct[ xs.functions[uuid].inputs.find(var_name)->second.uuid ] = uuid;
 	value.setUuid(  xs.functions[uuid].inputs.find(var_name)->second.uuid  );
@@ -619,6 +625,12 @@ void Kernel::bind(ISMInput& value,const std::string &var_name,const std::string&
         if( node_map.find(uuid) == node_map.end() || xs.functions.find(uuid) == xs.functions.end() ) throw std::invalid_argument( "Kernel : try to bind \""+var_name+"\", a SCALAR_MATRIX input to unkown function "+uuid );
                 
         if( xs.functions[uuid].inputs.find(var_name) ==  xs.functions[uuid].inputs.end() )  throw std::invalid_argument( "Kernel : unable to find input \""+var_name+"\", a SCALAR_MATRIX input from function "+uuid  );
+	
+	if( value.isMultiple() != xs.functions[uuid].inputs.find(var_name)->second.multiple)
+	{
+		if(  value.isMultiple()  ) throw std::invalid_argument( "Kernel : input \""+var_name+"\" is define as multiple and mark as not multiple in XML file" );
+		else throw std::invalid_argument( "Kernel : input \""+var_name+"\" is define as not multiple and mark as multiple in XML file" ); 
+	}
 
 	ism_input[ xs.functions[uuid].inputs.find(var_name)->second.uuid ] =  &value;
 	input_to_funct[ xs.functions[uuid].inputs.find(var_name)->second.uuid ] = uuid;
@@ -633,6 +645,12 @@ void Kernel::bind(IMMInput& value,const std::string& var_name,const std::string&
         if( node_map.find(uuid) == node_map.end() || xs.functions.find(uuid) == xs.functions.end() ) throw std::invalid_argument( "Kernel : try to bind \""+var_name+"\", a MATRIX_MATRIX input to unkown function "+uuid );
                 
         if( xs.functions[uuid].inputs.find(var_name) ==  xs.functions[uuid].inputs.end() )  throw std::invalid_argument( "Kernel : unable to find input \""+var_name+"\", a MATRIX_MATRIX input from function "+uuid  );
+	
+	if( value.isMultiple() != xs.functions[uuid].inputs.find(var_name)->second.multiple)
+	{
+		if(  value.isMultiple()  ) throw std::invalid_argument( "Kernel : input \""+var_name+"\" is define as multiple and mark as not multiple in XML file" );
+		else throw std::invalid_argument( "Kernel : input \""+var_name+"\" is define as not multiple and mark as multiple in XML file" ); 
+	}
 
 	imm_input[ xs.functions[uuid].inputs.find(var_name)->second.uuid ] =  &value;
 	input_to_funct[ xs.functions[uuid].inputs.find(var_name)->second.uuid ] = uuid;

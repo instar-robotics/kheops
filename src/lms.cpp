@@ -29,7 +29,7 @@ void LMS::compute()
 	
 	// Update weight
 	MatrixXd grad ; 
-	grad = learning_rate()() * (unconditionnal().accumulate(grad) - output);
+	grad = learning_rate()() * (unconditionnal()(grad) - output);
 
 	Map<MatrixXd> vgrad( grad.data(), grad.rows()* grad.cols() , 1) ;
 	for(unsigned int i=0; i < conditionnals.size(); i++)

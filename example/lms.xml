@@ -50,7 +50,7 @@
 					</link>
 				</links>	
                         </input>
-                        <input uuid="11">
+                        <input uuid="11" multiple="true">
                                 <name>conditionnals</name>
 				<links>
 					<link uuid="12" constant="true">

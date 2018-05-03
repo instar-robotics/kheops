@@ -56,18 +56,18 @@ void MSSum::compute()
 {
 	double sSum=0;
 
-	inMatrix[0].accumulate(output);	
+	inMatrix[0](output);	
 
 	for(unsigned int i=1; i < inMatrix.size(); i++)
 	{
-		inMatrix[i].sum_accumulate(output);	
+		output += inMatrix[i];	
 	}
 
 	sSum = inScalar[0]();	
 
 	for(unsigned int i=1; i < inScalar.size(); i++)
 	{
-		sSum += inScalar[i]();	
+		sSum += inScalar[i];	
 	}
 
 	output.array()+=sSum;
