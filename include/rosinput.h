@@ -25,8 +25,6 @@ The fact that you are presently reading this means that you have had knowledge o
 
 class SRosInput : public FScalar , public RosSubscriber<std_msgs::Float64>
 {
-	private : 
-
 	public :
 		
 		SRosInput() :  RosSubscriber<std_msgs::Float64>(1)  {}
@@ -40,8 +38,6 @@ class SRosInput : public FScalar , public RosSubscriber<std_msgs::Float64>
 
 class MRosInput : public FMatrix , public RosSubscriber<std_msgs::Float64MultiArray>
 {
-	private : 
-
 	public :
 
 		MRosInput() :  RosSubscriber<std_msgs::Float64MultiArray>(1)  {}

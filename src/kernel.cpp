@@ -107,7 +107,10 @@ void Kernel::load_links()
 				{
 					add_klink( funct->second.uuid , *link );
 				}
-				add_ilink( input->second.uuid , *link );
+				//TODO : check that input is not a string !
+				// BUT this is creapy ! 
+				// Add check type INPUT instead!
+				if( link->value.size() == 0 ) add_ilink( input->second.uuid , *link );
 			}
 		}
 	}	 	

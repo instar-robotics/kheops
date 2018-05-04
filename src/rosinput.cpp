@@ -25,20 +25,14 @@ REGISTER_FUNCTION(MRosInput);
 
 void SRosInput::compute()
 {
-//	ros::spinOnce();
+	my_queue.callOne(ros::WallDuration());
 }
 
 void SRosInput::setparameters()
 {
  	Kernel::instance().bind(topic_name,"topic_name", getUuid());
 	RosWrapper::clean_topic_name(topic_name);
-	//subscribe();
-
-	ros::NodeHandle n;
-//	sub = RosWrapper::getNodeHandle()->subscribe( topic_name, size_queue, callback);
-	sub = n.subscribe( topic_name, size_queue, &SRosInput::callback,this);
-
-	
+	subscribe();
 }
 
 void SRosInput::callback(const std_msgs::Float64::ConstPtr &msg)
@@ -52,17 +46,19 @@ void SRosInput::callback(const std_msgs::Float64::ConstPtr &msg)
 
 void MRosInput::compute()
 {
-
+	my_queue.callOne(ros::WallDuration());
 }
 
 void MRosInput::setparameters()
 {
 	Kernel::instance().bind(topic_name,"topic_name", getUuid());
 	RosWrapper::clean_topic_name(topic_name);
-	//subscribe();
+	subscribe();
 }
 
 void MRosInput::callback( const std_msgs::Float64MultiArray::ConstPtr &msg)
 {
+ 	Map<const MatrixXd> mEnc ( msg->data.data() , msg->layout.dim[0].size , msg->layout.dim[1].size );
 
+       	output = mEnc;
 }

@@ -19,17 +19,22 @@ The fact that you are presently reading this means that you have had knowledge o
 
 #include "ros/ros.h"
 #include "roswrapper.h"
+#include <ros/callback_queue.h>
+
 
 template<class RosMessage>
 class RosSubscriber
 {
 	protected :
 
+		std::string topic_name;
+
 		RosMessage msg;
                 int size_queue;
 
 		ros::Subscriber sub;
-		std::string topic_name;
+		ros::CallbackQueue my_queue;
+		ros::NodeHandle n;
 
 	public : 
 	
@@ -42,7 +47,8 @@ class RosSubscriber
 
 		void subscribe()
 		{
-			sub = RosWrapper::getNodeHandle()->subscribe( topic_name, size_queue, callback);
+			n.setCallbackQueue(&my_queue);
+			sub = n.subscribe( topic_name, size_queue, &RosSubscriber<RosMessage>::callback, this);
 		}
 
 		virtual void callback(const typename RosMessage::ConstPtr &msg) = 0;
