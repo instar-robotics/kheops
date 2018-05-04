@@ -95,3 +95,4 @@ std::string generate_uuid()
 
 	return uuid;
 }
+

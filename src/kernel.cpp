@@ -352,6 +352,7 @@ void Kernel::purge_klinks(const std::string& uuid)
 void Kernel::add_ilink(const std::string& in_uuid, const XLink& xl)
 {
 	// Control klink exist : non constant input and klink doesn't exist -> error 
+
 	if( !xl.isCst)
 	{
 		if(edge_map.find( xl.uuid) == edge_map.end() ) throw std::invalid_argument( "Kernel : unable to find link "+xl.uuid );
@@ -672,7 +673,7 @@ void Kernel::bind(std::string& value,const std::string& var_name,const std::stri
 
         if( xs.functions[uuid].inputs[var_name].links[0].isCst == true )
         {
-                value =  xs.functions[uuid].inputs[var_name].links[0].value; 
+                value = xs.functions[uuid].inputs[var_name].links[0].value; 
         }
         else throw std::invalid_argument( "Kernel : string input have to be constant");
 }

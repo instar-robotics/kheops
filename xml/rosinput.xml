@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<functions>
+	<function>
+		<name>MRosInput</name>
+		<output type="MATRIX">	
+		</output>	
+		<inputs>
+			<input multiple="false" type="STRING">
+				<name>topic_name</name>
+			</input>
+		</inputs>
+	</function>	
+	<function>
+		<name>SRosInput</name>
+		<output type="SCALAR"> 
+		</output> 
+		<inputs>
+			<input multiple="false" type="STRING">
+				<name>topic_name</name>
+			</input>
+		</inputs>
+	</function>	
+<functions>

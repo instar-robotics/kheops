@@ -21,20 +21,20 @@ The fact that you are presently reading this means that you have had knowledge o
 
 RtToken::RtToken() : Runner(),period(0), state(R_PAUSE), publish(false) 
 {
-	o_pub = new RosOscilloPublisher(1);
+	o_pub = new RosOscilloPublisher(1,"oscillo");
 	rt_pub = new RosRtTokenOutputPublisher(1, "rt_token"); 
 }
 
 RtToken::RtToken(double period) : Runner(),period(period),state(R_PAUSE),publish(false)
 { 
-	o_pub = new RosOscilloPublisher(1);
+	o_pub = new RosOscilloPublisher(1,"oscillo");
 	rt_pub = new RosRtTokenOutputPublisher(1, "rt_token"); 
 }
 
 RtToken::RtToken(double value, std::string unit) : Runner(),state(R_PAUSE), publish(false)
 {
 	setToken(value,unit); 
-	o_pub = new RosOscilloPublisher(1);
+	o_pub = new RosOscilloPublisher(1,"oscillo");
 	rt_pub = new RosRtTokenOutputPublisher(1, "rt_token"); 
 }
 

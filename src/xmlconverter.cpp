@@ -68,8 +68,6 @@ void XmlConverter::__convertXmlToFunction(const DOMElement &el, XFunction &f)
 		{
 			DOMElement * ep = (dynamic_cast<DOMElement *> ( el.getElementsByTagName(XMLString::transcode("publish"))->item(0)));
 			f.topic_name = XMLString::transcode( ep->getAttribute( XMLString::transcode( "topic" )));
-			std::replace( f.topic_name.begin(), f.topic_name.end(), ' ', '_');
-			std::replace( f.topic_name.begin(), f.topic_name.end(), '-', '_');
 		}
 	}
 
@@ -83,15 +81,25 @@ void XmlConverter::__convertXmlToFunction(const DOMElement &el, XFunction &f)
 	{
 		DOMElement * eo = (dynamic_cast<DOMElement *> (el.getElementsByTagName(XMLString::transcode("output"))->item(0)));
 
-		if( eo->getElementsByTagName( XMLString::transcode("rows") )->getLength() == 0) throw std::invalid_argument("XML : Function "+f.uuid+" has no rows size");
-		if( eo->getElementsByTagName( XMLString::transcode("cols") )->getLength() == 0) throw std::invalid_argument("XML : Function "+f.uuid+" has no cols size");
+		if( eo->getElementsByTagName( XMLString::transcode("rows") )->getLength() == 0)
+		{  
+			f.rows = 0;
+		}
+		else
+		{
+			std::string rows = XMLString::transcode( eo->getElementsByTagName( XMLString::transcode("rows"))->item(0)->getTextContent() );
+			f.rows = std::stoi(rows);
 
-
-		std::string rows = XMLString::transcode( eo->getElementsByTagName( XMLString::transcode("rows"))->item(0)->getTextContent() );
-		f.rows = std::stoi(rows);
-
-		std::string cols =  XMLString::transcode( eo->getElementsByTagName( XMLString::transcode("cols"))->item(0)->getTextContent() );
-		f.cols = std::stoi(cols);
+		}
+		if( eo->getElementsByTagName( XMLString::transcode("cols") )->getLength() == 0) 
+		{ 
+			f.cols = 0;
+		}
+		else
+		{
+			std::string cols =  XMLString::transcode( eo->getElementsByTagName( XMLString::transcode("cols"))->item(0)->getTextContent() );
+			f.cols = std::stoi(cols);
+		}
 	}
 }
 
@@ -235,7 +243,7 @@ void XmlConverter::__loadFunctions(std::map<std::string,XFunction> &functions)
 		
 		if( functions.find( f.uuid ) == functions.end() ) functions[f.uuid] = f;
 		else throw std::invalid_argument("XML : uuid function in xml file has to be unique");
-
+		
 	}while(  (xFunc = xFunc->getNextElementSibling() ) != NULL);
 }
 

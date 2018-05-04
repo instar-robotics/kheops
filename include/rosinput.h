@@ -1,12 +1,12 @@
 /*
-Copyright Instar Robotics
+Copyright INSTAR Robotics
 
 Author: Pierre Delarboulas
 
 This software is governed by the CeCILL v2.1 license under French law and abiding by the rules of distribution of free software. 
 You can use, modify and/ or redistribute the software under the terms of the CeCILL v2.1 license as circulated by CEA, CNRS and INRIA at the following URL "http://www.cecill.info".
 As a counterpart to the access to the source code and  rights to copy, modify and redistribute granted by the license, 
-users are provided only with a limited warranty and the software's author, the holder of the economic rights,  and the successive licensors have only limited liability. 
+users are provided only with a limited warranty and the software's author, the holder of the economic rights,  and the successive licensors have only limited liability.  
 In this respect, the user's attention is drawn to the risks associated with loading, using, modifying and/or developing or reproducing the software by the user in light of its specific status of free software, 
 that may mean  that it is complicated to manipulate, and that also therefore means that it is reserved for developers and experienced professionals having in-depth computer knowledge. 
 Users are therefore encouraged to load and test the software's suitability as regards their requirements in conditions enabling the security of their systems and/or data to be ensured 
@@ -14,31 +14,44 @@ and, more generally, to use and operate it in the same conditions as regards sec
 The fact that you are presently reading this means that you have had knowledge of the CeCILL v2.1 license and that you accept its terms.
 */
 
-#ifndef __ROS_WRAPPER_H__
-#define __ROS_WRAPPER_H__
+#ifndef __ROS_INPUT_HPP__
+#define __ROS_INPUT_HPP__
 
-#include <string>
-#include "ros/ros.h"
+#include "function.h"
+#include "kernel.h"
+#include "std_msgs/Float64MultiArray.h"
+#include "std_msgs/Float64.h"
+#include "rossubscriber.h"
 
-class RosWrapper
+class SRosInput : public FScalar , public RosSubscriber<std_msgs::Float64>
 {
 	private : 
 
-		std::string node_name;
-		ros::NodeHandle * n;
+	public :
+		
+		SRosInput() :  RosSubscriber<std_msgs::Float64>(1)  {}
+		virtual ~SRosInput(){}
 
-		static RosWrapper singleton;
+		virtual void compute();
+                virtual void setparameters();
+		
+		virtual void callback(const std_msgs::Float64::ConstPtr &msg);
+};
+
+class MRosInput : public FMatrix , public RosSubscriber<std_msgs::Float64MultiArray>
+{
+	private : 
 
 	public :
 
-		RosWrapper(){}
-		~RosWrapper(){if(n != NULL) delete(n);} 
+		MRosInput() :  RosSubscriber<std_msgs::Float64MultiArray>(1)  {}
+		virtual ~MRosInput(){}
 
-		static void init(int argc, char ** argv, std::string prog_name, std::string script_name);
-		static ros::NodeHandle* getNodeHandle(){return singleton.n;}
-		static std::string getNodeName() {return singleton.node_name;}
+		virtual void compute();
+                virtual void setparameters();
 
-		static void clean_topic_name(std::string& str);
+		virtual void callback( const std_msgs::Float64MultiArray::ConstPtr &msg );
+
 };
 
-#endif // __ROS_WRAPPER_H__
+#endif // __ROS_INPUT_HPP__

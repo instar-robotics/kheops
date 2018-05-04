@@ -26,3 +26,12 @@ void RosWrapper::init(int argc, char ** argv, std::string prog_name, std::string
 
 	singleton.n = new ros::NodeHandle();
 } 
+
+void RosWrapper::clean_topic_name(std::string& str)
+{
+        std::replace( str.begin(), str.end(), ' ', '_');
+        std::replace( str.begin(), str.end(), '-', '_');
+
+	str.erase(std::remove(str.begin(), str.end(), '}'), str.end());
+	str.erase(std::remove(str.begin(), str.end(), '{'), str.end());
+}

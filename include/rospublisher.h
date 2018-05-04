@@ -47,17 +47,13 @@ class RosTopic
 		virtual ~RosTopic(){}
 
 		void setSize(int size) {size_queue = size;}
-		
-		void open(const std::string &topic)
-		{
-			pub = RosWrapper::getNodeHandle()->advertise<RosMessage>( topic , size_queue);
-		}
-		
+
 		//TODO : for now, i don't implement mutex exclusion on publish/shutdown
 		//  a Topic could be closed during a publish call
 		// I had some security in rosinterface : Kernel is paused during a close call
 		// however, this could had some latency during start/stop call
 		// So it should be a better idee to had a Condition_variable in RosTopic class to avoid problem and remove kernel pause during services call execution
+		void open(const std::string &topic);
 		void close() { pub.shutdown();}
 		void publish(){	pub.publish(msg);}
 };
@@ -70,25 +66,12 @@ class RosDataPublisher : public DataPublisher<Message>, public RosTopic<RosMessa
 		RosDataPublisher(int size) : DataPublisher<Message>() ,  RosTopic<RosMessage>(size) {}
 		virtual ~RosDataPublisher() {}
 
-		virtual void open()
-		{ 
-			Publisher::state = false;
-			RosTopic<RosMessage>::close();
-			
-			if( ! Publisher::state )
-			{  
-				RosTopic<RosMessage>::open(  RosWrapper::getNodeName() +"/"+Publisher::pub_name );
-			}	
-			Publisher::state = true;
-		}
+		virtual void open();
+		virtual void close();
+		virtual void publish();
 
-		virtual void close()
-		{ 
-			Publisher::state = false;
-			RosTopic<RosMessage>::close();
-		}
-		
-		virtual void publish(){	RosTopic<RosMessage>::publish();}
+		virtual void setPubName(const std::string & pub_name);
+
 };
 
 template<class Message, class RosMessage>
@@ -98,59 +81,25 @@ class RosArrayPublisher : public ArrayPublisher<Message> , public RosTopic<RosMe
 		RosArrayPublisher(int size) : ArrayPublisher<Message>(), RosTopic<RosMessage>(size) {}
 		virtual ~RosArrayPublisher() {}
 		
-		virtual void open()
-                {
-                        Publisher::state = false;
-                        RosTopic<RosMessage>::close();
-
-                        if( !Publisher::state )
-                        {
-                                RosTopic<RosMessage>::open(  RosWrapper::getNodeName() +"/"+Publisher::pub_name );
-                        }
-                        Publisher::state = true;
-                }
-
-                virtual void close()
-                {
-                        Publisher::state = false;
-                        RosTopic<RosMessage>::close();
-                }
-
-                virtual void publish(){ RosTopic<RosMessage>::publish();}
+		virtual void open();
+                virtual void close();
+                virtual void publish();
+		
+		virtual void setPubName(const std::string & pub_name);
 };
 
 class RosOscilloPublisher : public RosArrayPublisher<OscilloMessage,hieroglyph::OscilloArray>
 {
 	public : 
-		RosOscilloPublisher(int size) : RosArrayPublisher(size) {
-			pub_name = "oscillo" ;
+		RosOscilloPublisher(int size, const std::string& pub_name) : RosArrayPublisher(size) {
+			Publisher::pub_name = pub_name ;
+			RosWrapper::clean_topic_name(Publisher::pub_name);
 		}
 		virtual ~RosOscilloPublisher(){}
 
-		virtual void add(const OscilloMessage &m) 
-		{
-			hieroglyph::OscilloData osc_data;	
-
-			osc_data.uuid = m.uuid;
-			osc_data.period = m.period;
-			osc_data.means = m.means;
-			osc_data.sleep = m.sleep;
-			osc_data.duration = m.duration;
-			osc_data.start = m.start;
-			osc_data.warning = m.warning;
-
-			msg.array.push_back(osc_data);		
-		}
-		
-		virtual void clear()
-		{
-			msg.array.clear();
-		}
-
-		virtual void resize(int size)
-		{
-			msg.array.resize(size);		
-		}
+		virtual void add(const OscilloMessage &m);
+		virtual void clear();
+		virtual void resize(int size);
 };
 
 class RosRtTokenOutputPublisher : public RosDataPublisher<OscilloMessage, hieroglyph::OscilloData>
@@ -159,20 +108,11 @@ class RosRtTokenOutputPublisher : public RosDataPublisher<OscilloMessage, hierog
 
 		RosRtTokenOutputPublisher(int size, const std::string& pub_name ) : RosDataPublisher(size) {
 			Publisher::pub_name=pub_name; 
+			RosWrapper::clean_topic_name(Publisher::pub_name);
 		}
 
 		virtual ~RosRtTokenOutputPublisher(){}
-
-		virtual void setMessage(const OscilloMessage& m)
-                {
-			msg.uuid = m.uuid;
-			msg.period = m.period;
-			msg.means = m.means;
-			msg.sleep = m.sleep;
-			msg.duration = m.duration;
-			msg.start = m.start;
-			msg.warning = m.warning;
-                }
+		virtual void setMessage(const OscilloMessage& m);
 };
 
 class RosScalarPublisher : public RosDataPublisher<double,std_msgs::Float64>
@@ -181,10 +121,7 @@ class RosScalarPublisher : public RosDataPublisher<double,std_msgs::Float64>
 		RosScalarPublisher(int size) : RosDataPublisher(size){}
 		virtual ~RosScalarPublisher(){}
 		
-		virtual void setMessage(const double& m)
-		{
-			msg.data = m;
-		}
+		virtual void setMessage(const double& m);
 };
 
 class RosMatrixPublisher : public RosDataPublisher<MatrixXd, std_msgs::Float64MultiArray>
@@ -194,29 +131,9 @@ class RosMatrixPublisher : public RosDataPublisher<MatrixXd, std_msgs::Float64Mu
 		RosMatrixPublisher(int size) : RosDataPublisher(size){ msg.layout.dim.resize(2);}
 		virtual ~RosMatrixPublisher(){}
 
-		virtual void setMessage(const MatrixXd& m)
-		{
-			if( !checkSize( m.rows(), m.cols() )) setSize(m.rows(), m.cols());	
-
-			Map<MatrixXd> mEnc( msg.data.data() , msg.layout.dim[0].size ,msg.layout.dim[1].size );
-			mEnc = m;
-		}
-
-		virtual void setSize(unsigned int rows,unsigned int cols)
-		{
-        		msg.layout.dim[0].stride = rows  * cols ;
-        		msg.layout.dim[0].size = rows;
-        		msg.layout.dim[1].stride = cols;
-        		msg.layout.dim[1].size = cols;
-
-			msg.data.resize( rows * cols );
-		}
-
-		virtual bool checkSize( unsigned int rows, unsigned int cols )
-		{
-			if( rows == msg.layout.dim[0].size  && cols == msg.layout.dim[1].size ) return true;
-			else return false;
-		}
+		virtual void setMessage(const MatrixXd& m);
+		virtual void setSize(unsigned int rows,unsigned int cols);
+		virtual bool checkSize( unsigned int rows, unsigned int cols );
 };
 
 #endif // __ROS_PUBLISHER_H__
