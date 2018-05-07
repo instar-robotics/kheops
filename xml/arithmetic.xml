@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<functions>
+	<function>
+		<name>MSum</name>
+		<output type="MATRIX">	
+		</output>	
+		<inputs>
+			<input multiple="true" type="SCALAR_MATRIX">
+				<name>inMatrix</name>
+			</input>
+		</inputs>
+	</function>	
+	<function>
+		<name>SSum</name>
+		<output type="SCALAR"> 
+		</output> 
+		<inputs>
+			<input multiple="true" type="SCALAR_SCALAR">
+				<name>inScalar</name>
+			</input>
+		</inputs>
+	</function>	
+	<function>
+		<name>MSSum</name>
+		<output type="MATRIX"> 
+		</output> 
+		<inputs>
+			<input multiple="true" type="SCALAR_MATRIX">
+				<name>inMatrix</name>
+			</input>
+			<input multiple="true" type="SCALAR_SCALAR">
+				<name>inScalar</name>
+			</input>
+		</inputs>
+	</function>	
+	        <function>
+                <name>MMul</name>
+                <output type="MATRIX" >
+                </output>
+                <inputs>
+                        <input multiple="true" type="SCALAR_MATRIX" >
+                                <name>inMatrix</name>
+                        </input>
+                </inputs>
+        </function>
+        <function>
+                <name>SMul</name>
+                <output type="SCALAR">
+                </output>
+                <inputs>
+                        <input multiple="true" type="SCALAR_SCALAR">
+                                <name>inScalar</name>
+                        </input>
+                </inputs>
+        </function>
+        <function>
+                <name>MSMul</name>
+                <output type="MATRIX">
+                </output>
+                <inputs>
+                        <input mulitple="true" type="SCALAR_MATRIX">
+                                <name>inMatrix</name>
+                        </input>
+                        <input multiple="true" type="SCALAR_SCALAR">
+                                <name>inScalar</name>
+                        </input>
+                </inputs>
+        </function>
+	        <function>
+                <name>MMDiv</name>
+                <output type="MATRIX">
+                </output>
+                <inputs>
+                        <input type="SCALAR_MATRIX">
+                                <name>numerator</name>
+                        </input>
+                        <input type="SCALAR_MATRIX">
+                                <name>denumerator</name>
+                        </input>
+                </inputs>
+        </function>
+        <function>
+                <name>SSDiv</name>
+                <output type="SCALAR">
+                </output>
+                <inputs>
+                        <input type="SCALAR_SCALAR">
+                                <name>numerator</name>
+                        </input>
+                        <input type="SCALAR_SCALAR">
+                                <name>denumerator</name>
+                        </input>
+                </inputs>
+        </function>
+        <function>
+                <name>MSDiv</name>
+                <output type="MATRIX">
+                </output>
+                <inputs>
+                        <input type="SCALAR_MATRIX">
+                                <name>numerator</name>
+                        </input>
+                        <input type="SCALAR_MATRIX">
+                                <name>denumerator</name>
+                        </input>
+                </inputs>
+        </function>
+	        <function>
+                <name>MMSub</name>
+                <output type="MATRIX">
+                </output>
+                <inputs>
+                        <input type="SCALAR_MATRIX">
+                                <name>diminuende</name>
+                        </input>
+                        <input type="SCALAR_MATRIX">
+                                <name>subtrahend</name>
+                        </input>
+                </inputs>
+        </function>
+        <function>
+                <name>SSSub</name>
+                <output type="SCALAR">
+                </output>
+                <inputs>
+                        <input type="SCALAR_SCALAR">
+                                <name>diminuende</name>
+                        </input>
+                        <input type="SCALAR_SCALAR">
+                                <name>subtrahend</name>
+                        </input>
+                </inputs>
+        </function>
+        <function>
+                <name>MSSub</name>
+                <output type="MATRIX">
+                </output>
+                <inputs>
+                        <input type="SCALAR_SCALAR">
+                                <name>diminuende</name>
+                        </input>
+                        <input type="SCALAR_SCALAR">
+                                <name>subtrahend</name>
+                        </input>
+                </inputs>
+        </function>
+</functions>

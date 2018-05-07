@@ -14,44 +14,43 @@ and, more generally, to use and operate it in the same conditions as regards sec
 The fact that you are presently reading this means that you have had knowledge of the CeCILL v2.1 license and that you accept its terms.
 */
 
-#include "sub.h"
+#include "pow.h"
 
-REGISTER_FUNCTION(MMSub);
-REGISTER_FUNCTION(MSSub);
-REGISTER_FUNCTION(SSSub);
+/********************************************************************************************************/
+/*************************************************  Exp   ***********************************************/
+/********************************************************************************************************/
 
-void MMSub::compute()
+REGISTER_FUNCTION(MExp);
+REGISTER_FUNCTION(SExp);
+
+void MExp::compute()
 {
-	 diminuende().accumulate(output);
-	 subtrahend().sub_accumulate(output);
+	inMatrix[0](output);	
+
+	for(unsigned int i=1; i < inMatrix.size(); i++)
+	{
+		output += inMatrix[i] ;	
+	}
 }
 
-void MMSub::setparameters()
+void  MExp::setparameters()
 {
-        Kernel::instance().bind(diminuende,"diminuende", getUuid());
-        Kernel::instance().bind(subtrahend,"subtrahend", getUuid());
+        Kernel::instance().bind(inMatrix,"inMatrix", getUuid());
 }
 
-void MSSub::compute()
+void SExp::compute()
 {
-	diminuende().accumulate(output);
-	output.array() -= subtrahend()();
+	output = inScalar[0]();
+
+	for(unsigned int i=1; i < inScalar.size(); i++)
+	{
+		output += inScalar[i] ; 
+	}
+}
+
+void  SExp::setparameters()
+{
+        Kernel::instance().bind(inScalar,"inScalar", getUuid());
 }
 
 
-void MSSub::setparameters()
-{
-        Kernel::instance().bind(diminuende,"diminuende", getUuid());
-        Kernel::instance().bind(subtrahend,"subtrahend", getUuid());
-}
-
-void SSSub::compute()
-{
-	output = diminuende()() - subtrahend()();
-}
-
-void SSSub::setparameters()
-{
-        Kernel::instance().bind(diminuende,"diminuende", getUuid());
-        Kernel::instance().bind(subtrahend,"subtrahend", getUuid());
-}

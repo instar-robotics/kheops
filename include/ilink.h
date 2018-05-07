@@ -191,6 +191,9 @@ class IScalar : public iLink<double,double>, public ICombinator<double>
 		inline virtual double& sub_accumulate(double& res){return res -= (*input) * weight;}
 		inline virtual double& div_accumulate(double& res){return res /= (*input) * weight;}
 		
+		//TODO : add operator for Matrix and IScalar ? 
+		// Perhaps not a good idee ... 
+		// Force developpers to use ()() operator to get a double and to use classical Eigen function...
 };
 
 

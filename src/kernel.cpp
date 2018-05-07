@@ -101,6 +101,7 @@ void Kernel::load_links()
 	{
 		for( auto input = funct->second.inputs.begin(); input != funct->second.inputs.end(); input++)
 		{
+			//TODO : check here Input type
 			for( auto link = input->second.links.begin(); link !=  input->second.links.end(); link++)
 			{
 				if( !link->isCst )
