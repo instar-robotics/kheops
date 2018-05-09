@@ -168,6 +168,8 @@ class ICombinator
 		virtual I& sub_accumulate(I&)=0;
 		virtual I& div_accumulate(I&)=0;
 		
+		virtual I operator()() = 0;
+		
 		friend I& operator+=(I& res, ICombinator<I>& val) {return val.sum_accumulate(res);}
 		friend I& operator-=(I& res, ICombinator<I>& val) {return val.sub_accumulate(res);}
 		friend I& operator/=(I& res, ICombinator<I>& val) {return val.div_accumulate(res);}
@@ -183,7 +185,7 @@ class IScalar : public iLink<double,double>, public ICombinator<double>
 		IScalar(double const * i);
 		virtual ~IScalar();
                 
-		double operator()(){return (*input) * weight;}
+		virtual double operator()(){return (*input) * weight;}
 
 		inline virtual double& accumulate(double& res){return res = (*input) * weight;}
 		inline virtual double& mul_accumulate(double& res){return res *= (*input) * weight;}
@@ -221,6 +223,7 @@ class IScalarMatrix : public IMatrix<double>, public ICombinator<MatrixXd>
                 virtual ~IScalarMatrix();
 		
 		MatrixXd& operator()(MatrixXd& res){return accumulate(res);}
+		virtual MatrixXd operator()(){return (*input) * weight;}
                
 		virtual MatrixXd& accumulate(MatrixXd& res);
 		virtual MatrixXd& mul_accumulate(MatrixXd& res);

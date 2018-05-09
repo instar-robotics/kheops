@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<functions>
+	<function>
+		<name>MAND</name>
+		<output type="MATRIX">	
+		</output>	
+		<inputs>
+			<input multiple="true" type="SCALAR_MATRIX">
+				<name>inMatrix</name>
+			</input>
+		</inputs>
+	</function>	
+	<function>
+		<name>MSAND</name>
+		<output type="MATRIX"> 
+		</output> 
+		<inputs>
+			<input multiple="true" type="SCALAR_MATRIX">
+				<name>inMatrix</name>
+			</input>
+			<input multiple="true" type="SCALAR_SCALAR">
+				<name>inScalar</name>
+			</input>
+		</inputs>
+	</function>	
+        <function>
+                <name>SAND</name>
+                <output type="SCALAR">
+                </output>
+                <inputs>
+                        <input multiple="true" type="SCALAR_SCALAR">
+                                <name>inScalar</name>
+                        </input>
+                </inputs>
+        </function>
+        <function>
+                <name>MOR</name>
+                <output type="MATRIX">
+                </output>
+                <inputs>
+                        <input multiple="true" type="SCALAR_MATRIX">
+                                <name>inMatrix</name>
+                        </input>
+                </inputs>
+        </function>
+        <function>
+                <name>MSOR</name>
+                <output type="MATRIX">
+                </output>
+                <inputs>
+                        <input multiple="true" type="SCALAR_MATRIX">
+                                <name>inMatrix</name>
+                        </input>
+                        <input multiple="true" type="SCALAR_SCALAR">
+                                <name>inScalar</name>
+                        </input>
+                </inputs>
+        </function>
+        <function>
+                <name>SOR</name>
+                <output type="SCALAR">
+                </output>
+                <inputs>
+                        <input multiple="true" type="SCALAR_SCALAR">
+                                <name>inScalar</name>
+                        </input>
+                </inputs>
+        </function>
+        <function>
+                <name>MXOR</name>
+                <output type="MATRIX">
+                </output>
+                <inputs>
+                        <input multiple="true" type="SCALAR_MATRIX">
+                                <name>inMatrix</name>
+                        </input>
+                </inputs>
+        </function>
+        <function>
+                <name>MSXOR</name>
+                <output type="MATRIX">
+                </output>
+                <inputs>
+                        <input multiple="true" type="SCALAR_MATRIX">
+                                <name>inMatrix</name>
+                        </input>
+                        <input multiple="true" type="SCALAR_SCALAR">
+                                <name>inScalar</name>
+                        </input>
+                </inputs>
+        </function>
+        <function>
+                <name>SXOR</name>
+                <output type="SCALAR">
+                </output>
+                <inputs>
+                        <input multiple="true" type="SCALAR_SCALAR">
+                                <name>inScalar</name>
+                        </input>
+                </inputs>
+        </function>
+        <function>
+                <name>MNOT</name>
+                <output type="MATRIX">
+                </output>
+                <inputs>
+                        <input multiple="false" type="SCALAR_MATRIX">
+                                <name>inMatrix</name>
+                        </input>
+                </inputs>
+        </function>
+        <function>
+                <name>SNOT</name>
+                <output type="SCALAR">
+                </output>
+                <inputs>
+                        <input multiple="false" type="SCALAR_SCALAR">
+                                <name>inScalar</name>
+                        </input>
+                </inputs>
+        </function>
+</functions>

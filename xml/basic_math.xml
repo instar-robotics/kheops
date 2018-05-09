@@ -1,7 +1,27 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <functions>
 	<function>
-                <name>MCos</name>
+		<name>Max</name>
+		<output type="SCALAR">	
+		</output>	
+		<inputs>
+			<input multiple="false" type="SCALAR_MATRIX">
+				<name>inMatrix</name>
+			</input>
+		</inputs>
+	</function>	
+        <function>
+                <name>Min</name>
+                <output type="SCALAR">
+                </output>
+                <inputs>
+                        <input multiple="false" type="SCALAR_MATRIX">
+                                <name>inMatrix</name>
+                        </input>
+                </inputs>
+        </function>
+        <function>
+                <name>MAbs</name>
                 <output type="MATRIX">
                 </output>
                 <inputs>
@@ -11,7 +31,66 @@
                 </inputs>
         </function>
         <function>
-                <name>SCos</name>
+                <name>SAbs</name>
+                <output type="SCALAR">
+                </output>
+                <inputs>
+                        <input multiple="false" type="SCALAR_SCALAR">
+                                <name>inScalar</name>
+                        </input>
+                </inputs>
+        </function>
+        <function>
+                <name>MModulo</name>
+                <output type="MATRIX">
+                </output>
+                <inputs>
+                        <input multiple="false" type="SCALAR_MATRIX">
+                                <name>inMatrix</name>
+                        </input>
+                        <input multiple="false" type="SCALAR_MATRIX">
+                                <name>modulo</name>
+                        </input>
+                </inputs>
+        </function>
+        <function>
+                <name>MSModulo</name>
+                <output type="MATRIX">
+                </output>
+                <inputs>
+                        <input multiple="false" type="SCALAR_MATRIX">
+                                <name>inMatrix</name>
+                        </input>
+                        <input multiple="false" type="SCALAR_SCALAR">
+                                <name>modulo</name>
+                        </input>
+                </inputs>
+        </function>
+        <function>
+                <name>SModulo</name>
+                <output type="SCALAR">
+                </output>
+                <inputs>
+                        <input multiple="false" type="SCALAR_SCALAR">
+                                <name>inScalar</name>
+                        </input>
+                        <input multiple="false" type="SCALAR_SCALAR">
+                                <name>modulo</name>
+                        </input>
+                </inputs>
+        </function>
+	<function>
+                <name>MThreshold</name>
+                <output type="MATRIX">
+                </output>
+                <inputs>
+                        <input multiple="false" type="SCALAR_MATRIX">
+                                <name>inMatrix</name>
+                        </input>
+                </inputs>
+        </function>
+        <function>
+                <name>SThreshold</name>
                 <output type="SCALAR">
                 </output>
                 <inputs>
@@ -21,7 +100,7 @@
                 </inputs>
         </function>
 	<function>
-                <name>MSin</name>
+                <name>MThreshold_Custom</name>
                 <output type="MATRIX">
                 </output>
                 <inputs>
@@ -31,7 +110,7 @@
                 </inputs>
         </function>
         <function>
-                <name>SSin</name>
+                <name>SThreshold_Custom</name>
                 <output type="SCALAR">
                 </output>
                 <inputs>
@@ -40,8 +119,8 @@
                         </input>
                 </inputs>
         </function>
-	<function>
-                <name>MTan</name>
+        <function>
+                <name>MDerivative</name>
                 <output type="MATRIX">
                 </output>
                 <inputs>
@@ -51,7 +130,7 @@
                 </inputs>
         </function>
         <function>
-                <name>STan</name>
+                <name>SDerivative</name>
                 <output type="SCALAR">
                 </output>
                 <inputs>
@@ -60,8 +139,8 @@
                         </input>
                 </inputs>
         </function>
-	<function>
-                <name>MAcos</name>
+        <function>
+                <name>MZ_1</name>
                 <output type="MATRIX">
                 </output>
                 <inputs>
@@ -71,7 +150,7 @@
                 </inputs>
         </function>
         <function>
-                <name>SAcos</name>
+                <name>SZ_1</name>
                 <output type="SCALAR">
                 </output>
                 <inputs>
@@ -80,104 +159,4 @@
                         </input>
                 </inputs>
         </function>
-	<function>
-                <name>MAsin</name>
-                <output type="MATRIX">
-                </output>
-                <inputs>
-                        <input multiple="false" type="SCALAR_MATRIX">
-                                <name>inMatrix</name>
-                        </input>
-                </inputs>
-        </function>
-        <function>
-                <name>SAsin</name>
-                <output type="SCALAR">
-                </output>
-                <inputs>
-                        <input multiple="false" type="SCALAR_SCALAR">
-                                <name>inScalar</name>
-                        </input>
-                </inputs>
-        </function>
-	<function>
-                <name>MAtan</name>
-                <output type="MATRIX">
-                </output>
-                <inputs>
-                        <input multiple="false" type="SCALAR_MATRIX">
-                                <name>inMatrix</name>
-                        </input>
-                </inputs>
-        </function>
-        <function>
-                <name>SAtan</name>
-                <output type="SCALAR">
-                </output>
-                <inputs>
-                        <input multiple="false" type="SCALAR_SCALAR">
-                                <name>inScalar</name>
-                        </input>
-                </inputs>
-        </function>
-	<function>
-                <name>MCosh</name>
-                <output type="MATRIX">
-                </output>
-                <inputs>
-                        <input multiple="false" type="SCALAR_MATRIX">
-                                <name>inMatrix</name>
-                        </input>
-                </inputs>
-        </function>
-        <function>
-                <name>SCosh</name>
-                <output type="SCALAR">
-                </output>
-                <inputs>
-                        <input multiple="false" type="SCALAR_SCALAR">
-                                <name>inScalar</name>
-                        </input>
-                </inputs>
-        </function>
-	<function>
-                <name>MSinh</name>
-                <output type="MATRIX">
-                </output>
-                <inputs>
-                        <input multiple="false" type="SCALAR_MATRIX">
-                                <name>inMatrix</name>
-                        </input>
-                </inputs>
-        </function>
-        <function>
-                <name>SSinh</name>
-                <output type="SCALAR">
-                </output>
-                <inputs>
-                        <input multiple="false" type="SCALAR_SCALAR">
-                                <name>inScalar</name>
-                        </input>
-                </inputs>
-        </function>
-	<function>
-                <name>MTanh</name>
-                <output type="MATRIX">
-                </output>
-                <inputs>
-                        <input multiple="false" type="SCALAR_MATRIX">
-                                <name>inMatrix</name>
-                        </input>
-                </inputs>
-        </function>
-        <function>
-                <name>STanh</name>
-                <output type="SCALAR">
-                </output>
-                <inputs>
-                        <input multiple="false" type="SCALAR_SCALAR">
-                                <name>inScalar</name>
-                        </input>
-                </inputs>
-        </function>
-<functions>
+</functions>

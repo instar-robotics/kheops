@@ -1,47 +1,27 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <functions>
 	<function>
-                <name>MCos</name>
-                <output type="MATRIX">
-                </output>
-                <inputs>
-                        <input multiple="false" type="SCALAR_MATRIX">
-                                <name>inMatrix</name>
-                        </input>
-                </inputs>
-        </function>
-        <function>
-                <name>SCos</name>
-                <output type="SCALAR">
-                </output>
-                <inputs>
-                        <input multiple="false" type="SCALAR_SCALAR">
-                                <name>inScalar</name>
-                        </input>
-                </inputs>
-        </function>
+		<name>MExp</name>
+		<output type="MATRIX">	
+		</output>	
+		<inputs>
+			<input multiple="false" type="SCALAR_MATRIX">
+				<name>exponent</name>
+			</input>
+		</inputs>
+	</function>	
 	<function>
-                <name>MSin</name>
-                <output type="MATRIX">
-                </output>
-                <inputs>
-                        <input multiple="false" type="SCALAR_MATRIX">
-                                <name>inMatrix</name>
-                        </input>
-                </inputs>
-        </function>
-        <function>
-                <name>SSin</name>
-                <output type="SCALAR">
-                </output>
-                <inputs>
-                        <input multiple="false" type="SCALAR_SCALAR">
-                                <name>inScalar</name>
-                        </input>
-                </inputs>
-        </function>
+		<name>SExp</name>
+		<output type="SCALAR"> 
+		</output> 
+		<inputs>
+			<input multiple="false" type="SCALAR_SCALAR">
+				<name>exponent</name>
+			</input>
+		</inputs>
+	</function>	
 	<function>
-                <name>MTan</name>
+                <name>MLog</name>
                 <output type="MATRIX">
                 </output>
                 <inputs>
@@ -51,7 +31,7 @@
                 </inputs>
         </function>
         <function>
-                <name>STan</name>
+                <name>SLog</name>
                 <output type="SCALAR">
                 </output>
                 <inputs>
@@ -60,8 +40,8 @@
                         </input>
                 </inputs>
         </function>
-	<function>
-                <name>MAcos</name>
+        <function>
+                <name>MLog10</name>
                 <output type="MATRIX">
                 </output>
                 <inputs>
@@ -71,7 +51,7 @@
                 </inputs>
         </function>
         <function>
-                <name>SAcos</name>
+                <name>SLog10</name>
                 <output type="SCALAR">
                 </output>
                 <inputs>
@@ -80,8 +60,60 @@
                         </input>
                 </inputs>
         </function>
-	<function>
-                <name>MAsin</name>
+        <function>
+                <name>MPow</name>
+                <output type="MATRIX">
+                </output>
+                <inputs>
+                        <input multiple="false" type="SCALAR_MATRIX">
+                                <name>base</name>
+                        </input>
+                        <input multiple="false" type="SCALAR_MATRIX">
+                                <name>exponent</name>
+                        </input>
+                </inputs>
+        </function>
+        <function>
+                <name>SPow</name>
+                <output type="SCALAR">
+                </output>
+                <inputs>
+			<input multiple="false" type="SCALAR_SCALAR">
+                                <name>base</name>
+                        </input>
+                        <input multiple="false" type="SCALAR_SCALAR">
+                                <name>exponent</name>
+                        </input>
+                </inputs>
+        </function>
+        <function>
+                <name>MSPow</name>
+                <output type="MATRIX">
+                </output>
+                <inputs>
+                        <input multiple="false" type="SCALAR_MATRIX">
+                                <name>base</name>
+                        </input>
+                        <input multiple="false" type="SCALAR_SCALAR">
+                                <name>exponent</name>
+                        </input>
+                </inputs>
+        </function>
+        <function>
+                <name>SMPow</name>
+                <output type="MATRIX">
+                </output>
+                <inputs>
+                        <input multiple="false" type="SCALAR_SCALAR">
+                                <name>base</name>
+                        </input>
+                        <input multiple="false" type="SCALAR_MATRIX">
+                                <name>exponent</name>
+                        </input>
+                </inputs>
+        </function>
+        <function>
+                <name>MSqrt</name>
                 <output type="MATRIX">
                 </output>
                 <inputs>
@@ -91,7 +123,7 @@
                 </inputs>
         </function>
         <function>
-                <name>SAsin</name>
+                <name>SSqrt</name>
                 <output type="SCALAR">
                 </output>
                 <inputs>
@@ -100,8 +132,8 @@
                         </input>
                 </inputs>
         </function>
-	<function>
-                <name>MAtan</name>
+        <function>
+                <name>MSquare</name>
                 <output type="MATRIX">
                 </output>
                 <inputs>
@@ -111,7 +143,7 @@
                 </inputs>
         </function>
         <function>
-                <name>SAtan</name>
+                <name>SSquare</name>
                 <output type="SCALAR">
                 </output>
                 <inputs>
@@ -120,8 +152,8 @@
                         </input>
                 </inputs>
         </function>
-	<function>
-                <name>MCosh</name>
+        <function>
+                <name>MCube</name>
                 <output type="MATRIX">
                 </output>
                 <inputs>
@@ -131,7 +163,7 @@
                 </inputs>
         </function>
         <function>
-                <name>SCosh</name>
+                <name>SCube</name>
                 <output type="SCALAR">
                 </output>
                 <inputs>
@@ -140,8 +172,8 @@
                         </input>
                 </inputs>
         </function>
-	<function>
-                <name>MSinh</name>
+        <function>
+                <name>MInverse</name>
                 <output type="MATRIX">
                 </output>
                 <inputs>
@@ -151,7 +183,7 @@
                 </inputs>
         </function>
         <function>
-                <name>SSinh</name>
+                <name>SInverse</name>
                 <output type="SCALAR">
                 </output>
                 <inputs>
@@ -160,24 +192,4 @@
                         </input>
                 </inputs>
         </function>
-	<function>
-                <name>MTanh</name>
-                <output type="MATRIX">
-                </output>
-                <inputs>
-                        <input multiple="false" type="SCALAR_MATRIX">
-                                <name>inMatrix</name>
-                        </input>
-                </inputs>
-        </function>
-        <function>
-                <name>STanh</name>
-                <output type="SCALAR">
-                </output>
-                <inputs>
-                        <input multiple="false" type="SCALAR_SCALAR">
-                                <name>inScalar</name>
-                        </input>
-                </inputs>
-        </function>
-<functions>
+</functions>

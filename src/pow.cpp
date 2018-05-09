@@ -15,6 +15,7 @@ The fact that you are presently reading this means that you have had knowledge o
 */
 
 #include "pow.h"
+#include <cmath>
 
 /********************************************************************************************************/
 /*************************************************  Exp   ***********************************************/
@@ -25,32 +26,225 @@ REGISTER_FUNCTION(SExp);
 
 void MExp::compute()
 {
-	inMatrix[0](output);	
-
-	for(unsigned int i=1; i < inMatrix.size(); i++)
-	{
-		output += inMatrix[i] ;	
-	}
+	//output = exponent()(output).array().exp() ;
+	//output = (exponent().w() * exponent().i()).array().exp();
 }
 
 void  MExp::setparameters()
 {
-        Kernel::instance().bind(inMatrix,"inMatrix", getUuid());
+        Kernel::instance().bind(exponent,"exponent", getUuid());
 }
 
 void SExp::compute()
 {
-	output = inScalar[0]();
-
-	for(unsigned int i=1; i < inScalar.size(); i++)
-	{
-		output += inScalar[i] ; 
-	}
+	output = exp(exponent()());
 }
 
 void  SExp::setparameters()
 {
+        Kernel::instance().bind(exponent,"exponent", getUuid());
+}
+
+
+/********************************************************************************************************/
+/*************************************************  Log   ***********************************************/
+/********************************************************************************************************/
+
+REGISTER_FUNCTION(MLog);
+REGISTER_FUNCTION(SLog);
+REGISTER_FUNCTION(MLog10);
+REGISTER_FUNCTION(SLog10);
+
+void MLog::compute()
+{
+	output = inMatrix()(output).array().log() ;
+}
+
+void MLog::setparameters()
+{
+        Kernel::instance().bind(inMatrix,"inMatrix", getUuid());
+}
+
+void SLog::compute()
+{
+	output = log(inScalar()());
+}
+
+void SLog::setparameters()
+{
         Kernel::instance().bind(inScalar,"inScalar", getUuid());
 }
 
+void MLog10::compute()
+{
+	output = inMatrix()(output).array().log10();
+}
+
+void MLog10::setparameters()
+{
+        Kernel::instance().bind(inMatrix,"inMatrix", getUuid());
+}
+
+void SLog10::compute()
+{
+	output = log10(inScalar()());
+}
+
+void SLog10::setparameters()
+{
+        Kernel::instance().bind(inScalar,"inScalar", getUuid());
+}
+
+/********************************************************************************************************/
+/*************************************************  POW   ***********************************************/
+/********************************************************************************************************/
+
+REGISTER_FUNCTION(MPow);
+REGISTER_FUNCTION(SPow);
+REGISTER_FUNCTION(MSPow);
+REGISTER_FUNCTION(SMPow);
+
+
+void MPow::compute()
+{
+	output = base()().array().pow( exponent()().array() );
+}
+
+void MPow::setparameters()
+{
+        Kernel::instance().bind(base,"base", getUuid());
+        Kernel::instance().bind(exponent,"exponent", getUuid());
+}
+
+
+
+void SPow::compute()
+{
+	output = pow( base()() , exponent()() );
+}
+
+void SPow::setparameters()
+{
+        Kernel::instance().bind(base,"base", getUuid());
+        Kernel::instance().bind(exponent,"exponent", getUuid());
+}
+
+void MSPow::compute()
+{
+}
+
+void MSPow::setparameters()
+{
+        Kernel::instance().bind(base,"base", getUuid());
+        Kernel::instance().bind(exponent,"exponent", getUuid());
+}
+
+void SMPow::compute()
+{
+}
+
+void SMPow::setparameters()
+{
+        Kernel::instance().bind(base,"base", getUuid());
+        Kernel::instance().bind(exponent,"exponent", getUuid());
+}
+
+
+/********************************************************************************************************/
+/***********************************************   SQRT   ***********************************************/
+/********************************************************************************************************/
+
+REGISTER_FUNCTION(MSqrt);
+REGISTER_FUNCTION(SSqrt);
+
+
+void MSqrt::compute()
+{}
+
+void MSqrt::setparameters()
+{
+        Kernel::instance().bind(inMatrix,"inMatrix", getUuid());
+}
+
+void SSqrt::compute()
+{}
+
+void SSqrt::setparameters()
+{
+        Kernel::instance().bind(inScalar,"inScalar", getUuid());
+}
+
+/********************************************************************************************************/
+/*********************************************   SQUARE   ***********************************************/
+/********************************************************************************************************/
+
+REGISTER_FUNCTION(MSquare);
+REGISTER_FUNCTION(SSquare);
+
+
+void MSquare::compute()
+{}
+
+void MSquare::setparameters()
+{
+        Kernel::instance().bind(inMatrix,"inMatrix", getUuid());
+}
+
+void SSquare::compute()
+{}
+
+void SSquare::setparameters()
+{
+        Kernel::instance().bind(inScalar,"inScalar", getUuid());
+}
+
+/********************************************************************************************************/
+/**********************************************   CUBE   ************************************************/
+/********************************************************************************************************/
+
+
+REGISTER_FUNCTION(MCube);
+REGISTER_FUNCTION(SCube);
+
+
+void MCube::compute()
+{}
+
+void MCube::setparameters()
+{
+        Kernel::instance().bind(inMatrix,"inMatrix", getUuid());
+}
+
+void SCube::compute()
+{}
+
+void SCube::setparameters()
+{
+        Kernel::instance().bind(inScalar,"inScalar", getUuid());
+}
+
+/********************************************************************************************************/
+/*********************************************   Inverse   **********************************************/
+/********************************************************************************************************/
+
+
+REGISTER_FUNCTION(MInverse);
+REGISTER_FUNCTION(SInverse);
+
+
+void MInverse::compute()
+{}
+
+void MInverse::setparameters()
+{
+        Kernel::instance().bind(inMatrix,"inMatrix", getUuid());
+}
+
+void SInverse::compute()
+{}
+
+void SInverse::setparameters()
+{
+        Kernel::instance().bind(inScalar,"inScalar", getUuid());
+}
 
