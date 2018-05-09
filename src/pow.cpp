@@ -26,8 +26,9 @@ REGISTER_FUNCTION(SExp);
 
 void MExp::compute()
 {
-	//output = exponent()(output).array().exp() ;
-	//output = (exponent().w() * exponent().i()).array().exp();
+	//TODO : Could be that : (optimal code)
+	//	output = (exponent().w() * exponent().i()).array().exp();
+	output = exponent()(output).array().exp() ;
 }
 
 void  MExp::setparameters()
@@ -107,7 +108,7 @@ REGISTER_FUNCTION(SMPow);
 
 void MPow::compute()
 {
-	output = base()().array().pow( exponent()().array() );
+	output = base()(output).array().pow( exponent()().array() );
 }
 
 void MPow::setparameters()
@@ -115,8 +116,6 @@ void MPow::setparameters()
         Kernel::instance().bind(base,"base", getUuid());
         Kernel::instance().bind(exponent,"exponent", getUuid());
 }
-
-
 
 void SPow::compute()
 {
@@ -131,6 +130,7 @@ void SPow::setparameters()
 
 void MSPow::compute()
 {
+	output = base()(output).array().pow(  exponent()() );
 }
 
 void MSPow::setparameters()
@@ -141,6 +141,7 @@ void MSPow::setparameters()
 
 void SMPow::compute()
 {
+	output = pow( base()(), exponent()().array() );
 }
 
 void SMPow::setparameters()
@@ -159,7 +160,9 @@ REGISTER_FUNCTION(SSqrt);
 
 
 void MSqrt::compute()
-{}
+{
+	output = inMatrix()(output).array().sqrt();
+}
 
 void MSqrt::setparameters()
 {
@@ -167,7 +170,9 @@ void MSqrt::setparameters()
 }
 
 void SSqrt::compute()
-{}
+{
+	output =  sqrt(inScalar()());
+}
 
 void SSqrt::setparameters()
 {
@@ -183,7 +188,9 @@ REGISTER_FUNCTION(SSquare);
 
 
 void MSquare::compute()
-{}
+{
+	output = inMatrix()(output).array().square();
+}
 
 void MSquare::setparameters()
 {
@@ -191,7 +198,9 @@ void MSquare::setparameters()
 }
 
 void SSquare::compute()
-{}
+{
+	output = pow( inScalar()(), 2);
+}
 
 void SSquare::setparameters()
 {
@@ -208,7 +217,9 @@ REGISTER_FUNCTION(SCube);
 
 
 void MCube::compute()
-{}
+{
+	output = inMatrix()(output).array().cube();
+}
 
 void MCube::setparameters()
 {
@@ -216,7 +227,9 @@ void MCube::setparameters()
 }
 
 void SCube::compute()
-{}
+{
+	output = pow( inScalar()(), 3);
+}
 
 void SCube::setparameters()
 {
@@ -233,7 +246,9 @@ REGISTER_FUNCTION(SInverse);
 
 
 void MInverse::compute()
-{}
+{
+	output = inMatrix()(output).array().inverse();
+}
 
 void MInverse::setparameters()
 {
@@ -241,7 +256,9 @@ void MInverse::setparameters()
 }
 
 void SInverse::compute()
-{}
+{
+	output = 1 / inScalar()();
+}
 
 void SInverse::setparameters()
 {

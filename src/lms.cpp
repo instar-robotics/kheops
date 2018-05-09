@@ -41,6 +41,8 @@ void LMS::compute()
 
 void  LMS::setparameters()
 {
+	conditionnals.setMultiple(true);
+
         Kernel::instance().bind(learning_rate,"learning_rate", getUuid());
         Kernel::instance().bind(unconditionnal,"unconditionnal", getUuid());
         Kernel::instance().bind(conditionnals,"conditionnals", getUuid());

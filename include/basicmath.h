@@ -124,7 +124,7 @@ class MSModulo : public FMatrix
 
         public :
 
-                virtual ~MModulo(){}
+                virtual ~MSModulo(){}
 
                 virtual void compute();
                 virtual void setparameters();
@@ -172,7 +172,7 @@ class SThreshold : public FScalar
 
         public :
 
-                virtual ~SModulo(){}
+                virtual ~SThreshold(){}
 
                 virtual void compute();
                 virtual void setparameters();
@@ -190,7 +190,7 @@ class MThreshold_Custom : public FMatrix
 
         public :
 
-                virtual ~MThreshold(){}
+                virtual ~MThreshold_Custom(){}
 
                 virtual void compute();
                 virtual void setparameters();
@@ -207,7 +207,7 @@ class MSThreshold_Custom : public FMatrix
 
         public :
 
-                virtual ~MModulo(){}
+                virtual ~MSThreshold_Custom(){}
 
                 virtual void compute();
                 virtual void setparameters();
@@ -224,7 +224,7 @@ class SThreshold_Custom : public FScalar
 
         public :
 
-                virtual ~SModulo(){}
+                virtual ~SThreshold_Custom(){}
 
                 virtual void compute();
                 virtual void setparameters();
@@ -256,7 +256,7 @@ class SDerivative : public FScalar
 
         public :
 
-                virtual ~SModulo(){}
+                virtual ~SDerivative(){}
 
                 virtual void compute();
                 virtual void setparameters();
