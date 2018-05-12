@@ -69,6 +69,10 @@ class Function
 		inline std::vector<IMMInput*>& get_imminput(){ return imm_input;}
 
 		virtual void nsync_afterCompute();
+		// This function can be overloaded by user to add traitment after compute
+		// This functions is called by nsync_afterCompute
+		virtual void exec_afterCompute() = 0;
+		
 
 		inline bool is_publish_active(){return publish;}
                 virtual void active_publish(bool state) = 0; 
@@ -93,6 +97,10 @@ class FTemplate : public Function
                 
 		virtual void compute() = 0;
 		virtual void setparameters() = 0;
+		
+		// Do nothing, but can be overloaded by users
+		virtual void exec_afterCompute(){}
+
 		virtual size_t type(){ return typeid(T).hash_code();}
 		std::string type_name() { return typeid(T).name();}
 		

@@ -18,11 +18,11 @@ The fact that you are presently reading this means that you have had knowledge o
 
 void FRunner::exec()
 {
+	std::chrono::time_point<std::chrono::system_clock> start,end;
+
 	checkFunction();
 			
 	Function * f = boost::get(boost::vertex_function , *g)[node] ;
-
-	std::chrono::time_point<std::chrono::system_clock> start,end;
 
 	while( ! __is_asking_stop() && ! __is_asking_local_stop() )
 	{

@@ -14,20 +14,32 @@ and, more generally, to use and operate it in the same conditions as regards sec
 The fact that you are presently reading this means that you have had knowledge of the CeCILL v2.1 license and that you accept its terms.
 */
 
-#include "saw.h"
+#include "basicneuronal.h"
 
-REGISTER_FUNCTION(Saw);
+/********************************************************************************************************/
+/*******************************************  Front Detection   *****************************************/
+/********************************************************************************************************/
+
+REGISTER_FUNCTION(SFrontDetection);
+REGISTER_FUNCTION(MFrontDetection);
 
 //TODO
-void Saw::compute()
+void SFrontDetection::compute()
 {	
-
 }
 
-void Saw::setparameters()
+void SFrontDetection::setparameters()
 {
-        Kernel::instance().bind(vigilence,"vigilence", getUuid());
-        Kernel::instance().bind(inputs,"inputs", getUuid());
-        Kernel::instance().bind(learning_rate,"learning_rate", getUuid());
+        Kernel::instance().bind(inScalar,"inScalar", getUuid());
+}
+
+//TODO
+void MFrontDetection::compute()
+{
+}
+
+void MFrontDetection::setparameters()
+{
+        Kernel::instance().bind(inMatrix,"inMatrix", getUuid());
 }
 

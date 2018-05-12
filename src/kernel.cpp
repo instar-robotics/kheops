@@ -30,7 +30,7 @@ Kernel::~Kernel()
 		Function *f = boost::get(boost::vertex_function , graph)[ it->second  ];
 		if( f != NULL ) delete(f);
 	}
-	
+
 	for( auto it = edge_map.begin(); it != edge_map.end(); it++)
 	{
 		kLink *l = boost::get(boost::edge_klink , graph)[ it->second  ];
@@ -225,6 +225,7 @@ void Kernel::del_function(const std::string& uuid)
 
 	delete(f);
 }
+
 
 /********************************************************************************************************/
 /****************** 		        	RTTOKEN Section	              	      *******************/
@@ -912,6 +913,6 @@ void Kernel::load()
 
 void Kernel::start(bool run)
 {
-        singleton.spawn_runners();
+	singleton.spawn_runners();
 	if( run ) singleton.resume();
 }

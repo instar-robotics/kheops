@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<functions>
+        <function>
+                <name>SFrontDetection</name>
+                <output type="SCALAR">
+                </output>
+                <inputs>
+                        <input multiple="false" type="SCALAR_SCALAR">
+                                <name>inScalar</name>
+                        </input>
+                </inputs>
+        </function>
+        <function>
+                <name>MFrontDetection</name>
+                <output type="MATRIX">
+                </output>
+                <inputs>
+                        <input multiple="false" type="SCALAR_MATRIX">
+                                <name>inMatrix</name>
+                        </input>
+                </inputs>
+        </function>
+</functions>
+

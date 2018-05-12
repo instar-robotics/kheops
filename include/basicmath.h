@@ -196,23 +196,6 @@ class MThreshold_Custom : public FMatrix
                 virtual void setparameters();
 };
 
-class MSThreshold_Custom : public FMatrix
-{
-        private :
-
-                ISInput thresMin;
-                ISInput thresMax;
-
-                ISMInput inMatrix;
-
-        public :
-
-                virtual ~MSThreshold_Custom(){}
-
-                virtual void compute();
-                virtual void setparameters();
-};
-
 class SThreshold_Custom : public FScalar
 {
         private :
@@ -230,6 +213,58 @@ class SThreshold_Custom : public FScalar
                 virtual void setparameters();
 };
 
+class MSSThreshold_Custom : public FMatrix
+{
+        private :
+
+                ISMInput inMatrix;
+
+                ISInput thresMin;
+                ISInput thresMax;
+
+        public :
+
+                virtual ~MSSThreshold_Custom(){}
+
+                virtual void compute();
+                virtual void setparameters();
+};
+
+
+class MMSThreshold_Custom : public FMatrix
+{
+        private :
+                ISMInput inMatrix;
+
+                ISMInput thresMin;
+                ISInput thresMax;
+
+        public :
+
+                virtual ~MMSThreshold_Custom(){}
+
+                virtual void compute();
+                virtual void setparameters();
+};
+
+class MSMThreshold_Custom : public FMatrix
+{
+        private :
+
+                ISMInput inMatrix;
+
+                ISInput thresMin;
+                ISMInput thresMax;
+
+        public :
+
+                virtual ~MSMThreshold_Custom(){}
+
+                virtual void compute();
+                virtual void setparameters();
+};
+
+
 /********************************************************************************************************/
 /********************************************  Derivative   *********************************************/
 /********************************************************************************************************/
@@ -239,6 +274,9 @@ class MDerivative : public FMatrix
         private :
 
                 ISMInput inMatrix;
+
+		MatrixXd z_1;
+
 
         public :
 
@@ -254,6 +292,8 @@ class SDerivative : public FScalar
 
                 ISInput inScalar;
 
+		double z_1;
+
         public :
 
                 virtual ~SDerivative(){}
@@ -267,6 +307,8 @@ class MZ_1 : public FMatrix
         private :
 
                 ISMInput inMatrix;
+		
+		MatrixXd z_1;
 
         public :
 
@@ -281,6 +323,8 @@ class SZ_1 : public FScalar
         private :
 
                 ISInput inScalar;
+		
+		double z_1;
 
         public :
 

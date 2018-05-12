@@ -24,6 +24,7 @@ REGISTER_FUNCTION(MAND);
 REGISTER_FUNCTION(MSAND);
 REGISTER_FUNCTION(SAND);
 
+//TODO
 void MAND::compute()
 {
 }
@@ -34,6 +35,7 @@ void MAND::setparameters()
         Kernel::instance().bind(inMatrix,"inMatrix", getUuid());
 }
 
+//TODO
 void MSAND::compute()
 {
 }
@@ -46,6 +48,7 @@ void MSAND::setparameters()
         Kernel::instance().bind(inScalar,"inScalar", getUuid());
 }
 
+//TODO
 void SAND::compute()
 {
 }
@@ -65,6 +68,7 @@ REGISTER_FUNCTION(MOR);
 REGISTER_FUNCTION(MSOR);
 REGISTER_FUNCTION(SOR);
 
+//TODO
 void MOR::compute()
 {
 }
@@ -75,6 +79,7 @@ void MOR::setparameters()
         Kernel::instance().bind(inMatrix,"inMatrix", getUuid());
 }
 
+//TODO
 void MSOR::compute()
 {
 }
@@ -87,6 +92,7 @@ void MSOR::setparameters()
         Kernel::instance().bind(inScalar,"inScalar", getUuid());
 }
 
+//TODO
 void SOR::compute()
 {
 }
@@ -105,6 +111,7 @@ REGISTER_FUNCTION(MXOR);
 REGISTER_FUNCTION(MSXOR);
 REGISTER_FUNCTION(SXOR);
 
+//TODO
 void MXOR::compute()
 {
 }
@@ -115,6 +122,7 @@ void MXOR::setparameters()
         Kernel::instance().bind(inMatrix,"inMatrix", getUuid());
 }
 
+//TODO
 void MSXOR::compute()
 {
 }
@@ -127,6 +135,7 @@ void MSXOR::setparameters()
         Kernel::instance().bind(inScalar,"inScalar", getUuid());
 }
 
+//TODO
 void SXOR::compute()
 {
 }
@@ -144,6 +153,7 @@ void SXOR::setparameters()
 REGISTER_FUNCTION(MNOT);
 REGISTER_FUNCTION(SNOT);
 
+//TODO
 void MNOT::compute()
 {
 }
@@ -153,6 +163,7 @@ void MNOT::setparameters()
         Kernel::instance().bind(inMatrix,"inMatrix", getUuid());
 }
 
+//TODO
 void SNOT::compute()
 {
 }

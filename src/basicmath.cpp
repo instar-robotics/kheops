@@ -78,13 +78,14 @@ void SAbs::setparameters()
 }
 
 /********************************************************************************************************/
-/***********************************************   SQRT   ***********************************************/
+/**********************************************   MODULO   **********************************************/
 /********************************************************************************************************/
 
 REGISTER_FUNCTION(MModulo);
 REGISTER_FUNCTION(MSModulo);
 REGISTER_FUNCTION(SModulo);
 
+//TODO
 void MModulo::compute()
 {
 }
@@ -95,6 +96,7 @@ void MModulo::setparameters()
         Kernel::instance().bind(modulo,"modulo", getUuid());
 }
 
+//TODO
 void MSModulo::compute()
 {
 }
@@ -105,6 +107,7 @@ void MSModulo::setparameters()
         Kernel::instance().bind(modulo,"modulo", getUuid());
 }
 
+//TODO
 void SModulo::compute()
 {
 }
@@ -122,11 +125,15 @@ void SModulo::setparameters()
 REGISTER_FUNCTION(MThreshold);
 REGISTER_FUNCTION(SThreshold);
 REGISTER_FUNCTION(MThreshold_Custom);
-REGISTER_FUNCTION(MSThreshold_Custom);
 REGISTER_FUNCTION(SThreshold_Custom);
+REGISTER_FUNCTION(MSSThreshold_Custom);
+REGISTER_FUNCTION(MMSThreshold_Custom);
+REGISTER_FUNCTION(MSMThreshold_Custom);
+
 
 void MThreshold::compute()
 {
+	output = (inMatrix()(output).array().max(0)).min(1)  ;
 }
 
 void MThreshold::setparameters()
@@ -134,8 +141,12 @@ void MThreshold::setparameters()
         Kernel::instance().bind(inMatrix,"inMatrix", getUuid());
 }
 
+
 void SThreshold::compute()
 {
+	if( inScalar()() < 0 ) output = 0;
+	else if( inScalar()() > 1 ) output = 1;
+	else output = inScalar()(); 
 }
 
 void SThreshold::setparameters()
@@ -143,8 +154,10 @@ void SThreshold::setparameters()
         Kernel::instance().bind(inScalar,"inScalar", getUuid());
 }
 
+
 void MThreshold_Custom::compute()
 {
+	output = (inMatrix()(output).array().max( thresMin()().array() )).min( thresMax()().array() );
 }
 
 void MThreshold_Custom::setparameters()
@@ -154,19 +167,11 @@ void MThreshold_Custom::setparameters()
         Kernel::instance().bind(thresMax,"thresMax", getUuid());
 }
 
-void MSThreshold_Custom::compute()
-{
-}
-
-void MSThreshold_Custom::setparameters()
-{
-        Kernel::instance().bind(inMatrix,"inMatrix", getUuid());
-        Kernel::instance().bind(thresMin,"thresMin", getUuid());
-        Kernel::instance().bind(thresMax,"thresMax", getUuid());
-}
-
 void SThreshold_Custom::compute()
 {
+	if( inScalar()() < thresMin()() ) output = thresMin()();
+	else if( inScalar()() > thresMax()() ) output = thresMax()() ;
+	else output = inScalar()(); 
 }
 
 void SThreshold_Custom::setparameters()
@@ -175,6 +180,43 @@ void SThreshold_Custom::setparameters()
         Kernel::instance().bind(thresMin,"thresMin", getUuid());
         Kernel::instance().bind(thresMax,"thresMax", getUuid());
 }
+
+void MSSThreshold_Custom::compute()
+{
+	output = (inMatrix()(output).array().max( thresMin()()  )).min( thresMax()() )  ;
+}
+
+void MSSThreshold_Custom::setparameters()
+{
+        Kernel::instance().bind(inMatrix,"inMatrix", getUuid());
+        Kernel::instance().bind(thresMin,"thresMin", getUuid());
+        Kernel::instance().bind(thresMax,"thresMax", getUuid());
+}
+
+void MMSThreshold_Custom::compute()
+{
+	output = (inMatrix()(output).array().max( thresMin()().array() )).min( thresMax()() );
+}
+
+void MMSThreshold_Custom::setparameters()
+{
+        Kernel::instance().bind(inMatrix,"inMatrix", getUuid());
+        Kernel::instance().bind(thresMin,"thresMin", getUuid());
+        Kernel::instance().bind(thresMax,"thresMax", getUuid());
+}
+
+void MSMThreshold_Custom::compute()
+{
+	output = (inMatrix()(output).array().max( thresMin()() )).min( thresMax()().array() );
+}
+
+void MSMThreshold_Custom::setparameters()
+{
+        Kernel::instance().bind(inMatrix,"inMatrix", getUuid());
+        Kernel::instance().bind(thresMin,"thresMin", getUuid());
+        Kernel::instance().bind(thresMax,"thresMax", getUuid());
+}
+
 
 /********************************************************************************************************/
 /*******************************************   Derivative   *********************************************/
@@ -187,37 +229,51 @@ REGISTER_FUNCTION(SZ_1);
 
 void MDerivative::compute()
 {
+	output =  inMatrix()(output) - z_1;
+	z_1 = inMatrix()(z_1); 
+
 }
 
 void MDerivative::setparameters()
 {
         Kernel::instance().bind(inMatrix,"inMatrix", getUuid());
+        z_1 = MatrixXd::Constant( output.rows(), output.cols(), 0  );
 }
 
 void SDerivative::compute()
 {
+	output = inScalar()() - z_1 ;
+	z_1 = inScalar()();
 }
 
 void SDerivative::setparameters()
 {
         Kernel::instance().bind(inScalar,"inScalar", getUuid());
+	z_1 = 0;
 }
 
 void MZ_1::compute()
 {
+	output = z_1 ; 
+	z_1 = inMatrix()(z_1);
 }
 
 void MZ_1::setparameters()
 {
         Kernel::instance().bind(inMatrix,"inMatrix", getUuid());
+        z_1 = MatrixXd::Constant( output.rows(), output.cols(), 0  );
 }
 
 void SZ_1::compute()
 {
+	output = z_1 ; 
+	z_1 = inScalar()();
 }
 
 void SZ_1::setparameters()
 {
         Kernel::instance().bind(inScalar,"inScalar", getUuid());
+	z_1 = 0;
 }
+
 
