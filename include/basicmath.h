@@ -23,7 +23,16 @@ The fact that you are presently reading this means that you have had knowledge o
 
 /*
 	max , min  [Matrix -> Scalar] , peut aussi faire comme un WTA 
+	MAX/MIN Scalar  
+	
+	KEEP_MAX/KEEP_MIN Matrix (Code Ancien WTA) (Soft)
+
+	N_MAX/N_MIN (reviens à un sort si N = taille entrée)  -> implémenter plus tard si besoin
+	-> SORT ?? Est-ce que ce n'est pas plus malin de l'appeler SORT ? Avec N -> N premier (soit max soit min)
+
 	argmax, argmin [Matrix -> Scalar ] la sortie scalar conserve l'id du max ? 
+		Vector -> Scalar OK ! 
+		Matrix -> Prob : 2 indexs ! Boite de sortie à taille 2 ! 
 */
 
 

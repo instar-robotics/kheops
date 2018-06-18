@@ -35,7 +35,7 @@ ComInterface * cinter = NULL;
 void signals_handler(int numero)
 {
   switch (numero)
-    {
+  {
     case SIGINT:
       syslog( LOG_LOCAL0|LOG_LOCAL0 , "KHEOPS SIGINT received : terminaison " );
       if( cinter != NULL)
@@ -45,7 +45,7 @@ void signals_handler(int numero)
       }
       break;
     case SIGTERM :
-      syslog( LOG_LOCAL0|LOG_LOCAL0 , "KHEOPS SIGTERM received : terminaison" );
+        syslog( LOG_LOCAL0|LOG_LOCAL0 , "KHEOPS SIGTERM received : terminaison" );
 	break;
 
     default : 
@@ -66,7 +66,6 @@ void print_splash(void)
 	std::cout << "#                                                    #" << std::endl;
 	std::cout << "#  Powered by Instar Robotics                        #" << std::endl;
 	std::cout << "######################################################" << std::endl;
-
 }
 
 void print_help(void)

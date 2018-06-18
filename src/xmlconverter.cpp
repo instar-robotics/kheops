@@ -146,7 +146,7 @@ void XmlConverter::__convertXmlToLink( const DOMElement &el, XLink &xi )
 
 	if( xi.isCst) 
 	{
-		if( el.getElementsByTagName(XMLString::transcode("from"))->getLength() != 0) throw std::invalid_argument("XML : Constant Input can't have a predecessor ");
+	//	if( el.getElementsByTagName(XMLString::transcode("from"))->getLength() != 0) throw std::invalid_argument("XML : Constant Input can't have a predecessor ");
 
 		if(el.getElementsByTagName(XMLString::transcode("value"))->getLength() != 0 && el.getElementsByTagName(XMLString::transcode("weight"))->getLength() != 0) throw std::invalid_argument("XML : Constant Input can't be string and value : \"weight\" or \"value\" "); 
 
@@ -237,13 +237,15 @@ void XmlConverter::__loadFunctions(std::map<std::string,XFunction> &functions)
 	if( xFunc == NULL) throw  std::invalid_argument("XML : \"functions\" section is empty, any function to load");
 
 	do{
-		XFunction f;
-		__convertXmlToFunction( *xFunc, f);
-		__loadInputs( *xFunc, f.inputs );
+		if( XMLString::transcode( xFunc->getTextContent()) == "function"  )
+		{
+			XFunction f;
+			__convertXmlToFunction( *xFunc, f);
+			__loadInputs( *xFunc, f.inputs );
 		
-		if( functions.find( f.uuid ) == functions.end() ) functions[f.uuid] = f;
-		else throw std::invalid_argument("XML : uuid function in xml file has to be unique");
-		
+			if( functions.find( f.uuid ) == functions.end() ) functions[f.uuid] = f;
+			else throw std::invalid_argument("XML : uuid function in xml file has to be unique");
+		}
 	}while(  (xFunc = xFunc->getNextElementSibling() ) != NULL);
 }
 

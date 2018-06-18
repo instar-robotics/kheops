@@ -23,8 +23,6 @@ The fact that you are presently reading this means that you have had knowledge o
 #include <Eigen/Dense>
 #include <iostream>
 
-enum OPERATOR{NONE=0,ADDITION=1,SUBSTRACTION=2,DIVISION=3,MULTIPLICATION=4};
-
 using Eigen::SparseMatrix;
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
@@ -298,6 +296,14 @@ class IDenseMatrix : public IMMatrix
 		virtual MatrixXd& weigthedSumAccu(MatrixXd& out);
 };
 
+// SparseMatrix use a Eigen SparseMatrix to filter connectivity
+// Two options to apply the filter :
+// 1- When acces to weight
+// 2- When modify weight value
+// 
+// We choose option 2 : because, with this solution, we don't have to reimplement accessor and publish
+// This is not sur, that 2 is the better solution. 
+// Perhaps, we update weight more often that acces to the weight ... 
 class ISparseMatrix : public IMMatrix
 {
 	private : 	
@@ -323,8 +329,6 @@ class ISparseMatrix : public IMMatrix
 
 		virtual MatrixXd& weigthedSum(MatrixXd& out);
 		virtual MatrixXd& weigthedSumAccu(MatrixXd& out);
-		
-		virtual void publish_message();
 };
 
 #endif // __ILINK_H__

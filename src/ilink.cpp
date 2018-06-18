@@ -330,15 +330,6 @@ MatrixXd& ISparseMatrix::weigthedSumAccu(MatrixXd& out)
 	return out;
 }
 
-void ISparseMatrix::publish_message()
-{
-	if( o_pub->is_open() )
-	{
-		o_pub->setMessage(weight.cwiseProduct(filter));
-		o_pub->publish();
-	}
-}
-
 /*
 value compute_val()
 

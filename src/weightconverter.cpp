@@ -65,7 +65,7 @@ void WeightConverter::load(std::map<std::string, IMMInput*> &inputs )
 				else
 				{
 					boost::archive::archive_exception::exception_code ec =  boost::archive::archive_exception::array_size_too_short ;
-					std::string msg = "Unknown Matrix type : res file \""+file+"\" is corrupted";
+					std::string msg = "Unknown Matrix type : weight file \""+file+"\" is corrupted";
 					throw boost::archive::archive_exception(ec  ,"",msg.c_str());
 				}
 

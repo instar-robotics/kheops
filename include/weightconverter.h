@@ -45,7 +45,6 @@ class WeightConverter
 
 		void load(std::map<std::string, IMMInput*> &inputs);
 		void save(std::map<std::string, IMMInput*> &inputs);
-
 };
 
 namespace boost

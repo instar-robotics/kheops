@@ -142,7 +142,9 @@ void FTemplate<T>::active_publish(bool state)
 
 template<class T>
 void FTemplate<T>::active_save(bool state)
-{}
+{
+	
+}
 
 template<class T>
 void FTemplate<T>::nsync_afterCompute()
@@ -156,6 +158,12 @@ void FTemplate<T>::nsync_afterCompute()
 			o_pub->setMessage(output);
 			o_pub->publish();
 		}
+	}
+
+	// Save Activity
+	if( is_save_active() )
+	{
+
 	}
 }
 

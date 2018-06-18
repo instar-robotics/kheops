@@ -22,11 +22,28 @@ The fact that you are presently reading this means that you have had knowledge o
 #include "kernel.h"
 
 /*
-neurons concatenation
-projection (neuron-to-vector, vector-to-neuron, vector-to-matrix) (circularity option)
-extract neurons
-shift operator (circularity option)
-convolution operator (circularity option)
+activité -> population 
+	(Neurons -> Vector )
+	(Vector -> Matrix )
+population -> activité  
+	(vector -> neurons)
+	(matrix -> vector)
+
+// SPARSE_MATRIX -> Nouveau type de liens 
+neurons concatenation -> OK 
+extract neurons -> OK 
+projection (
+	neuron-to-vector -> SCALAR-SCALAR 
+	vector-to-neuron  -> SCALAR_MATRIX
+) (circularity option)
+
+-> Concaténation + extraction : meme opération de projection : on fait une seule boite de projection qui prend en input une sparse matrice définissant les régles de projections 
+
+produit tensoriel  -> OK Simple
+
+convolution operator (circularity option) -> OK simple 
+
+shift operator (circularity option) -> On attend discution avec ALEX
 */
 
 /********************************************************************************************************/
