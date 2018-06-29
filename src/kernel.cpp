@@ -456,14 +456,17 @@ void Kernel::add_immatrix(const std::string& in_uuid,const XLink& xl)
 
 	Function *sf =  boost::get(boost::vertex_function, graph,  node_map[input_to_funct[in_uuid]]) ;
 	
-	if( xl.isSparse == true) 
+	if( xl.con.type.size() == 0 ) throw std::invalid_argument("Kernel : you have to specify the connectivity for MATRIX_MATRIX Link ! ilink UUID : "+in_uuid);
+
+	if( xl.con.type == one_to_all ) 
 	{
-		imm =  std::shared_ptr<IMMatrix>(new ISparseMatrix( sf->getRows(), sf->getCols(), 0  ));
-		//TODO : add filter management 
+		imm =  std::shared_ptr<IMMatrix>(new IDenseMatrix( sf->getRows(), sf->getCols(), 0  ));
+
 	}
 	else
 	{
-		imm =  std::shared_ptr<IMMatrix>(new IDenseMatrix( sf->getRows(), sf->getCols(), 0  ));
+		imm =  std::shared_ptr<IMMatrix>(new ISparseMatrix( sf->getRows(), sf->getCols(), 0  ));
+		//TODO : add filter management 
 	}
 	
 	//set is
@@ -612,12 +615,6 @@ void Kernel::bind(ISInput& value,const  std::string& var_name,const std::string&
 
         if( xs.functions[uuid].inputs.find(var_name) ==  xs.functions[uuid].inputs.end() )  throw std::invalid_argument( "Kernel : unable to find input \""+var_name+"\", a SCALAR_SCALAR input from function "+uuid  );
 
-	if( value.isMultiple() != xs.functions[uuid].inputs.find(var_name)->second.multiple)
-	{
-		if(  value.isMultiple()  ) throw std::invalid_argument( "Kernel : input \""+var_name+"\" is define as multiple and mark as not multiple in XML file" );
-		else throw std::invalid_argument( "Kernel : input \""+var_name+"\" is define as not multiple and mark as multiple in XML file" ); 
-	}
-
 	is_input[ xs.functions[uuid].inputs.find(var_name)->second.uuid ] = &value;	
 	input_to_funct[ xs.functions[uuid].inputs.find(var_name)->second.uuid ] = uuid;
 	value.setUuid(  xs.functions[uuid].inputs.find(var_name)->second.uuid  );
@@ -632,12 +629,6 @@ void Kernel::bind(ISMInput& value,const std::string &var_name,const std::string&
                 
         if( xs.functions[uuid].inputs.find(var_name) ==  xs.functions[uuid].inputs.end() )  throw std::invalid_argument( "Kernel : unable to find input \""+var_name+"\", a SCALAR_MATRIX input from function "+uuid  );
 	
-	if( value.isMultiple() != xs.functions[uuid].inputs.find(var_name)->second.multiple)
-	{
-		if(  value.isMultiple()  ) throw std::invalid_argument( "Kernel : input \""+var_name+"\" is define as multiple and mark as not multiple in XML file" );
-		else throw std::invalid_argument( "Kernel : input \""+var_name+"\" is define as not multiple and mark as multiple in XML file" ); 
-	}
-
 	ism_input[ xs.functions[uuid].inputs.find(var_name)->second.uuid ] =  &value;
 	input_to_funct[ xs.functions[uuid].inputs.find(var_name)->second.uuid ] = uuid;
 	value.setUuid(  xs.functions[uuid].inputs.find(var_name)->second.uuid  );
@@ -652,12 +643,6 @@ void Kernel::bind(IMMInput& value,const std::string& var_name,const std::string&
                 
         if( xs.functions[uuid].inputs.find(var_name) ==  xs.functions[uuid].inputs.end() )  throw std::invalid_argument( "Kernel : unable to find input \""+var_name+"\", a MATRIX_MATRIX input from function "+uuid  );
 	
-	if( value.isMultiple() != xs.functions[uuid].inputs.find(var_name)->second.multiple)
-	{
-		if(  value.isMultiple()  ) throw std::invalid_argument( "Kernel : input \""+var_name+"\" is define as multiple and mark as not multiple in XML file" );
-		else throw std::invalid_argument( "Kernel : input \""+var_name+"\" is define as not multiple and mark as multiple in XML file" ); 
-	}
-
 	imm_input[ xs.functions[uuid].inputs.find(var_name)->second.uuid ] =  &value;
 	input_to_funct[ xs.functions[uuid].inputs.find(var_name)->second.uuid ] = uuid;
 	value.setUuid(  xs.functions[uuid].inputs.find(var_name)->second.uuid  );
@@ -672,9 +657,6 @@ void Kernel::bind(std::string& value,const std::string& var_name,const std::stri
         if( node_map.find(uuid) == node_map.end() || xs.functions.find(uuid) == xs.functions.end() ) throw std::invalid_argument( "Kernel : try to bind a string input to unkown function "+uuid );
 
         if( xs.functions[uuid].inputs.find(var_name) ==  xs.functions[uuid].inputs.end() )  throw std::invalid_argument( "Kernel : unable to find input "+var_name+" for function "+uuid  );
-
-        if(  xs.functions[uuid].inputs[var_name].links.size() != 1 ) throw std::invalid_argument( "Kernel : string input "+var_name+" should have only one link. "+ std::to_string(xs.functions[uuid].inputs[var_name].links.size())+" given" );
-        if( xs.functions[uuid].inputs[var_name].links[0].isSparse == true) throw std::invalid_argument( "Kernel : string input can't be sparse type");
 
         if( xs.functions[uuid].inputs[var_name].links[0].isCst == true )
         {

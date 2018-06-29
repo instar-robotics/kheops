@@ -17,29 +17,31 @@ The fact that you are presently reading this means that you have had knowledge o
 #ifndef __XML_CONVERTER__
 #define __XML_CONVERTER__
 
-#include <xercesc/parsers/XercesDOMParser.hpp>
-#include <xercesc/dom/DOM.hpp>
-#include <xercesc/sax/HandlerBase.hpp>
-#include <xercesc/util/XMLString.hpp>
-#include <xercesc/util/PlatformUtils.hpp>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/xml_parser.hpp>
 #include <string>
 #include <vector>
 #include <map>
 
-using namespace xercesc;
+using namespace boost::property_tree;
+
+struct XConnectivity
+{
+	std::string type;
+};
 
 struct XLink
 {
 	std::string uuid;
 	std::string uuid_pred;
 
-	double weight;
-
-	bool isSparse;
 	bool isSecondary;
 	bool isCst;
 	
+	double weight;
 	std::string value;
+
+	XConnectivity con;
 };
 
 struct XInput
@@ -48,8 +50,6 @@ struct XInput
 	std::string name;
 
 	std::vector<XLink> links;
-
-	bool multiple;
 };
 
 struct XFunction
@@ -57,6 +57,7 @@ struct XFunction
 	std::string uuid;
 	std::string name; 
 
+	std::string type;
 	unsigned int rows;
 	unsigned int cols;
 
@@ -88,33 +89,25 @@ class XmlConverter
 {
 	private :
 
-	DOMDocument* m_doc;
-	XercesDOMParser *parser ;
-	ErrorHandler* errHandler;
+	ptree tree;
+
+
+	void __convertXmlToFunction(const ptree &tree, XFunction &f);
+
+	void __convertXmlToInput( const ptree &tree, XInput &xi );
+	void __convertXmlToLink( const ptree &tree, XLink &xi );
 	
-	void __convertXmlToFunction(const DOMElement &el, XFunction &f);
-	void __convertXmlToInput( const DOMElement &el, XInput &xi );
-	void __convertXmlToLink( const DOMElement &el, XLink &xi );
-	
-	void __loadInputs( const DOMElement &el, std::map<std::string, XInput> &inputs  );
-	void __loadLinks( const DOMElement &el, std::vector<XLink> &inputs  );
+	void __loadInputs( const ptree &tree, std::map<std::string, XInput> &inputs  );
+	void __loadLinks( const ptree &tree, std::vector<XLink> &inputs  );
+
 	void __loadFunctions(std::map<std::string,XFunction> &functions);
-	
-	void __loadScriptName(std::string &name);
 	void __loadRtToken(XRtToken & rt);
 
 	public : 
 	
-	~XmlConverter()
-	{
-		delete parser;
-		delete errHandler;
-	}
-
 	XmlConverter(std::string filepath);
-	XmlConverter() : m_doc(NULL),parser(NULL),errHandler(NULL) {}
-
-	static inline void Initialize()	{ XMLPlatformUtils::Initialize();}
+	XmlConverter(){}
+	~XmlConverter(){}
 
 	void loadScript(XScript& xs);
 };

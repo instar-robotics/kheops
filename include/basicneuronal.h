@@ -32,6 +32,7 @@ population -> activité
 // SPARSE_MATRIX -> Nouveau type de liens 
 neurons concatenation -> OK 
 extract neurons -> OK 
+
 projection (
 	neuron-to-vector -> SCALAR-SCALAR 
 	vector-to-neuron  -> SCALAR_MATRIX

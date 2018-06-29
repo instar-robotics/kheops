@@ -23,7 +23,6 @@ The fact that you are presently reading this means that you have had knowledge o
 #include "rttoken.h"
 #include "frunner.h"
 #include "kernel.h"
-#include "xmlconverter.h"
 #include "input.h"
 #include "util.h"
 #include "libManager.h"
@@ -146,7 +145,6 @@ int main(int argc, char **argv)
         /************* End Signaux handler operation ****************/
 	ComInterface * cinter  = new RosInterface();
 
-	XmlConverter::Initialize();
 	LibManager::init(libdir);
 	LibManager::load();
 

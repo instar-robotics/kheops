@@ -44,9 +44,9 @@ class Input
 
 		void add( std::shared_ptr<I> &i) 
 		{ 
-			if( i == NULL)   throw std::invalid_argument("Input : try to add NULL input");
+			if( i == NULL)   throw std::invalid_argument("Input : try to add NULL link on input. Input UUID : "+uuid);
 
-			if( !multiple &&  ilinks.size() >= 1) throw std::invalid_argument("Input : try to add more than one ilink on unique type input");
+			if( !multiple &&  ilinks.size() >= 1) throw std::invalid_argument("Input : try to add more than one ilink on unique type input. Input UUID : "+uuid);
 				
 			ilinks.push_back( std::weak_ptr<I>(i) );
 		}

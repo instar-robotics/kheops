@@ -18,7 +18,6 @@ The fact that you are presently reading this means that you have had knowledge o
 #define __ILINK_H__
 
 #include "publisher.h"
-
 #include <Eigen/Sparse>
 #include <Eigen/Dense>
 #include <iostream>
@@ -39,13 +38,12 @@ class iLink
 	
 		W weight;
 		DataPublisher<W>* o_pub;
-		bool publish; 
 		
 		std::string uuid;
 
 	public : 
-		iLink() : input(NULL), b_input(NULL), buffer(false), publish(false) {}
-		iLink(I const * i) : input(i), b_input(NULL),buffer(false), publish(false) {}
+		iLink() : input(NULL), b_input(NULL), buffer(false){}
+		iLink(I const * i) : input(i), b_input(NULL),buffer(false) {}
 		virtual ~iLink(){}
 	
 		inline const std::string& getUuid() { return uuid; }
@@ -97,7 +95,7 @@ class iLink
 		/************************  Weight publish API  *************************/
 		/***********************************************************************/
 		
-		inline bool is_publish_active(){return publish;}
+		inline bool is_publish_active(){return o_pub->is_open();}
 
                 void active_publish(bool state)
 		{
@@ -116,7 +114,6 @@ class iLink
 					if( o_pub->is_open()) o_pub->close();
 				}
 			}
-			publish = state;
 		}
 
 		void publish_message()
@@ -231,6 +228,16 @@ class IScalarMatrix : public IMatrix<double>, public ICombinator<MatrixXd>
 
 };
 
+/********************************************************************************************************************/
+/* 						MATRIX_MATRIX Link
+*********************************************************************************************************************/
+
+// Connectivity Rules :
+const std::string one_to_one = "ONE_TO_ONE";
+const std::string one_to_all = "ONE_TO_ALL";
+const std::string one_to_nei = "ONE_TO_NEI";
+
+
 class IMMatrix : public IMatrix<MatrixXd>
 {
 	protected : 
@@ -267,7 +274,7 @@ class IMMatrix : public IMatrix<MatrixXd>
 		virtual void w(VectorXd &weight,unsigned int col) = 0;
 
 		// wout = weight op input
-		// here wout is an Matrix with weight matrix size 		
+		// here wout is an Matrix with the size of the weighted matrix  		
 		virtual MatrixXd& add(MatrixXd& wout) = 0;
 		virtual MatrixXd& diff(MatrixXd& wout) = 0;
 		virtual MatrixXd& prod(MatrixXd& wout) = 0;
