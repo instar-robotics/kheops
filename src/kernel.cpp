@@ -458,6 +458,8 @@ void Kernel::add_immatrix(const std::string& in_uuid,const XLink& xl)
 	
 	if( xl.con.type.size() == 0 ) throw std::invalid_argument("Kernel : you have to specify the connectivity for MATRIX_MATRIX Link ! ilink UUID : "+in_uuid);
 
+	// TODO : first version to build connectivity
+	// Do better function directly in ilink
 	if( xl.con.type == one_to_all ) 
 	{
 		imm =  std::shared_ptr<IMMatrix>(new IDenseMatrix( sf->getRows(), sf->getCols(), 0  ));
