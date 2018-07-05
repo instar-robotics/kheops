@@ -25,6 +25,8 @@ The fact that you are presently reading this means that you have had knowledge o
 #include "factory.h"
 #include "input.h"
 #include "publisher.h"
+#include "shmserializer.h"
+
 
 #define REGISTER_FUNCTION(classname) \
    static const BuilderImpl<classname,Function> classname(#classname); 
@@ -48,8 +50,6 @@ class Function
 		virtual ~Function();
 
 		virtual void exec();
-                virtual void compute() = 0;
-		virtual void setparameters() = 0;
 		virtual size_t type() = 0;
 		virtual std::string type_name() = 0;
 		//virtual void setValue(double dvalue, int x,int y) = 0;
@@ -68,17 +68,33 @@ class Function
 		inline std::vector<ISMInput*>& get_isminput(){ return ism_input;}
 		inline std::vector<IMMInput*>& get_imminput(){ return imm_input;}
 
-		virtual void nsync_afterCompute();
+		void copy_buffer();
+		void publish_data();
+
+		// This function is called by the runner after free mutex
+		virtual void exec_afterCompute();
 		// This function can be overloaded by user to add traitment after compute
 		// This functions is called by nsync_afterCompute
-		virtual void exec_afterCompute() = 0;
-		
+		virtual void uexec_afterCompute() = 0;
+                
+		// This function is called by the runner just before the main loop
+		virtual void preload() = 0;
+		// This function is called by preload : can be overloaded by user
+		virtual void upreload() = 0;
+
+		//this two functions must be overloaded for each Function 
+		// Payload of the function
+		virtual void compute() = 0;
+		// Called by kernel to set Input to the current Function
+		virtual void setparameters() = 0;
 
 		inline bool is_publish_active(){return publish;}
+		inline void set_publish(bool state){publish = state;}
                 virtual void active_publish(bool state) = 0; 
 		virtual void set_topic_name(const std::string &topic) = 0;
 		
 		inline bool is_save_active(){return save;}
+		inline void set_save(bool state){save = state;}
                 virtual void active_save(bool state) = 0; 
 };
 
@@ -89,18 +105,13 @@ class FTemplate : public Function
 
 		T output;
 		DataPublisher<T>* o_pub;
+		ShmSerializer<T> serializer; 
 
 	public : 
 
 		FTemplate() : o_pub(NULL) {}
 		virtual ~FTemplate();
                 
-		virtual void compute() = 0;
-		virtual void setparameters() = 0;
-		
-		// Do nothing, but can be overloaded by users
-		virtual void exec_afterCompute(){}
-
 		virtual size_t type(){ return typeid(T).hash_code();}
 		std::string type_name() { return typeid(T).name();}
 		
@@ -112,10 +123,24 @@ class FTemplate : public Function
                         return output;
                 }
 		
+		//this two functions must be overloaded for each Function 
+		// Payload of the function
+		virtual void compute() = 0;
+		// Called by kernel to set Input to the current Function
+		virtual void setparameters() = 0;
+		
+		// Do nothing, can be overloaded by end users
+		virtual void uexec_afterCompute(){}
+		
+		// This function is called by the runner just before the main loop
+		virtual void preload();
+		// Do nothing : can be overloaded by user
+		virtual void upreload(){}
+
 		virtual void set_topic_name(const std::string &topic);
 		virtual void active_publish(bool state);
 		virtual void active_save(bool state);
-		virtual void nsync_afterCompute();
+		virtual void exec_afterCompute();
 };
 
 class FMatrix : public FTemplate<MatrixXd>

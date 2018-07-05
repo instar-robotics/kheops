@@ -14,74 +14,28 @@ and, more generally, to use and operate it in the same conditions as regards sec
 The fact that you are presently reading this means that you have had knowledge of the CeCILL v2.1 license and that you accept its terms.
 */
 
-#include "frunner.h"
+#include "shmserializer.h"
 
-void FRunner::exec()
+using namespace Eigen;
+
+/*
+template<class Type>
+void ShmSerializer<Type>::buildSHM( const  std::string name, const Type &T)
 {
-	std::chrono::time_point<std::chrono::system_clock> start,end;
+        if( shm == NULL ) shm = new bip::shared_memory_object(bip::open_or_create, name.c_str(), bip::read_write);
+        shm->truncate(sizeof(T)+PADDING);
 
-	checkFunction();
-			
-	Function * f = boost::get(boost::vertex_function , *g)[node] ;
-	f->preload();
+        if( region == NULL ) region = new bip::mapped_region(*shm, bip::read_write);
+}
+*/
 
-	while( ! __is_asking_stop() && ! __is_asking_local_stop() )
-	{
-		wait_for_sync();
-		if( __is_asking_stop() || __is_asking_local_stop()) continue;
-		
-		consume(node);
-		
-		if(is_oscillo_active() ) start = std::chrono::system_clock::now();
+template<>
+void ShmSerializer<MatrixXd>::buildSHM( const  std::string name, const MatrixXd& M )
+{
+        if( shm == NULL ) shm = new bip::shared_memory_object(bip::open_or_create, name.c_str(), bip::read_write);
+        int seg_size = M.size()* sizeof(double) + sizeof(MatrixXd::Index) * 2+ sizeof(MatrixXd) + PADDING;
+        shm->truncate(seg_size);
 
-		f->exec();
-
-		if( is_oscillo_active() ) end = std::chrono::system_clock::now();	
-
-		produce(node);
-
-		f->exec_afterCompute();
-			
-		if( is_oscillo_active() ) 
-		{
-			std::chrono::duration<double> elapsed_seconds = end-start;
-			date_start = start.time_since_epoch().count();
-			last_duration = elapsed_seconds.count();
-			means+= elapsed_seconds.count();
-			nbrun++;
-		}
-	}
-	produce(node);
+        if( region == NULL ) region = new bip::mapped_region(*shm, bip::read_write);
 }
 
-void FRunner::checkFunction()
-{
-	if( ( boost::get( boost::vertex_function ,*g  )[node]) == NULL) {
-		 throw  std::invalid_argument("FRunner : Function uninitialized");
-	}
-}
-
-void FRunner::wait_for_sync()
-{
-        {
-                std::unique_lock<std::mutex> lk(mtx_sync);
-                cv_sync.wait(lk,[=]{ return bsync;});
-                bsync = false;
-        }
-}
-
-void FRunner::sync()
-{
-        {
-                std::unique_lock<std::mutex> lk(mtx_sync); 
-                bsync = true;
-        }
-        cv_sync.notify_one();
-}
-
-void FRunner::terminate()
-{
-	local_stop();
-	sync();
-	join();
-}

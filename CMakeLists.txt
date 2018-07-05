@@ -158,7 +158,7 @@ add_executable(
 # add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES} pthread dl uuid boost_filesystem boost_system boost_serialization)
+target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES} pthread dl uuid boost_filesystem boost_system boost_serialization rt)
 
 #############
 ## Install ##

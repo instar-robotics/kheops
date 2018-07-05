@@ -19,6 +19,7 @@ The fact that you are presently reading this means that you have had knowledge o
 
 #include <fstream>
 #include "weightconverter.h"
+#include "serialization.h"
 
 void WeightConverter::load(std::map<std::string, IMMInput*> &inputs )
 {

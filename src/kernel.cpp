@@ -166,8 +166,8 @@ void Kernel::add_function( const XFunction& xf)
       { 
 		f->setUuid(xf.uuid);
 		f->set_topic_name(xf.topic_name);
-		f->active_publish(xf.publish);
-		f->active_save(xf.save);
+		f->set_publish(xf.publish);
+		f->set_save(xf.save);
 
 		if( f->type() == typeid(MatrixXd).hash_code()) 		
 		{
@@ -610,7 +610,7 @@ void Kernel::join_runners()
 /****************** 			Bind Section 				      *******************/
 /********************************************************************************************************/
 
-void Kernel::bind(ISInput& value,const  std::string& var_name,const std::string& uuid)
+void Kernel::bind(ISInput& value,const std::string& var_name,const std::string& uuid)
 {
 
         if( node_map.find(uuid) == node_map.end() || xs.functions.find(uuid) == xs.functions.end() ) throw std::invalid_argument( "Kernel : try to bind \""+var_name+"\", a SCALAR_SCALAR input from unkown function "+uuid );
@@ -619,9 +619,9 @@ void Kernel::bind(ISInput& value,const  std::string& var_name,const std::string&
 
 	is_input[ xs.functions[uuid].inputs.find(var_name)->second.uuid ] = &value;	
 	input_to_funct[ xs.functions[uuid].inputs.find(var_name)->second.uuid ] = uuid;
-	value.setUuid(  xs.functions[uuid].inputs.find(var_name)->second.uuid  );
+	value.setUuid( xs.functions[uuid].inputs.find(var_name)->second.uuid );
 
-	Function *f =  boost::get(boost::vertex_function, graph, node_map[uuid]) ;
+	Function *f = boost::get(boost::vertex_function, graph, node_map[uuid]) ;
 	f->add_input(&value);	
 }
 

@@ -45,50 +45,82 @@ void Function::exec()
 	}
 }
 
-void Function::nsync_afterCompute()
+void Function::copy_buffer()
+{
+        // Buffer input
+        // Send debug output [ROS Topic ] ...
+        for( auto input = is_input.begin() ; input != is_input.end(); input++  )
+        {
+                for( unsigned int i = 0 ; i < (*input)->size(); i++ )
+                {
+                        (**input)[i].copyBuffer();
+                }
+        }
+
+        for( auto input = ism_input.begin() ; input != ism_input.end(); input++  )
+        {
+                for( unsigned int i = 0 ; i < (*input)->size(); i++ )
+                {
+                        (**input)[i].copyBuffer();
+                }
+        }
+
+        for( auto input = imm_input.begin() ; input != imm_input.end(); input++  )
+        {
+                for( unsigned int i = 0 ; i < (*input)->size(); i++ )
+                {
+                        (**input)[i].copyBuffer();
+                }
+        }
+}
+
+void Function::publish_data()
+{
+	        // Buffer input
+        // Send debug output [ROS Topic ] ...
+        for( auto input = is_input.begin() ; input != is_input.end(); input++  )
+        {
+                for( unsigned int i = 0 ; i < (*input)->size(); i++ )
+                {
+                        if( (**input)[i].is_publish_active() )
+                        {
+                                (**input)[i].publish_message();
+                        }
+                }
+        }
+
+        for( auto input = ism_input.begin() ; input != ism_input.end(); input++  )
+        {
+                for( unsigned int i = 0 ; i < (*input)->size(); i++ )
+                {
+                        if( (**input)[i].is_publish_active() )
+                        {
+                                (**input)[i].publish_message();
+                        }
+                }
+        }
+
+        for( auto input = imm_input.begin() ; input != imm_input.end(); input++  )
+        {
+                for( unsigned int i = 0 ; i < (*input)->size(); i++ )
+                {
+                        if( (**input)[i].is_publish_active() )
+                        {
+                                (**input)[i].publish_message();
+                        }
+                }
+        }
+
+}
+
+void Function::exec_afterCompute()
 {
 	// Buffer input
 	// Send debug output [ROS Topic ] ...
-	for( auto input = is_input.begin() ; input != is_input.end(); input++  )
-	{
-		for( unsigned int i = 0 ; i < (*input)->size(); i++ )
-		{
-			(**input)[i].copyBuffer();
-			
-			if( (**input)[i].is_publish_active() ) 
-			{
-				(**input)[i].publish_message();
-			}
-		}
-	}
-	
-	for( auto input = ism_input.begin() ; input != ism_input.end(); input++  )
-	{
-		for( unsigned int i = 0 ; i < (*input)->size(); i++ )
-		{
-			(**input)[i].copyBuffer();
-			
-			if( (**input)[i].is_publish_active() ) 
-			{
-				(**input)[i].publish_message();
-			}
-		}
-	}
-	
-	for( auto input = imm_input.begin() ; input != imm_input.end(); input++  )
-	{
-		for( unsigned int i = 0 ; i < (*input)->size(); i++ )
-		{
-			(**input)[i].copyBuffer();
-			
-			if( (**input)[i].is_publish_active() ) 
-			{
-				(**input)[i].publish_message();
-			}
-		}
-	}
+	copy_buffer();
+	publish_data();
 
-	exec_afterCompute();
+	uexec_afterCompute();
 }
 
 /********************************************************************************************************/
@@ -141,15 +173,42 @@ void FTemplate<T>::active_publish(bool state)
 }
 
 template<class T>
+void FTemplate<T>::preload()
+{
+	if( is_save_active() )
+	{
+		shm_read( getUuid() , output );
+		active_save(true);
+
+		// Allow to get activity for 
+		copy_buffer();
+
+	}
+
+	active_publish(is_publish_active());
+
+	upreload();
+}
+
+
+template<class T>
 void FTemplate<T>::active_save(bool state)
 {
-	
+	if( state )
+	{
+		serializer.buildSHM(getUuid(), output );		
+	}
+	else
+	{
+		serializer.free();		
+	}
+	save = state ;
 }
 
 template<class T>
-void FTemplate<T>::nsync_afterCompute()
+void FTemplate<T>::exec_afterCompute()
 {
-	Function::nsync_afterCompute();
+	Function::exec_afterCompute();
 
 	if( is_publish_active() && o_pub != NULL)
 	{
@@ -163,7 +222,7 @@ void FTemplate<T>::nsync_afterCompute()
 	// Save Activity
 	if( is_save_active() )
 	{
-
+		serializer.write(output);		
 	}
 }
 
