@@ -180,9 +180,8 @@ void FTemplate<T>::preload()
 		shm_read( getUuid() , output );
 		active_save(true);
 
-		// Allow to get activity for 
+		// Allow to get activity for reccurent link
 		copy_buffer();
-
 	}
 
 	active_publish(is_publish_active());
