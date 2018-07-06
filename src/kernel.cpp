@@ -37,21 +37,11 @@ Kernel::~Kernel()
 		if( l != NULL ) delete(l);
 	}
 
-	for( auto it = is_ilink.begin(); it != is_ilink.end(); it++) 
+	for( auto it = ilink.begin(); it != ilink.end(); it++) 
 	{
-		is_ilink.erase(it);
+		ilink.erase(it);
 	}
 	
-	for( auto it = ism_ilink.begin(); it != ism_ilink.end(); it++) 
-	{
-		ism_ilink.erase(it);
-	}
-
-	for( auto it = imm_ilink.begin(); it != imm_ilink.end(); it++) 
-	{
-		imm_ilink.erase(it);
-	}
-
 	graph.clear();
 	node_map.clear();
 	edge_map.clear();
@@ -59,9 +49,7 @@ Kernel::~Kernel()
 	ilink_to_input.clear();
 	input_to_funct.clear();
 	
-	is_input.clear();
-	ism_input.clear();
-	imm_input.clear();
+	input.clear();
 }
 
 /********************************************************************************************************/
@@ -127,7 +115,7 @@ void Kernel::load_rttoken()
 void Kernel::load_weight()
 {
 	WeightConverter wc(weight_file);
-	wc.load(imm_input);
+	wc.load(input);
 }
 
 void Kernel::load_weight(const std::string& filename)
@@ -136,13 +124,13 @@ void Kernel::load_weight(const std::string& filename)
 	if( !check_file_extension(filename, ".weight")) tmp_file+=".weight";
 
 	WeightConverter wc(tmp_file);
-	wc.load(imm_input);
+	wc.load(input);
 }
 
 void Kernel::save_weight()
 {
 	WeightConverter wc(weight_file);
-	wc.save(imm_input);
+	wc.save(input);
 }
 
 void Kernel::save_weight(const std::string& filename)
@@ -151,7 +139,7 @@ void Kernel::save_weight(const std::string& filename)
 	if( !check_file_extension(filename, ".weight")) tmp_file+=".weight";
 
 	WeightConverter wc(tmp_file);
-	wc.save(imm_input);
+	wc.save(input);
 }
 
 /********************************************************************************************************/
@@ -195,19 +183,9 @@ void Kernel::del_function(const std::string& uuid)
 	Function *f =  boost::get(boost::vertex_function , graph)[ node_map[uuid]];
 
 	//purge all ilinks in all inputs
-	for( auto input = f->get_isinput().begin() ; input !=  f->get_isinput().end(); input++)
+	for( auto input = f->get_input().begin() ; input !=  f->get_input().end(); input++)
 	{
-		unbind_isinput( (*input)->getUuid());
-	}
-
-	for( auto input = f->get_isminput().begin(); input !=  f->get_isminput().end(); input++)
-	{
-		unbind_isminput( (*input)->getUuid());
-	}
-	
-	for( auto input = f->get_imminput().begin(); input !=  f->get_imminput().end(); input++)
-	{
-		unbind_imminput( (*input)->getUuid());
+		unbind_input( (*input)->getUuid());
 	}
 
 	// purge output link
@@ -368,40 +346,46 @@ void Kernel::add_ilink(const std::string& in_uuid, const XLink& xl)
 	
 	if( node_map.find( input_to_funct[in_uuid] ) == node_map.end()) throw std::invalid_argument( "Kernel : try to add ilink to unkown function "+input_to_funct[in_uuid] );
 
-	if( is_input.find(in_uuid) != is_input.end() )
+	//TODO : replace by Builder and Factory 
+	auto it = input.find(in_uuid);
+	if( it != input.end() )
 	{
-		add_iscalar(in_uuid, xl);
-	}
-	else if( ism_input.find(in_uuid) != ism_input.end())
-	{
-		add_ismatrix(in_uuid, xl);
-	}
-	else if( imm_input.find(in_uuid) != imm_input.end())
-	{
-		add_immatrix(in_uuid, xl);
-	}
+		if(  it->second->type() == typeid(IScalar).hash_code() ) 
+		{
+			add_iscalar(in_uuid, xl);
+		}
+		else if(  it->second->type() == typeid(IScalarMatrix).hash_code() )
+		{
+			add_ismatrix(in_uuid, xl);
+		}
+		else if( it->second->type() == typeid(IMMatrix).hash_code() )
+		{
+			add_immatrix(in_uuid, xl);
+		} 
+		else throw std::invalid_argument( "Kernel : try to add ilink with unkown type : "+xl.uuid );
+	} 
 	else throw std::invalid_argument( "Kernel : try to add ilink to unkown input "+in_uuid );
 }
 	
 void Kernel::add_iscalar(const std::string& in_uuid,const XLink& xl)	
 {
 	// Build ilink
-	std::shared_ptr<IScalar> is (new IScalar);
+	std::shared_ptr<iLinkBase> is (new IScalar);
 
 	//set is
 	is->setUuid(xl.uuid);
-	is->w( xl.weight );
+	dynamic_cast<IScalar*>(is.get())->w( xl.weight );
 
 	if( xl.isCst == true )
 	{
-		is->setCValue(1);
+		dynamic_cast<IScalar*>(is.get())->setCValue(1);
 	}
 	else
 	{
 		Function *f =  boost::get(boost::vertex_function, graph, node_map[xl.uuid_pred]) ;
 		if( f->type() == is->type())
 		{
-			is->i( &(dynamic_cast<FScalar*>(f)->getOutput()) );
+			dynamic_cast<IScalar*>(is.get())->i( &(dynamic_cast<FScalar*>(f)->getOutput()) );
 	 
 		}else throw std::invalid_argument( "Kernel : try to bind no compatible type. Input "+is->type_name()+" on  Function "+f->type_name());
        
@@ -409,25 +393,25 @@ void Kernel::add_iscalar(const std::string& in_uuid,const XLink& xl)
 	}
 
 	// Add ilink
-	is_input[in_uuid]->add(is);
-	is_ilink[xl.uuid] = is;
+	input[in_uuid]->add(is);
+	ilink[xl.uuid] = is;
 	ilink_to_input[xl.uuid] = in_uuid;
 }
 
 void Kernel::add_ismatrix(const std::string& in_uuid,const XLink& xl)
 {
 	// Build ilink
-	std::shared_ptr<IScalarMatrix> ism(new IScalarMatrix);
+	std::shared_ptr<iLinkBase> ism(new IScalarMatrix);
 	
 	Function *sf =  boost::get(boost::vertex_function, graph,  node_map[input_to_funct[in_uuid]]) ;
 
 	//set is
 	ism->setUuid(xl.uuid);
-	ism->w( xl.weight );
+	dynamic_cast<IScalarMatrix*>(ism.get())->w( xl.weight );
 
 	if( xl.isCst == true )
 	{
-		ism->setCValue( MatrixXd::Constant( sf->getRows(),sf->getCols(), 1 )); 
+		dynamic_cast<IScalarMatrix*>(ism.get())->setCValue( MatrixXd::Constant( sf->getRows(),sf->getCols(), 1 )); 
 	}
 	else
 	{
@@ -437,22 +421,22 @@ void Kernel::add_ismatrix(const std::string& in_uuid,const XLink& xl)
 			//check size (rows/cols). All inputs must have the same size 
 			if( pf->getRows() != sf->getRows() || pf->getCols() != sf->getCols()) throw  std::invalid_argument( "Kernel : try to bind scalar matrix with different sizes ");
 
-			ism->i( &(dynamic_cast<FMatrix*>(pf)->getOutput()) );
+			dynamic_cast<IScalarMatrix*>(ism.get())->i( &(dynamic_cast<FMatrix*>(pf)->getOutput()) );
 	 
 		}else throw std::invalid_argument( "Kernel : try to bind no compatible type. Input "+ism->type_name()+" on  Function "+pf->type_name());
 	
 		if( input_to_funct[in_uuid] == xl.uuid_pred) ism->activateBuffer();
 	}
 	// Add ilink
-	ism_input[in_uuid]->add(ism);
-	ism_ilink[xl.uuid] = ism;
+	input[in_uuid]->add(ism);
+	ilink[xl.uuid] = ism;
 	ilink_to_input[xl.uuid] = in_uuid;
 }
 
 void Kernel::add_immatrix(const std::string& in_uuid,const XLink& xl)
 {
 	// Build ilink
-	std::shared_ptr<IMMatrix> imm;
+	std::shared_ptr<iLinkBase> imm;
 
 	Function *sf =  boost::get(boost::vertex_function, graph,  node_map[input_to_funct[in_uuid]]) ;
 	
@@ -477,7 +461,7 @@ void Kernel::add_immatrix(const std::string& in_uuid,const XLink& xl)
 	if( xl.isCst == true )
 	{
 		//By default constant are 1x1 Matrix 
-		imm->setCValue( MatrixXd::Constant( 1, 1 , 1 )); 
+		dynamic_cast<IMMatrix*>(imm.get())->setCValue( MatrixXd::Constant( 1, 1 , 1 )); 
 
 		//TODO : should be possible to and rows/cols size into XLink to custom the constant size
 		//imm->setCValue( MatrixXd::Constant( sf->getRows(),sf->getCols(), std::stod( it->value ))); 
@@ -487,18 +471,18 @@ void Kernel::add_immatrix(const std::string& in_uuid,const XLink& xl)
 		Function *pf =  boost::get(boost::vertex_function, graph, node_map[xl.uuid_pred]) ;
 		if( pf->type() == imm->type())
 		{
-			imm->i( &(dynamic_cast<FMatrix*>(pf)->getOutput()) );
+			dynamic_cast<IMMatrix*>(imm.get())->i( &(dynamic_cast<FMatrix*>(pf)->getOutput()) );
  
 		}else throw std::invalid_argument( "Kernel : try to bind no compatible type ");
 		
 		if( input_to_funct[in_uuid] == xl.uuid_pred) imm->activateBuffer();
 	}
-	imm->resizeWeight();
-	imm->initWeight(xl.weight);
+	dynamic_cast<IMMatrix*>(imm.get())->resizeWeight();
+	dynamic_cast<IMMatrix*>(imm.get())->initWeight(xl.weight);
 
 	// Add ilink
-	imm_input[in_uuid]->add(imm);
-	imm_ilink[xl.uuid] = imm;
+	input[in_uuid]->add(imm);
+	ilink[xl.uuid] = imm;
 	ilink_to_input[xl.uuid] = in_uuid;
 }
 
@@ -510,32 +494,14 @@ void Kernel::del_ilink(const std::string& link_uuid)
 	std::string input = ilink_to_input[link_uuid];
 	ilink_to_input.erase( ilink_to_input.find( link_uuid ));
 
-	auto it = is_ilink.find( link_uuid );
+	auto it = ilink.find( link_uuid );
 
-	if( it != is_ilink.end())
+	if( it != ilink.end())
 	{
-		is_ilink.erase(it);
+		ilink.erase(it);
 		// shared_ptr : should delete automatically the ilink
 	}
-	else 
-	{
-		auto it = ism_ilink.find( link_uuid );
-		if( it != ism_ilink.end())
-		{
-			ism_ilink.erase(it);
-			// shared_ptr : should delete automatically the ilink
-		}
-		else
-		{
-			auto it = imm_ilink.find( link_uuid );
-			if( it != imm_ilink.end())
-			{
-				imm_ilink.erase(it);
-			}
-			else throw std::invalid_argument( "Kernel : unable to delete ilink "+link_uuid);
-		}
-
-	}
+	else throw std::invalid_argument( "Kernel : unable to delete ilink "+link_uuid);
 }
 
 void Kernel::purge_output_ilinks(const std::string& uuid)
@@ -610,49 +576,20 @@ void Kernel::join_runners()
 /****************** 			Bind Section 				      *******************/
 /********************************************************************************************************/
 
-void Kernel::bind(ISInput& value,const std::string& var_name,const std::string& uuid)
+void Kernel::bind(InputBase& value,const std::string& var_name,const std::string& uuid)
 {
 
-        if( node_map.find(uuid) == node_map.end() || xs.functions.find(uuid) == xs.functions.end() ) throw std::invalid_argument( "Kernel : try to bind \""+var_name+"\", a SCALAR_SCALAR input from unkown function "+uuid );
+        if( node_map.find(uuid) == node_map.end() || xs.functions.find(uuid) == xs.functions.end() ) throw std::invalid_argument( "Kernel : try to bind \""+var_name+"\", a "+value.type_name()+" input from unkown function "+uuid );
 
-        if( xs.functions[uuid].inputs.find(var_name) ==  xs.functions[uuid].inputs.end() )  throw std::invalid_argument( "Kernel : unable to find input \""+var_name+"\", a SCALAR_SCALAR input from function "+uuid  );
+        if( xs.functions[uuid].inputs.find(var_name) ==  xs.functions[uuid].inputs.end() )  throw std::invalid_argument( "Kernel : unable to find input \""+var_name+"\", a "+value.type_name()+" input from function "+uuid  );
 
-	is_input[ xs.functions[uuid].inputs.find(var_name)->second.uuid ] = &value;	
-	input_to_funct[ xs.functions[uuid].inputs.find(var_name)->second.uuid ] = uuid;
-	value.setUuid( xs.functions[uuid].inputs.find(var_name)->second.uuid );
+        input[ xs.functions[uuid].inputs.find(var_name)->second.uuid ] = &value;        
+        input_to_funct[ xs.functions[uuid].inputs.find(var_name)->second.uuid ] = uuid;
+        value.setUuid( xs.functions[uuid].inputs.find(var_name)->second.uuid );
 
-	Function *f = boost::get(boost::vertex_function, graph, node_map[uuid]) ;
-	f->add_input(&value);	
+        Function *f = boost::get(boost::vertex_function, graph, node_map[uuid]) ;
+        f->add_input(&value);   
 }
-
-void Kernel::bind(ISMInput& value,const std::string &var_name,const std::string& uuid)
-{
-        if( node_map.find(uuid) == node_map.end() || xs.functions.find(uuid) == xs.functions.end() ) throw std::invalid_argument( "Kernel : try to bind \""+var_name+"\", a SCALAR_MATRIX input to unkown function "+uuid );
-                
-        if( xs.functions[uuid].inputs.find(var_name) ==  xs.functions[uuid].inputs.end() )  throw std::invalid_argument( "Kernel : unable to find input \""+var_name+"\", a SCALAR_MATRIX input from function "+uuid  );
-	
-	ism_input[ xs.functions[uuid].inputs.find(var_name)->second.uuid ] =  &value;
-	input_to_funct[ xs.functions[uuid].inputs.find(var_name)->second.uuid ] = uuid;
-	value.setUuid(  xs.functions[uuid].inputs.find(var_name)->second.uuid  );
-	
-	Function *f =  boost::get(boost::vertex_function, graph, node_map[uuid]) ;
-	f->add_input(&value);	
-}
-
-void Kernel::bind(IMMInput& value,const std::string& var_name,const std::string& uuid )
-{
-        if( node_map.find(uuid) == node_map.end() || xs.functions.find(uuid) == xs.functions.end() ) throw std::invalid_argument( "Kernel : try to bind \""+var_name+"\", a MATRIX_MATRIX input to unkown function "+uuid );
-                
-        if( xs.functions[uuid].inputs.find(var_name) ==  xs.functions[uuid].inputs.end() )  throw std::invalid_argument( "Kernel : unable to find input \""+var_name+"\", a MATRIX_MATRIX input from function "+uuid  );
-	
-	imm_input[ xs.functions[uuid].inputs.find(var_name)->second.uuid ] =  &value;
-	input_to_funct[ xs.functions[uuid].inputs.find(var_name)->second.uuid ] = uuid;
-	value.setUuid(  xs.functions[uuid].inputs.find(var_name)->second.uuid  );
-
-	Function *f =  boost::get(boost::vertex_function, graph, node_map[uuid]) ;
-	f->add_input(&value);	
-}
-
 
 void Kernel::bind(std::string& value,const std::string& var_name,const std::string& uuid)
 {
@@ -667,66 +604,26 @@ void Kernel::bind(std::string& value,const std::string& var_name,const std::stri
         else throw std::invalid_argument( "Kernel : string input have to be constant");
 }
 
-
-void Kernel::unbind_isinput(const std::string& uuid)
+void Kernel::unbind_input(const std::string& uuid)
 {
-	if( is_input.find(uuid) == is_input.end()) throw std::invalid_argument("Kernel : try to clear scalar input "+uuid+", but enable to find");
+        if( input.find(uuid) == input.end()) throw std::invalid_argument("Kernel : try to clear input "+uuid+", but enable to find");
 
-	ISInput *input = is_input[uuid];
-	
-	for( unsigned int i = 0 ; i < input->size(); i++ )
-	{
-	       del_ilink((*input)[i].getUuid());
-	}
-	
-	is_input.erase( is_input.find(uuid)); 
-	input_to_funct.erase( input_to_funct.find(uuid));
+        InputBase *in = input[uuid];
+
+        for( unsigned int i = 0 ; i < in->size(); i++ )
+        {
+               del_ilink((*in)(i).getUuid());
+        }
+
+        input.erase( input.find(uuid));
+        input_to_funct.erase( input_to_funct.find(uuid));
 }
-
-void Kernel::unbind_isminput(const std::string& uuid)
-{
-	if( ism_input.find(uuid) == ism_input.end()) throw std::invalid_argument("Kernel : try to clear scalar matrix input "+uuid+", but enable to find");
-
-	ISMInput *input = ism_input[uuid];
-
-	for( unsigned int i = 0 ; i < input->size(); i++ )
-	{
-	       del_ilink((*input)[i].getUuid());
-	}
-	
-	ism_input.erase( ism_input.find(uuid)); 
-	input_to_funct.erase( input_to_funct.find(uuid));
-}
-
-void Kernel::unbind_imminput(const std::string& uuid)
-{
-	if( imm_input.find(uuid) == imm_input.end()) throw std::invalid_argument("Kernel : try to clear matrix matrix input "+uuid+", but enable to find");
-
-	IMMInput *input = imm_input[uuid];
-
-	for( unsigned int i = 0 ; i < input->size(); i++ )
-	{
-	       del_ilink((*input)[i].getUuid());
-	}
-	
-	imm_input.erase( imm_input.find(uuid)); 
-	input_to_funct.erase( input_to_funct.find(uuid));
-}
-
 
 void Kernel::purge_empty_links(const std::string& uuid)
 {
-	if( is_input.find(uuid) != is_input.end() )
+	if( input.find(uuid) != input.end() )
         {
-                is_input[uuid]->purge_empty();
-        }
-        else if( ism_input.find(uuid) != ism_input.end() )
-        {
-                ism_input[uuid]->purge_empty();
-        }
-        else if( imm_input.find(uuid) != imm_input.end() )
-        {
-                imm_input[uuid]->purge_empty();
+                input[uuid]->purge_empty();
         }
         else throw std::invalid_argument("Kernel : unable to purge ilink from input "+uuid );
 }
@@ -770,20 +667,10 @@ bool Kernel::active_publish(const std::string& uuid, bool state)
 		if( f != NULL ) f->active_publish(state);
 		else ret = false;
 	}
-	// Active Scalar ilink Output
-	else if( is_ilink.find( uuid ) != is_ilink.end() ) 
+	// Active ilink Output
+	else if( ilink.find( uuid ) != ilink.end() ) 
 	{
-		is_ilink[uuid]->active_publish(state);		
-	}
-	// Active ScalarMatrix ilink Output
-	else if( ism_ilink.find( uuid ) != ism_ilink.end() )
-	{
-		ism_ilink[uuid]->active_publish(state);		
-	}
-	// Active MatrixMatrix ilink Output
-	else if( imm_ilink.find( uuid ) != imm_ilink.end() )
-	{
-		imm_ilink[uuid]->active_publish(state);		
+		ilink[uuid]->active_publish(state);		
 	}
 	else 
 	{
@@ -807,17 +694,7 @@ void Kernel::get_objects(std::vector<std::string> & objects)
 
 void Kernel::get_inputs(std::vector<std::string> & objects)
 {
-	for(auto it = is_input.begin(); it != is_input.end(); ++it)
-	{
-		objects.push_back("input:"+it->first);
-	}
-	
-	for(auto it = ism_input.begin(); it != ism_input.end(); ++it)
-	{
-		objects.push_back("input:"+it->first);
-	}
-	
-	for(auto it = imm_input.begin(); it != imm_input.end(); ++it)
+	for(auto it = input.begin(); it != input.end(); ++it)
 	{
 		objects.push_back("input:"+it->first);
 	}
@@ -825,17 +702,7 @@ void Kernel::get_inputs(std::vector<std::string> & objects)
 
 void Kernel::get_ilinks(std::vector<std::string> & objects)
 {
-	for(auto it = is_ilink.begin(); it != is_ilink.end(); ++it)
-	{
-		objects.push_back("link:"+it->first);
-	}
-	
-	for(auto it = ism_ilink.begin(); it != ism_ilink.end(); ++it)
-	{
-		objects.push_back("link:"+it->first);
-	}
-	
-	for(auto it = imm_ilink.begin(); it != imm_ilink.end(); ++it)
+	for(auto it = ilink.begin(); it != ilink.end(); ++it)
 	{
 		objects.push_back("link:"+it->first);
 	}

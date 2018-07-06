@@ -169,7 +169,7 @@ bool RosInterface::callback_weight( hieroglyph::ArgCmd::Request& request, hierog
 	int state = Kernel::instance().getState();
 	if(state == R_RUN) Kernel::instance().pause();
 
-	if( request.cmd == CMD[S_START] )
+	if( request.cmd == CMD[S_SAVE] )
 	{
 		if( request.arg.size() == 0 )
 		{
@@ -178,9 +178,9 @@ bool RosInterface::callback_weight( hieroglyph::ArgCmd::Request& request, hierog
 		else{
 			Kernel::instance().save_weight(request.arg);
 		}
-		response.ret = CMD[S_START];
+		response.ret = CMD[S_SAVE];
 	}
-	else if( request.cmd == CMD[S_STOP] )
+	else if( request.cmd == CMD[S_LOAD] )
 	{
 		if( request.arg.size() == 0 )
 		{
@@ -189,7 +189,7 @@ bool RosInterface::callback_weight( hieroglyph::ArgCmd::Request& request, hierog
 		else{
 			 Kernel::instance().load_weight(request.arg);
 		}
-		response.ret = CMD[S_STOP] ;
+		response.ret = CMD[S_LOAD] ;
 	}
 	else  response.ret = RETURN[0];
 

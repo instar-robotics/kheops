@@ -24,9 +24,7 @@ The fact that you are presently reading this means that you have had knowledge o
 
 Function::~Function()
 {
-	is_input.clear();
-	ism_input.clear();
-	imm_input.clear();
+	input.clear();
 }
 
 void Function::exec()
@@ -49,68 +47,26 @@ void Function::copy_buffer()
 {
         // Buffer input
         // Send debug output [ROS Topic ] ...
-        for( auto input = is_input.begin() ; input != is_input.end(); input++  )
+        for( auto in = input.begin() ; in != input.end(); in++  )
         {
-                for( unsigned int i = 0 ; i < (*input)->size(); i++ )
+                for( unsigned int i = 0 ; i < (*in)->size(); i++ )
                 {
-                        (**input)[i].copyBuffer();
-                }
-        }
-
-        for( auto input = ism_input.begin() ; input != ism_input.end(); input++  )
-        {
-                for( unsigned int i = 0 ; i < (*input)->size(); i++ )
-                {
-                        (**input)[i].copyBuffer();
-                }
-        }
-
-        for( auto input = imm_input.begin() ; input != imm_input.end(); input++  )
-        {
-                for( unsigned int i = 0 ; i < (*input)->size(); i++ )
-                {
-                        (**input)[i].copyBuffer();
+                        (**in)(i).copyBuffer();
                 }
         }
 }
 
 void Function::publish_data()
 {
-	        // Buffer input
+	// Buffer input
         // Send debug output [ROS Topic ] ...
-        for( auto input = is_input.begin() ; input != is_input.end(); input++  )
+        for( auto in = input.begin() ; in != input.end(); in++  )
         {
-                for( unsigned int i = 0 ; i < (*input)->size(); i++ )
+                for( unsigned int i = 0 ; i < (*in)->size(); i++ )
                 {
-                        if( (**input)[i].is_publish_active() )
-                        {
-                                (**input)[i].publish_message();
-                        }
+                        (**in)(i).publish_message();
                 }
         }
-
-        for( auto input = ism_input.begin() ; input != ism_input.end(); input++  )
-        {
-                for( unsigned int i = 0 ; i < (*input)->size(); i++ )
-                {
-                        if( (**input)[i].is_publish_active() )
-                        {
-                                (**input)[i].publish_message();
-                        }
-                }
-        }
-
-        for( auto input = imm_input.begin() ; input != imm_input.end(); input++  )
-        {
-                for( unsigned int i = 0 ; i < (*input)->size(); i++ )
-                {
-                        if( (**input)[i].is_publish_active() )
-                        {
-                                (**input)[i].publish_message();
-                        }
-                }
-        }
-
 }
 
 void Function::exec_afterCompute()

@@ -27,8 +27,46 @@ using Eigen::MatrixXd;
 using Eigen::VectorXd;
 using Eigen::Map;
 
+class iLinkBase
+{
+	protected : 
+		
+		std::string uuid;
+
+	public : 
+		iLinkBase(){}
+		virtual ~iLinkBase() = 0;
+		
+		inline const std::string& getUuid() { return uuid; }
+                virtual void setUuid(const std::string& uuid) = 0;
+		
+		/***********************************************************************/
+		/*****************************  Buffer API *****************************/
+		/***********************************************************************/
+		
+		virtual void activateBuffer() = 0;
+		virtual void deactivateBuffer() = 0;
+		virtual void copyBuffer() = 0;
+
+		/***********************************************************************/
+		/************************  Weight publish API  *************************/
+		/***********************************************************************/
+	        
+		virtual bool is_publish_active() = 0;
+                virtual void active_publish(bool state) = 0;
+                virtual void publish_message() = 0;
+
+		/***********************************************************************/
+                /************************  Input Accessor API  *************************/
+                /***********************************************************************/
+
+                virtual size_t type() = 0;
+                virtual std::string type_name() = 0;
+};
+
+
 template<class I, class W>
-class iLink
+class iLink : public iLinkBase
 {
 	protected :
 		I cvalue;
@@ -39,14 +77,14 @@ class iLink
 		W weight;
 		DataPublisher<W>* o_pub;
 		
-		std::string uuid;
+
 
 	public : 
 		iLink() : input(NULL), b_input(NULL), buffer(false){}
 		iLink(I const * i) : input(i), b_input(NULL),buffer(false) {}
 		virtual ~iLink(){}
 	
-		inline const std::string& getUuid() { return uuid; }
+
                 inline virtual void setUuid(const std::string& uuid)
 		{
 			this->uuid = uuid;
@@ -95,9 +133,9 @@ class iLink
 		/************************  Weight publish API  *************************/
 		/***********************************************************************/
 		
-		inline bool is_publish_active(){return o_pub->is_open();}
+		inline virtual  bool is_publish_active(){return o_pub->is_open();}
 
-                void active_publish(bool state)
+                virtual void active_publish(bool state)
 		{
 			if( state )
 			{
@@ -116,7 +154,7 @@ class iLink
 			}
 		}
 
-		void publish_message()
+		virtual void publish_message()
 		{
 			if( o_pub->is_open() )
 			{
@@ -130,8 +168,8 @@ class iLink
 		/***********************************************************************/
 
 		typedef I type_i;
-		size_t type() { return typeid(I).hash_code();}
-		std::string type_name() { return typeid(I).name();}
+		virtual size_t type() { return typeid(I).hash_code();}
+		virtual std::string type_name() { return typeid(I).name();}
 
 		virtual inline void i(I const *i){input=i;}
 		virtual inline const I& i() const {return *input;}
@@ -141,8 +179,8 @@ class iLink
 		/***********************************************************************/
 
 		typedef W type_w;
-		size_t w_type() { return typeid(W).hash_code();}
-		std::string w_type_name() { return typeid(W).name();}
+		virtual size_t w_type() { return typeid(W).hash_code();}
+		virtual std::string w_type_name() { return typeid(W).name();}
 		
 		inline virtual W& w() {return weight;}
                 inline virtual void w(const W& w) { weight = w; }
@@ -228,9 +266,9 @@ class IScalarMatrix : public IMatrix<double>, public ICombinator<MatrixXd>
 
 };
 
-/********************************************************************************************************************/
+/**************************************************************************************************************/
 /* 						MATRIX_MATRIX Link
-*********************************************************************************************************************/
+***************************************************************************************************************/
 
 // Connectivity Rules :
 const std::string one_to_one = "ONE_TO_ONE";

@@ -84,6 +84,7 @@ void print_help(void)
 
 int main(int argc, char **argv)
 {
+	
 	struct sigaction action;
 	bool verbose = false;
 	bool resume = false;
@@ -159,6 +160,6 @@ int main(int argc, char **argv)
                 
 	delete(cinter);
 	Kernel::terminate();
-
+	
 	return 0;
 }

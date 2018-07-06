@@ -20,12 +20,39 @@ The fact that you are presently reading this means that you have had knowledge o
 #include <memory>
 #include "ilink.h" 
 
+class InputBase
+{
+	protected :
+		std::string uuid;
+
+	public : 
+		InputBase(){}
+		virtual ~InputBase() = 0;
+		
+		inline const std::string& getUuid() { return uuid; }
+                inline void setUuid(const std::string& uuid  ) { this->uuid = uuid;}
+		
+		virtual bool isMultiple() = 0;
+		virtual void setMultiple(bool m) = 0;
+
+		virtual void clear() = 0;
+		virtual void add( std::shared_ptr<iLinkBase> &i) = 0;
+		virtual void purge_empty() = 0;
+		
+		virtual unsigned int size() = 0; 
+		
+		virtual size_t type() = 0 ;
+		virtual std::string type_name() =0 ;
+
+		virtual iLinkBase& operator()(unsigned int i) = 0; 
+
+};
+
 template<class I>
-class Input
+class Input : public InputBase
 {
 	protected: 
 
-		std::string uuid;
 		std::vector<std::weak_ptr<I>> ilinks;
 		bool multiple;
 
@@ -34,24 +61,22 @@ class Input
 		Input(bool m) : multiple(m) {}
 		virtual ~Input() {ilinks.clear();}
 
-		inline const std::string& getUuid() { return uuid; }
-                inline void setUuid(const std::string& uuid  ) { this->uuid = uuid;}
+		inline virtual bool isMultiple(){return multiple;} 
+		inline virtual void setMultiple(bool m){multiple=m;} 
 
-		inline bool isMultiple(){return multiple;} 
-		inline void setMultiple(bool m){multiple=m;} 
+		virtual void clear(){ ilinks.clear(); }
 
-		void clear(){ ilinks.clear(); }
-
-		void add( std::shared_ptr<I> &i) 
+		virtual void add(std::shared_ptr<iLinkBase> &i)
 		{ 
 			if( i == NULL) throw std::invalid_argument("Input : try to add NULL link on input. Input UUID : "+uuid);
+			if( typeid(*i).hash_code() != type() ) throw std::invalid_argument("Input : try to add wrong iLink type into Input "+uuid+" : "+typeid(*i).name()+" given, "+type_name()+" expected" ); 
 
 			if( !multiple &&  ilinks.size() >= 1) throw std::invalid_argument("Input : try to add more than one ilink on unique type input. Input UUID : "+uuid);
-				
-			ilinks.push_back( std::weak_ptr<I>(i) );
+
+			ilinks.push_back( std::weak_ptr<I>( std::static_pointer_cast<I>(i) ));
 		}
 	
-		void purge_empty()
+		virtual void purge_empty()
 		{
 			for( auto it = ilinks.begin(); it != ilinks.end (); it++)
 			{
@@ -59,7 +84,15 @@ class Input
 			}
 		}
 
-		unsigned int size(){return ilinks.size();}
+		virtual unsigned int size(){return ilinks.size();}
+		virtual size_t type() { return typeid(I).hash_code();}
+		virtual std::string type_name() { return typeid(I).name();}
+		
+		virtual iLinkBase& operator()(unsigned int i)
+		{
+			if( i >= ilinks.size()  )  throw std::invalid_argument("Input : out of number ilink");
+			return *(ilinks[i].lock());
+		}
 
 		I& operator[](unsigned int i){ 
 			if( i >= ilinks.size()  )  throw std::invalid_argument("Input : out of number ilink");
@@ -75,10 +108,11 @@ class Input
 			if( ilinks.size() == 0 )  throw std::invalid_argument("Input : out of number ilink");
 			return *(ilinks[0]).lock();
 		}
-
-		size_t type() { return typeid(I).hash_code();}
-		std::string type_name() { return typeid(I).name();}
 };
+
+typedef Input<iLinkBase> ILBInput;
+typedef Input<IScalar> ISInput;
+typedef Input<IScalarMatrix> ISMInput;
 
 class IMMInput : public Input<IMMatrix>
 {
@@ -86,8 +120,5 @@ class IMMInput : public Input<IMMatrix>
 		IMMInput() : Input(true) {}
 		virtual ~IMMInput() {}
 };
-
-typedef Input<IScalar> ISInput;
-typedef Input<IScalarMatrix> ISMInput;
 
 #endif // __INPUT_H__

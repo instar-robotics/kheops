@@ -45,8 +45,6 @@ bool check_file_extension(const std::string& path, const std::string& extension 
 {
 	boost::filesystem::path p(path);
       
-	std::cout << "MARDE ! "  <<  extension << " "  << p.extension().string() << std::endl;
-
 	if( extension == p.extension().string()) return true;
 	return false;
 }

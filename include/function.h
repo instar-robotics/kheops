@@ -36,9 +36,7 @@ class Function
 	private : 
 		std::string uuid;
 
-		std::vector<ISInput*> is_input;
-                std::vector<ISMInput*> ism_input;
-                std::vector<IMMInput*> imm_input;
+		std::vector<InputBase*> input;
 
 	protected:
 
@@ -60,13 +58,8 @@ class Function
 		inline const std::string& getUuid() { return uuid;  }
 		inline virtual void setUuid(const std::string& uuid  ) { this->uuid = uuid;}
 
-		inline void add_input(ISInput * is) { is_input.push_back(is);}
-		inline void add_input(ISMInput * ism) { ism_input.push_back(ism);}
-		inline void add_input(IMMInput * imm) { imm_input.push_back(imm);}
-
-		inline std::vector<ISInput*>& get_isinput(){ return is_input;}
-		inline std::vector<ISMInput*>& get_isminput(){ return ism_input;}
-		inline std::vector<IMMInput*>& get_imminput(){ return imm_input;}
+		inline void add_input(InputBase * is) { input.push_back(is);}
+		inline std::vector<InputBase*>& get_input(){ return input;}
 
 		void copy_buffer();
 		void publish_data();

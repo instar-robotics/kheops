@@ -21,7 +21,7 @@ The fact that you are presently reading this means that you have had knowledge o
 #include "weightconverter.h"
 #include "serialization.h"
 
-void WeightConverter::load(std::map<std::string, IMMInput*> &inputs )
+void WeightConverter::load(std::map<std::string, InputBase*> &inputs )
 {
 	std::string in_uuid;
 	unsigned int nb_link = 0;
@@ -72,19 +72,22 @@ void WeightConverter::load(std::map<std::string, IMMInput*> &inputs )
 
 				for( unsigned int j = 0 ; j < inputs[in_uuid]->size(); j++)
 				{
-					if( (*inputs[in_uuid])[j].getUuid() == il_uuid)
+					if( (*inputs[in_uuid])(j).getUuid() == il_uuid)
 					{
-						if( typeid( (*inputs[in_uuid])[j] ).hash_code() == typeid( IDenseMatrix ).hash_code() && type == DENSE )
+						if( typeid( (*inputs[in_uuid])(j) ).hash_code() == typeid( IDenseMatrix ).hash_code() && type == DENSE )
 						{
-							unsigned int rows=std::min(tmpM.rows(),(*inputs[in_uuid])[j].w().rows());
-							unsigned int cols=std::min(tmpM.cols(),(*inputs[in_uuid])[j].w().cols());
-							 (*inputs[in_uuid])[j].w().topLeftCorner(rows,cols)=tmpM.topLeftCorner(rows, cols);
+							IMMatrix * itmp =  dynamic_cast<IDenseMatrix*>(  (&(*inputs[in_uuid])(j))); 								
+
+							unsigned int rows=std::min(tmpM.rows(), itmp->w().rows());
+							unsigned int cols=std::min(tmpM.cols(), itmp->w().cols());
+						 	itmp->w().topLeftCorner(rows,cols)=tmpM.topLeftCorner(rows, cols);
 						}
-						else if( typeid((*inputs[in_uuid])[j]).hash_code() == typeid( ISparseMatrix ).hash_code() && type == SPARSE)
+						else if( typeid((*inputs[in_uuid])(j)).hash_code() == typeid( ISparseMatrix ).hash_code() && type == SPARSE)
 						{
-							unsigned int rows=std::min(tmpM.rows(),(*inputs[in_uuid])[j].w().rows());
-							unsigned int cols=std::min(tmpM.cols(),(*inputs[in_uuid])[j].w().cols());
-							 (*inputs[in_uuid])[j].w().topLeftCorner(rows,cols)=tmpM.topLeftCorner(rows, cols);
+							IMMatrix * itmp =  dynamic_cast<ISparseMatrix*>(  (&(*inputs[in_uuid])(j))); 								
+							unsigned int rows=std::min(tmpM.rows(), itmp->w().rows());
+							unsigned int cols=std::min(tmpM.cols(), itmp->w().cols());
+							itmp->w().topLeftCorner(rows,cols)=tmpM.topLeftCorner(rows, cols);
 						//	if( 
 						//	 dynamic_cast<ISparseMatrix&>((*inputs[in_uuid])[j]).f() = tmpF;
 						//	tmpF.resize(rows,cols);
@@ -107,10 +110,9 @@ void WeightConverter::load(std::map<std::string, IMMInput*> &inputs )
 		std::cout << e.what() << std::endl;
 		exit(0);
 	}
-
 }
 
-void WeightConverter::save(std::map<std::string, IMMInput*> &inputs)
+void WeightConverter::save(std::map<std::string, InputBase*> &inputs)
 {
 	std::ofstream out;
 	out.exceptions ( std::ofstream::failbit | std::ofstream::badbit);
@@ -118,31 +120,41 @@ void WeightConverter::save(std::map<std::string, IMMInput*> &inputs)
 		out.open(file);
 		boost::archive::binary_oarchive oa(out);
 
-		unsigned int nb_input = inputs.size();
-		oa <<  nb_input;
-
+		//TODO : could be optimized : feed the vector at the launch for example
+		// But if do : becareful because the function could be evolve during runtime !
+		std::vector<IMMInput*> im_inputs;
 		for( auto input = inputs.begin() ; input != inputs.end(); input++  )
 		{
-			oa <<  input->second->getUuid();
-			unsigned int size = input->second->size();
-			oa <<  size;
-			for( unsigned int i = 0 ; i < input->second->size(); i++ )
+			if(  input->second->type() ==  typeid(IMMatrix).hash_code()  ||
+				  input->second->type() ==  typeid(IDenseMatrix).hash_code()  ||
+				 	 input->second->type() ==  typeid(ISparseMatrix).hash_code())
 			{
-				if(  typeid(  (*(input->second))[i]).hash_code() ==  typeid( IDenseMatrix ).hash_code() || typeid(  (*(input->second))[i] ).hash_code()  ==  typeid( ISparseMatrix ).hash_code() )
-				{
-					oa <<  (*(input->second))[i].getUuid();
+				im_inputs.push_back( dynamic_cast<IMMInput*>(input->second));
+			}
+		}
 
-					if( typeid((*(input->second))[i]).hash_code()==typeid( ISparseMatrix ).hash_code() )
-					{
-						oa << SPARSE ; 
-						boost::serialization::save( oa, dynamic_cast<ISparseMatrix&>((*(input->second))[i]).f());
-					}
-					else	
-					{
-						oa << DENSE ; 
-					}
-					boost::serialization::save( oa, (*(input->second))[i].w() );
+		unsigned int nb_input = im_inputs.size();
+		oa <<  nb_input;
+
+		for( auto input = im_inputs.begin() ; input != im_inputs.end(); input++  )
+		{
+			oa <<  (*input)->getUuid();
+			unsigned int size = (*input)->size();
+			oa <<  size;
+			for( unsigned int i = 0 ; i < (*input)->size(); i++ )
+			{
+				oa <<  (**input)(i).getUuid();
+
+				if( typeid((**input)(i)).hash_code()==typeid( ISparseMatrix ).hash_code() )
+				{
+					oa << SPARSE ; 
+					boost::serialization::save( oa, dynamic_cast<ISparseMatrix&>((**input)(i)).f());
 				}
+				else	
+				{
+					oa << DENSE ; 
+				}
+				boost::serialization::save( oa, dynamic_cast<IMMatrix&>((**input)(i)).w() );
 			}
 		}
 		out.close();
