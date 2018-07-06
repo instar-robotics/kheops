@@ -44,10 +44,10 @@ class Kernel
 
 		// string : uuid link
 		// This maps should be useful to debug weight with ROS Topic
-		std::map<std::string, std::shared_ptr<iLinkBase>> ilink;
+		std::map<std::string, std::shared_ptr<iLinkBase>> ilinks;
 
 		// string 1 : input uuid
-		std::map<std::string, InputBase*> input;
+		std::map<std::string, InputBase*> inputs;
 
 		// string 1 : uuid ilink, string 2 : uuid input
 		std::map<std::string,std::string> ilink_to_input;

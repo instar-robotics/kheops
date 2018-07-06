@@ -110,11 +110,10 @@ class Input : public InputBase
 		}
 };
 
-typedef Input<iLinkBase> ILBInput;
-typedef Input<IScalar> ISInput;
-typedef Input<IScalarMatrix> ISMInput;
+typedef Input<iScalar> ISInput;
+typedef Input<iScalarMatrix> ISMInput;
 
-class IMMInput : public Input<IMMatrix>
+class IMMInput : public Input<iMMatrix>
 {
 	public : 
 		IMMInput() : Input(true) {}

@@ -74,22 +74,22 @@ void WeightConverter::load(std::map<std::string, InputBase*> &inputs )
 				{
 					if( (*inputs[in_uuid])(j).getUuid() == il_uuid)
 					{
-						if( typeid( (*inputs[in_uuid])(j) ).hash_code() == typeid( IDenseMatrix ).hash_code() && type == DENSE )
+						if( typeid( (*inputs[in_uuid])(j) ).hash_code() == typeid( iDenseMatrix ).hash_code() && type == DENSE )
 						{
-							IMMatrix * itmp =  dynamic_cast<IDenseMatrix*>(  (&(*inputs[in_uuid])(j))); 								
+							iMMatrix * itmp =  dynamic_cast<iDenseMatrix*>(  (&(*inputs[in_uuid])(j))); 								
 
 							unsigned int rows=std::min(tmpM.rows(), itmp->w().rows());
 							unsigned int cols=std::min(tmpM.cols(), itmp->w().cols());
 						 	itmp->w().topLeftCorner(rows,cols)=tmpM.topLeftCorner(rows, cols);
 						}
-						else if( typeid((*inputs[in_uuid])(j)).hash_code() == typeid( ISparseMatrix ).hash_code() && type == SPARSE)
+						else if( typeid((*inputs[in_uuid])(j)).hash_code() == typeid( iSparseMatrix ).hash_code() && type == SPARSE)
 						{
-							IMMatrix * itmp =  dynamic_cast<ISparseMatrix*>(  (&(*inputs[in_uuid])(j))); 								
+							iMMatrix * itmp =  dynamic_cast<iSparseMatrix*>(  (&(*inputs[in_uuid])(j))); 								
 							unsigned int rows=std::min(tmpM.rows(), itmp->w().rows());
 							unsigned int cols=std::min(tmpM.cols(), itmp->w().cols());
 							itmp->w().topLeftCorner(rows,cols)=tmpM.topLeftCorner(rows, cols);
 						//	if( 
-						//	 dynamic_cast<ISparseMatrix&>((*inputs[in_uuid])[j]).f() = tmpF;
+						//	 dynamic_cast<iSparseMatrix&>((*inputs[in_uuid])[j]).f() = tmpF;
 						//	tmpF.resize(rows,cols);
 						}
 						//else throw std::exception("ilink type in res is not egal to ilink type in xml");
@@ -125,9 +125,9 @@ void WeightConverter::save(std::map<std::string, InputBase*> &inputs)
 		std::vector<IMMInput*> im_inputs;
 		for( auto input = inputs.begin() ; input != inputs.end(); input++  )
 		{
-			if(  input->second->type() ==  typeid(IMMatrix).hash_code()  ||
-				  input->second->type() ==  typeid(IDenseMatrix).hash_code()  ||
-				 	 input->second->type() ==  typeid(ISparseMatrix).hash_code())
+			if(  input->second->type() ==  typeid(iMMatrix).hash_code()  ||
+				  input->second->type() ==  typeid(iDenseMatrix).hash_code()  ||
+				 	 input->second->type() ==  typeid(iSparseMatrix).hash_code())
 			{
 				im_inputs.push_back( dynamic_cast<IMMInput*>(input->second));
 			}
@@ -145,16 +145,16 @@ void WeightConverter::save(std::map<std::string, InputBase*> &inputs)
 			{
 				oa <<  (**input)(i).getUuid();
 
-				if( typeid((**input)(i)).hash_code()==typeid( ISparseMatrix ).hash_code() )
+				if( typeid((**input)(i)).hash_code()==typeid( iSparseMatrix ).hash_code() )
 				{
 					oa << SPARSE ; 
-					boost::serialization::save( oa, dynamic_cast<ISparseMatrix&>((**input)(i)).f());
+					boost::serialization::save( oa, dynamic_cast<iSparseMatrix&>((**input)(i)).f());
 				}
 				else	
 				{
 					oa << DENSE ; 
 				}
-				boost::serialization::save( oa, dynamic_cast<IMMatrix&>((**input)(i)).w() );
+				boost::serialization::save( oa, dynamic_cast<iMMatrix&>((**input)(i)).w() );
 			}
 		}
 		out.close();

@@ -76,8 +76,6 @@ class iLink : public iLinkBase
 	
 		W weight;
 		DataPublisher<W>* o_pub;
-		
-
 
 	public : 
 		iLink() : input(NULL), b_input(NULL), buffer(false){}
@@ -188,12 +186,12 @@ class iLink : public iLinkBase
 
 
 template<class I>
-class ICombinator
+class iCombinator
 {
 	public : 	
 
-		ICombinator(){}
-		virtual ~ICombinator() {}
+		iCombinator(){}
+		virtual ~iCombinator() {}
 		
 		virtual I& accumulate(I&)=0;
 		virtual I& mul_accumulate(I&)=0;
@@ -203,20 +201,20 @@ class ICombinator
 		
 		virtual I operator()() = 0;
 		
-		friend I& operator+=(I& res, ICombinator<I>& val) {return val.sum_accumulate(res);}
-		friend I& operator-=(I& res, ICombinator<I>& val) {return val.sub_accumulate(res);}
-		friend I& operator/=(I& res, ICombinator<I>& val) {return val.div_accumulate(res);}
-		friend I& operator*=(I& res, ICombinator<I>& val) {return val.sub_accumulate(res);}
+		friend I& operator+=(I& res, iCombinator<I>& val) {return val.sum_accumulate(res);}
+		friend I& operator-=(I& res, iCombinator<I>& val) {return val.sub_accumulate(res);}
+		friend I& operator/=(I& res, iCombinator<I>& val) {return val.div_accumulate(res);}
+		friend I& operator*=(I& res, iCombinator<I>& val) {return val.sub_accumulate(res);}
 };
 
 		
-class IScalar : public iLink<double,double>, public ICombinator<double>
+class iScalar : public iLink<double,double>, public iCombinator<double>
 {
         public:
 		
-		IScalar();
-		IScalar(double const * i);
-		virtual ~IScalar();
+		iScalar();
+		iScalar(double const * i);
+		virtual ~iScalar();
                 
 		virtual double operator()(){return (*input) * weight;}
 
@@ -226,20 +224,20 @@ class IScalar : public iLink<double,double>, public ICombinator<double>
 		inline virtual double& sub_accumulate(double& res){return res -= (*input) * weight;}
 		inline virtual double& div_accumulate(double& res){return res /= (*input) * weight;}
 		
-		//TODO : add operator for Matrix and IScalar ? 
+		//TODO : add operator for Matrix and iScalar ? 
 		// Perhaps not a good idee ... 
 		// Force developpers to use ()() operator to get a double and to use classical Eigen function...
 };
 
 
 template<class W>
-class IMatrix : public iLink<MatrixXd,W>
+class iMatrix : public iLink<MatrixXd,W>
 {
 	public : 
                 
-		IMatrix() : iLink<MatrixXd,W>() {}
-                IMatrix(MatrixXd const * i) : iLink<MatrixXd,W>(i){}
-                virtual ~IMatrix() {}
+		iMatrix() : iLink<MatrixXd,W>() {}
+                iMatrix(MatrixXd const * i) : iLink<MatrixXd,W>(i){}
+                virtual ~iMatrix() {}
 
 		inline double operator()(int x,int y) const {return (*iLink<MatrixXd,W>::input)(x,y);}
 		
@@ -247,13 +245,13 @@ class IMatrix : public iLink<MatrixXd,W>
 		inline unsigned int getICols(){return (*iLink<MatrixXd,W>::input).rows();}
 };
 
-class IScalarMatrix : public IMatrix<double>, public ICombinator<MatrixXd>
+class iScalarMatrix : public iMatrix<double>, public iCombinator<MatrixXd>
 {
 	public : 
 
-		IScalarMatrix();
-                IScalarMatrix( MatrixXd const *  i);
-                virtual ~IScalarMatrix();
+		iScalarMatrix();
+                iScalarMatrix( MatrixXd const *  i);
+                virtual ~iScalarMatrix();
 		
 		MatrixXd& operator()(MatrixXd& res){return accumulate(res);}
 		virtual MatrixXd operator()(){return (*input) * weight;}
@@ -276,7 +274,7 @@ const std::string one_to_all = "ONE_TO_ALL";
 const std::string one_to_nei = "ONE_TO_NEI";
 
 
-class IMMatrix : public IMatrix<MatrixXd>
+class iMMatrix : public iMatrix<MatrixXd>
 {
 	protected : 
 
@@ -285,9 +283,9 @@ class IMMatrix : public IMatrix<MatrixXd>
 		double dvalue;
 		
 	public : 
-		IMMatrix(unsigned int rows=0, unsigned int cols=0, double dvalue=0.);
-                IMMatrix( MatrixXd const *  i, unsigned int rows = 0, unsigned int cols=0, double dvalue =0 );
-                virtual ~IMMatrix();
+		iMMatrix(unsigned int rows=0, unsigned int cols=0, double dvalue=0.);
+                iMMatrix( MatrixXd const *  i, unsigned int rows = 0, unsigned int cols=0, double dvalue =0 );
+                virtual ~iMMatrix();
 		
 		inline void setOSize(unsigned int rows, unsigned int cols){ orows = rows; ocols=cols;}
 		inline void setDValue(double dvalue){this->dvalue=dvalue;}
@@ -306,7 +304,7 @@ class IMMatrix : public IMatrix<MatrixXd>
 		virtual MatrixXd& weigthedSum(MatrixXd& out) = 0;
 		virtual MatrixXd& weigthedSumAccu(MatrixXd& out) = 0;
 			
-		inline virtual MatrixXd& w() {return  IMatrix<MatrixXd>::w(); }
+		inline virtual MatrixXd& w() {return  iMatrix<MatrixXd>::w(); }
 		virtual double w(unsigned int rows, unsigned int cols);
 		virtual void w(double weight, unsigned int row, unsigned int col) = 0;
 		virtual void w(VectorXd &weight,unsigned int col) = 0;
@@ -319,14 +317,14 @@ class IMMatrix : public IMatrix<MatrixXd>
 		virtual MatrixXd& quot(MatrixXd& wout) = 0;
 };
 
-class IDenseMatrix : public IMMatrix
+class iDenseMatrix : public iMMatrix
 {
         public:
 
-		IDenseMatrix(unsigned int rows=0, unsigned int cols=0, double dvalue=0.) : IMMatrix(rows,cols,dvalue){}
-                IDenseMatrix( MatrixXd const *  i,  unsigned int rows = 0, unsigned int cols=0, double dvalue = 0 ) : IMMatrix(i,rows, cols, dvalue) {}
+		iDenseMatrix(unsigned int rows=0, unsigned int cols=0, double dvalue=0.) : iMMatrix(rows,cols,dvalue){}
+                iDenseMatrix( MatrixXd const *  i,  unsigned int rows = 0, unsigned int cols=0, double dvalue = 0 ) : iMMatrix(i,rows, cols, dvalue) {}
 
-                virtual ~IDenseMatrix(){}
+                virtual ~iDenseMatrix(){}
 
 		virtual void w(VectorXd &weight,unsigned int col);
 		virtual void w(const MatrixXd &weight);
@@ -349,7 +347,7 @@ class IDenseMatrix : public IMMatrix
 // We choose option 2 : because, with this solution, we don't have to reimplement accessor and publish
 // This is not sur, that 2 is the better solution. 
 // Perhaps, we update weight more often that acces to the weight ... 
-class ISparseMatrix : public IMMatrix
+class iSparseMatrix : public iMMatrix
 {
 	private : 	
 	
@@ -357,9 +355,9 @@ class ISparseMatrix : public IMMatrix
 		int type;
         
 	public:
-		ISparseMatrix(unsigned int row=0, unsigned int col=0, double dvalue=0.) : IMMatrix(row,col,dvalue) {}
-                ISparseMatrix( MatrixXd const *  i, unsigned int row = 0, unsigned int col=0, double dvalue = 0 ) : IMMatrix(i,row, col, dvalue) {}
-                virtual ~ISparseMatrix(){}
+		iSparseMatrix(unsigned int row=0, unsigned int col=0, double dvalue=0.) : iMMatrix(row,col,dvalue) {}
+                iSparseMatrix( MatrixXd const *  i, unsigned int row = 0, unsigned int col=0, double dvalue = 0 ) : iMMatrix(i,row, col, dvalue) {}
+                virtual ~iSparseMatrix(){}
 		
 		virtual void w(VectorXd &weight,unsigned int col);
 		virtual void w(const MatrixXd &weight);

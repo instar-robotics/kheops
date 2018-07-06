@@ -24,21 +24,21 @@ The fact that you are presently reading this means that you have had knowledge o
 iLinkBase::~iLinkBase(){}
 
 /********************************************************************************************************/
-/******************                     IScalar Section                           *******************/
+/******************                     iScalar Section                           *******************/
 /********************************************************************************************************/
 
-IScalar::IScalar() : iLink(), ICombinator() 
+iScalar::iScalar() : iLink(), iCombinator() 
 {
 	o_pub = new RosScalarPublisher(1); 
 }    
 
 
-IScalar::IScalar(double const * i) : iLink(i), ICombinator() 
+iScalar::iScalar(double const * i) : iLink(i), iCombinator() 
 {
 	o_pub = new RosScalarPublisher(1); 
 }
 
-IScalar::~IScalar()
+iScalar::~iScalar()
 {
 	if( o_pub != NULL )
 	{
@@ -48,20 +48,20 @@ IScalar::~IScalar()
 }
 
 /********************************************************************************************************/
-/******************                   IScalarMatrix Section                           *******************/
+/******************                   iScalarMatrix Section                           *******************/
 /********************************************************************************************************/
 
-IScalarMatrix::IScalarMatrix() : IMatrix(),ICombinator() 
+iScalarMatrix::iScalarMatrix() : iMatrix(),iCombinator() 
 {
 	o_pub = new RosScalarPublisher(1); 
 }
 
-IScalarMatrix::IScalarMatrix( MatrixXd const *  i) : IMatrix(i), ICombinator()
+iScalarMatrix::iScalarMatrix( MatrixXd const *  i) : iMatrix(i), iCombinator()
 {
 	o_pub = new RosScalarPublisher(1); 
 }
 
-IScalarMatrix::~IScalarMatrix()
+iScalarMatrix::~iScalarMatrix()
 {
 	if( o_pub != NULL )
 	{
@@ -70,49 +70,49 @@ IScalarMatrix::~IScalarMatrix()
 	}
 }
 
-MatrixXd& IScalarMatrix::accumulate(MatrixXd& res)
+MatrixXd& iScalarMatrix::accumulate(MatrixXd& res)
 {
 	return res = (*input) * weight;
 }
 
-MatrixXd& IScalarMatrix::mul_accumulate(MatrixXd& res)
+MatrixXd& iScalarMatrix::mul_accumulate(MatrixXd& res)
 {
 	return res=res.cwiseProduct( (*input) * weight );
 }
 
-MatrixXd& IScalarMatrix::sum_accumulate(MatrixXd& res)
+MatrixXd& iScalarMatrix::sum_accumulate(MatrixXd& res)
 {
 	res.array() += (*input).array() * weight;
 	return res;
 }
 
 
-MatrixXd& IScalarMatrix::sub_accumulate(MatrixXd& res)
+MatrixXd& iScalarMatrix::sub_accumulate(MatrixXd& res)
 {
 	res.array()-= (*input).array() - weight;
 	return res;
 }
 
-MatrixXd& IScalarMatrix::div_accumulate(MatrixXd& res)
+MatrixXd& iScalarMatrix::div_accumulate(MatrixXd& res)
 {
 	return res=res.cwiseQuotient( (*input) * weight );
 }
 
 /********************************************************************************************************/
-/******************                   IMMatrix Section                           *******************/
+/******************                   iMMatrix Section                           *******************/
 /********************************************************************************************************/
 
-IMMatrix::IMMatrix(unsigned int rows, unsigned int cols, double dvalue) : IMatrix(), orows(rows),ocols(cols),dvalue(dvalue) 
+iMMatrix::iMMatrix(unsigned int rows, unsigned int cols, double dvalue) : iMatrix(), orows(rows),ocols(cols),dvalue(dvalue) 
 {
 	o_pub = new RosMatrixPublisher(1);
 }
 
-IMMatrix::IMMatrix( MatrixXd const *  i, unsigned int rows , unsigned int cols, double dvalue ) : IMatrix(i), orows(rows), ocols(cols), dvalue(dvalue) 
+iMMatrix::iMMatrix( MatrixXd const *  i, unsigned int rows , unsigned int cols, double dvalue ) : iMatrix(i), orows(rows), ocols(cols), dvalue(dvalue) 
 {
 	o_pub = new RosMatrixPublisher(1);
 }
 
-IMMatrix::~IMMatrix()
+iMMatrix::~iMMatrix()
 {
         if( o_pub != NULL )
         {
@@ -121,7 +121,7 @@ IMMatrix::~IMMatrix()
         }
 }
 
-void IMMatrix::resizeWeight()
+void iMMatrix::resizeWeight()
 {
 	if( getIRows()==0 || getICols()==0) throw std::invalid_argument("iLink : Matrix try to resize weight without knowing input size");
 	if( getORows()==0 || getOCols()==0) throw std::invalid_argument("iLink : Matrix try to resize weight without knowing output size");
@@ -129,43 +129,43 @@ void IMMatrix::resizeWeight()
 	weight.resize(  getORows() * getOCols() , getIRows() * getICols() );
 }
 
-void IMMatrix::initWeight(double w)
+void iMMatrix::initWeight(double w)
 {
 	weight << MatrixXd::Constant( weight.rows() , weight.cols(),w);
 }
 
-bool IMMatrix::checkWeightSize(unsigned int rows, unsigned int cols )
+bool iMMatrix::checkWeightSize(unsigned int rows, unsigned int cols )
 {
 	if( weight.rows() == rows  && weight.cols() == cols) return true;
 	else return false;
 
 }
 
-double IMMatrix::w(unsigned int rows, unsigned int cols)
+double iMMatrix::w(unsigned int rows, unsigned int cols)
 {
 	if(rows > getORows() || cols > getOCols()) throw std::invalid_argument("iLink : Matrix output size doesn't match with weight size");
 	return weight(rows,cols);
 }
 
 /********************************************************************************************************/
-/******************                   IDenseMatrix Section                           *******************/
+/******************                   iDenseMatrix Section                           *******************/
 /********************************************************************************************************/
 
-void IDenseMatrix::w(VectorXd &weight,unsigned int col)
+void iDenseMatrix::w(VectorXd &weight,unsigned int col)
 {
 	if(col > getOCols()) throw std::invalid_argument("iLink : Matrix output size doesn't match with weight size");
 	this->weight.col(col) = weight;
 }
 
 
-void IDenseMatrix::w(const MatrixXd &weight)
+void iDenseMatrix::w(const MatrixXd &weight)
 {
 	if(weight.rows() != getORows() || weight.cols() != getOCols()) throw std::invalid_argument("iLink : Matrix output size doesn't match with weight size");
 	this->weight = weight;
 }
 
 
-void IDenseMatrix::w(double weight, unsigned int rows, unsigned int cols)
+void iDenseMatrix::w(double weight, unsigned int rows, unsigned int cols)
 {
 	if(rows != getORows() || cols != getOCols()) throw std::invalid_argument("iLink : Matrix output size doesn't match with weight size");
 
@@ -173,7 +173,7 @@ void IDenseMatrix::w(double weight, unsigned int rows, unsigned int cols)
 }
 
 
-MatrixXd& IDenseMatrix::add(MatrixXd& out)
+MatrixXd& iDenseMatrix::add(MatrixXd& out)
 {
 	if(  out.rows() != getORows() || out.cols() != getOCols()) throw std::invalid_argument("iLink : Matrix output size doesn't match with weight size");
 
@@ -184,7 +184,7 @@ MatrixXd& IDenseMatrix::add(MatrixXd& out)
 	return out;
 }
 
-MatrixXd& IDenseMatrix::diff(MatrixXd& out)
+MatrixXd& iDenseMatrix::diff(MatrixXd& out)
 {
 	if(  out.rows() != getORows() || out.cols() != getOCols()) throw std::invalid_argument("iLink : Matrix output size doesn't match with weight size");
 
@@ -195,7 +195,7 @@ MatrixXd& IDenseMatrix::diff(MatrixXd& out)
 	return out;
 }
 
-MatrixXd& IDenseMatrix::prod(MatrixXd& out)
+MatrixXd& iDenseMatrix::prod(MatrixXd& out)
 {
 	if(  out.rows() != getORows() || out.cols() != getOCols()) throw std::invalid_argument("iLink : Matrix output size doesn't match with weight size");
 
@@ -206,7 +206,7 @@ MatrixXd& IDenseMatrix::prod(MatrixXd& out)
 	return out;
 }
 
-MatrixXd& IDenseMatrix::quot(MatrixXd& out)
+MatrixXd& iDenseMatrix::quot(MatrixXd& out)
 {
 	if(  out.rows() != getORows() || out.cols() != getOCols()) throw std::invalid_argument("iLink : Matrix output size doesn't match with weight size");
 
@@ -217,7 +217,7 @@ MatrixXd& IDenseMatrix::quot(MatrixXd& out)
 	return out;
 }
 
-MatrixXd& IDenseMatrix::weigthedSum(MatrixXd& out)
+MatrixXd& iDenseMatrix::weigthedSum(MatrixXd& out)
 {
 	if(out.rows() != getORows() || out.cols() != getOCols()) throw std::invalid_argument("iLink : DenseMatrix output size doesn't match with weight size");
 
@@ -229,7 +229,7 @@ MatrixXd& IDenseMatrix::weigthedSum(MatrixXd& out)
 	return out;
 }
 
-MatrixXd& IDenseMatrix::weigthedSumAccu(MatrixXd& out)
+MatrixXd& iDenseMatrix::weigthedSumAccu(MatrixXd& out)
 {
 	if(out.rows() != getORows() || out.cols() != getOCols()) throw std::invalid_argument("iLink : DenseMatrix output size doesn't match with weight size");
 
@@ -243,10 +243,10 @@ MatrixXd& IDenseMatrix::weigthedSumAccu(MatrixXd& out)
 
 
 /********************************************************************************************************/
-/******************                   ISparseMatrix Section                           *******************/
+/******************                   iSparseMatrix Section                           *******************/
 /********************************************************************************************************/
 
-void ISparseMatrix::w(VectorXd &weight,unsigned int col)
+void iSparseMatrix::w(VectorXd &weight,unsigned int col)
 {
 	if(col > getOCols()) throw std::invalid_argument("iLink : Matrix output size doesn't match with weight size");
 	this->weight.col(col) = weight ; 
@@ -254,21 +254,21 @@ void ISparseMatrix::w(VectorXd &weight,unsigned int col)
 }
 
 
-void ISparseMatrix::w(const MatrixXd &weight)
+void iSparseMatrix::w(const MatrixXd &weight)
 {
 	if(weight.rows() != getORows() || weight.cols() != getOCols()) throw std::invalid_argument("iLink : Matrix output size doesn't match with weight size");
 	this->weight = weight.cwiseProduct(filter);
 }
 
 
-void ISparseMatrix::w(double weight, unsigned int rows, unsigned int cols)
+void iSparseMatrix::w(double weight, unsigned int rows, unsigned int cols)
 {
 	if(rows != getORows() || cols != getOCols()) throw std::invalid_argument("iLink : Matrix output size doesn't match with weight size");
 
 	this->weight(rows,cols) = weight * filter.coeffRef(rows,cols);  //filter(row,col);
 }
 
-MatrixXd& ISparseMatrix::add(MatrixXd& out)
+MatrixXd& iSparseMatrix::add(MatrixXd& out)
 {
 	if(  out.rows() != getORows() || out.cols() != getOCols()) throw std::invalid_argument("iLink : Matrix output size doesn't match with weight size");
 
@@ -279,7 +279,7 @@ MatrixXd& ISparseMatrix::add(MatrixXd& out)
 	return out;
 }
 
-MatrixXd& ISparseMatrix::diff(MatrixXd& out)
+MatrixXd& iSparseMatrix::diff(MatrixXd& out)
 {
 	if(  out.rows() != getORows() || out.cols() != getOCols()) throw std::invalid_argument("iLink : Matrix output size doesn't match with weight size");
 
@@ -290,7 +290,7 @@ MatrixXd& ISparseMatrix::diff(MatrixXd& out)
 	return out;
 }
 
-MatrixXd& ISparseMatrix::prod(MatrixXd& out)
+MatrixXd& iSparseMatrix::prod(MatrixXd& out)
 {
 	if(  out.rows() != getORows() || out.cols() != getOCols()) throw std::invalid_argument("iLink : Matrix output size doesn't match with weight size");
 
@@ -301,7 +301,7 @@ MatrixXd& ISparseMatrix::prod(MatrixXd& out)
 	return out;
 }
 
-MatrixXd& ISparseMatrix::quot(MatrixXd& out)
+MatrixXd& iSparseMatrix::quot(MatrixXd& out)
 {
 	if(  out.rows() != getORows() || out.cols() != getOCols()) throw std::invalid_argument("iLink : Matrix output size doesn't match with weight size");
 
@@ -312,7 +312,7 @@ MatrixXd& ISparseMatrix::quot(MatrixXd& out)
 	return out;
 }
 
-MatrixXd& ISparseMatrix::weigthedSum(MatrixXd& out)
+MatrixXd& iSparseMatrix::weigthedSum(MatrixXd& out)
 {
 	if(out.rows() != getORows() || out.cols() != getOCols()) throw std::invalid_argument("iLink : DenseMatrix output size doesn't match with weight size");
 
@@ -324,7 +324,7 @@ MatrixXd& ISparseMatrix::weigthedSum(MatrixXd& out)
 	return out;
 }
 
-MatrixXd& ISparseMatrix::weigthedSumAccu(MatrixXd& out)
+MatrixXd& iSparseMatrix::weigthedSumAccu(MatrixXd& out)
 {
 	if(out.rows() != getORows() || out.cols() != getOCols()) throw std::invalid_argument("iLink : DenseMatrix output size doesn't match with weight size");
 
