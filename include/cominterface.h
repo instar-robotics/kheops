@@ -44,10 +44,13 @@ The fact that you are presently reading this means that you have had knowledge o
 *  8- rt_token : 
 *	a- start (active rt_token topic)
 *	b- stop  (stop rt_token topic)
+*  9- activity :
+*  	a- save 'uuid' (save function's activity into SHM)
+*  	b- load 'uuid' (load function's activity into SHM)
 ********************************************************************************/
 
 const std::string RETURN[] = {"unknown command","unknown uuid"};
-const std::string CMD[] = {"resume","quit","pause","save","load","start","stop","all","rt_token","functions","inputs","ilinks"};
+const std::string CMD[] = {"resume","quit","pause","save","load","start","stop","all","rt_token","functions","inputs","ilinks","activity"};
 
 const int S_RESUME=0; 
 const int S_QUIT=1; 
@@ -61,6 +64,7 @@ const int S_RTTOKEN=8;
 const int S_FUNCTIONS=9;
 const int S_INPUTS=10;
 const int S_ILINKS=11;
+const int S_ACTIVITY=12;
 
 class ComInterface
 {

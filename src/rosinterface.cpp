@@ -31,9 +31,45 @@ void RosInterface::registerListener()
 	sOscillo = RosWrapper::getNodeHandle()->advertiseService( RosWrapper::getNodeName()+"/oscillo" ,&RosInterface::callback_oscillo, this);
 	sObjects = RosWrapper::getNodeHandle()->advertiseService( RosWrapper::getNodeName()+"/objects", &RosInterface::callback_objects, this);
 	sRtToken = RosWrapper::getNodeHandle()->advertiseService( RosWrapper::getNodeName()+"/rt_token" , &RosInterface::callback_rt_token, this);
+	sActivity = RosWrapper::getNodeHandle()->advertiseService( RosWrapper::getNodeName()+"/activity" , &RosInterface::callback_activity, this);
 }
 
-bool RosInterface::callback_objects(hieroglyph::Objects::Request& request, hieroglyph::Objects::Response& response)
+bool RosInterface::callback_activity(hieroglyph::ArgCmd::Request& request,hieroglyph::ArgCmd::Response& response)
+{
+	int state = Kernel::instance().getState();
+
+        if( request.cmd ==  CMD[S_START] )
+        {
+                if( Kernel::instance().save_activity( request.arg, true ) )
+                {
+                        response.ret =  CMD[S_START]+" : "+request.arg;
+                }
+                else
+                {
+                        response.ret = RETURN[1];
+                }
+        }
+        else if( request.cmd == CMD[S_STOP])
+        {
+                if(state == R_RUN) Kernel::instance().pause();
+
+                if( Kernel::instance().save_activity( request.arg, false ) )
+                {
+                        response.ret = CMD[S_STOP]+" : "+request.arg;
+                }
+                else
+                {
+                        response.ret = RETURN[1];
+                }
+
+                if( state == R_RUN) Kernel::instance().resume();
+        }
+        else  response.ret = RETURN[0];
+
+	return true;
+}
+
+bool RosInterface::callback_objects(hieroglyph::Objects::Request& request,hieroglyph::Objects::Response& response)
 {
 	if( request.object == CMD[S_ALL] ) 
 	{
@@ -150,7 +186,7 @@ bool RosInterface::callback_output( hieroglyph::ArgCmd::Request& request, hierog
 	return true;
 }
 
-bool RosInterface::callback_rt_stat( hieroglyph::RtStat::Request& request, hieroglyph::RtStat::Response& response)
+bool RosInterface::callback_rt_stat( hieroglyph::RtStat::Request&, hieroglyph::RtStat::Response& response)
 {
 	RtToken& rt = Kernel::instance().getRtToken();		
 
@@ -221,7 +257,7 @@ bool RosInterface::callback_control(hieroglyph::SimpleCmd::Request& request, hie
 }
 
 //bool RosInterface::callback_helper( hieroglyph::Help::Request& request, hieroglyph::Help::Response& response)
-bool RosInterface::callback_helper( hieroglyph::Help::Request& request, hieroglyph::Help::Response& response)
+bool RosInterface::callback_helper( hieroglyph::Help::Request&, hieroglyph::Help::Response& response)
 {
 	response.help = " 1-cmd : list toto \n 2-titi : titi \t a- titu";
 	

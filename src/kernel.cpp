@@ -335,7 +335,6 @@ void Kernel::purge_klinks(const std::string& uuid)
 void Kernel::add_ilink(const std::string& in_uuid, const XLink& xl)
 {
 	// Control klink exist : non constant input and klink doesn't exist -> error 
-
 	if( !xl.isCst)
 	{
 		if(edge_map.find( xl.uuid) == edge_map.end() ) throw std::invalid_argument( "Kernel : unable to find link "+xl.uuid );
@@ -650,9 +649,7 @@ void Kernel::pause()
 
 bool Kernel::active_publish(const std::string& uuid, bool state)
 {
-
 	bool ret = true;
-	//TODO : Should Be useful to add an Object class which factorises some members and methods
 
 	// Active RtToken Output
 	if( uuid == rttoken.getUuid() )
@@ -676,6 +673,24 @@ bool Kernel::active_publish(const std::string& uuid, bool state)
 	{
 		ret = false;
 	}
+
+	return ret;
+}
+
+/********************************************************************************************************/
+/****************** 		    	 Save Activity  			      *******************/
+/********************************************************************************************************/
+
+bool Kernel::save_activity(const std::string& uuid, bool state)
+{
+	bool ret = true;
+        if( node_map.find( uuid ) != node_map.end() )
+        {
+                Function *f =  boost::get(boost::vertex_function , graph)[ node_map[uuid]];
+
+                if( f != NULL ) f->active_save(state);
+                else ret = false;
+        }
 
 	return ret;
 }

@@ -44,6 +44,7 @@ class RosInterface : public ComInterface{
 		ros::ServiceServer sOscillo;
 		ros::ServiceServer sObjects;
 		ros::ServiceServer sRtToken;
+		ros::ServiceServer sActivity;
 
 	public : 
 
@@ -55,6 +56,7 @@ class RosInterface : public ComInterface{
 		virtual void quit() {ros::shutdown();}	
 		virtual void enter(){ros::spin();}
 
+		bool callback_activity(hieroglyph::ArgCmd::Request& request, hieroglyph::ArgCmd::Response& response);
 		bool callback_rt_token(hieroglyph::SimpleCmd::Request& request, hieroglyph::SimpleCmd::Response& response);
 		bool callback_objects(hieroglyph::Objects::Request& request, hieroglyph::Objects::Response& response);
 		bool callback_oscillo(hieroglyph::SimpleCmd::Request& request, hieroglyph::SimpleCmd::Response& response);

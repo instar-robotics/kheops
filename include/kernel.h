@@ -123,6 +123,9 @@ class Kernel
 
 		// Output 		
 		bool active_publish(const std::string& uuid, bool state);
+		
+		// Save activity  		
+		bool save_activity(const std::string& uuid, bool state);
 
 		//Objects
 		void get_objects(std::vector<std::string> & objects);
