@@ -7,7 +7,7 @@
   2. Each neurons layer or group are graph vertex and are connected to other layer by link (edge of the graph).
   3. The weight of the neurons are contains into the link.
   4. And neural activities are propagated accros the link.
-  5. Coonection could be feedforward or recurent  
+  5. Connection could be feedforward or recurent  
   6. A neural layer or group is called a function. 
   7. Each function is executed by a separte thread called a Runner
 
@@ -27,13 +27,15 @@
 ## II- Installation ##
 
 ### Dependancy ###
-* ubuntu 16.04
+* ubuntu 16.04 or 18.04 (we recommand to use 18.04 the last LTS)
 * cmake 3.5
 * libboost 1.58
 * libboost BGL 1.58
-* libxerces 3.1
+* libboost SYSTEM  1.58
+* libboost FILESYSTEM  1.58
+* libboost SERIALIZATION  1.58
 * libeigen 3.3
-* ROS Lunar 
+* ROS Lunar or Melodic (we recommand to use Melodic, the current LTS)
 * hieroglyph
 
 ### Install dependancies ###
@@ -41,12 +43,19 @@
 
 **_apt-get update_**
 
-**_apt-get install cmake libeigen3-dev libxerces-c-dev libxerces-c3.1 libboost-graph-dev libboost-graph1.58.0 libboost-all-dev libboost-all-dev libboost1.58-dev_**
+**_apt-get install cmake libeigen3-dev libboost-graph-dev libboost-graph1.58.0 libboost-all-dev libboost-all-dev libboost1.58-dev_**
 
-* For __ROS Lunar__ installation, please refer to : http://wiki.ros.org/lunar/Installation/Ubuntu
-* For __ROS Lunar__ workspace configuration, please refer to : http://wiki.ros.org/lunar/Installation/Ubuntu
+* On ubuntu 18.04 : 
 
-* For the next section, we admit you have install __ROS Lunar__ and configure a workspace using catkin_make
+**_apt-get update_**
+
+**_apt-get install cmake libeigen3-dev libboost-graph-dev libboost-graph1.65.1 libboost-all-dev libboost-all-dev libboost1.65-dev_**
+
+* For __ROS Lunar__ installation and workspace configuration, please refer to : http://wiki.ros.org/lunar/Installation/Ubuntu
+
+* For __ROS Melodic__ installation and workspace configuration, please refer to : http://wiki.ros.org/melodic/Installation/Ubuntu
+
+* For the next section, we admit you have install __ROS __ and configure a workspace using catkin_make
 * The workspace directory will be :
 
 **_/home/johndoe/catkin_workspace_**
@@ -320,13 +329,14 @@
 * Each input have a define name and a type, and could have a weight 
   1. String : 
   2. Scalar_Scalar : Input from Scalar output function. Weight is a scalar
-  3. Simple_Matrix : Input from Matrix output function. No weight 
   3. Scalar_Matrix : Input from Matrix output function. Weight is a scalar and is apply globaly on every neurons of the Matrix
   4. Matrix_Matrix : Input from Matrix output function. Weight is a Matrix.
 
 * Matrix_Matrix details : 
   1. Dense Matrix : One to All connections
   2. Sparse Matrix : Connections is define is a Sparse Matrix Filter and we can generate every topology
+
+* Using Input and iLink 
 
 ## V kheops and functions developpers guide ##
 
