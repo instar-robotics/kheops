@@ -18,6 +18,7 @@ The fact that you are presently reading this means that you have had knowledge o
 #define __FUNCTION_H__
 
 #include <Eigen/Dense>
+#include <Eigen/Core>
 #include <string>
 #include <vector>
 #include <memory>
@@ -26,7 +27,6 @@ The fact that you are presently reading this means that you have had knowledge o
 #include "input.h"
 #include "publisher.h"
 #include "shmserializer.h"
-
 
 #define REGISTER_FUNCTION(classname) \
    static const BuilderImpl<classname,Function> classname(#classname); 

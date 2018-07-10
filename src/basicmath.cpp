@@ -130,7 +130,6 @@ REGISTER_FUNCTION(MSSThreshold_Custom);
 REGISTER_FUNCTION(MMSThreshold_Custom);
 REGISTER_FUNCTION(MSMThreshold_Custom);
 
-
 void MThreshold::compute()
 {
 	output = (inMatrix()(output).array().max(0)).min(1)  ;

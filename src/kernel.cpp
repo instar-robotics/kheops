@@ -443,16 +443,8 @@ void Kernel::add_immatrix(const std::string& in_uuid,const XLink& xl)
 
 	// TODO : first version to build connectivity
 	// Do better function directly in ilink
-	if( xl.con.type == one_to_all ) 
-	{
-		imm =  std::shared_ptr<iMMatrix>(new iDenseMatrix( sf->getRows(), sf->getCols(), 0  ));
-
-	}
-	else
-	{
-		imm =  std::shared_ptr<iMMatrix>(new iSparseMatrix( sf->getRows(), sf->getCols(), 0  ));
-		//TODO : add filter management 
-	}
+	imm =  std::shared_ptr<iMMatrix>(new iMMatrix( sf->getRows(), sf->getCols()  ));
+	dynamic_cast<iMMatrix*>(imm.get())->buildFilter(xl.con.type);
 	
 	//set is
 	imm->setUuid(xl.uuid);

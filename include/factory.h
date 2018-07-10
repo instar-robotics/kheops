@@ -14,7 +14,6 @@ and, more generally, to use and operate it in the same conditions as regards sec
 The fact that you are presently reading this means that you have had knowledge of the CeCILL v2.1 license and that you accept its terms.
 */
 
-
 #ifndef __FACTORY_HPP__
 #define __FACTORY_HPP__
 
@@ -25,8 +24,8 @@ The fact that you are presently reading this means that you have had knowledge o
    static const BuilderImpl<classname,buildbase> classname_builder(#classname); 
 
 template <class T>
-class Builder{
-
+class Builder
+{
         public :
                 virtual T* build() = 0;
                 Builder(const std::string& classname);
@@ -80,12 +79,10 @@ class Factory
 		}
 };
 
-
 template<class T>
 Builder<T>::Builder(const std::string& classname)
 {       
         Factory<T>::Instance().registerit(classname, this);
 }
-
 
 #endif // __FACTORY_HPP__

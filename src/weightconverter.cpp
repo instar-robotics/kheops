@@ -45,54 +45,38 @@ void WeightConverter::load(std::map<std::string, InputBase*> &inputs )
 			for(unsigned int i = 0; i < nb_link; i++)
 			{
 				std::string il_uuid;
-				unsigned int type;
 				MatrixXd tmpM;
-				SparseMatrix<double> tmpF;
+				MatrixXd tmpF;
 
 				ia >> il_uuid;
-				ia >> type;
 
-				if( type == DENSE ) 
-				{
-					boost::serialization::load( ia  , tmpM );
+				boost::serialization::load( ia  , tmpM );
+				boost::serialization::load( ia  , tmpF );
 
-				}
-				else if( type == SPARSE) 
-				{
-					boost::serialization::load( ia  , tmpM );
-					boost::serialization::load( ia  , tmpF );
-
-				}
-				else
-				{
-					boost::archive::archive_exception::exception_code ec =  boost::archive::archive_exception::array_size_too_short ;
-					std::string msg = "Unknown Matrix type : weight file \""+file+"\" is corrupted";
-					throw boost::archive::archive_exception(ec  ,"",msg.c_str());
-				}
 
 				for( unsigned int j = 0 ; j < inputs[in_uuid]->size(); j++)
 				{
 					if( (*inputs[in_uuid])(j).getUuid() == il_uuid)
 					{
-						if( typeid( (*inputs[in_uuid])(j) ).hash_code() == typeid( iDenseMatrix ).hash_code() && type == DENSE )
+						if( typeid( (*inputs[in_uuid])(j) ).hash_code() == typeid( iMMatrix ).hash_code() )
 						{
-							iMMatrix * itmp =  dynamic_cast<iDenseMatrix*>(  (&(*inputs[in_uuid])(j))); 								
+							iMMatrix * itmp =  dynamic_cast<iMMatrix*>(  (&(*inputs[in_uuid])(j))); 								
+
+							if(tmpM.rows() != itmp->getInitWRows() || tmpM.cols() != itmp->getInitWCols()) 
+							std::cout << "Warning Load Weight : Weight Matrix Dimension in weight file don't match with the expected Weight Matrix dimension" << std::endl;
 
 							unsigned int rows=std::min(tmpM.rows(), itmp->w().rows());
 							unsigned int cols=std::min(tmpM.cols(), itmp->w().cols());
 						 	itmp->w().topLeftCorner(rows,cols)=tmpM.topLeftCorner(rows, cols);
+							
+							if(tmpF.rows() != itmp->getInitWRows() || tmpF.cols() != itmp->getInitWCols()) 
+							std::cout << "Warning Load Weight : Filter Matrix Dimension in weight file don't match with the expected Filter Matrix dimension" << std::endl;
+
+							rows=std::min(tmpF.rows(), itmp->f().rows());
+							cols=std::min(tmpF.cols(), itmp->f().cols());
+						 	itmp->f().topLeftCorner(rows,cols)=tmpF.topLeftCorner(rows, cols);
 						}
-						else if( typeid((*inputs[in_uuid])(j)).hash_code() == typeid( iSparseMatrix ).hash_code() && type == SPARSE)
-						{
-							iMMatrix * itmp =  dynamic_cast<iSparseMatrix*>(  (&(*inputs[in_uuid])(j))); 								
-							unsigned int rows=std::min(tmpM.rows(), itmp->w().rows());
-							unsigned int cols=std::min(tmpM.cols(), itmp->w().cols());
-							itmp->w().topLeftCorner(rows,cols)=tmpM.topLeftCorner(rows, cols);
-						//	if( 
-						//	 dynamic_cast<iSparseMatrix&>((*inputs[in_uuid])[j]).f() = tmpF;
-						//	tmpF.resize(rows,cols);
-						}
-						//else throw std::exception("ilink type in res is not egal to ilink type in xml");
+						else throw std::invalid_argument("Load Weight : try to bound iMMatrix link on a none Matrix Input");
 					}
 				}
 			}
@@ -125,9 +109,7 @@ void WeightConverter::save(std::map<std::string, InputBase*> &inputs)
 		std::vector<IMMInput*> im_inputs;
 		for( auto input = inputs.begin() ; input != inputs.end(); input++  )
 		{
-			if(  input->second->type() ==  typeid(iMMatrix).hash_code()  ||
-				  input->second->type() ==  typeid(iDenseMatrix).hash_code()  ||
-				 	 input->second->type() ==  typeid(iSparseMatrix).hash_code())
+			if(  input->second->type() ==  typeid(iMMatrix).hash_code() )
 			{
 				im_inputs.push_back( dynamic_cast<IMMInput*>(input->second));
 			}
@@ -145,16 +127,8 @@ void WeightConverter::save(std::map<std::string, InputBase*> &inputs)
 			{
 				oa <<  (**input)(i).getUuid();
 
-				if( typeid((**input)(i)).hash_code()==typeid( iSparseMatrix ).hash_code() )
-				{
-					oa << SPARSE ; 
-					boost::serialization::save( oa, dynamic_cast<iSparseMatrix&>((**input)(i)).f());
-				}
-				else	
-				{
-					oa << DENSE ; 
-				}
-				boost::serialization::save( oa, dynamic_cast<iMMatrix&>((**input)(i)).w() );
+				boost::serialization::save( oa, dynamic_cast<iMMatrix&>((**input)(i)).w());
+				boost::serialization::save( oa, dynamic_cast<iMMatrix&>((**input)(i)).f() );
 			}
 		}
 		out.close();

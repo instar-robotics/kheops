@@ -20,22 +20,27 @@ REGISTER_FUNCTION(LMS);
 
 void LMS::compute()
 {	
-	// Compute activity 
-        conditionnals[0].weigthedSum(output); 	
+	Map<MatrixXd> mout = getMapRow(output);
+
+	mout = conditionnals[0].w().cwiseProduct(conditionnals[0].f()) * conditionnals[0].irow() ;
 	for(unsigned int i=1; i < conditionnals.size(); i++)
-	{ 
-	  conditionnals[i].weigthedSumAccu(output); 	
-	}
-	
+        {
+		mout += conditionnals[i].w().cwiseProduct(conditionnals[i].f()) * conditionnals[i].irow() ;
+        }
+
 	// Update weight
 	MatrixXd grad ; 
 	grad = learning_rate()() * (unconditionnal()(grad) - output);
 
-	Map<MatrixXd> vgrad( grad.data(), grad.rows()* grad.cols() , 1) ;
+	Map<MatrixXd> lgrad = getMapRow(grad); 
 	for(unsigned int i=0; i < conditionnals.size(); i++)
 	{
-		Map<const MatrixXd> ve( conditionnals[i].i().data(),1 , conditionnals[i].getIRows() * conditionnals[i].getICols()) ;
-		conditionnals[i].w() += vgrad * ve ; 
+		Map<const MatrixXd> ve = conditionnals[i].irow(); 
+
+		/*conditionnals[i].wm() += vgrad * ve ; 
+		conditionnals[i].wref( conditionnals[i].wm() + grad * ve ) ; 
+		conditionnals[i].w( conditionnals[i].wm() + grad * ve ) ; 
+		*/
 	}
 }
 
