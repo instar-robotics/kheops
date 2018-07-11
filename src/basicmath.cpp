@@ -107,9 +107,10 @@ void MSModulo::setparameters()
         Kernel::instance().bind(modulo,"modulo", getUuid());
 }
 
-//TODO
 void SModulo::compute()
 {
+  output  =  inScalar()()  - ( modulo()()  * (int)( inScalar()() / modulo()()));
+
 }
 
 void SModulo::setparameters()

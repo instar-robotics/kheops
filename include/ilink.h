@@ -256,8 +256,15 @@ const std::string one_to_one = "ONE_TO_ONE";
 const std::string one_to_all = "ONE_TO_ALL";
 const std::string one_to_nei = "ONE_TO_NEI";
 
+/* Return Map in a one row Matrix  */
 Map<MatrixXd> getMapRow(MatrixXd & m);
+
+/* Return Map in a one row Matrix  */
 Map<MatrixXd> getMapCol(MatrixXd & m);
+
+/* Return Map in a one row Matrix  */
+Map<VectorXd> getMapVect(MatrixXd & m);
+
 
 class iMMatrix : public iMatrix<MatrixXd>
 {
@@ -334,6 +341,10 @@ class iMMatrix : public iMatrix<MatrixXd>
 		// Becareful : the returned Map is writable ! 
 		Map<MatrixXd> wj(unsigned int wCols);
 		
+		// Get Weight colons for the output neuron (wCols)
+		// Becareful : the returned Map is writable ! 
+		Map<VectorXd> wj_vect(unsigned int wCols);
+		
 		double wij(unsigned int wRows,unsigned int wCols);
 
 		//Set Weight Value
@@ -350,6 +361,9 @@ class iMMatrix : public iMatrix<MatrixXd>
 		
 		// Return a const map of the input Matrix in colon form
 		Map<const MatrixXd> icol();	
+		
+		// Return a const map of the input Matrix in vector form
+		Map<const VectorXd> ivec();	
 
 		/***********************************************************************/
 		/****************************  Filter API  *****************************/
@@ -382,9 +396,14 @@ class iMMatrix : public iMatrix<MatrixXd>
 		// Becareful : the returned Map is writable ! 
 		Map<const MatrixXd> fj(unsigned int wCols);
 		
+		// Get Weight colons for the output neuron (wCols)
+		// Becareful : the returned Map is writable ! 
+		Map<const VectorXd> fj_vec(unsigned int wCols);
+		
 		double fij(unsigned int wRows,unsigned int wCols);
 
 		void buildFilter(const std::string& con);
+
 };
 
 #endif // __ILINK_H__
