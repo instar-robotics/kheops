@@ -115,7 +115,7 @@ void Kernel::load_rttoken()
 void Kernel::load_weight()
 {
 	WeightConverter wc(weight_file);
-	wc.load(inputs);
+	wc.load(inputs,ignore_matrix_check);
 }
 
 void Kernel::load_weight(const std::string& filename)
@@ -124,7 +124,7 @@ void Kernel::load_weight(const std::string& filename)
 	if( !check_file_extension(filename, ".weight")) tmp_file+=".weight";
 
 	WeightConverter wc(tmp_file);
-	wc.load(inputs);
+	wc.load(inputs,ignore_matrix_check);
 }
 
 void Kernel::save_weight()
@@ -733,7 +733,7 @@ void Kernel::get_rt_token(std::vector<std::string> & objects)
 /****************** 			Static Section 				      *******************/
 /********************************************************************************************************/
 
-void Kernel::init(std::string script_file, std::string weight_file)
+void Kernel::init(std::string script_file, std::string weight_file, bool ignore_matrix_check)
 {
 	singleton.script_file=script_file;
 
@@ -753,6 +753,8 @@ void Kernel::init(std::string script_file, std::string weight_file)
 	{
 		singleton.weight_file=weight_file;
 	}
+
+	singleton.ignore_matrix_check = ignore_matrix_check;
 }
 
 void Kernel::terminate()

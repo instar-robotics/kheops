@@ -79,6 +79,7 @@ void print_help(void)
 	std::cout << "  -s : xml script file path " << std::endl;	
 	std::cout << "  -w : weight (neural weight) file path" << std::endl;	
 	std::cout << "  -l : path to external lib" << std::endl;	
+	std::cout << "  -i : ignore matrix check size integrity when load weigt file" << std::endl;	
 }
 
 
@@ -89,6 +90,7 @@ int main(int argc, char **argv)
 	bool verbose = false;
 	bool resume = false;
 	bool run = false;
+	bool ignore_matrix_check = false;
 	char opt;
 	
 	std::string script;
@@ -100,7 +102,7 @@ int main(int argc, char **argv)
 	std::string progname;
 	get_file_name( argv[0], progname);
 
-	while ((opt = getopt (argc, argv, "vrhs:w:l:")) != -1)
+	while ((opt = getopt (argc, argv, "vrhs:w:l:i")) != -1)
 	{
 		switch( opt )	
 		{
@@ -113,6 +115,7 @@ int main(int argc, char **argv)
 				break;
 			case 'w' :  weight = optarg ; break;
 			case 'l' :  libdir = optarg ; break;
+			case 'i' :  ignore_matrix_check = true ; break;
 			default : return 0;
 		}	
 	}
@@ -149,7 +152,7 @@ int main(int argc, char **argv)
 	LibManager::init(libdir);
 	LibManager::load();
 
-	Kernel::init(script,weight);	
+	Kernel::init(script,weight, ignore_matrix_check);	
 	cinter->init( argc, argv, progname , Kernel::instance().getName() );	
 
 	Kernel::load();

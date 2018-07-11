@@ -21,7 +21,7 @@ The fact that you are presently reading this means that you have had knowledge o
 #include "weightconverter.h"
 #include "serialization.h"
 
-void WeightConverter::load(std::map<std::string, InputBase*> &inputs )
+void WeightConverter::load(std::map<std::string, InputBase*> &inputs, bool ignore_check_size )
 {
 	std::string in_uuid;
 	unsigned int nb_link = 0;
@@ -63,15 +63,20 @@ void WeightConverter::load(std::map<std::string, InputBase*> &inputs )
 							iMMatrix * itmp =  dynamic_cast<iMMatrix*>(  (&(*inputs[in_uuid])(j))); 								
 
 							if(tmpM.rows() != itmp->getInitWRows() || tmpM.cols() != itmp->getInitWCols()) 
-							std::cout << "Warning Load Weight : Weight Matrix Dimension in weight file don't match with the expected Weight Matrix dimension" << std::endl;
+							{
+								if( ignore_check_size ) std::cout << "Warning Load Weight : Weight Matrix Dimension in weight file don't match with the expected Weight Matrix dimension" << std::endl;
+								else  throw std::invalid_argument("Error Load Weight : Weight Matrix Dimension in weight file don't match with the expected Weight Matrix dimension");
+							}
 
 							unsigned int rows=std::min(tmpM.rows(), itmp->w().rows());
 							unsigned int cols=std::min(tmpM.cols(), itmp->w().cols());
 						 	itmp->w().topLeftCorner(rows,cols)=tmpM.topLeftCorner(rows, cols);
 							
 							if(tmpF.rows() != itmp->getInitWRows() || tmpF.cols() != itmp->getInitWCols()) 
-							std::cout << "Warning Load Weight : Filter Matrix Dimension in weight file don't match with the expected Filter Matrix dimension" << std::endl;
-
+							{
+								if( ignore_check_size ) std::cout << "Warning Load Weight : Filter Matrix Dimension in weight file don't match with the expected Filter Matrix dimension" << std::endl;
+								else  throw std::invalid_argument("Warning Load Weight : Filter Matrix Dimension in weight file don't match with the expected Filter Matrix dimension");
+							}
 							rows=std::min(tmpF.rows(), itmp->f().rows());
 							cols=std::min(tmpF.cols(), itmp->f().cols());
 						 	itmp->f().topLeftCorner(rows,cols)=tmpF.topLeftCorner(rows, cols);

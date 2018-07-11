@@ -301,6 +301,7 @@ void iMMatrix::buildFilter(const std::string& con)
 {
 	if( con == one_to_one )
 	{
+		//TODO : modulo or crash if dimension is not oK
 		filter =  MatrixXd::Identity( getInitWRows(), getInitWCols()  );
 	}
 	else if( con == one_to_all )
@@ -313,54 +314,6 @@ void iMMatrix::buildFilter(const std::string& con)
 	}
 	else  std::invalid_argument("iLink : unknown connectivity : "+con+" , allowed : "+one_to_one+" , "+one_to_all+" or "+one_to_nei);
 }
-
-
-/*
-
-
-Ref<MatrixXd> iMMatrix::weigthedSum(Ref<MatrixXd> out)
-{
-	if(out.rows() != getORows() || out.cols() != getOCols()) throw std::invalid_argument("iLink : iMMatrix output size doesn't match with weight size");
-
-	Map<const MatrixXd> ve( i().data(),1, getIRows()* getICols() ) ;
-	Map<MatrixXd> vs(out.data(), out.cols()*out.rows(),1) ;
-
-	vs = weight * ve;
-
-	return out;
-}
-
-Ref<MatrixXd> iMMatrix::weigthedSumAccu(Ref<MatrixXd> out)
-{
-	if(out.rows() != getORows() || out.cols() != getOCols()) throw std::invalid_argument("iLink : iMMatrix output size doesn't match with weight size");
-
-	Map<const MatrixXd> ve( i().data(),1, getIRows()* getICols() ) ;
-	Map<MatrixXd> vs(out.data(), out.cols()*out.rows(),1) ;
-
-	vs += weight * ve;
-
-	return out;
-}
-
-{
-	if(out.rows() != getORows() || out.cols() != getOCols()) throw std::invalid_argument("iLink : DenseMatrix output size doesn't match with weight size");
-
-	Map<const MatrixXd> ve( i().data(),1, getIRows()* getICols() ) ;
-	Map<MatrixXd> vs(out.data(), out.cols()*out.rows(),1) ;
-
-	vs += weight.cwiseProduct(filter) * ve;
-
-	return out;
-}
-
-void iSparseMatrix::buildFilter(const std::string& con)
-{
-	if( con == one_to_one ) 
-	{
-		//BUILD ID Matrix
-	}
-}
-*/
 
 
 /*

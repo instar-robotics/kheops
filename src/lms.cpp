@@ -36,11 +36,13 @@ void LMS::compute()
 	for(unsigned int i=0; i < conditionnals.size(); i++)
 	{
 		Map<const MatrixXd> ve = conditionnals[i].irow(); 
+		Map<MatrixXd> weight = conditionnals[i].wm(); 
+		Map<const MatrixXd> filter = conditionnals[i].fm(); 
 
-		/*conditionnals[i].wm() += vgrad * ve ; 
-		conditionnals[i].wref( conditionnals[i].wm() + grad * ve ) ; 
-		conditionnals[i].w( conditionnals[i].wm() + grad * ve ) ; 
-		*/
+		for( unsigned int j = 0; j < weight.cols() ; j++)
+		{
+			weight.col(j) =  weight.col(j) * ve(1,j) * lgrad(1,j) * filter.col(j) ; 
+		}
 	}
 }
 

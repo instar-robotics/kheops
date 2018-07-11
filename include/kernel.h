@@ -58,6 +58,8 @@ class Kernel
 
 		static Kernel singleton;
 
+		bool ignore_matrix_check;
+
 	public :
 	
 		Kernel(){}
@@ -136,7 +138,7 @@ class Kernel
 
 		// Static member : 
 		static inline Kernel& instance() noexcept {return singleton;}
-		static void init(std::string scriptfile, std::string resfile);
+		static void init(std::string scriptfile, std::string resfile, bool ignore_matrix_check = false);
 		static void load(); 	
 		static void terminate();
 		static void start(bool run);

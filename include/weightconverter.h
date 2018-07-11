@@ -35,7 +35,7 @@ class WeightConverter
 		WeightConverter(const std::string& path) : file(path) {}
 		~WeightConverter(){}
 
-		void load(std::map<std::string, InputBase*> &inputs);
+		void load(std::map<std::string, InputBase*> &inputs, bool ignore_check_size = false);
 		void save(std::map<std::string, InputBase*> &inputs);
 };
 
