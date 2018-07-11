@@ -326,19 +326,25 @@
 
 * Function : Strongly typed, output can be Scalar (double) or Matrix (double unit)
 * Functions have a number of defines inputs
-* Each input have a define name and a type, and could have a weight 
+* Each input have a define name and a type, and could have weights 
   1. String : 
   2. Scalar_Scalar : Input from Scalar output function. Weight is a scalar
   3. Scalar_Matrix : Input from Matrix output function. Weight is a scalar and is apply globaly on every neurons of the Matrix
-  4. Matrix_Matrix : Input from Matrix output function. Weight is a Matrix.
+  4. Matrix_Matrix : Input from Matrix output function. Weights are a Matrix.
 
-* Matrix_Matrix details : 
-  1. Dense Matrix : One to All connections
-  2. Sparse Matrix : Connections is define is a Sparse Matrix Filter and we can generate every topology
+* Matrix_Matrix details : We have 3 types of connections
+  1. One to All connections (ONE_TO_ALL) : Dense connections between input and output 
+  2. One to One connections (ONE_TO_ONE) : Sparse conenction between input and output 
+  3. One to Neighborhood connections (ONE_TO_NEI) : Sparse conenction between input and output 
+
+
+## V kheops and functions developpers guide ##
+
 
 * Using Input and iLink 
 
-## V kheops and functions developpers guide ##
+* Sparse Matrix : Connections is define is a Sparse Matrix Filter and we can generate every topology
+
 
 TODO: 
 
