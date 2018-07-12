@@ -1,19 +1,18 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <functions>
 	<function>
-		<name>LMS</name>
+		<name>Saw</name>
 		<output type="MATRIX"> 
 		</output> 
 		<inputs>
-			<input type="SCALAR_SCALAR"> 
+			<input multiple type="SCALAR_SCALAR"> 
 				<name>learning_rate</name>
 			</input>
-			<input type="SCALAR_MATRIX"> 
-				<name>unconditionnal</name>
-			</input>
+			<input multiple type="SCALAR_SCALAR"> 
+				<name>vigilence</name>
 			</input>
 			<input multiple="true" type="MATRIX_MATRIX">
-				<name>conditionnals</name>
+				<name>inputs</name>
 			</input>
 		</inputs>
 	</function>	

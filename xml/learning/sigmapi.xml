@@ -5,7 +5,7 @@
 		<output type="MATRIX"> 
 		</output> 
 		<inputs>
-			<input type="SCALAR_SCALAR"> 
+			<input multiple="false" type="SCALAR_SCALAR"> 
 				<name>vigilence</name>
 			</input>
 		</inputs>
