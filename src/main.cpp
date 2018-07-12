@@ -20,14 +20,14 @@ The fact that you are presently reading this means that you have had knowledge o
 #include <syslog.h>
 #include <signal.h>
 
-#include "rttoken.h"
-#include "frunner.h"
-#include "kernel.h"
-#include "input.h"
-#include "util.h"
-#include "libManager.h"
-#include "rosinterface.h"
-#include "publisher.h"
+#include "kernel/rttoken.h"
+#include "kernel/frunner.h"
+#include "kernel/kernel.h"
+#include "kernel/inputbase.h"
+#include "kernel/libManager.h"
+#include "kernel/publisher.h"
+#include "ros/rosinterface.h"
+#include "util/util.h"
 
 ComInterface * cinter = NULL;
 
