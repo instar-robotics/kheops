@@ -159,7 +159,7 @@ void Kernel::add_function( const XFunction& xf)
 
 		if( f->type() == typeid(MatrixXd).hash_code()) 		
 		{
-		  if( xf.rows <= 0 || xf.cols <= 0)  throw  std::invalid_argument("Kernel : Can't build Matrix without valid rows/cols value");
+		  if( xf.rows <= 0 || xf.cols <= 0)  throw  std::invalid_argument("Kernel : Can't build Matrix Function without valid rows/cols value");
 		  dynamic_cast<FMatrix*>(f)->setSize(xf.rows,xf.cols);
 		}
 		
@@ -204,6 +204,15 @@ void Kernel::del_function(const std::string& uuid)
 	delete(f);
 }
 
+
+void Kernel::prerun_functions()
+{
+        for(auto it = node_map.begin(); it != node_map.end(); ++it)
+        {
+		Function *f =  boost::get(boost::vertex_function , graph)[ node_map[it->first]];
+		if( f != NULL ) f->prerun();
+        }
+}
 
 /********************************************************************************************************/
 /****************** 		        	RTTOKEN Section	              	      *******************/
@@ -582,7 +591,7 @@ void Kernel::bind(InputBase& value,const std::string& var_name,const std::string
         f->add_input(&value);   
 }
 
-void Kernel::bind(std::string& value,const std::string& var_name,const std::string& uuid)
+void Kernel::bind(IString& value,const std::string& var_name,const std::string& uuid)
 {
         if( node_map.find(uuid) == node_map.end() || xs.functions.find(uuid) == xs.functions.end() ) throw std::invalid_argument( "Kernel : try to bind a string input to unkown function "+uuid );
 
@@ -769,6 +778,11 @@ void Kernel::load()
         singleton.load_links();
         singleton.load_rttoken();
         singleton.load_weight();
+}
+	
+void Kernel::prerun()
+{
+	singleton.prerun_functions();
 }
 
 void Kernel::start(bool run)

@@ -16,13 +16,130 @@ The fact that you are presently reading this means that you have had knowledge o
 
 #include "functions/maths/basicmath.h"
 #include <cmath>
+#include <algorithm>
 
 /********************************************************************************************************/
-/*************************************************  Max   ***********************************************/
+/***********************************************  ArgMax  ***********************************************/
+/********************************************************************************************************/
+
+REGISTER_FUNCTION(ArgMax1D);
+
+void ArgMax1D::upreload()
+{
+	if( inMatrix().i().rows() != 1 && inMatrix().i().cols() != 1 ) 
+	{
+		throw std::invalid_argument("ArgMax1D Function : input have to be a vector (1D Matrix) !");
+	}
+}
+
+void ArgMax1D::compute()
+{
+	MatrixXd::Index maxRow, maxCol;
+
+	inMatrix().i().maxCoeff(&maxRow, &maxCol);
+
+        output = std::max(maxRow,maxCol) ;
+}
+
+void ArgMax1D::setparameters()
+{
+        Kernel::instance().bind(inMatrix,"inMatrix", getUuid());
+}
+
+REGISTER_FUNCTION(ArgMax2D);
+
+void ArgMax2D::upreload()
+{
+	if( inMatrix().i().rows() <= 1 || inMatrix().i().cols() <= 1 ) 
+	{
+		throw std::invalid_argument("ArgMax2D Function : input have to be a 2D Matrix !");
+	}
+}
+
+void ArgMax2D::compute()
+{
+	MatrixXd::Index maxRow, maxCol;
+ 	auto mOut = getMapVect(output) ;
+
+        inMatrix().i().maxCoeff(&maxRow, &maxCol);
+	mOut(0) = maxRow;
+	mOut(1) = maxCol;
+}
+
+void ArgMax2D::setparameters()
+{
+        Kernel::instance().bind(inMatrix,"inMatrix", getUuid());
+	
+	if( output.size() != 2 ) 
+	{
+		throw std::invalid_argument("ArgMax2D Function : output must have only 2 neurons !");
+	}
+}
+
+
+/********************************************************************************************************/
+/***********************************************  ArgMin  ***********************************************/
+/********************************************************************************************************/
+
+REGISTER_FUNCTION(ArgMin1D);
+
+void ArgMin1D::upreload()
+{
+	if( inMatrix().i().rows() != 1 && inMatrix().i().cols() != 1 )
+        {
+                throw std::invalid_argument("ArgMin1D Function : input have to be a vector (1D Matrix) !");
+        }
+}
+
+void ArgMin1D::compute()
+{
+	MatrixXd::Index minRow, minCol;
+
+        inMatrix().i().minCoeff(&minRow, &minCol);
+
+        output = std::max(minRow,minCol) ;
+}
+
+void ArgMin1D::setparameters()
+{
+        Kernel::instance().bind(inMatrix,"inMatrix", getUuid());
+}
+
+REGISTER_FUNCTION(ArgMin2D);
+
+void ArgMin2D::upreload()
+{
+	if( inMatrix().i().rows() <= 1 || inMatrix().i().cols() <= 1 )
+        {
+                throw std::invalid_argument("ArgMin2D Function : input have to be a 2D Matrix !");
+        }
+}
+
+void ArgMin2D::compute()
+{
+	MatrixXd::Index minRow, minCol;
+        auto mOut = getMapVect(output) ;
+
+        inMatrix().i().minCoeff(&minRow, &minCol);
+        mOut(0) = minRow;
+        mOut(1) = minCol;
+}
+
+void ArgMin2D::setparameters()
+{
+        Kernel::instance().bind(inMatrix,"inMatrix", getUuid());
+        
+	if( output.size() != 2 )
+        {
+                throw std::invalid_argument("ArgMin2D Function : output must have only 2 neurons !");
+        }
+}
+
+/********************************************************************************************************/
+/*************************************************  Max  ************************************************/
 /********************************************************************************************************/
 
 REGISTER_FUNCTION(Max);
-
 
 void Max::compute()
 {
@@ -131,8 +248,7 @@ REGISTER_FUNCTION(SZ_1);
 void MDerivative::compute()
 {
 	output =  inMatrix()(output) - z_1;
-	z_1 = inMatrix()(z_1); 
-
+	inMatrix()(z_1); 
 }
 
 void MDerivative::setparameters()
@@ -156,7 +272,7 @@ void SDerivative::setparameters()
 void MZ_1::compute()
 {
 	output = z_1 ; 
-	z_1 = inMatrix()(z_1);
+	inMatrix()(z_1);
 }
 
 void MZ_1::setparameters()

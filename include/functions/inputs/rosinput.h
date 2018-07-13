@@ -19,9 +19,10 @@ The fact that you are presently reading this means that you have had knowledge o
 
 #include "kernel/function.h"
 #include "kernel/kernel.h"
+#include "ros/rossubscriber.h"
 #include "std_msgs/Float64MultiArray.h"
 #include "std_msgs/Float64.h"
-#include "rossubscriber.h"
+
 
 class SRosInput : public FScalar , public RosSubscriber<std_msgs::Float64>
 {

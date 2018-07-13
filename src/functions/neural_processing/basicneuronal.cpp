@@ -16,4 +16,51 @@ The fact that you are presently reading this means that you have had knowledge o
 
 #include "functions/neural_processing/basicneuronal.h"
 
+/********************************************************************************************************/
+/************************************************ KeepMax  *********************************************/
+/********************************************************************************************************/
+
+REGISTER_FUNCTION(KeepMax);
+
+void KeepMax::compute()
+{
+	output = MatrixXd::Constant(output.rows(),output.cols(), 0);
+	for(unsigned int i = 0; i < nMax()(); i++)
+	{
+		MatrixXd::Index maxRow, maxCol;
+  		double max = inMatrix().i().maxCoeff(&maxRow, &maxCol);
+	
+		output(maxRow,maxCol) = max * inMatrix().w();
+	}
+}
+
+void KeepMax::setparameters()
+{
+        Kernel::instance().bind(inMatrix,"inMatrix", getUuid());
+        Kernel::instance().bind(nMax,"nMax", getUuid());
+}
+
+/********************************************************************************************************/
+/************************************************ KeepMin  *********************************************/
+/********************************************************************************************************/
+
+REGISTER_FUNCTION(KeepMin);
+
+void KeepMin::compute()
+{
+	output = MatrixXd::Constant(output.rows(),output.cols(), 0);
+	for(unsigned int i = 0; i < nMin()(); i++)
+	{
+		MatrixXd::Index minRow, minCol;
+  		double min = inMatrix().i().minCoeff(&minRow, &minCol);
+	
+		output(minRow,minCol) = min * inMatrix().w();
+	}
+}
+
+void KeepMin::setparameters()
+{
+        Kernel::instance().bind(inMatrix,"inMatrix", getUuid());
+        Kernel::instance().bind(nMin,"nMax", getUuid());
+}
 

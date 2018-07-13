@@ -71,9 +71,9 @@ class Function
 		virtual void uexec_afterCompute() = 0;
                 
 		// This function is called by the runner just before the main loop
-		virtual void preload() = 0;
-		// This function is called by preload : can be overloaded by user
-		virtual void upreload() = 0;
+		virtual void prerun() = 0;
+		// This function is called by prerun : can be overloaded by user
+		virtual void uprerun() = 0;
 
 		//this two functions must be overloaded for each Function 
 		// Payload of the function
@@ -126,9 +126,9 @@ class FTemplate : public Function
 		virtual void uexec_afterCompute(){}
 		
 		// This function is called by the runner just before the main loop
-		virtual void preload();
+		virtual void prerun();
 		// Do nothing : can be overloaded by user
-		virtual void upreload(){}
+		virtual void uprerun(){}
 
 		virtual void set_topic_name(const std::string &topic);
 		virtual void active_publish(bool state);
@@ -148,6 +148,7 @@ class FMatrix : public FTemplate<MatrixXd>
 		virtual void setparameters() = 0;
 		inline virtual int getRows(){return output.rows();}
 		inline virtual int getCols(){return output.cols();}
+		inline virtual int getSize(){return output.size();}
 
 		inline virtual void setValue(double dvalue, int row,int col) { output=MatrixXd::Constant(row,col,dvalue);}
 		inline virtual void setSize(int rows, int cols){ output = MatrixXd::Constant( rows , cols ,0); }

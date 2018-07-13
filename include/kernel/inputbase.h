@@ -17,8 +17,11 @@ The fact that you are presently reading this means that you have had knowledge o
 #ifndef __INPUT_H__
 #define __INPUT_H__
 
+#include <string>
 #include <memory>
 #include "kernel/ilinkbase.h" 
+
+typedef std::string IString;
 
 class InputBase
 {

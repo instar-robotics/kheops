@@ -156,6 +156,7 @@ int main(int argc, char **argv)
 	cinter->init( argc, argv, progname , Kernel::instance().getName() );	
 
 	Kernel::load();
+	Kernel::prerun();
 	Kernel::start(resume);
 
 	cinter->registerListener();

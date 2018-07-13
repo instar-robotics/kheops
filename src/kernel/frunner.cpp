@@ -23,7 +23,6 @@ void FRunner::exec()
 	checkFunction();
 			
 	Function * f = boost::get(boost::vertex_function , *g)[node] ;
-	f->preload();
 
 	while( ! __is_asking_stop() && ! __is_asking_local_stop() )
 	{

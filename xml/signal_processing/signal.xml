@@ -8,6 +8,12 @@
                         <input multiple="false" type="SCALAR_SCALAR">
                                 <name>inScalar</name>
                         </input>
+                        <input multiple="false" type="SCALAR_SCALAR">
+                                <name>threshold</name>
+                        </input>
+                        <input multiple="false" type="STRING">
+                                <name>mode</name>
+                        </input>
                 </inputs>
         </function>
         <function>
@@ -17,6 +23,28 @@
                 <inputs>
                         <input multiple="false" type="SCALAR_MATRIX">
                                 <name>inMatrix</name>
+                        </input>
+                        <input multiple="false" type="SCALAR_SCALAR">
+                                <name>threshold</name>
+                        </input>
+                        <input multiple="false" type="STRING">
+                                <name>mode</name>
+                        </input>
+                </inputs>
+        </function>
+	<function>
+                <name>MMFrontDetection</name>
+                <output type="MATRIX">
+                </output>
+                <inputs>
+                        <input multiple="false" type="SCALAR_MATRIX">
+                                <name>inMatrix</name>
+                        </input>
+                        <input multiple="false" type="SCALAR_MATRIX">
+                                <name>threshold</name>
+                        </input>
+                        <input multiple="false" type="STRING">
+                                <name>mode</name>
                         </input>
                 </inputs>
         </function>

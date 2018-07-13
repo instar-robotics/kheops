@@ -20,22 +20,85 @@ The fact that you are presently reading this means that you have had knowledge o
 #include "kernel/function.h"
 #include "kernel/kernel.h"
 
-/*
-	max , min  [Matrix -> Scalar] , peut aussi faire comme un WTA 
-	MAX/MIN Scalar  
-	
-	KEEP_MAX/KEEP_MIN Matrix (Code Ancien WTA) (Soft)
+/**
+ * TODO : 
+ *  Gaussien
+ *  Mixture Gaussienne
+ *  Sigmoide
+ *
+ *  Mono neurone ( donne value X sort Y )
+ *
+ *  Champ de neurones : (création de masques)
+ */
 
-	N_MAX/N_MIN (reviens à un sort si N = taille entrée)  -> implémenter plus tard si besoin
-	-> SORT ?? Est-ce que ce n'est pas plus malin de l'appeler SORT ? Avec N -> N premier (soit max soit min)
+/********************************************************************************************************/
+/************************************************  ArgMax   *********************************************/
+/********************************************************************************************************/
 
-	argmax, argmin [Matrix -> Scalar ] la sortie scalar conserve l'id du max ? 
-		Vector -> Scalar OK ! 
-		Matrix -> Prob : 2 indexs ! Boite de sortie à taille 2 ! 
+class ArgMax1D : public FScalar
+{
+        private :
 
-	
-*/
+                ISMInput inMatrix;
 
+        public :
+
+                virtual ~ArgMax1D(){}
+
+                virtual void upreload();
+                virtual void compute();
+                virtual void setparameters();
+};
+
+class ArgMax2D : public FMatrix
+{
+        private :
+
+                ISMInput inMatrix;
+
+        public :
+
+                virtual ~ArgMax2D(){}
+
+                virtual void upreload();
+                virtual void compute();
+                virtual void setparameters();
+};
+
+
+/********************************************************************************************************/
+/************************************************  ArgMin   *********************************************/
+/********************************************************************************************************/
+
+class ArgMin1D : public FScalar
+{
+        private :
+
+                ISMInput inMatrix;
+
+        public :
+
+                virtual ~ArgMin1D(){}
+
+                virtual void upreload();
+                virtual void compute();
+                virtual void setparameters();
+};
+
+class ArgMin2D : public FMatrix
+{
+        private :
+
+                ISMInput inMatrix;
+
+        public :
+
+                virtual ~ArgMin2D(){}
+
+                virtual void upreload();
+                virtual void compute();
+                virtual void setparameters();
+};
 
 /********************************************************************************************************/
 /*************************************************  Max   ***********************************************/

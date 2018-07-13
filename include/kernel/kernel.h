@@ -99,6 +99,7 @@ class Kernel
 
 		void add_function(const XFunction&);
 		void del_function(const std::string & uuid);
+		void prerun_functions();
 		
 		void init_rt_token();
 		void update_rt_token_value( const XRtToken& xrt );
@@ -111,7 +112,7 @@ class Kernel
 		void join_runners();
 
 		void bind( InputBase& value,const std::string& var_name,const std::string& uuid );
-		void bind( std::string& value,const std::string& var_name,const std::string& uuid );
+		void bind( IString& value,const std::string& var_name,const std::string& uuid );
 
 		// String 1 : input uuid
 		void unbind_input(const std::string& uuid);
@@ -142,6 +143,7 @@ class Kernel
 		static inline Kernel& instance() noexcept {return singleton;}
 		static void init(std::string scriptfile, std::string resfile, bool ignore_matrix_check = false);
 		static void load(); 	
+		static void prerun(); 	
 		static void terminate();
 		static void start(bool run);
 

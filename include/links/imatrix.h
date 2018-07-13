@@ -39,6 +39,7 @@ class iMatrix : public iLink<MatrixXd,W>
 
                 inline unsigned int getIRows(){return (*iLink<MatrixXd,W>::input).cols();}
                 inline unsigned int getICols(){return (*iLink<MatrixXd,W>::input).rows();}
+                inline unsigned int getISize(){return (*iLink<MatrixXd,W>::input).size();}
 };
 
 
@@ -109,8 +110,7 @@ class iMMatrix : public iMatrix<MatrixXd>
                 /***********************************************************************/
                 inline unsigned int getORows(){return oCols;}
                 inline unsigned int getOCols(){return oRows;}
-
-                inline void setOSize(unsigned int oRows, unsigned int oCols){ oRows = oRows; oCols=oCols;}
+                inline unsigned int getOSize(){return oRows * oCols;}
 
                 /***********************************************************************/
                 /************************  Weight Management API  **********************/
@@ -121,9 +121,11 @@ class iMMatrix : public iMatrix<MatrixXd>
 
                 inline unsigned int getWRows(){return weight.rows();}
                 inline unsigned int getWCols(){return weight.cols();}
+                inline unsigned int getWSize(){return weight.size();}
 
                 inline unsigned int getInitWRows(){return getIRows() * getICols();}
                 inline unsigned int getInitWCols(){return getORows() * getOCols();}
+                inline unsigned int getInitWSize(){return getOSize() * getISize();}
 
                 /***********************************************************************/
                 /*************************  Weight Access API  *************************/

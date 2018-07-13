@@ -23,27 +23,145 @@ The fact that you are presently reading this means that you have had knowledge o
 
 REGISTER_FUNCTION(SFrontDetection);
 REGISTER_FUNCTION(MFrontDetection);
+REGISTER_FUNCTION(MMFrontDetection);
 
-//TODO
+bool checkMode(const std::string & smode, int& mode)
+{
+	bool ret = false;
+	if( smode == FD_SUP)
+	{	
+		mode = FD_IUP;
+		ret = true;
+	}
+	else if( smode == FD_SDOWN) 
+	{
+		mode = FD_IDOWN;
+		ret = true;
+	}
+	else if( smode == FD_SBOTH)
+	{	
+		mode = FD_IBOTH;
+		ret = true;
+	}
+
+	return ret;
+}
+
+
+void SFrontDetection::uprerun()
+{
+	if( !checkMode(mode, imode) ) throw std::invalid_argument("SFrontDetection : failed to check mode. Should be : "+FD_SUP+" , "+FD_SDOWN+" or "+FD_SBOTH);
+}
+
 void SFrontDetection::compute()
 {
+        static double eps = std::numeric_limits<double>::epsilon();
+
+	double grad_1 = threshold()() - z_1;	
+	double grad = inScalar()() - threshold()();	
+	
+        output =((grad+eps)/abs(grad+eps) + (grad_1+eps)/abs(grad_1+eps))/2 ;
+
+	switch(imode)
+	{
+		case FD_IUP : 
+			output = std::max(output,0.0); 
+			break;
+		case FD_IDOWN :
+			output = std::min(output,0.0); 
+			break;
+	}
+	z_1 = inScalar()();
 }
 
 void SFrontDetection::setparameters()
 {
         Kernel::instance().bind(inScalar,"inScalar", getUuid());
+        Kernel::instance().bind(threshold,"threshold", getUuid());
+        Kernel::instance().bind(mode,"mode", getUuid());
+	z_1 = 0;
 }
 
-//TODO
+/**************************************************************************/
+
+void MFrontDetection::uprerun()
+{
+	if( !checkMode(mode, imode)) throw std::invalid_argument("SFrontDetection : failed to check mode. Should be : "+FD_SUP+" , "+FD_SDOWN+" or "+FD_SBOTH);
+}
+
 void MFrontDetection::compute()
 {
+        static double eps = std::numeric_limits<double>::epsilon();
+
+        auto grad_1 = threshold()() - z_1.array() ;
+        auto grad = inMatrix()().array() - threshold()() ;
+
+        output =((grad+eps)/abs(grad+eps) + (grad_1+eps)/abs(grad_1+eps))/2 ;
+	
+	switch(imode)
+	{
+		case FD_IUP : 
+			output.array() = output.array().max(0.0); 
+			break;
+		case FD_IDOWN :
+			output.array() = output.array().min(0.0); 
+			break;
+	}
+
+	inMatrix()(z_1);
 }
 
 void MFrontDetection::setparameters()
 {
         Kernel::instance().bind(inMatrix,"inMatrix", getUuid());
+        Kernel::instance().bind(threshold,"threshold", getUuid());
+        Kernel::instance().bind(mode,"mode", getUuid());
+	z_1 = MatrixXd::Constant( output.rows(), output.cols(), 0  );
 }
 
+/**************************************************************************/
+
+void MMFrontDetection::uprerun()
+{
+	if( !checkMode(mode, imode)) throw std::invalid_argument("SFrontDetection : failed to check mode. Should be : "+FD_SUP+" , "+FD_SDOWN+" or "+FD_SBOTH);
+}
+
+void MMFrontDetection::compute()
+{
+	static double eps = std::numeric_limits<double>::epsilon();
+	
+ 	MatrixXd grad_1; 
+	threshold()(grad_1);
+	grad_1.array() = z_1;
+
+	MatrixXd grad;
+        inMatrix()(grad);
+        grad -= threshold() ;
+
+        output =((grad.array()+eps)/abs(grad.array()+eps) + (grad_1.array()+eps)/abs(grad_1.array()+eps))/2 ;
+
+        switch(imode)
+        {
+                case FD_IUP :
+                        output.array() = output.array().max(0.0);
+                        break;
+                case FD_IDOWN :
+                        output.array() = output.array().min(0.0);
+                        break;
+        }
+
+        inMatrix()(z_1);
+
+}
+
+void MMFrontDetection::setparameters()
+{
+        Kernel::instance().bind(inMatrix,"inMatrix", getUuid());
+        Kernel::instance().bind(threshold,"threshold", getUuid());
+        Kernel::instance().bind(mode,"mode", getUuid());
+	
+	z_1 = MatrixXd::Constant( output.rows(), output.cols(), 0  );
+}
 
 /********************************************************************************************************/
 /********************************************   THRESOLD   **********************************************/

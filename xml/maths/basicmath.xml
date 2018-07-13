@@ -1,6 +1,46 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <functions>
 	<function>
+                <name>ArgMax1D</name>
+                <output type="SCALAR">
+                </output>
+                <inputs>
+                        <input multiple="false" type="SCALAR_MATRIX">
+                                <name>inMatrix</name>
+                        </input>
+                </inputs>
+        </function>
+        <function>
+                <name>ArgMin1D</name>
+                <output type="SCALAR">
+                </output>
+                <inputs>
+                        <input multiple="false" type="SCALAR_MATRIX">
+                                <name>inMatrix</name>
+                        </input>
+                </inputs>
+        </function>
+	<function>
+                <name>ArgMax2D</name>
+                <output type="Matrix">
+                </output>
+                <inputs>
+                        <input multiple="false" type="SCALAR_MATRIX">
+                                <name>inMatrix</name>
+                        </input>
+                </inputs>
+        </function>
+        <function>
+                <name>ArgMin2D</name>
+                <output type="Matrix">
+                </output>
+                <inputs>
+                        <input multiple="false" type="SCALAR_MATRIX">
+                                <name>inMatrix</name>
+                        </input>
+                </inputs>
+        </function>
+	<function>
 		<name>Max</name>
 		<output type="SCALAR">	
 		</output>	

@@ -40,11 +40,54 @@ projection (
 
 -> Concaténation + extraction : meme opération de projection : on fait une seule boite de projection qui prend en input une sparse matrice définissant les régles de projections 
 
-produit tensoriel  -> OK Simple
 
 convolution operator (circularity option) -> OK simple 
 
 shift operator (circularity option) -> On attend discution avec ALEX
+
+N_MAX/N_MIN (reviens à un sort si N = taille entrée)  -> implémenter plus tard si besoin
+-> SORT ?? Est-ce que ce n'est pas plus malin de l'appeler SORT ? Avec N -> N premier (soit max soit min)
+
 */
+
+/********************************************************************************************************/
+/**********************************************  Keep_Max   *********************************************/
+/********************************************************************************************************/
+
+// Keep N max in the output Matrix
+// Output must have same dimension that inMatrix
+// nMax : number of max keep in output
+class KeepMax : public FMatrix
+{
+        private :
+
+                ISMInput inMatrix;
+                ISInput nMax;
+
+        public :
+
+                virtual ~KeepMax(){}
+
+                virtual void compute();
+                virtual void setparameters();
+};
+
+// Keep N max in the output Matrix
+// Output must have same dimension that inMatrix
+// nMax : number of min keep in output
+class KeepMin : public FMatrix
+{
+        private :
+
+                ISMInput inMatrix;
+                ISInput nMin;
+
+        public :
+
+                virtual ~KeepMin(){}
+
+                virtual void compute();
+                virtual void setparameters();
+};
 
 #endif // _BASIC_NEURONAL_H_

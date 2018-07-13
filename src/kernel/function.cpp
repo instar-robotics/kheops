@@ -129,7 +129,7 @@ void FTemplate<T>::active_publish(bool state)
 }
 
 template<class T>
-void FTemplate<T>::preload()
+void FTemplate<T>::prerun()
 {
 	if( is_save_active() )
 	{
@@ -142,7 +142,7 @@ void FTemplate<T>::preload()
 
 	active_publish(is_publish_active());
 
-	upreload();
+	uprerun();
 }
 
 
