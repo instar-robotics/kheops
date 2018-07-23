@@ -123,7 +123,7 @@ REGISTER_FUNCTION(PopToAct);
 
 void PopToAct::compute()
 {
-	static auto vect = getMapVect(population.i());
+	static auto vect = getCMapVect(population().i());
 
 //	output = 
 }

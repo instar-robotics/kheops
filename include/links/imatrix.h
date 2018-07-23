@@ -89,6 +89,15 @@ Map<MatrixXd> getMapCol(MatrixXd & m);
 /* Return Map in a one row Matrix  */
 Map<VectorXd> getMapVect(MatrixXd & m);
 
+/* Return Const Map in a one row Matrix  */
+Map<const MatrixXd> getCMapRow(const MatrixXd & m);
+
+/* Return Map in a one row Matrix  */
+Map<const MatrixXd> getCMapCol(const MatrixXd & m);
+
+/* Return Map in a one row Matrix  */
+Map<const VectorXd> getCMapVect(const MatrixXd & m);
+
 
 class iMMatrix : public iMatrix<MatrixXd>
 {

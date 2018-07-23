@@ -87,6 +87,21 @@ Map<VectorXd> getMapVect(MatrixXd & m)
 {
         return Map<VectorXd> ( m.data(), m.size() ) ;
 }
+
+Map<const MatrixXd> getCMapRow(const MatrixXd & m)
+{
+        return Map<const MatrixXd>( m.data() , 1 , m.size() ) ;
+}
+
+Map<const MatrixXd> getCMapCol(const MatrixXd & m)
+{
+        return Map<const MatrixXd> ( m.data(), m.size() , 1 ) ;
+}
+
+Map<const VectorXd> getCMapVect(const MatrixXd & m)
+{
+        return Map<const VectorXd> ( m.data(), m.size() ) ;
+}
 /***********************************************************************/
 /*************************  Constructor Section  ***********************/
 /***********************************************************************/
