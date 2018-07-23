@@ -22,12 +22,6 @@ The fact that you are presently reading this means that you have had knowledge o
 #include "kernel/kernel.h"
 
 /*
-activité -> population 
-	(Neurons -> Vector )
-	(Vector -> Matrix )
-population -> activité  
-	(vector -> neurons)
-	(matrix -> vector)
 
 // SPARSE_MATRIX -> Nouveau type de liens 
 neurons concatenation -> OK 
@@ -88,6 +82,99 @@ class KeepMin : public FMatrix
 
                 virtual void compute();
                 virtual void setparameters();
+};
+
+/********************************************************************************************************/
+/**********************************************  ActToPop   *********************************************/
+/********************************************************************************************************/
+/*
+Activity to population :  Single Neurons to Vector 
+2yyValue must be in [0,1] interval
+Output must be a Vector (rows or cols)
+*/
+class  ActToPop : public FMatrix
+{
+	private : 
+                
+		ISInput activity;
+        
+	public :
+
+                virtual ~ActToPop(){}
+
+                virtual void compute();
+                virtual void setparameters();
+};
+
+
+/********************************************************************************************************/
+/**********************************************  VActToPop   *********************************************/
+/********************************************************************************************************/
+
+/*
+Activity to population :  Vector to Matrix (each neurons from the input Vector is discretize on a ligne or cols of the output Matrix 
+Each Value from the input vectur must be in [0,1] interval
+Output must be a Matrix with rows (or cols) egal to the size of the input Vector
+*/
+class  VActToPop : public FMatrix
+{
+	private : 
+                
+		ISMInput activity;
+        
+	public :
+
+                virtual ~VActToPop(){}
+
+                virtual void compute();
+                virtual void setparameters();
+		virtual void uprerun();
+};
+
+/********************************************************************************************************/
+/**********************************************  PopToAct   *********************************************/
+/********************************************************************************************************/
+/*
+ (vector -> neuron)
+ population to activity  
+  Output is a scalar between [0,1]
+  Input must be a Vector (rows or cols) 
+*/
+class  PopToAct : public FScalar
+{
+	private : 
+		ISMInput population;
+	
+	public :
+
+                virtual ~PopToAct(){}
+
+                virtual void compute();
+                virtual void setparameters();
+		virtual void uprerun();
+};
+
+/********************************************************************************************************/
+/**********************************************  PopToVAct   *********************************************/
+/********************************************************************************************************/
+/*
+(matrix -> vector)
+  population to activity  
+  Output is a vector where each neurons have an activity between [0,1]
+  Input must be a Matrix with rows (or cols) egals to the dimensions of the output vector 
+*/
+class  PopToVAct : public FMatrix
+{
+        private :
+                ISMInput population;
+
+        public :
+
+                virtual ~PopToVAct(){}
+
+                virtual void compute();
+                virtual void setparameters();
+                virtual void uprerun();
 };
 
 #endif // _BASIC_NEURONAL_H_

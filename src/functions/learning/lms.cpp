@@ -20,7 +20,7 @@ REGISTER_FUNCTION(LMS);
 
 void LMS::compute()
 {	
-	auto mout = getMapRow(output);
+	static auto mout = getMapRow(output);
 
 	mout = conditionnals[0].w() * conditionnals[0].irow() ;
 	for(unsigned int i=1; i < conditionnals.size(); i++)

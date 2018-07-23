@@ -64,3 +64,99 @@ void KeepMin::setparameters()
         Kernel::instance().bind(nMin,"nMax", getUuid());
 }
 
+
+/********************************************************************************************************/
+/**********************************************  ActToPop   *********************************************/
+/********************************************************************************************************/
+
+REGISTER_FUNCTION(ActToPop);
+
+void ActToPop::compute()
+{
+	static auto vect = getMapVect(output);
+	double value = activity()();
+
+	// Threshold betwen 0 and 1
+	if( value < 0 ) value = 0;
+	if( value >= 1 ) value = 1 - std::numeric_limits<double>::epsilon();
+
+	unsigned int index = (unsigned int)(value * vect.size());
+
+	vect(index) = activity().w();
+}
+
+void ActToPop::setparameters()
+{
+        Kernel::instance().bind(activity,"activity", getUuid());
+
+	// Check Output dimension : 
+	if( output.rows() != 1 && output.cols() != 1 ) 
+	{
+		throw std::invalid_argument("ActToPop : Output must be a vector (Rows or Cols)");	
+	}
+}
+
+/********************************************************************************************************/
+/**********************************************  VActToPop   *********************************************/
+/********************************************************************************************************/
+
+REGISTER_FUNCTION(VActToPop);
+
+void VActToPop::compute()
+{
+}
+
+void VActToPop::setparameters()
+{
+        Kernel::instance().bind(activity,"activity", getUuid());
+}
+
+void VActToPop::uprerun()
+{
+}
+
+/********************************************************************************************************/
+/**********************************************  PopToAct   *********************************************/
+/********************************************************************************************************/
+
+REGISTER_FUNCTION(PopToAct);
+
+void PopToAct::compute()
+{
+	static auto vect = getMapVect(population.i());
+
+//	output = 
+}
+
+void PopToAct::setparameters()
+{
+        Kernel::instance().bind(population,"population", getUuid());
+}
+
+void PopToAct::uprerun()
+{
+	// Check Output dimension : 
+	if( population().i().rows() != 1 && population().i().cols() != 1 ) 
+	{
+		throw std::invalid_argument("PopToAct : Input \"population\" must be a vector (Rows or Cols)");	
+	}
+}
+
+/********************************************************************************************************/
+/**********************************************  PopToVAct   *********************************************/
+/********************************************************************************************************/
+
+REGISTER_FUNCTION(PopToVAct);
+
+void PopToVAct::compute()
+{
+}
+
+void PopToVAct::setparameters()
+{
+        Kernel::instance().bind(population,"population", getUuid());
+}
+
+void PopToVAct::uprerun()
+{
+}
