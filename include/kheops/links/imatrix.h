@@ -17,8 +17,8 @@ The fact that you are presently reading this means that you have had knowledge o
 #ifndef __IMATRIX_H__
 #define __IMATRIX_H__
 
-#include "kernel/ilinkbase.h"
-#include "kernel/inputbase.h"
+#include "kheops/kernel/ilinkbase.h"
+#include "kheops/kernel/inputbase.h"
 
 using Eigen::Ref;
 using Eigen::MatrixXd;

@@ -18,9 +18,9 @@ The fact that you are presently reading this means that you have had knowledge o
 #define __RT_TOKEN_H__
 
 #include <condition_variable>
-#include "kernel/runner.h"
-#include "util/util.h"
-#include "kernel/publisher.h"
+#include "kheops/kernel/runner.h"
+#include "kheops/util/util.h"
+#include "kheops/kernel/publisher.h"
 
 #define CONV_S_TO_MS 1000000
 

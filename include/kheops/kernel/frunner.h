@@ -14,47 +14,38 @@ and, more generally, to use and operate it in the same conditions as regards sec
 The fact that you are presently reading this means that you have had knowledge of the CeCILL v2.1 license and that you accept its terms.
 */
 
-#ifndef __GRAPH_H__
-#define __GRAPH_H__
+#ifndef __FR_RUNNER_H__
+#define __FR_RUNNER_H__
 
-#include <string>
-#include <boost/graph/graph_traits.hpp>
-#include <boost/graph/adjacency_list.hpp>
-#include "kernel/function.h"
-#include "kernel/klink.h"
-
-class Runner;
-
-namespace boost {
-    enum vertex_function_t { vertex_function};
-    BOOST_INSTALL_PROPERTY(vertex, function);
-}
-
-namespace boost {
-    enum vertex_runner_t { vertex_runner};
-    BOOST_INSTALL_PROPERTY(vertex, runner);
-}
-typedef boost::property <boost::vertex_runner_t, Runner* ,  boost::property<boost::vertex_function_t, Function*  >> VertexProperties;
+#include "kheops/kernel/runner.h"
+#include "kheops/kernel/function.h"
 
 
-namespace boost {
-    enum edge_klink_t { edge_klink};
-    BOOST_INSTALL_PROPERTY(edge, klink);
-}
+class FRunner : public Runner
+{
+        protected :
 
-namespace boost {
-    enum edge_uuid_t { edge_uuid};
-    BOOST_INSTALL_PROPERTY(edge, uuid);
-}
+		bool bsync;
+                std::mutex mtx_sync;
+                std::condition_variable cv_sync;
 
-typedef boost::property<boost::edge_klink_t, kLink*, boost::property< boost::edge_uuid_t, std::string>> EdgeWeightProperty;
+		int local_state;
 
-typedef boost::adjacency_list<boost::vecS, boost::listS, boost::bidirectionalS , VertexProperties , EdgeWeightProperty>  Graph;
+		inline bool __is_asking_local_stop(){ return local_state == R_STOP;}
 
+        public :
+                FRunner() : Runner(),bsync(false),local_state(R_RUN) {}
+                virtual ~FRunner() {}
 
-typedef boost::graph_traits<Graph>::edge_iterator edge_iter;
-typedef boost::graph_traits<Graph>::vertex_iterator vertex_iter;
-typedef boost::graph_traits<Graph>::out_edge_iterator out_edge_iterator;
-typedef boost::graph_traits<Graph>::in_edge_iterator in_edge_iterator;
+                virtual void exec();
+		virtual void terminate();
 
-#endif //__GRAPH_H__
+		void wait_for_sync();
+                void sync();
+		inline void local_stop() { local_state = R_STOP;}
+		inline void local_run() { local_state = R_RUN;}
+
+		void checkFunction();
+};
+
+#endif //__FR_RUNNER_H__

@@ -17,12 +17,12 @@ The fact that you are presently reading this means that you have had knowledge o
 #ifndef __ROS_PUBLISHER_H__
 #define __ROS_PUBLISHER_H__
 
-#include "kernel/publisher.h" 
-#include "ros/roswrapper.h"
 #include "ros/ros.h"
-#include "hieroglyph/OscilloArray.h"
 #include "std_msgs/Float64MultiArray.h"
 #include "std_msgs/Float64.h"
+#include "kheops/kernel/publisher.h" 
+#include "kheops/ros/roswrapper.h"
+#include "hieroglyph/OscilloArray.h"
 #include <Eigen/Core>
 #include <Eigen/Dense>
 

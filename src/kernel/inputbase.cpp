@@ -14,8 +14,7 @@ and, more generally, to use and operate it in the same conditions as regards sec
 The fact that you are presently reading this means that you have had knowledge of the CeCILL v2.1 license and that you accept its terms.
 */
 
-#include "kernel/inputbase.h"
-
+#include "kheops/kernel/inputbase.h"
 
 /********************************************************************************************************/
 /********************************************* InputBase ************************************************/

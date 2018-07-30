@@ -17,7 +17,7 @@ The fact that you are presently reading this means that you have had knowledge o
 #include <algorithm>
 #include <iostream>
 #include <stdexcept>
-#include "iostream/xmlconverter.h"
+#include "kheops/iostream/xmlconverter.h"
 
 XmlConverter::XmlConverter(std::string filepath)
 {

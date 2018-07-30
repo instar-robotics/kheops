@@ -19,8 +19,8 @@ The fact that you are presently reading this means that you have had knowledge o
 
 #include <thread>
 #include <uuid/uuid.h>
-#include "kernel/graph.h"
-#include "kernel/klink.h"
+#include "kheops/kernel/graph.h"
+#include "kheops/kernel/klink.h"
 
 enum STATE { R_STOP=0, R_PAUSE=1, R_RUN=2 };
 

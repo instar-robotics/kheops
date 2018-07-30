@@ -1,5 +1,5 @@
 /*
-Copyright Instar Robotics
+Copyright INSTAR Robotics
 
 Author: Pierre Delarboulas
 
@@ -14,31 +14,47 @@ and, more generally, to use and operate it in the same conditions as regards sec
 The fact that you are presently reading this means that you have had knowledge of the CeCILL v2.1 license and that you accept its terms.
 */
 
-#ifndef __ROS_WRAPPER_H__
-#define __ROS_WRAPPER_H__
+#ifndef __GRAPH_H__
+#define __GRAPH_H__
 
 #include <string>
-#include "ros/ros.h"
+#include <boost/graph/graph_traits.hpp>
+#include <boost/graph/adjacency_list.hpp>
+#include "kheops/kernel/function.h"
+#include "kheops/kernel/klink.h"
 
-class RosWrapper
-{
-	private : 
+class Runner;
 
-		std::string node_name;
-		ros::NodeHandle * n;
+namespace boost {
+    enum vertex_function_t { vertex_function};
+    BOOST_INSTALL_PROPERTY(vertex, function);
+}
 
-		static RosWrapper singleton;
+namespace boost {
+    enum vertex_runner_t { vertex_runner};
+    BOOST_INSTALL_PROPERTY(vertex, runner);
+}
+typedef boost::property <boost::vertex_runner_t, Runner* ,  boost::property<boost::vertex_function_t, Function*  >> VertexProperties;
 
-	public :
 
-		RosWrapper(){}
-		~RosWrapper(){if(n != NULL) delete(n);} 
+namespace boost {
+    enum edge_klink_t { edge_klink};
+    BOOST_INSTALL_PROPERTY(edge, klink);
+}
 
-		static void init(int argc, char ** argv, std::string prog_name, std::string script_name);
-		static ros::NodeHandle* getNodeHandle(){return singleton.n;}
-		static std::string getNodeName() {return singleton.node_name;}
+namespace boost {
+    enum edge_uuid_t { edge_uuid};
+    BOOST_INSTALL_PROPERTY(edge, uuid);
+}
 
-		static void clean_topic_name(std::string& str);
-};
+typedef boost::property<boost::edge_klink_t, kLink*, boost::property< boost::edge_uuid_t, std::string>> EdgeWeightProperty;
 
-#endif // __ROS_WRAPPER_H__
+typedef boost::adjacency_list<boost::vecS, boost::listS, boost::bidirectionalS , VertexProperties , EdgeWeightProperty>  Graph;
+
+
+typedef boost::graph_traits<Graph>::edge_iterator edge_iter;
+typedef boost::graph_traits<Graph>::vertex_iterator vertex_iter;
+typedef boost::graph_traits<Graph>::out_edge_iterator out_edge_iterator;
+typedef boost::graph_traits<Graph>::in_edge_iterator in_edge_iterator;
+
+#endif //__GRAPH_H__

@@ -15,11 +15,11 @@ The fact that you are presently reading this means that you have had knowledge o
 */
 
 #include <iostream>
-#include "kernel/kernel.h"
-#include "kernel/factory.h"
-#include "kernel/frunner.h"
-#include "iostream/weightconverter.h"
-#include "util/util.h"
+#include "kheops/kernel/kernel.h"
+#include "kheops/kernel/factory.h"
+#include "kheops/kernel/frunner.h"
+#include "kheops/iostream/weightconverter.h"
+#include "kheops/util/util.h"
 
 Kernel Kernel::singleton;
 

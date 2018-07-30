@@ -19,7 +19,7 @@ The fact that you are presently reading this means that you have had knowledge o
 
 #include <string>
 #include <memory>
-#include "kernel/ilinkbase.h" 
+#include "kheops/kernel/ilinkbase.h" 
 
 typedef std::string IString;
 

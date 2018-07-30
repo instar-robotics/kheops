@@ -16,8 +16,8 @@ The fact that you are presently reading this means that you have had knowledge o
 
 #include <iostream>
 #include <dlfcn.h>
-#include "kernel/libManager.h"
-#include "util/util.h"
+#include "kheops/kernel/libManager.h"
+#include "kheops/util/util.h"
 
 LibManager LibManager::singleton;
 

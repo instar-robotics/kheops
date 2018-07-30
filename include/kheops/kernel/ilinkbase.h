@@ -17,7 +17,7 @@ The fact that you are presently reading this means that you have had knowledge o
 #ifndef __ILINK_BASE_H__
 #define __ILINK_BASE_H__
 
-#include "kernel/publisher.h"
+#include "kheops/kernel/publisher.h"
 
 class iLinkBase
 {

@@ -14,13 +14,12 @@ and, more generally, to use and operate it in the same conditions as regards sec
 The fact that you are presently reading this means that you have had knowledge of the CeCILL v2.1 license and that you accept its terms.
 */
 
-
-#include "util/util.h"
 #include <sys/types.h>
 #include <dirent.h>
 #include <errno.h>
 #include <iostream>
 #include <boost/filesystem.hpp>
+#include "kheops/util/util.h"
 
 int getdir (std::string dir, std::vector<std::string> &files)
 {

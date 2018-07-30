@@ -23,10 +23,10 @@ The fact that you are presently reading this means that you have had knowledge o
 #include <vector>
 #include <memory>
 
-#include "kernel/factory.h"
-#include "kernel/inputbase.h"
-#include "kernel/publisher.h"
-#include "iostream/shmserializer.h"
+#include "kheops/kernel/factory.h"
+#include "kheops/kernel/inputbase.h"
+#include "kheops/kernel/publisher.h"
+#include "kheops/iostream/shmserializer.h"
 
 #define REGISTER_FUNCTION(classname) \
    static const BuilderImpl<classname,Function> classname(#classname); 

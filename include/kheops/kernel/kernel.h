@@ -19,13 +19,13 @@ The fact that you are presently reading this means that you have had knowledge o
 
 #include <map>
 #include <memory>
-#include "kernel/graph.h"
-#include "kernel/runner.h"
-#include "kernel/inputbase.h"
-#include "kernel/rttoken.h"
-#include "iostream/xmlconverter.h"
-#include "links/iscalar.h"
-#include "links/imatrix.h"
+#include "kheops/kernel/graph.h"
+#include "kheops/kernel/runner.h"
+#include "kheops/kernel/inputbase.h"
+#include "kheops/kernel/rttoken.h"
+#include "kheops/iostream/xmlconverter.h"
+#include "kheops/links/iscalar.h"
+#include "kheops/links/imatrix.h"
 
 class Kernel 
 {

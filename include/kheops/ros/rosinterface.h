@@ -18,10 +18,10 @@ The fact that you are presently reading this means that you have had knowledge o
 #define __ROS_INTERFACE_H__
 
 #include <vector>
-#include "kernel/cominterface.h"
-#include "kernel/kernel.h"
-#include "ros/roswrapper.h"
-#include "ros/ros.h"
+#include <ros/ros.h>
+#include "kheops/kernel/cominterface.h"
+#include "kheops/kernel/kernel.h"
+#include "kheops/ros/roswrapper.h"
 #include "hieroglyph/Help.h"
 #include "hieroglyph/RtStat.h"
 #include "hieroglyph/SimpleCmd.h"

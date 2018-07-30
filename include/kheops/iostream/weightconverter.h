@@ -14,38 +14,29 @@ and, more generally, to use and operate it in the same conditions as regards sec
 The fact that you are presently reading this means that you have had knowledge of the CeCILL v2.1 license and that you accept its terms.
 */
 
-#ifndef __FR_RUNNER_H__
-#define __FR_RUNNER_H__
+#ifndef __WEIGHT_CONVERTER__
+#define __WEIGHT_CONVERTER__
 
-#include "kernel/runner.h"
-#include "kernel/function.h"
+#include <map>
+#include <string>
+#include "kheops/kernel/inputbase.h"
+#include "kheops/kernel/ilinkbase.h"
 
+const int SPARSE = 0;
+const int  DENSE = 1;
 
-class FRunner : public Runner
+class WeightConverter
 {
-        protected :
+	private:
+			
+		std::string file;	
 
-		bool bsync;
-                std::mutex mtx_sync;
-                std::condition_variable cv_sync;
+	public : 
+		WeightConverter(const std::string& path) : file(path) {}
+		~WeightConverter(){}
 
-		int local_state;
-
-		inline bool __is_asking_local_stop(){ return local_state == R_STOP;}
-
-        public :
-                FRunner() : Runner(),bsync(false),local_state(R_RUN) {}
-                virtual ~FRunner() {}
-
-                virtual void exec();
-		virtual void terminate();
-
-		void wait_for_sync();
-                void sync();
-		inline void local_stop() { local_state = R_STOP;}
-		inline void local_run() { local_state = R_RUN;}
-
-		void checkFunction();
+		void load(std::map<std::string, InputBase*> &inputs, bool ignore_check_size = false);
+		void save(std::map<std::string, InputBase*> &inputs);
 };
 
-#endif //__FR_RUNNER_H__
+#endif // __RES_CONVERTER__

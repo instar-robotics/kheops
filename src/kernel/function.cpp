@@ -15,8 +15,8 @@ The fact that you are presently reading this means that you have had knowledge o
 */
 
 #include <chrono>
-#include "kernel/function.h"
-#include "ros/rospublisher.h"
+#include "kheops/kernel/function.h"
+#include "kheops/ros/rospublisher.h"
 
 /********************************************************************************************************/
 /********************************************* FUNCTION *************************************************/

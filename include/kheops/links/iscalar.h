@@ -17,8 +17,8 @@ The fact that you are presently reading this means that you have had knowledge o
 #ifndef __ISCALAR_H__
 #define __ISCALAR_H__
 
-#include "kernel/ilinkbase.h"
-#include "kernel/inputbase.h"
+#include "kheops/kernel/ilinkbase.h"
+#include "kheops/kernel/inputbase.h"
 
 class iScalar : public iLink<double,double>
 {

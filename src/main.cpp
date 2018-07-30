@@ -20,14 +20,14 @@ The fact that you are presently reading this means that you have had knowledge o
 #include <syslog.h>
 #include <signal.h>
 
-#include "kernel/rttoken.h"
-#include "kernel/frunner.h"
-#include "kernel/kernel.h"
-#include "kernel/inputbase.h"
-#include "kernel/libManager.h"
-#include "kernel/publisher.h"
-#include "ros/rosinterface.h"
-#include "util/util.h"
+#include "kheops/kernel/rttoken.h"
+#include "kheops/kernel/frunner.h"
+#include "kheops/kernel/kernel.h"
+#include "kheops/kernel/inputbase.h"
+#include "kheops/kernel/libManager.h"
+#include "kheops/kernel/publisher.h"
+#include "kheops/ros/rosinterface.h"
+#include "kheops/util/util.h"
 
 ComInterface * cinter = NULL;
 

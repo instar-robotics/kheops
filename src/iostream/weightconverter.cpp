@@ -18,9 +18,9 @@ The fact that you are presently reading this means that you have had knowledge o
 #include <boost/archive/binary_oarchive.hpp>
 #include <fstream>
 #include <iostream>
-#include "iostream/weightconverter.h"
-#include "iostream/serialization.h"
-#include "links/imatrix.h"
+#include "kheops/iostream/weightconverter.h"
+#include "kheops/iostream/serialization.h"
+#include "kheops/links/imatrix.h"
 
 void WeightConverter::load(std::map<std::string, InputBase*> &inputs, bool ignore_check_size )
 {
