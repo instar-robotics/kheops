@@ -1,31 +1,18 @@
 <?xml version="1.0"?>
 <package format="2">
   <name>kheops</name>
-  <version>0.0.0</version>
-  <description>The kheops package</description>
+  <version>1.0.0</version>
+  <description>kheops : the neural network simulator</description>
 
-  <!-- One maintainer tag required, multiple allowed, one person per tag -->
-  <!-- Example:  -->
-  <!-- <maintainer email="jane.doe@example.com">Jane Doe</maintainer> -->
-  <maintainer email="pierdela@todo.todo">pierdela</maintainer>
-
-
-  <!-- One license tag required, multiple allowed, one license per tag -->
-  <!-- Commonly used license strings: -->
-  <!--   BSD, MIT, Boost Software License, GPLv2, GPLv3, LGPLv2.1, LGPLv3 -->
-  <license>TODO</license>
-
+  <maintainer email="pierre.delarboulas@instar-robotics.com">Pierre Delarboulas</maintainer>
+  <license>CeCILL v2.1</license>
 
   <!-- Url tags are optional, but multiple are allowed, one per tag -->
   <!-- Optional attribute type can be: website, bugtracker, or repository -->
   <!-- Example: -->
   <!-- <url type="website">http://wiki.ros.org/kheops</url> -->
 
-
-  <!-- Author tags are optional, multiple are allowed, one per tag -->
-  <!-- Authors do not have to be maintainers, but could be -->
-  <!-- Example: -->
-  <!-- <author email="jane.doe@example.com">Jane Doe</author> -->
+  <author email="pierre.delarboulas@instar-robotics.com">Pierre Delarboulas</author>
 
 
   <!-- The *depend tags are used to specify dependencies -->
@@ -49,12 +36,8 @@
   <!-- Use doc_depend for packages you need only for building documentation: -->
   <!--   <doc_depend>doxygen</doc_depend> -->
   <buildtool_depend>catkin</buildtool_depend>
-  <build_depend>hieroglyph</build_depend>
-  <build_export_depend>hieroglyph</build_export_depend>
-  <exec_depend>hieroglyph</exec_depend>
-
-
-
+  <depend>hieroglyph</depend>
+  <depend>roscpp</depend>
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>
