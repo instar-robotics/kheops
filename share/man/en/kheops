@@ -1,0 +1,70 @@
+.\" Manpage for kheops.
+.\" Contact pierre.delarboulas@instar-robotics.com to correct errors or typos.
+.TH man 8 "31 July 2018" "1.0" "kheops man page"
+.SH NAME
+kheops \- The Neural Network and Dynamical Function simulator
+.SH SYNOPSIS
+kheops [OPTIONS]... 
+.B -s 
+.I FILE 
+.B -w 
+.I FILE
+.B -l 
+.I DIR
+.PP 
+rosrun kheops kheops [OPTIONS]...
+.B -s 
+.I FILE 
+.B -w 
+.I FILE
+.B -l
+.I DIR
+.SH DESCRIPTION
+kheops is a simulator for neural networks described in XML graph structures designed by Papyrus software.
+kheops is designed to be used in online environnement, mainly to design robotics controller.
+kheops uses dataflow paradigm to process the neural network, is strongly typed and uses Eigen3 library for linear algebra.
+kheops is based on ROS communication tools to stream data (get sensors data and send motor orders) and to communicate throw some kheops instances. 
+.SH OPTIONS
+.TP 
+.B -h 
+display help  menu
+.TP 
+.BI -s " FILE"
+path to the script file to run
+.TP
+.BI -w " FILE"
+path to the binary file containing neural weights
+.TP
+.BI -l " DIR"
+path to the directory containing the external libraries
+.TP
+.B -p 
+start running in pause mode
+.TP
+.B -v 
+active verbose mode 
+.TP
+.B -i 
+ignore matrix check size integrity when load weigt file
+.SH RUN WITH ROS 
+
+kheops need ROS to be fully functionnal (Input/Output, IPC). 
+You need to run ROS before running kheops.
+
+$ roscore
+
+$ rosrun kheops kheops
+.B -s
+my_script.xml
+
+
+.SH SEE ALSO
+papyrus, ROS
+.SH BUGS
+No known bugs.
+.PP
+Note however that
+.B kheops "(1) is still in Beta testing mode, and may not work as expected. "
+If you have any problems with it, please feel free to email me and let me know.
+.SH AUTHOR
+Pierre Delarboulas (pierre.delarboulas@instar-robotics.com)

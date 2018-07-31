@@ -1,0 +1,70 @@
+.\" Manpage pour kheops.
+.\" Contact pierre.delarboulas@instar-robotics.com pour corriger les erreurs de typos.
+.TH man 8 "31 Juillet 2018" "1.0" "page de man de kheops"
+.SH NAME
+kheops \- Le simulateur de réseau de neurones
+.SH SYNOPSIS
+kheops [OPTIONS]... 
+.B -s 
+.I FILE 
+.B -w 
+.I FILE
+.B -l 
+.I DIR
+.PP 
+rosrun kheops kheops [OPTIONS]...
+.B -s 
+.I FILE 
+.B -w 
+.I FILE
+.B -l
+.I DIR
+.SH DESCRIPTION
+kheops est un simulateur de réseaux de neurones où le réseau est décrit dans un graphe XML généré par le logiciel papyrus.
+kheops a été conçu principalement pour réaliser des contrôleurs de robots en ligne.
+kheops utilise le paradigme de flux de données pour éxecuter le réseau de neurones. kheops est fortement typés et se basent sur la bibliothèque Eigen 3 pour l'algèbre linéaire.
+kheops utilise ROS comme bus de communication (envoie des ordres moteurs et lecture des capteurs) et pour communiquer entre plusieurs intances de kheops.
+.SH OPTIONS
+.TP 
+.B -h 
+affiche le menu d'aide
+.TP 
+.BI -s " FILE"
+chemin du fichier du script à exécuter
+.TP
+.BI -w " FILE"
+chemin du fichier binaire contenant les poids du réseaux de neurones.
+.TP
+.BI -l " DIR"
+chemin du répertoire contenant les fonctions externes à charger
+.TP
+.B -p 
+lancer le programme en pause
+.TP
+.B -v 
+active le mode verbose
+.TP
+.B -i 
+ignorer le contrôle des tailles des matrices au chargement du fichier de poids.
+.SH RUN WITH ROS 
+
+kheops a besoin de ROS pour être pleinement opérationnel (Entrées/sorties, IPC)
+Vous devez lancer ROS avant de lancer kheops.
+
+$ roscore
+
+$ rosrun kheops kheops
+.B -s
+my_script.xml
+
+
+.SH SEE ALSO
+papyrus, ROS
+.SH BUGS
+Pas de bugs connus.
+.PP
+Note however that
+.B kheops "(1) est encore en Beta test, et il est possible qu'il ne marche pas comme prévu. "
+Si vous rencontrez des problèmes avec lui, vous pouvez me contacter pour me transmettre l'information.
+.SH AUTHOR
+Pierre Delarboulas (pierre.delarboulas@instar-robotics.com)

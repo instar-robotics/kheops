@@ -70,15 +70,15 @@ void print_splash(void)
 void print_help(void)
 {
 	std::cout << "Use : kheops [OPTION] ...[FILE] ...." << std::endl;
-	std::cout << "Utility to multiplex access to microcontroller resources" << std::endl;
+	std::cout << "The Neural Network and Dynamical Function simulator" << std::endl;
 
 	std::cout << "options : " << std::endl;
 	std::cout << "  -h : display this menu" << std::endl;
-	std::cout << "  -r : resume mode " << std::endl;	
-	std::cout << "  -v : verbose mode " << std::endl;	
-	std::cout << "  -s : xml script file path " << std::endl;	
-	std::cout << "  -w : weight (neural weight) file path" << std::endl;	
-	std::cout << "  -l : path to external lib" << std::endl;	
+	std::cout << "  -s [FILE] : path to the script file " << std::endl;	
+	std::cout << "  -w [FILE] : path to the binary file containing neural weights" << std::endl;	
+	std::cout << "  -l [DIR] : path to the directory containing the external libraries" << std::endl;	
+	std::cout << "  -p : start running in pause mode " << std::endl;	
+	std::cout << "  -v : active verbose mode " << std::endl;	
 	std::cout << "  -i : ignore matrix check size integrity when load weigt file" << std::endl;	
 }
 
@@ -88,7 +88,7 @@ int main(int argc, char **argv)
 	
 	struct sigaction action;
 	bool verbose = false;
-	bool resume = false;
+	bool resume = true;
 	bool run = false;
 	bool ignore_matrix_check = false;
 	char opt;
@@ -102,11 +102,11 @@ int main(int argc, char **argv)
 	std::string progname;
 	get_file_name( argv[0], progname);
 
-	while ((opt = getopt (argc, argv, "vrhs:w:l:i")) != -1)
+	while ((opt = getopt (argc, argv, "vphs:w:l:i")) != -1)
 	{
 		switch( opt )	
 		{
-			case 'r' :  resume=true;break;
+			case 'p' :  resume=false;break;
 			case 'v' :  verbose=true;break;
 			case 'h' :  print_help(); return 0;
 			case 's' :

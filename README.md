@@ -2,8 +2,8 @@
 
 ## I Description ##
 
-* What is kheops : a Neural Network and dynamical function simulator
-  1. Neural Network is reprented by a graph strucutre.
+* What is kheops : a Neural Network and Dynamical Function simulator
+  1. a Neural Network is reprented by a graph strucutre.
   2. Each neurons layer or group are graph vertex and are connected to other layer by link (edge of the graph).
   3. The weight of the neurons are contains into the link.
   4. And neural activities are propagated accros the link.
@@ -20,7 +20,7 @@
 
 * Neural Network graph are described in an XML file called a neural script (the scruture of the XML file is described in section : Neural Script developpers guide)
 * Kheops should be use in interaction with Papyrus, an IHM design to generate neural script.
-* Kheops are design to be used in online environnement, mainly to design robotics controller.
+* Kheops is designed to be used in online environnement, mainly to design robotics controller.
 * Kheops uses ROS communication tools to stream data betwwen different neural script, get sensors data and send motor orders.
 * Kheops is strongly typed : each function could be Scalar type or Matrix type (Eigen Matrix)
 
@@ -36,7 +36,7 @@
 * libboost SERIALIZATION  1.58
 * libeigen 3.3
 * ROS Lunar or Melodic (we recommand to use Melodic, the current LTS)
-* hieroglyph
+* hieroglyph 1.0
 
 ### Install dependancies ###
 * On ubuntu 16.04 : 
