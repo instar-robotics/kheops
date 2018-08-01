@@ -29,12 +29,14 @@ The fact that you are presently reading this means that you have had knowledge o
 #include "hieroglyph/ArgsCmd.h"
 #include "hieroglyph/Objects.h"
 
+const int DEFAULT_RATE = 10; //10 hz
 
 class RosInterface : public ComInterface{
 	
 	private :
 
 		std::string node_name;
+		bool end;
 
 		ros::ServiceServer sHelper;
 		ros::ServiceServer sControl;
@@ -49,13 +51,13 @@ class RosInterface : public ComInterface{
 
 	public : 
 
-		RosInterface(){}
-		virtual ~RosInterface(){}
+		RosInterface() : end(false){}
+		virtual ~RosInterface(){ ros::shutdown(); }
 
 		virtual void init(int argc, char ** argv, std::string prog_name, std::string script_name);
 		virtual void registerListener();
-		virtual void quit() {ros::shutdown();}	
-		virtual void enter(){ros::spin();}
+		virtual void quit() {end = true;}	
+		virtual void enter();
 
 		bool callback_activity(hieroglyph::ArgCmd::Request& request, hieroglyph::ArgCmd::Response& response);
 		bool callback_rt_token(hieroglyph::SimpleCmd::Request& request, hieroglyph::SimpleCmd::Response& response);

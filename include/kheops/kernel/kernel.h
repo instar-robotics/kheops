@@ -125,6 +125,7 @@ class Kernel
 		// CMD Section 
 		void resume(); 
 		void pause(); 
+		void quit();
 		inline int getState(){ return rttoken.getState();}
 		void getState(std::string & state);
 		RtToken& getRtToken() {return rttoken;}

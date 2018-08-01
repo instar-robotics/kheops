@@ -161,8 +161,8 @@ int main(int argc, char **argv)
 
 	cinter->registerListener();
 	cinter->enter();
-                
 	delete(cinter);
+
 	Kernel::terminate();
 	
 	return 0;

@@ -22,6 +22,17 @@ void RosInterface::init(int argc, char ** argv, std::string prog_name, std::stri
 	RosWrapper::init(argc, argv, prog_name, script_name);
 }
 
+void RosInterface::enter()
+{
+	ros::Rate r(DEFAULT_RATE);
+
+	while(!end)
+	{
+	    ros::spinOnce();
+	    r.sleep();
+	}
+}
+
 void RosInterface::registerListener()
 {
 	sHelper = RosWrapper::getNodeHandle()->advertiseService( RosWrapper::getNodeName()+"/help" , &RosInterface::callback_helper, this);
