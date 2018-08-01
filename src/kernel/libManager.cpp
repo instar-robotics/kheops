@@ -16,6 +16,7 @@ The fact that you are presently reading this means that you have had knowledge o
 
 #include <iostream>
 #include <dlfcn.h>
+#include <boost/algorithm/string.hpp>
 #include "kheops/kernel/libManager.h"
 #include "kheops/util/util.h"
 
@@ -27,14 +28,27 @@ void LibManager::init(std::string libdir)
 }
 
 
-void LibManager::load_lib(std::string name)
+void LibManager::load_lib(const std::string& name)
 {
+	void *handle;
+	auto it = libs.find(name);
+
+	if( it != libs.end())
+	{
+		std::cout << "Load lib : " << it->first << std::endl;
+		handle = dlopen (  it->second.c_str() , RTLD_LAZY);
+		if (!handle)
+		{
+		    std::cerr <<  dlerror() << std::endl;
+		    exit(1);
+		}
+	}
+	else  throw std::invalid_argument("LibManager : unable to find "+name+" library ");
 }
 
 
 void LibManager::load_libs()
 {
-  void *handle;
   std::vector<std::string> files;
   getdir (libdir, files);
 
@@ -42,21 +56,19 @@ void LibManager::load_libs()
 
   for( auto it  = files.begin(); it != files.end(); it++)
   {
-	std::string file_extension,file_name;
+	std::string file_extension,file_name,file_path;
 	
 	get_file_extension( *it, file_extension );
 	get_file_name(*it, file_name);
 
+	boost::replace_first(file_name ,"lib","");
+	
 	//check .so
 	if( file_extension == libExt ) 
 	{
-		std::cout << "Load lib : " << *it << std::endl;
-        	handle = dlopen ( (libdir+(*it)).c_str() , RTLD_LAZY);
-		if (!handle)
-		{
-		    std::cerr <<  dlerror() << std::endl;
-		    exit(1);
-		}
+		file_path = (libdir+(*it));
+		std::cout << "Find Lib : "  << file_name << " in "<< file_path << std::endl;
+		libs[file_name] = file_path;
 	}
   }
 }

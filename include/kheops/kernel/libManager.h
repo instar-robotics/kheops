@@ -40,8 +40,9 @@ class LibManager
 		static void init(std::string libdir);
 		static inline LibManager& instance() noexcept {return singleton;}
 		static inline void load(){ singleton.load_libs(); }
+		static inline void load(const std::string& name){ singleton.load_lib(name); }
 
-		void load_lib(std::string name);			
+		void load_lib(const std::string &name);			
 		void load_libs();			
 };
 

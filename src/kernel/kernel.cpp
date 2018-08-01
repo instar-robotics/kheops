@@ -17,6 +17,7 @@ The fact that you are presently reading this means that you have had knowledge o
 #include <iostream>
 #include "kheops/kernel/kernel.h"
 #include "kheops/kernel/factory.h"
+#include "kheops/kernel/libManager.h"
 #include "kheops/kernel/frunner.h"
 #include "kheops/iostream/weightconverter.h"
 #include "kheops/util/util.h"
@@ -61,15 +62,13 @@ void Kernel::load_functions()
 	//build function using Factory
 	for(auto it = xs.functions.begin(); it != xs.functions.end(); it++)
 	{
-		if( Factory<Function>::Instance().is_register(it->second.name) )
+		if(! Factory<Function>::Instance().is_register(it->second.name) )
 		{
-			add_function( it->second );	
-		}	
-		else
-		{
-//			std::cout << "Function "+it->second.name+" is not a native function. Try to load it" << std::endl;
-			throw  std::invalid_argument("Kernel : Unable to load Function "+it->second.name);
+			std::cout << "Function "+it->second.name+" is not known. Try to load it" << std::endl;
+			LibManager::load(it->second.libname);	
 		}
+		
+		add_function( it->second );	
 	}
 	//setparameters : call bind function for each inputs
 	for( auto it = node_map.begin(); it != node_map.end(); it++)
