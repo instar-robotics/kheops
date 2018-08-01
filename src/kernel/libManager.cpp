@@ -26,11 +26,11 @@ void LibManager::init(std::string libdir)
 	singleton.libdir = libdir;
 }
 
-/*
+
 void LibManager::load_lib(std::string name)
 {
 }
-*/
+
 
 void LibManager::load_libs()
 {

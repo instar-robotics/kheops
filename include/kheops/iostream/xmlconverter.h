@@ -56,6 +56,7 @@ struct XFunction
 {
 	std::string uuid;
 	std::string name; 
+	std::string libname; 
 
 	std::string type;
 	unsigned int rows;

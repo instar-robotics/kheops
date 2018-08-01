@@ -35,7 +35,6 @@ class Function
 {
 	private : 
 		std::string uuid;
-
 		std::vector<InputBase*> input;
 
 	protected:

@@ -7,14 +7,14 @@ set(CATKIN_DEP
 )
 
 find_package(catkin REQUIRED COMPONENTS ${CATKIN_DEP})
-
+find_package(Eigen3 3.3 REQUIRED NO_MODULE)
 find_package(Boost REQUIRED COMPONENTS 
   system 
   filesystem
   serialization
 )
 
-find_package(Eigen3 3.3 REQUIRED NO_MODULE)
+
 
 ###################################
 ## catkin specific configuration ##
@@ -30,14 +30,14 @@ catkin_package(
   INCLUDE_DIRS include
   CATKIN_DEPENDS ${CATKIN_DEP}
   DEPENDS Boost 
-#  LIBRARIES kheops
+  #LIBRARIES kFunction
 )
 
 ###########
 ## Build ##
 ###########
 
-set(CMAKE_CXX_FLAGS "-std=c++17 -O2 -msse2 -mtune=native -march=native")
+set(CMAKE_CXX_FLAGS "-std=c++17 -O2 -msse2 -mtune=native -march=native -rdynamic ")
 add_definitions(-Wextra -Wall)
 file(GLOB_RECURSE sourcefiles src/*.cpp)
 

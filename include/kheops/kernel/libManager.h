@@ -26,7 +26,7 @@ class LibManager
 {
 	private :
 		// string 1 : lib name. string 2 : lib path
-		//std::map<std::string, std::string> libs;
+		std::map<std::string, std::string> libs;
 		std::string libdir;
 		
 		static LibManager singleton;
@@ -41,7 +41,7 @@ class LibManager
 		static inline LibManager& instance() noexcept {return singleton;}
 		static inline void load(){ singleton.load_libs(); }
 
-		//void load_lib(std::string name);			
+		void load_lib(std::string name);			
 		void load_libs();			
 };
 
