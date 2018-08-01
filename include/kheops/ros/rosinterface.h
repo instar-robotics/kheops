@@ -45,6 +45,7 @@ class RosInterface : public ComInterface{
 		ros::ServiceServer sObjects;
 		ros::ServiceServer sRtToken;
 		ros::ServiceServer sActivity;
+		ros::ServiceServer sGetControlStatus;
 
 	public : 
 

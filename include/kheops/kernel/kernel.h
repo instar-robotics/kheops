@@ -27,6 +27,8 @@ The fact that you are presently reading this means that you have had knowledge o
 #include "kheops/links/iscalar.h"
 #include "kheops/links/imatrix.h"
 
+const std::string K_STATE[] = {"stop","pause","run"};
+
 class Kernel 
 {
 	private :
@@ -124,6 +126,7 @@ class Kernel
 		void resume(); 
 		void pause(); 
 		inline int getState(){ return rttoken.getState();}
+		void getState(std::string & state);
 		RtToken& getRtToken() {return rttoken;}
 
 		// Output 		

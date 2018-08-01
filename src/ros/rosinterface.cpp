@@ -15,6 +15,7 @@ The fact that you are presently reading this means that you have had knowledge o
 */
 
 #include "kheops/ros/rosinterface.h"
+#include "kheops/kernel/runner.h"
 
 void RosInterface::init(int argc, char ** argv, std::string prog_name, std::string script_name)
 {
@@ -250,6 +251,10 @@ bool RosInterface::callback_control(hieroglyph::SimpleCmd::Request& request, hie
 	{
 		response.ret = CMD[S_PAUSE];
 		Kernel::instance().pause();
+	}
+	else if( request.cmd == CMD[S_GET] )
+	{
+		Kernel::instance().getState(response.ret);
 	}
 	else response.ret = RETURN[0];
 
