@@ -25,7 +25,7 @@ The fact that you are presently reading this means that you have had knowledge o
 *	a- resume 	
 *       b- pause 
 *	c- quit
-*       d- get
+*       d- status
 *  3- weight : command relative to the weight file
 *	a- save 'path'  (path is not mandatory, take the default weigth path)
 *	b- load 'path'  (path is not mandatory, take the default weigth path)
@@ -51,12 +51,12 @@ The fact that you are presently reading this means that you have had knowledge o
 ********************************************************************************/
 
 const std::string RETURN[] = {"unknown command","unknown uuid"};
-const std::string CMD[] = {"resume","quit","pause","get" ,"save","load","start","stop","all","rt_token","functions","inputs","ilinks","activity"};
+const std::string CMD[] = {"resume","quit","pause","status" ,"save","load","start","stop","all","rt_token","functions","inputs","ilinks","activity"};
 
 const int S_RESUME=0; 
 const int S_QUIT=1; 
 const int S_PAUSE=2; 
-const int S_GET=3; 
+const int S_STATUS=3; 
 const int S_SAVE=4;
 const int S_LOAD=5; 
 const int S_START=6; 

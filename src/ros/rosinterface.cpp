@@ -263,7 +263,7 @@ bool RosInterface::callback_control(hieroglyph::SimpleCmd::Request& request, hie
 		response.ret = CMD[S_PAUSE];
 		Kernel::instance().pause();
 	}
-	else if( request.cmd == CMD[S_GET] )
+	else if( request.cmd == CMD[S_STATUS] )
 	{
 		Kernel::instance().getState(response.ret);
 	}

@@ -342,6 +342,7 @@ void Kernel::purge_klinks(const std::string& uuid)
 
 void Kernel::add_ilink(const std::string& in_uuid, const XLink& xl)
 {
+
 	// Control klink exist : non constant input and klink doesn't exist -> error 
 	if( !xl.isCst)
 	{
@@ -452,8 +453,7 @@ void Kernel::add_immatrix(const std::string& in_uuid,const XLink& xl)
 	// TODO : first version to build connectivity
 	// Do better function directly in ilink
 	imm =  std::shared_ptr<iMMatrix>(new iMMatrix( sf->getRows(), sf->getCols()  ));
-	dynamic_cast<iMMatrix*>(imm.get())->buildFilter(xl.con.type);
-	
+
 	//set is
 	imm->setUuid(xl.uuid);
 
@@ -478,6 +478,7 @@ void Kernel::add_immatrix(const std::string& in_uuid,const XLink& xl)
 	}
 	dynamic_cast<iMMatrix*>(imm.get())->resizeWeight();
 	dynamic_cast<iMMatrix*>(imm.get())->initWeight(xl.weight);
+	dynamic_cast<iMMatrix*>(imm.get())->buildFilter(xl.con.type);
 
 	// Add ilink
 	inputs[in_uuid]->add(imm);

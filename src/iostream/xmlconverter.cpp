@@ -27,12 +27,9 @@ XmlConverter::XmlConverter(std::string filepath)
 
 void XmlConverter::__convertXmlToFunction(const ptree &tree, XFunction &f)
 {
-	try{
-		f.uuid = tree.get<std::string>("<xmlattr>.uuid");
-		f.name = tree.get<std::string>("name");
-		f.libname = tree.get<std::string>("libname");
-	}
-	catch(...){}
+	f.uuid = tree.get<std::string>("<xmlattr>.uuid");
+	f.name = tree.get<std::string>("name");
+	f.libname = tree.get<std::string>("libname");
 
 	f.save = false;
         try{
