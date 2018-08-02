@@ -3,7 +3,7 @@
 ## I Description ##
 
 * What is kheops : a Neural Network and Dynamical Function simulator
-  1. a Neural Network is reprented by a graph strucutre.
+  1. A neural network is reprented by a graph strucutre.
   2. Each neurons layer or group are graph vertex and are connected to other layer by link (edge of the graph).
   3. The weight of the neurons are contains into the link.
   4. And neural activities are propagated accros the link.
@@ -116,10 +116,10 @@
 
 **_rosrun kheops kheops -s path-to-script-file -w path-to-weight-file_**
 
-* By default, kheops start in __pause__ mode
-* To start kheops in __resume__ mode, run : 
+* By default, kheops start in __run__ mode
+* To start kheops in __pause__ mode, run : 
 
-**_rosrun kheops kheops -r_**
+**_rosrun kheops kheops -p_**
 
 ### Load user functions libraries ###
 
@@ -163,7 +163,7 @@
 
 * At launch, kheops register some services : 
   1. help : print help message, list of services and arguments
-  2. control : basic command, "resume", "pause", "quit"
+  2. control : basic command, "resume", "pause", "quit", "status"
   3. oscillo : create oscillo rostopic
   4. output : create data rostopic for both links and functions
   5. objects : print list of the objects (functions, links, inputs, rt\_token)
@@ -320,42 +320,13 @@
 ## IV Neural Script developpers guide ##
 
 * Main information are provide in the papyrus software description. 
-* TODO : describe XML structure
-
-* Object : link, input an Function
-
-* Function : Strongly typed, output can be Scalar (double) or Matrix (double unit)
-* Functions have a number of defines inputs
-* Each input have a define name and a type, and could have weights 
-  1. String : 
-  2. Scalar_Scalar : Input from Scalar output function. Weight is a scalar
-  3. Scalar_Matrix : Input from Matrix output function. Weight is a scalar and is apply globaly on every neurons of the Matrix
-  4. Matrix_Matrix : Input from Matrix output function. Weights are a Matrix.
-
-* Matrix_Matrix details : We have 3 types of connections
-  1. One to All connections (ONE_TO_ALL) : Dense connections between input and output 
-  2. One to One connections (ONE_TO_ONE) : Sparse conenction between input and output 
-  3. One to Neighborhood connections (ONE_TO_NEI) : Sparse conenction between input and output 
 
 
-## V kheops and functions developpers guide ##
 
+## V Functions developpers guide ##
 
-* Using Input and iLink 
+* Main information are provide in the alexandria software description. 
 
-* Sparse Matrix : Connections is define is a Sparse Matrix Filter and we can generate every topology
-
-
-TODO: 
-
-* Howto develop is own function : 
-* demofct example 
-  1. CMakeList.txt 
-  2. Class Function : FScalar or FMatrix
-  3. Files header : function.h and kernel.h
-  3. Inputs defintions : add each input in private part
-  4. Input register : setparameters functions and input bind
-  5. Function register : Macro Register
 
   
 
