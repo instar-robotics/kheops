@@ -327,6 +327,12 @@
 6. Input (and inputBase) : 
 7. Function : 
 
+* Object : link, input an Function
+
+* Using Input and iLink 
+
+* Sparse Matrix : Connections is define is a Sparse Matrix Filter and we can generate every topology
+
 ## VI Functions developpers guide ##
 
 * Main information are provided in the alexandria software description. 
