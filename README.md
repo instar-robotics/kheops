@@ -318,7 +318,14 @@
 
 ## V Kernel developpers guide ##
 
-* TODO
+* Kernel Object : 
+1. Runner : 
+2. FRunner : 
+3. RtToken : 
+4. kLink : 
+5. iLink (and iLinkBase) : 
+6. Input (and inputBase) : 
+7. Function : 
 
 ## VI Functions developpers guide ##
 
