@@ -338,6 +338,12 @@
   2. One to One connections (ONE_TO_ONE) : Sparse conenction between input and output 
   3. One to Neighborhood connections (ONE_TO_NEI) : Sparse conenction between input and output 
 
+* IScalar
+* ISMatrix
+* IMMatrix
+1. Weight
+2. Filter
+
 ## VI Functions developpers guide ##
 
 * Main information are provided in the alexandria software description. 
