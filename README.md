@@ -316,16 +316,21 @@
 * An __OscilloArray__ message is an array of __OscilloData__ message
 * One __OscilloData__ message for each function in the script 
 
+## V Kernel developpers guide ##
 
-## IV Neural Script developpers guide ##
+* TODO
+
+## VI Functions developpers guide ##
+
+* Main information are provided in the alexandria software description. 
+
+## VII Neurals developpers guide ##
 
 * Main information are provided in the papyrus software description. 
 
 
 
-## V Functions developpers guide ##
 
-* Main information are provided in the alexandria software description. 
 
 
   
