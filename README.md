@@ -333,6 +333,11 @@
 
 * Sparse Matrix : Connections is define is a Sparse Matrix Filter and we can generate every topology
 
+* Matrix_Matrix have 3 types of connections
+  1. One to All connections (ONE_TO_ALL) : Dense connections between input and output 
+  2. One to One connections (ONE_TO_ONE) : Sparse conenction between input and output 
+  3. One to Neighborhood connections (ONE_TO_NEI) : Sparse conenction between input and output 
+
 ## VI Functions developpers guide ##
 
 * Main information are provided in the alexandria software description. 
