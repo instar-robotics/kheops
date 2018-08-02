@@ -319,13 +319,13 @@
 
 ## IV Neural Script developpers guide ##
 
-* Main information are provide in the papyrus software description. 
+* Main information are provided in the papyrus software description. 
 
 
 
 ## V Functions developpers guide ##
 
-* Main information are provide in the alexandria software description. 
+* Main information are provided in the alexandria software description. 
 
 
   
