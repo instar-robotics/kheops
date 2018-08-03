@@ -47,7 +47,7 @@ class InputBase
 		virtual size_t type() = 0 ;
 		virtual std::string type_name() =0 ;
 
-		virtual iLinkBase& operator()(unsigned int i) = 0; 
+		virtual iLinkBase& operator[](unsigned int i) = 0; 
 
 };
 
@@ -91,21 +91,29 @@ class Input : public InputBase
 		virtual size_t type() { return typeid(I).hash_code();}
 		virtual std::string type_name() { return typeid(I).name();}
 		
-		virtual iLinkBase& operator()(unsigned int i)
+
+		// Kernel operator to acces to Base class
+		virtual iLinkBase& operator[](unsigned int i)
 		{
 			if( i >= ilinks.size()  )  throw std::invalid_argument("Input : out of number ilink");
 			return *(ilinks[i].lock());
 		}
 
-		I& operator[](unsigned int i){ 
+		I& operator()(unsigned int i){ 
 			if( i >= ilinks.size()  )  throw std::invalid_argument("Input : out of number ilink");
 			return *(ilinks[i].lock());
 		}
-
-		I& i(){ 
+		
+		I& i(unsigned int i){ 
 			if( ilinks.size() == 0 )  throw std::invalid_argument("Input : out of number ilink");
 			return *(ilinks[0].lock());
 		}
+
+		I& i(){ 
+			if( i >= ilinks.size()  )  throw std::invalid_argument("Input : out of number ilink");
+			return *(ilinks[i].lock());
+		}
+		
 		
 		I& operator()(){ 
 			if( ilinks.size() == 0 )  throw std::invalid_argument("Input : out of number ilink");

@@ -47,7 +47,7 @@ void WeightConverter::load(std::map<std::string, InputBase*> &inputs, bool ignor
 			{
 				std::string il_uuid;
 				MatrixXd tmpM;
-				MatrixXd tmpF;
+				MatrixXb tmpF;
 
 				ia >> il_uuid;
 
@@ -57,11 +57,11 @@ void WeightConverter::load(std::map<std::string, InputBase*> &inputs, bool ignor
 
 				for( unsigned int j = 0 ; j < inputs[in_uuid]->size(); j++)
 				{
-					if( (*inputs[in_uuid])(j).getUuid() == il_uuid)
+					if( (*inputs[in_uuid])[j].getUuid() == il_uuid)
 					{
-						if( typeid( (*inputs[in_uuid])(j) ).hash_code() == typeid( iMMatrix ).hash_code() )
+						if( typeid( (*inputs[in_uuid])[j] ).hash_code() == typeid( iMMatrix ).hash_code() )
 						{
-							iMMatrix * itmp =  dynamic_cast<iMMatrix*>(  (&(*inputs[in_uuid])(j))); 								
+							iMMatrix * itmp =  dynamic_cast<iMMatrix*>(  (&(*inputs[in_uuid])[j])); 								
 
 							if(tmpM.rows() != itmp->getInitWRows() || tmpM.cols() != itmp->getInitWCols()) 
 							{
@@ -131,10 +131,10 @@ void WeightConverter::save(std::map<std::string, InputBase*> &inputs)
 			oa <<  size;
 			for( unsigned int i = 0 ; i < (*input)->size(); i++ )
 			{
-				oa <<  (**input)(i).getUuid();
+				oa <<  (**input)[i].getUuid();
 
-				boost::serialization::save( oa, dynamic_cast<iMMatrix&>((**input)(i)).w());
-				boost::serialization::save( oa, dynamic_cast<iMMatrix&>((**input)(i)).f() );
+				boost::serialization::save( oa, dynamic_cast<iMMatrix&>((**input)[i]).w());
+				boost::serialization::save( oa, dynamic_cast<iMMatrix&>((**input)[i]).f() );
 			}
 		}
 		out.close();

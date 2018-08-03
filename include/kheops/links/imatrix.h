@@ -20,10 +20,14 @@ The fact that you are presently reading this means that you have had knowledge o
 #include "kheops/kernel/ilinkbase.h"
 #include "kheops/kernel/inputbase.h"
 
+
 using Eigen::Ref;
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
 using Eigen::Map;
+using Eigen::EigenBase;
+
+using namespace Eigen;
 
 
 template<class W>
@@ -98,12 +102,14 @@ Map<const MatrixXd> getCMapCol(const MatrixXd & m);
 /* Return Map in a one row Matrix  */
 Map<const VectorXd> getCMapVect(const MatrixXd & m);
 
+typedef Matrix<bool, Dynamic, Dynamic> MatrixXb;
+typedef Matrix<bool, Dynamic,1> VectorXb;
 
 class iMMatrix : public iMatrix<MatrixXd>
 {
         protected :
 
-                MatrixXd filter;
+                MatrixXb filter;
                 unsigned int oRows;
                 unsigned int oCols;
 
@@ -155,7 +161,7 @@ class iMMatrix : public iMatrix<MatrixXd>
                 void wref(const Ref<const MatrixXd>& weight);
 
                 // Return the map of the weight Matrix
-                // In user functions, use link this :
+                // In user functions, use like this :
                 //
                 //  iMMatrix imm;
                 //
@@ -204,33 +210,33 @@ class iMMatrix : public iMatrix<MatrixXd>
                 inline unsigned int getFCols(){return filter.cols();}
 
                 // Basic accessor : just in case we want update Filter (add or delete connectivity at runtime)
-                MatrixXd& f() { return filter;}
-                void f(const MatrixXd &filter);
+                MatrixXb& f() { return filter;}
+                void f(const MatrixXb &filter);
 
                 // Use Eigen::Ref
                 // Eigen::Ref gives more generalization abilities and better performance
-                void fref(const Ref<const MatrixXd>& filter);
+                void fref(const Ref<const MatrixXb>& filter);
 
                 //Set Weight Value
-                void fij(double weight, unsigned int fRow, unsigned int fCol);
-                void fj(const Ref<VectorXd> &weight,unsigned int fCol);
+                void fij(bool weight, unsigned int fRow, unsigned int fCol);
+                void fj(const Ref<VectorXb> &weight,unsigned int fCol);
 
                 // Return the map of the weight Matrix
                 // In user functions, use link this :
-                Map<const MatrixXd> fm();
+                Map<const MatrixXb> fm();
 
                 // Get filter matrix for the output neuron (oRows,oCols)
                 // The Matrix have (iRows,iCols) dimension
-                Map<const MatrixXd> fj(unsigned int oRows,unsigned int oCols);
+                Map<const MatrixXb> fj(unsigned int oRows,unsigned int oCols);
 
                 // Get Weight colons for the output neuron (wCols)
                 // The Matrix have (wRows,1) dimension
                 // Becareful : the returned Map is writable !
-                Map<const MatrixXd> fj(unsigned int wCols);
+                Map<const MatrixXb> fj(unsigned int wCols);
 
                 // Get Weight colons for the output neuron (wCols)
                 // Becareful : the returned Map is writable !
-                Map<const VectorXd> fj_vec(unsigned int wCols);
+                Map<const VectorXb> fj_vec(unsigned int wCols);
 
                 double fij(unsigned int wRows,unsigned int wCols);
 
@@ -239,5 +245,43 @@ class iMMatrix : public iMatrix<MatrixXd>
 };
 
 typedef Input<iMMatrix> IMMInput;
+
+
+/**************************************************************************************************************/
+/*                                              FILTER OPERATOR
+***************************************************************************************************************/
+
+
+// Functor definition : apply unitary expression
+template<class ArgType, class FilterType>
+class filter_functor {
+  const ArgType &m_arg;
+  const FilterType &m_filter;
+public:
+  typedef Matrix<typename ArgType::Scalar,
+                 ArgType::SizeAtCompileTime,
+                 ArgType::SizeAtCompileTime,
+                 ArgType::Flags&RowMajorBit?RowMajor:ColMajor,
+                 ArgType::MaxSizeAtCompileTime,
+                 ArgType::MaxSizeAtCompileTime> MatrixType;
+
+  filter_functor(const ArgType& arg, const FilterType& filter)
+    : m_arg(arg), m_filter(filter)
+  {}
+  typename ArgType::Scalar operator() (Index row, Index col) const {
+
+          return m_filter(row,col) ? m_arg(row,col) : 0.0 ;
+  }
+};
+
+// Filter Function 
+template <class ArgType, class FilterType>
+CwiseNullaryOp<filter_functor<ArgType,FilterType>, typename filter_functor<ArgType,FilterType>::MatrixType>
+filter(const MatrixBase<ArgType>& arg, const FilterType& filter)
+{
+  typedef filter_functor<ArgType,FilterType> Func;
+  typedef typename Func::MatrixType MatrixType;
+  return MatrixType::NullaryExpr(arg.rows(), arg.cols(), Func(arg.derived(), filter));
+}
 
 #endif // __IMATRIX_H__

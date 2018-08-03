@@ -52,8 +52,8 @@ class iLinkBase
                 /************************  Input Accessor API  *************************/
                 /***********************************************************************/
 
-                virtual size_t type() = 0;
-                virtual std::string type_name() = 0;
+                virtual size_t i_type() = 0;
+                virtual std::string i_type_name() = 0;
 };
 
 template<class I, class W>
@@ -157,8 +157,8 @@ class iLink : public iLinkBase
                 /***********************************************************************/
 
                 typedef I type_i;
-                virtual size_t type() { return typeid(I).hash_code();}
-                virtual std::string type_name() { return typeid(I).name();}
+                virtual size_t i_type() { return typeid(I).hash_code();}
+                virtual std::string i_type_name() { return typeid(I).name();}
 
                 virtual inline void i(I const *i){input=i;}
                 virtual inline const I& i() const {return *input;}

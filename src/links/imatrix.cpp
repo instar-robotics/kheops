@@ -245,60 +245,60 @@ Map<const VectorXd> iMMatrix::ivec()
 /***********************************************************************/
 
 
-void iMMatrix::f(const MatrixXd &filter)
+void iMMatrix::f(const MatrixXb &filter)
 {
         if(filter.rows() != getInitWRows() || filter.cols() != getInitWCols()) throw std::invalid_argument("iLink : Matrix size doesn't match with Filter Matrix dimension");
         this->filter = filter;
 }
 
-void iMMatrix::fref(const Ref<const MatrixXd>& filter)
+void iMMatrix::fref(const Ref<const MatrixXb>& filter)
 {
         if(filter.rows() != getInitWRows() || filter.cols() != getInitWCols()) throw std::invalid_argument("iLink : Matrix size doesn't match with Filter Matrix dimension");
         this->filter = filter;
 }
 
-void iMMatrix::fij(double weight, unsigned int fRow, unsigned int fCol)
+void iMMatrix::fij(bool weight, unsigned int fRow, unsigned int fCol)
 {
         if( fRow >= getFRows() || fCol >= getFCols()) throw std::invalid_argument("iLink : row,cols index are outside the Filter matrix boundaries");
 
         this->filter(fRow,fCol) = weight;
 }
 
-void iMMatrix::fj(const Ref<VectorXd> &weight,unsigned int fCol)
+void iMMatrix::fj(const Ref<VectorXb> &weight,unsigned int fCol)
 {
         if( fCol >= getFCols()) throw std::invalid_argument("iLink : col index is outside the Weight Matrix boundaries");
         this->filter.col(fCol) = weight;
 }
 
-Map<const MatrixXd> iMMatrix::fm()
+Map<const MatrixXb> iMMatrix::fm()
 {
-        return Map<const MatrixXd>( filter.data() , filter.rows() , filter.cols() ) ;
+        return Map<const MatrixXb>( filter.data() , filter.rows() , filter.cols() ) ;
 }
 
-Map<const MatrixXd> iMMatrix::fj(unsigned int oRows,unsigned int oCols)
+Map<const MatrixXb> iMMatrix::fj(unsigned int oRows,unsigned int oCols)
 {
 
         if( oRows >= getORows() || oCols >= getOCols() ) throw std::invalid_argument("iLink : try to get filter for an outbound neuron");
 
         unsigned int offset = getISize() * (oRows * getOCols() + oCols)  ;
 
-        return Map<const MatrixXd>( filter.data() + offset , getIRows() , getICols()) ;
+        return Map<const MatrixXb>( filter.data() + offset , getIRows() , getICols()) ;
 }
 
-Map<const MatrixXd> iMMatrix::fj(unsigned int wCols)
+Map<const MatrixXb> iMMatrix::fj(unsigned int wCols)
 {
         if( wCols >= getWCols()) throw std::invalid_argument("iLink : try to get weight for an outbound neuron");
         unsigned int offset = getISize() * (wCols)  ;
 
-        return Map<const MatrixXd>( filter.data() + offset , getISize() , 1) ;
+        return Map<const MatrixXb>( filter.data() + offset , getISize() , 1) ;
 }
 
-Map<const VectorXd> iMMatrix::fj_vec(unsigned int wCols)
+Map<const VectorXb> iMMatrix::fj_vec(unsigned int wCols)
 {
         if( wCols >= getWCols()) throw std::invalid_argument("iLink : try to get weight for an outbound neuron");
         unsigned int offset = getIRows() * getICols() * (wCols)  ;
 
-        return Map<const VectorXd>( filter.data() + offset , getISize()) ;
+        return Map<const VectorXb>( filter.data() + offset , getISize()) ;
 }
 
 double iMMatrix::fij(unsigned int fRows,unsigned int fCols)
@@ -312,11 +312,11 @@ void iMMatrix::buildFilter(const std::string& con)
         if( con == one_to_one )
         {
                 //TODO : modulo or crash if dimension is not oK
-                filter =  MatrixXd::Identity( getInitWRows(), getInitWCols()  );
+                filter =  MatrixXb::Identity( getInitWRows(), getInitWCols()  );
         }
         else if( con == one_to_all )
         {
-                filter =  MatrixXd::Constant( getInitWRows(), getInitWCols(),1 );
+                filter =  MatrixXb::Constant( getInitWRows(), getInitWCols(),1 );
         }
         else if( con == one_to_nei)
         {

@@ -150,6 +150,9 @@ class Kernel
 		static void prerun(); 	
 		static void terminate();
 		static void start(bool run);
+		
+		static void iBind(InputBase& value,const std::string& var_name,const std::string& uuid );
+		static void iBind(IString& value,const std::string& var_name,const std::string& uuid );
 
 };
 

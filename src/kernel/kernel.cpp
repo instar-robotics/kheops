@@ -342,7 +342,6 @@ void Kernel::purge_klinks(const std::string& uuid)
 
 void Kernel::add_ilink(const std::string& in_uuid, const XLink& xl)
 {
-
 	// Control klink exist : non constant input and klink doesn't exist -> error 
 	if( !xl.isCst)
 	{
@@ -391,11 +390,11 @@ void Kernel::add_iscalar(const std::string& in_uuid,const XLink& xl)
 	else
 	{
 		Function *f =  boost::get(boost::vertex_function, graph, node_map[xl.uuid_pred]) ;
-		if( f->type() == is->type())
+		if( f->type() == is->i_type())
 		{
 			dynamic_cast<iScalar*>(is.get())->i( &(dynamic_cast<FScalar*>(f)->getOutput()) );
 	 
-		}else throw std::invalid_argument( "Kernel : try to bind no compatible type. Input "+is->type_name()+" on  Function "+f->type_name());
+		}else throw std::invalid_argument( "Kernel : try to bind no compatible type. Input "+is->i_type_name()+" on  Function "+f->type_name());
        
 		if( input_to_funct[in_uuid] == xl.uuid_pred) is->activateBuffer();
 	}
@@ -424,14 +423,14 @@ void Kernel::add_ismatrix(const std::string& in_uuid,const XLink& xl)
 	else
 	{
 		Function *pf =  boost::get(boost::vertex_function, graph, node_map[xl.uuid_pred]) ;
-		if( pf->type() == ism->type())
+		if( pf->type() == ism->i_type())
 		{
 			//check size (rows/cols). All inputs must have the same size 
 			if( pf->getRows() != sf->getRows() || pf->getCols() != sf->getCols()) throw  std::invalid_argument( "Kernel : try to bind scalar matrix with different sizes ");
 
 			dynamic_cast<iScalarMatrix*>(ism.get())->i( &(dynamic_cast<FMatrix*>(pf)->getOutput()) );
 	 
-		}else throw std::invalid_argument( "Kernel : try to bind no compatible type. Input "+ism->type_name()+" on  Function "+pf->type_name());
+		}else throw std::invalid_argument( "Kernel : try to bind no compatible type. Input "+ism->i_type_name()+" on  Function "+pf->type_name());
 	
 		if( input_to_funct[in_uuid] == xl.uuid_pred) ism->activateBuffer();
 	}
@@ -468,7 +467,7 @@ void Kernel::add_immatrix(const std::string& in_uuid,const XLink& xl)
 	else
 	{
 		Function *pf =  boost::get(boost::vertex_function, graph, node_map[xl.uuid_pred]) ;
-		if( pf->type() == imm->type())
+		if( pf->type() == imm->i_type())
 		{
 			dynamic_cast<iMMatrix*>(imm.get())->i( &(dynamic_cast<FMatrix*>(pf)->getOutput()) );
  
@@ -612,7 +611,7 @@ void Kernel::unbind_input(const std::string& uuid)
 
         for( unsigned int i = 0 ; i < in->size(); i++ )
         {
-               del_ilink((*in)(i).getUuid());
+               del_ilink((*in)[i].getUuid());
         }
 
         inputs.erase( inputs.find(uuid));
@@ -794,3 +793,14 @@ void Kernel::start(bool run)
 	singleton.spawn_runners();
 	if( run ) singleton.resume();
 }
+
+void Kernel::iBind( InputBase& value,const std::string& var_name,const std::string& uuid )
+{
+	singleton.bind(value,var_name,uuid);
+}
+
+void Kernel::iBind( IString& value,const std::string& var_name,const std::string& uuid )
+{
+	singleton.bind(value,var_name,uuid);
+}
+

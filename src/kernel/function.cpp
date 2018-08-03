@@ -51,7 +51,7 @@ void Function::copy_buffer()
         {
                 for( unsigned int i = 0 ; i < (*in)->size(); i++ )
                 {
-                        (**in)(i).copyBuffer();
+                        (**in)[i].copyBuffer();
                 }
         }
 }
@@ -64,7 +64,7 @@ void Function::publish_data()
         {
                 for( unsigned int i = 0 ; i < (*in)->size(); i++ )
                 {
-                        (**in)(i).publish_message();
+                        (**in)[i].publish_message();
                 }
         }
 }
