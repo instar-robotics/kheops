@@ -344,6 +344,8 @@
 1. Weight
 2. Filter
 
+* UUID definition
+
 ## VI Functions developpers guide ##
 
 * Main information are provided in the alexandria software description. 
