@@ -316,16 +316,49 @@
 * An __OscilloArray__ message is an array of __OscilloData__ message
 * One __OscilloData__ message for each function in the script 
 
+## V Kernel developpers guide ##
 
-## IV Neural Script developpers guide ##
+* TODO
+
+* Kernel Object : 
+1. Runner : 
+2. FRunner : 
+3. RtToken : 
+4. kLink : 
+5. iLink (and iLinkBase) : 
+6. Input (and inputBase) : 
+7. Function : 
+
+* Object : link, input an Function
+
+* Using Input and iLink 
+
+* Sparse Matrix : Connections is define is a Sparse Matrix Filter and we can generate every topology
+
+* Matrix_Matrix have 3 types of connections
+  1. One to All connections (ONE_TO_ALL) : Dense connections between input and output 
+  2. One to One connections (ONE_TO_ONE) : Sparse conenction between input and output 
+  3. One to Neighborhood connections (ONE_TO_NEI) : Sparse conenction between input and output 
+
+* IScalar
+* ISMatrix
+* IMMatrix
+1. Weight
+2. Filter
+
+* UUID definition
+
+## VI Functions developpers guide ##
+
+* Main information are provided in the alexandria software description. 
+
+## VII Neurals developpers guide ##
 
 * Main information are provided in the papyrus software description. 
 
 
 
-## V Functions developpers guide ##
 
-* Main information are provided in the alexandria software description. 
 
 
   
