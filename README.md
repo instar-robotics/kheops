@@ -318,6 +318,8 @@
 
 ## V Kernel developpers guide ##
 
+* TODO
+
 * Kernel Object : 
 1. Runner : 
 2. FRunner : 
