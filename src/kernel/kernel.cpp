@@ -637,21 +637,6 @@ void Kernel::purge_empty_links(const std::string& uuid)
 
 
 /********************************************************************************************************/
-/****************** 			CMD Section 				      *******************/
-/********************************************************************************************************/
-
-void Kernel::resume()
-{
-	rttoken.ask_resume();
-}
-
-void Kernel::pause()
-{
- 	rttoken.ask_pause();
-        rttoken.wait_for_pause();
-}
-
-/********************************************************************************************************/
 /****************** 			Publish Section 			      *******************/
 /********************************************************************************************************/
 
@@ -776,10 +761,31 @@ void Kernel::init(std::string script_file, std::string weight_file, bool ignore_
 	singleton.ignore_matrix_check = ignore_matrix_check;
 }
 
+void Kernel::quit()
+{
+	singleton.rttoken.ask_stop();
+}
+
 void Kernel::terminate()
 {
 	singleton.rttoken.ask_stop();
 	singleton.join_runners();
+}
+
+void Kernel::wait()
+{
+	singleton.join_runners();
+}
+
+void Kernel::resume()
+{
+        singleton.rttoken.ask_resume();
+}
+
+void Kernel::pause()
+{
+        singleton.rttoken.ask_pause();
+        singleton.rttoken.wait_for_pause();
 }
 
 void Kernel::load()
@@ -798,7 +804,7 @@ void Kernel::prerun()
 void Kernel::start(bool run)
 {
 	singleton.spawn_runners();
-	if( run ) singleton.resume();
+	if( run ) resume();
 }
 
 void Kernel::iBind( InputBase& value,const std::string& var_name,const std::string& uuid )

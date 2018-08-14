@@ -27,22 +27,6 @@ Function::~Function()
 	input.clear();
 }
 
-void Function::exec()
-{
-	try
-	{
-		compute();
-	}
-	catch(const std::invalid_argument &e)
-	{
-		std::cerr << " Function "<< getUuid() << " : "  << e.what() << std::endl;
-	}
-	catch(...)
-	{
-		std::cerr << " Function "<< getUuid() << " : unknown execption"  << std::endl;
-	}
-}
-
 void Function::copy_buffer()
 {
         // Buffer input

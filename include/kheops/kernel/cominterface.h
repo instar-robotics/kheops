@@ -79,7 +79,6 @@ class ComInterface
 
 		virtual void init(int argc, char ** argv, std::string prog_name, std::string script_name) = 0;
 		virtual void registerListener() = 0;
-		virtual void quit() = 0;	
 		virtual void enter() = 0;
 };
 

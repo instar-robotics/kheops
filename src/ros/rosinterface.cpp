@@ -26,7 +26,7 @@ void RosInterface::enter()
 {
 	ros::Rate r(DEFAULT_RATE);
 
-	while(!end)
+	while( Kernel::instance().getState() != R_STOP )
 	{
 	    ros::spinOnce();
 	    r.sleep();
@@ -251,17 +251,17 @@ bool RosInterface::callback_control(hieroglyph::SimpleCmd::Request& request, hie
 	if( request.cmd == CMD[S_RESUME])
 	{
 		response.ret = CMD[S_RESUME];
-		Kernel::instance().resume();
+		Kernel::resume();
 	}
 	else if( request.cmd == CMD[S_QUIT] )
 	{
 		response.ret = CMD[S_QUIT];
-		quit();
+		Kernel::quit();
 	}
 	else if( request.cmd == CMD[S_PAUSE] )
 	{
 		response.ret = CMD[S_PAUSE];
-		Kernel::instance().pause();
+		Kernel::pause();
 	}
 	else if( request.cmd == CMD[S_STATUS] )
 	{

@@ -36,7 +36,6 @@ class RosInterface : public ComInterface{
 	private :
 
 		std::string node_name;
-		bool end;
 
 		ros::ServiceServer sHelper;
 		ros::ServiceServer sControl;
@@ -51,12 +50,11 @@ class RosInterface : public ComInterface{
 
 	public : 
 
-		RosInterface() : end(false){}
+		RosInterface(){}
 		virtual ~RosInterface(){ ros::shutdown(); }
 
 		virtual void init(int argc, char ** argv, std::string prog_name, std::string script_name);
 		virtual void registerListener();
-		virtual void quit() {end = true;}	
 		virtual void enter();
 
 		bool callback_activity(hieroglyph::ArgCmd::Request& request, hieroglyph::ArgCmd::Response& response);

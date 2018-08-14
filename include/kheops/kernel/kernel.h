@@ -123,9 +123,6 @@ class Kernel
 		void purge_empty_links(const std::string& in_uuid);
 
 		// CMD Section 
-		void resume(); 
-		void pause(); 
-		void quit();
 		inline int getState(){ return rttoken.getState();}
 		const std::string& getStateName(){ return K_STATE[rttoken.getState()];}
 		RtToken& getRtToken() {return rttoken;}
@@ -151,6 +148,10 @@ class Kernel
 		static void load(); 	
 		static void prerun(); 	
 		static void terminate();
+		static void quit();
+		static void wait();
+		static void resume(); 
+		static void pause(); 
 		static void start(bool run);
 		
 		static void iBind(InputBase& value,const std::string& var_name,const std::string& uuid );

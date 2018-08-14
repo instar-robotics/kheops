@@ -115,7 +115,6 @@ void RtToken::exec()
 		}
 	}
 	sync_all();
-	consume(node);
 	stop();
 }
 

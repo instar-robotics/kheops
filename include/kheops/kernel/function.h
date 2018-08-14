@@ -46,7 +46,6 @@ class Function
 		Function(): publish(false),save(false){}
 		virtual ~Function();
 
-		virtual void exec();
 		virtual size_t type() = 0;
 		virtual std::string type_name() = 0;
 		//virtual void setValue(double dvalue, int x,int y) = 0;

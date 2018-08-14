@@ -14,7 +14,11 @@ and, more generally, to use and operate it in the same conditions as regards sec
 The fact that you are presently reading this means that you have had knowledge of the CeCILL v2.1 license and that you accept its terms.
 */
 
+#include <exception>
+#include <iostream>
+
 #include "kheops/kernel/frunner.h"
+#include "kheops/kernel/kernel.h"
 
 void FRunner::exec()
 {
@@ -33,13 +37,29 @@ void FRunner::exec()
 		
 		if(is_oscillo_active() ) start = std::chrono::system_clock::now();
 
-		f->exec();
+		try{	
+			f->compute();
+		}
+		catch(std::exception& e)
+		{
+			std::cerr << "FATAL in Function.compute " << f->getUuid() << ". " <<  e.what() << std::endl;
+			Kernel::quit();
+			continue;
+		}
 
 		if( is_oscillo_active() ) end = std::chrono::system_clock::now();	
 
 		produce(node);
 
-		f->exec_afterCompute();
+		try{	
+			f->exec_afterCompute();
+		}
+		catch(std::exception& e)
+		{
+			std::cerr << "FATAL in Function.exec_afterCompute " << f->getUuid() << ". " <<  e.what() << std::endl;
+			Kernel::quit();
+			continue;
+		}
 			
 		if( is_oscillo_active() ) 
 		{
@@ -51,6 +71,7 @@ void FRunner::exec()
 		}
 	}
 	produce(node);
+	local_stop();
 }
 
 void FRunner::checkFunction()
@@ -80,7 +101,7 @@ void FRunner::sync()
 
 void FRunner::terminate()
 {
-	local_stop();
+	ask_local_stop();
 	sync();
 	join();
 }
