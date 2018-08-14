@@ -70,6 +70,7 @@ class Runner
 
 		inline void spawn() {thx = std::thread( [=] { exec(); } );}
 		inline void join() {thx.join();}
+		inline bool joinable() { return thx.joinable();}
 		inline std::thread & getThread() {return thx;}
 
                 static inline int getRequest(){ return request;}

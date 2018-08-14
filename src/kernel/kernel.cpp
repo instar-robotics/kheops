@@ -545,9 +545,12 @@ void Kernel::remove_runner(const std::string& uuid)
         if( node_map.find( uuid  ) == node_map.end()) throw  std::invalid_argument( "Kernel : try to remove runner to an unkown function "+ uuid ); 
 
 	Runner * runner = boost::get(boost::vertex_runner, graph, node_map[uuid]);
-	
-	runner->terminate();
-	delete(runner);
+
+	if( runner != NULL) 
+	{	
+		runner->terminate();
+		delete(runner);
+	}
 }
 
 void Kernel::spawn_runners()
@@ -557,7 +560,7 @@ void Kernel::spawn_runners()
 	{	
 		Runner * runner = boost::get(boost::vertex_runner, graph, *it.first);
 	
-		runner->spawn();
+		if( runner != NULL ) runner->spawn();
 	}
 }
 
@@ -567,8 +570,11 @@ void Kernel::join_runners()
 	for( ; it.first != it.second; ++it.first)
 	{	
 		Runner* runner = boost::get(boost::vertex_runner, graph, *it.first);
-	
-		runner->join();
+		
+		if( runner != NULL )
+		{	
+			if( runner->joinable()) runner->join();
+		}
 	}
 }
 

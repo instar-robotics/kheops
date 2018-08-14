@@ -19,6 +19,7 @@ The fact that you are presently reading this means that you have had knowledge o
 #include <unistd.h>
 #include <syslog.h>
 #include <signal.h>
+#include <exception>
 
 #include "kheops/kernel/rttoken.h"
 #include "kheops/kernel/frunner.h"
@@ -31,26 +32,22 @@ The fact that you are presently reading this means that you have had knowledge o
 
 ComInterface * cinter = NULL;
 
-void signals_handler(int numero)
+void signals_handler(int number)
 {
-  switch (numero)
+  switch (number)
   {
     case SIGINT:
-      syslog( LOG_LOCAL0|LOG_LOCAL0 , "KHEOPS SIGINT received : terminaison " );
-      if( cinter != NULL)
-      {	
-	 cinter->quit();
-	 delete(cinter);
-      }
-      break;
+      	syslog( LOG_LOCAL0|LOG_LOCAL0 , "KHEOPS SIGINT received : interruption " );
+      	if( cinter != NULL) cinter->quit();
+      	break;
     case SIGTERM :
         syslog( LOG_LOCAL0|LOG_LOCAL0 , "KHEOPS SIGTERM received : terminaison" );
+      	if( cinter != NULL) cinter->quit();
 	break;
-
     default : 
-		
-  	syslog( LOG_LOCAL0|LOG_LOCAL0 , "KHEOPS OTHER SIGNAL " );
-		break;
+	std::string mess = "KHEOPS received unknown SIGNAL"+number;
+  	syslog( LOG_LOCAL0|LOG_LOCAL0 ,mess.c_str());
+	break;
   }
 
   syslog( LOG_LOCAL0|LOG_LOCAL0 , "KHEOPS signal handler end " );
@@ -147,23 +144,32 @@ int main(int argc, char **argv)
 	}
 
         /************* End Signaux handler operation ****************/
-	ComInterface * cinter  = new RosInterface();
+
+	cinter = new RosInterface();
 
 	LibManager::init(libdir);
 	LibManager::load();
 
 	Kernel::init(script,weight, ignore_matrix_check);	
-	cinter->init( argc, argv, progname , Kernel::instance().getName() );	
-
-	Kernel::load();
-	Kernel::prerun();
-	Kernel::start(resume);
-
-	cinter->registerListener();
-	cinter->enter();
-	delete(cinter);
-
-	Kernel::terminate();
 	
+	try{
+
+		cinter->init( argc, argv, progname , Kernel::instance().getName() );	
+
+		Kernel::load();
+		Kernel::prerun();
+		Kernel::start(resume);
+
+		cinter->registerListener();
+		cinter->enter();
+	}
+	catch (std::exception& e)
+	{
+		std::cerr << "FATAL. " <<  e.what() << std::endl;		
+	}
+
+	delete(cinter);
+	Kernel::terminate();
+
 	return 0;
 }
