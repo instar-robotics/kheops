@@ -15,6 +15,8 @@ The fact that you are presently reading this means that you have had knowledge o
 */
 
 #include <iostream>
+#include <boost/filesystem.hpp>
+
 #include "kheops/kernel/kernel.h"
 #include "kheops/kernel/factory.h"
 #include "kheops/kernel/libManager.h"
@@ -643,10 +645,6 @@ void Kernel::pause()
         rttoken.wait_for_pause();
 }
 
-void Kernel::getState(std::string &state)
-{
-	state = K_STATE[getState()];
-}
 /********************************************************************************************************/
 /****************** 			Publish Section 			      *******************/
 /********************************************************************************************************/
@@ -747,7 +745,10 @@ void Kernel::get_rt_token(std::vector<std::string> & objects)
 
 void Kernel::init(std::string script_file, std::string weight_file, bool ignore_matrix_check)
 {
-	singleton.script_file=script_file;
+	
+	namespace fs = boost::filesystem;
+	fs::path full_path = fs::system_complete(script_file);
+	singleton.script_file=full_path.c_str();
 
 	XmlConverter * xmlc = new  XmlConverter(script_file);
 	xmlc->loadScript(singleton.xs);

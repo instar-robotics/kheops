@@ -127,8 +127,10 @@ class Kernel
 		void pause(); 
 		void quit();
 		inline int getState(){ return rttoken.getState();}
-		void getState(std::string & state);
+		const std::string& getStateName(){ return K_STATE[rttoken.getState()];}
 		RtToken& getRtToken() {return rttoken;}
+		const std::string& getPath(){return script_file;}
+
 
 		// Output 		
 		bool active_publish(const std::string& uuid, bool state);

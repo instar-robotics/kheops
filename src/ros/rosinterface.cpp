@@ -265,7 +265,11 @@ bool RosInterface::callback_control(hieroglyph::SimpleCmd::Request& request, hie
 	}
 	else if( request.cmd == CMD[S_STATUS] )
 	{
-		Kernel::instance().getState(response.ret);
+		response.ret = Kernel::instance().getStateName();
+	}
+	else if( request.cmd == CMD[S_PATH] )
+	{
+		response.ret = Kernel::instance().getPath();
 	}
 	else response.ret = RETURN[0];
 

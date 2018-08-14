@@ -73,7 +73,6 @@ class iLink : public iLinkBase
                 iLink(I const * i) : input(i), b_input(NULL),buffer(false) {}
                 virtual ~iLink(){}
 
-
                 inline virtual void setUuid(const std::string& uuid)
                 {
                         this->uuid = uuid;
@@ -88,7 +87,6 @@ class iLink : public iLinkBase
                 virtual inline const I& getCValue(){ return cvalue;}
                 virtual inline bool isSet(){return input!=NULL;}
                 virtual inline bool isCValue(){return input==&cvalue;}
-
 
                 /***********************************************************************/
                 /*****************************  Buffer API *****************************/

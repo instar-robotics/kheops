@@ -21,11 +21,12 @@ The fact that you are presently reading this means that you have had knowledge o
 
 /**************************  List of interfaces *******************************
 *  1- help : list all the request supported by kheops
-*  2- control :  general command
+*  2- control : general command
 *	a- resume 	
 *       b- pause 
 *	c- quit
 *       d- status
+*       e- path
 *  3- weight : command relative to the weight file
 *	a- save 'path'  (path is not mandatory, take the default weigth path)
 *	b- load 'path'  (path is not mandatory, take the default weigth path)
@@ -51,22 +52,23 @@ The fact that you are presently reading this means that you have had knowledge o
 ********************************************************************************/
 
 const std::string RETURN[] = {"unknown command","unknown uuid"};
-const std::string CMD[] = {"resume","quit","pause","status" ,"save","load","start","stop","all","rt_token","functions","inputs","ilinks","activity"};
+const std::string CMD[] = {"resume","quit","pause","status","path" ,"save","load","start","stop","all","rt_token","functions","inputs","ilinks","activity"};
 
 const int S_RESUME=0; 
 const int S_QUIT=1; 
 const int S_PAUSE=2; 
 const int S_STATUS=3; 
-const int S_SAVE=4;
-const int S_LOAD=5; 
-const int S_START=6; 
-const int S_STOP=7;
-const int S_ALL=8;
-const int S_RTTOKEN=9;
-const int S_FUNCTIONS=10;
-const int S_INPUTS=11;
-const int S_ILINKS=12;
-const int S_ACTIVITY=13;
+const int S_PATH=4; 
+const int S_SAVE=5;
+const int S_LOAD=6; 
+const int S_START=7; 
+const int S_STOP=8;
+const int S_ALL=9;
+const int S_RTTOKEN=10;
+const int S_FUNCTIONS=11;
+const int S_INPUTS=12;
+const int S_ILINKS=13;
+const int S_ACTIVITY=14;
 
 class ComInterface
 {
