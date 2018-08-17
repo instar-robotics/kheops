@@ -47,8 +47,8 @@ void signals_handler(int number)
         Kernel::terminate();
 	break;
     default : 
-	std::string mess = "KHEOPS received unknown SIGNAL"+number;
-  	syslog( LOG_LOCAL0|LOG_LOCAL0 ,mess.c_str());
+	std::string mess = "KHEOPS received unknown SIGNAL" + number;
+  	syslog( LOG_LOCAL0|LOG_LOCAL0, "%s", mess.c_str());
 	break;
   }
 
