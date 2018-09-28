@@ -115,7 +115,10 @@ int main(int argc, char **argv)
 			case 'w' :  weight = optarg ; break;
 			case 'l' :  libdir = optarg ; break;
 			case 'i' :  ignore_matrix_check = true ; break;
-			default : return 0;
+			default : 
+				    std::cout << "Unkown option ! "  << std::endl;
+				    print_help();
+				    return 0;
 		}	
 	}
 	

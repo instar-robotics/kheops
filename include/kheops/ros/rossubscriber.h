@@ -25,17 +25,17 @@ template<class RosMessage>
 class RosSubscriber
 {
 	protected :
-                
+
 		ros::Subscriber sub;
 		ros::CallbackQueue my_queue;
 		ros::NodeHandle n;
 
 	public : 
 	
-		RosSubscriber(){}
+		RosSubscriber() {}
 		virtual ~RosSubscriber(){}
 
-		void subscribe(std::string& topic_name, int size_queue)
+		void subscribe(std::string& topic_name,int size_queue)
 		{
 			RosWrapper::clean_topic_name(topic_name);
 			n.setCallbackQueue(&my_queue);
