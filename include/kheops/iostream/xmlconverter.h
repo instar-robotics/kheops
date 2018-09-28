@@ -92,7 +92,6 @@ class XmlConverter
 
 	ptree tree;
 
-
 	void __convertXmlToFunction(const ptree &tree, XFunction &f);
 
 	void __convertXmlToInput( const ptree &tree, XInput &xi );
