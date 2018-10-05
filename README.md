@@ -36,6 +36,7 @@
 * libboost SERIALIZATION  1.58
 * libeigen 3.3
 * ROS Lunar or Melodic (we recommand to use Melodic, the current LTS)
+* ros-joy (on ubuntu/debian : ros-melodic-joy)
 * hieroglyph 1.0
 
 ### Install dependancies ###
@@ -43,7 +44,7 @@
 
 **_apt-get update_**
 
-**_apt-get install cmake libeigen3-dev libboost-graph-dev libboost-graph1.58.0 libboost-all-dev libboost-all-dev libboost1.58-dev_**
+**_apt-get install cmake libeigen3-dev libboost-graph-dev libboost-graph1.58.0 libboost-all-dev libboost-all-dev libboost1.58-dev ros-melodic-joy_**
 
 * On ubuntu 18.04 : 
 
