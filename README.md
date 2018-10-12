@@ -36,7 +36,6 @@
 * libboost SERIALIZATION  1.58
 * libeigen 3.3
 * ROS Lunar or Melodic (we recommand to use Melodic, the current LTS)
-* ros-joy (on ubuntu/debian : ros-melodic-joy)
 * hieroglyph 1.0
 
 ### Install dependancies ###
