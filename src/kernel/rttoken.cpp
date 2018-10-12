@@ -14,7 +14,6 @@ and, more generally, to use and operate it in the same conditions as regards sec
 The fact that you are presently reading this means that you have had knowledge of the CeCILL v2.1 license and that you accept its terms.
 */
 
-#include <iostream>
 #include "kheops/kernel/rttoken.h"
 #include "kheops/kernel/frunner.h"
 #include "kheops/ros/rospublisher.h"
@@ -42,7 +41,6 @@ RtToken::RtToken(double value, std::string unit) : Runner(), publish(false)
 
 RtToken::~RtToken()
 {
-	std::cout << "PUTE PUTE PUTE" << std::endl;
 	if( o_pub != NULL )
 	{
 		if( o_pub->is_open() ) o_pub->close();	
@@ -54,7 +52,6 @@ RtToken::~RtToken()
 		if( rt_pub->is_open() ) rt_pub->close();
 		delete(rt_pub);
 	}
-	std::cout << "PUTE PUTE PUTE" << std::endl;
 }
 
 void RtToken::setToken(double value, std::string unit)
@@ -84,14 +81,10 @@ void RtToken::exec()
 	{
 		if( Runner::is_asking_pause())
 		{	
-			std::cout << "RT PAUSE ! " << std::endl;
-		//	sync_all();
+			sync_all();
 			pause();
-			//Runner::wait_ask_resume();
-			wait_ask_resume();
+			Runner::wait_ask_resume();
 			resume();
-
-			std::cout << "RT END PAUSE ! " << std::endl;
 		}
 
 		auto start = std::chrono::system_clock::now();
@@ -264,23 +257,5 @@ void RtToken::publish_message()
 			rt_pub->publish();	
 		}
 	}
-}
-
-
-void RtToken::change_request(int request)
-{
-        {
-                std::unique_lock<std::mutex> lk(r_mtx);
-                Runner::request = request;
-        }
-        r_cv.notify_all();
-}
-
-void RtToken::wait_ask_resume()
-{
-        {
-                std::unique_lock<std::mutex> lk(r_mtx);
-                r_cv.wait(lk, [=] {  return  !is_asking_pause();}  );
-        }
 }
 

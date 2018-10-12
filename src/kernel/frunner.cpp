@@ -32,24 +32,22 @@ void FRunner::exec()
 	{
 		wait_for_sync();
 		if( Runner::is_asking_stop()) continue;
-/*		if( Runner::is_asking_pause()) 
+		
+		if( Runner::is_asking_pause()) 
 		{
-			std::cout << "RUNNER PAUSE " << std::endl;
+			
 			pause();
                 	Runner::wait_ask_resume();
                 	resume();
 			wait_for_sync();
-			std::cout << "RUNNER END PAUSE " << std::endl;
 		}
-*/		
+		
 		consume(node);
 		
 		if(is_oscillo_active()) start = std::chrono::system_clock::now();
 
 		try{	
-			std::cout << "RUNNER DEB COMPUTE " << std::endl;
 			f->compute();
-			std::cout << "RUNNER END COMPUTE " << std::endl;
 
 		}
 		catch(std::exception& e)
@@ -82,7 +80,6 @@ void FRunner::exec()
 			nbrun++;
 		}
 	}
-	std::cout <<"RUNER EXIT" << std::endl;
 	produce(node);
 	stop();
 }

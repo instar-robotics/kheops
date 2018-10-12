@@ -16,16 +16,12 @@ The fact that you are presently reading this means that you have had knowledge o
 
 #include "kheops/kernel/runner.h"
 
-#include <iostream>
-
 bool Runner::oscillo = false;
 int Runner::request = K_PAUSE;
-//std::mutex Runner::r_mtx;
-//std::condition_variable Runner::r_cv;
+std::mutex Runner::r_mtx;
+std::condition_variable Runner::r_cv;
 
-Runner::~Runner(){
-	std::cout << "RUNNER Destructor" << std::endl;
-}
+Runner::~Runner(){}
 
 void Runner::produce(const Graph::vertex_descriptor  v_mtx)
 {
@@ -43,7 +39,7 @@ void Runner::consume(const Graph::vertex_descriptor  v_mtx)
 	}
 }
 
-/*
+
 void Runner::change_request(int request)
 {
         {
@@ -60,7 +56,7 @@ void Runner::wait_ask_resume()
                 r_cv.wait(lk, [=] {  return  !is_asking_pause();}  );
         }
 }
-*/
+
 
 void Runner::wait_for_quit()
 {
