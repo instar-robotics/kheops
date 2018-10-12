@@ -155,7 +155,7 @@ int main(int argc, char **argv)
 	LibManager::init(libdir);
 	LibManager::load();
 
-	Kernel::init(script,weight, ignore_matrix_check);	
+	Kernel::init(script, weight, ignore_matrix_check);	
 	
 	try{
 
@@ -174,7 +174,7 @@ int main(int argc, char **argv)
 		Kernel::quit();
 	}
 
-	Kernel::wait();
+	Kernel::quit();
 	delete(cinter);
 
 	return 0;

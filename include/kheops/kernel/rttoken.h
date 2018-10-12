@@ -36,7 +36,6 @@ class RtToken : public Runner
                 // In second
                 double period;
 		
-		int state;
                 std::mutex rt_mtx;
                 std::condition_variable rt_cv;
 		
@@ -59,7 +58,7 @@ class RtToken : public Runner
                 inline void setUuid(const std::string& uuid  ) { this->uuid = uuid;}
 
 		// Frequency in Hz
-		inline void setFrequency( double frequency ) { period = convert_period_frequency(frequency);}
+		inline void setFrequency(double frequency) {period=convert_period_frequency(frequency);}
 		
 		// Period in second
 		inline void setPeriod( double period ) {this->period = period;}
@@ -75,25 +74,12 @@ class RtToken : public Runner
 		virtual void exec();
 		virtual void terminate();
 		
-		void wait_ask_resume();
                 void wait_for_pause();
+                void wait_for_quit();
+                void wait_for_run();
 
-                void change_request(int request);
-                inline void ask_stop() {change_request(R_STOP); }
-                inline void ask_pause() {change_request(R_PAUSE);}
-                inline void ask_resume() {change_request(R_RUN); }
-                inline int getRequest(){ return request;}
-
-                void change_state(int state);
-                inline void stop() {change_state(R_STOP);}
-                inline void pause() {change_state(R_PAUSE);}
-                inline void resume() {change_state(R_RUN);}
-                inline int getState(){ return state;}
+                virtual void change_state(int state);
                 
-		inline bool is_run() { return state==R_RUN;}
-                inline bool is_stop() { return state==R_STOP;}
-                inline bool is_pause() { return state==R_PAUSE;}
-		
 		void sync_all();
 
 		inline bool is_publish_active(){return publish;}

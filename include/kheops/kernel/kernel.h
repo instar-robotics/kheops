@@ -19,6 +19,7 @@ The fact that you are presently reading this means that you have had knowledge o
 
 #include <map>
 #include <memory>
+#include "kheops/kernel/kstate.h"
 #include "kheops/kernel/graph.h"
 #include "kheops/kernel/runner.h"
 #include "kheops/kernel/inputbase.h"
@@ -27,11 +28,10 @@ The fact that you are presently reading this means that you have had knowledge o
 #include "kheops/links/iscalar.h"
 #include "kheops/links/imatrix.h"
 
-const std::string K_STATE[] = {"stop","pause","run"};
-
 class Kernel 
 {
 	private :
+		static Kernel singleton;
 
 		std::string script_file;
 		std::string weight_file;
@@ -60,13 +60,12 @@ class Kernel
 		
 		XScript xs;
 
-		static Kernel singleton;
-
 		bool ignore_matrix_check;
-
+		bool quit;
+	
 	public :
 	
-		Kernel(){}
+		Kernel() : quit(false) {}
 		~Kernel();
 		Kernel(const Kernel&) = delete;
                 Kernel& operator=(const Kernel&) = delete;
@@ -145,10 +144,13 @@ class Kernel
 		// Static member : 
 		static inline Kernel& instance() noexcept {return singleton;}
 		static void init(std::string scriptfile, std::string resfile, bool ignore_matrix_check = false);
+                
 		static void load(); 	
 		static void prerun(); 	
 		static void terminate();
 		static void quit();
+		static void ask_quit() {quit = true;}
+		static bool is_asking_quit() {return quit;}
 		static void wait();
 		static void resume(); 
 		static void pause(); 

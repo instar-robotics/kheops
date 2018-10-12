@@ -28,10 +28,10 @@ void FRunner::exec()
 			
 	Function * f = boost::get(boost::vertex_function , *g)[node] ;
 
-	while( ! __is_asking_stop() && ! __is_asking_local_stop() )
+	while( ! Runner::is_asking_stop() )
 	{
 		wait_for_sync();
-		if( __is_asking_stop() || __is_asking_local_stop()) continue;
+		if( Runner::is_asking_stop()) continue;
 		
 		consume(node);
 		
@@ -71,7 +71,7 @@ void FRunner::exec()
 		}
 	}
 	produce(node);
-	local_stop();
+	stop();
 }
 
 void FRunner::checkFunction()
@@ -101,7 +101,6 @@ void FRunner::sync()
 
 void FRunner::terminate()
 {
-	ask_local_stop();
 	sync();
 	join();
 }

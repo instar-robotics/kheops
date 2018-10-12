@@ -78,10 +78,13 @@ void RtToken::setToken(double value, std::string unit)
 
 void RtToken::exec()
 {
-	while( !__is_asking_stop() )
+	while( ! Runner::is_asking_stop() )
 	{
-		wait_ask_resume();
-		if( __is_asking_stop() ) continue;
+		if( Runner::is_asking_pause()) pause();
+		Runner::wait_ask_resume();
+		resume();
+
+		if( Runner::is_asking_stop() ) continue;
 
 		auto start = std::chrono::system_clock::now();
 
@@ -118,34 +121,29 @@ void RtToken::exec()
 	stop();
 }
 
-void RtToken::wait_ask_resume()
+void RtToken::wait_for_quit()
 {
         {
-		if( __is_asking_pause()) pause();
                 std::unique_lock<std::mutex> lk(rt_mtx);
-                rt_cv.wait(lk, [=] {  return  !__is_asking_pause();}  );
+                rt_cv.wait(lk,  [=] {return is_quit();}  );
         }
-	resume();
 }
 
+void RtToken::wait_for_run()
+{
+        {
+                std::unique_lock<std::mutex> lk(rt_mtx);
+                rt_cv.wait(lk,  [=] {return is_run();}  );
+        }
+}
 
 void RtToken::wait_for_pause()
 {
         {
                 std::unique_lock<std::mutex> lk(rt_mtx);
-                rt_cv.wait(lk,   [=] {return is_pause();  }  );
+                rt_cv.wait(lk,  [=] {return is_pause();}  );
         }
 }
-
-void RtToken::change_request(int request)
-{
-        {
-                std::unique_lock<std::mutex> lk(rt_mtx);
-                Runner::request = request;
-        }
-        rt_cv.notify_all();
-}
-
 
 void RtToken::change_state(int state)
 {

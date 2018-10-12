@@ -14,34 +14,10 @@ and, more generally, to use and operate it in the same conditions as regards sec
 The fact that you are presently reading this means that you have had knowledge of the CeCILL v2.1 license and that you accept its terms.
 */
 
-#ifndef __FR_RUNNER_H__
-#define __FR_RUNNER_H__
+#ifndef  __KSTATE_H__
+#define  __KSTATE_H__
 
-#include "kheops/kernel/runner.h"
-#include "kheops/kernel/function.h"
+enum STATE { K_STOP=0, K_PAUSE=1, K_RUN=2 };
+const std::string K_STATE[] = {"stop","pause","run"};
 
-
-class FRunner : public Runner
-{
-        protected :
-
-		bool bsync;
-                std::mutex mtx_sync;
-                std::condition_variable cv_sync;
-
-        public :
-                FRunner() : Runner(),bsync(false) {}
-                virtual ~FRunner() {}
-
-                virtual void exec();
-		virtual void terminate();
-		virtual void change_state(int state) {this->state = state;}
-
-		void wait_for_sync();
-                void sync();
-
-		void checkFunction();
-
-};
-
-#endif //__FR_RUNNER_H__
+#endif // __KSTATE_H__

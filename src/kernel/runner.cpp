@@ -16,8 +16,10 @@ The fact that you are presently reading this means that you have had knowledge o
 
 #include "kheops/kernel/runner.h"
 
-int Runner::request = R_PAUSE;
 bool Runner::oscillo = false;
+int Runner::request = K_PAUSE;
+
+Runner::~Runner(){}
 
 void Runner::produce(const Graph::vertex_descriptor  v_mtx)
 {
@@ -33,5 +35,23 @@ void Runner::consume(const Graph::vertex_descriptor  v_mtx)
 	{
 		boost::get(boost::edge_klink, *g) [*it.first ]->consume();
 	}
+}
+
+
+void Runner::change_request(int request)
+{
+        {
+                std::unique_lock<std::mutex> lk(k_mtx);
+                this->request = request;
+        }
+        k_cv.notify_all();
+}
+
+void Runner::wait_ask_resume()
+{
+        {
+                std::unique_lock<std::mutex> lk(k_mtx);
+                k_cv.wait(lk, [=] {  return  !is_asking_pause();}  );
+        }
 }
 
