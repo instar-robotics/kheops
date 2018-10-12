@@ -36,7 +36,9 @@ class RosSubscriber
 	public : 
 	
 		RosSubscriber() {}
-		virtual ~RosSubscriber(){}
+		virtual ~RosSubscriber(){
+
+		}
 
 		void subscribe(std::string& topic_name,int size_queue)
 		{
@@ -45,12 +47,13 @@ class RosSubscriber
 			t = topic_name;
 			size = size_queue;
 			n.setCallbackQueue(&my_queue);
-			sub = n.subscribe( topic_name, size_queue, &RosSubscriber<RosMessage>::callback, this);
+//			sub = n.subscribe( topic_name, size_queue, &RosSubscriber<RosMessage>::callback, this);
 		}
 
 
 		void enable(){ 
 			my_queue.enable();
+			sub = n.subscribe( t, size, &RosSubscriber<RosMessage>::callback, this);
 		}
 		void disable(){ 
 			my_queue.disable();

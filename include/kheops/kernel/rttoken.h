@@ -41,6 +41,10 @@ class RtToken : public Runner
 		OscilloPublisher *o_pub;
 		RtTokenOutputPublisher *rt_pub;	
 
+                std::mutex r_mtx;
+                std::condition_variable r_cv;
+
+
 	public : 
 
 		// Period in second
@@ -79,6 +83,14 @@ class RtToken : public Runner
 
 		void active_oscillo(bool state);
 		void publish_oscillo();
+
+
+		void wait_ask_resume();
+                void change_request(int request);
+                inline void ask_stop() {change_request(K_STOP); }
+                inline void ask_pause() {change_request(K_PAUSE);}
+                inline void ask_resume() {change_request(K_RUN); }
+
 }; 
 
 #endif // __RT_TOKEN_H__

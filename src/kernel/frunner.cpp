@@ -32,7 +32,7 @@ void FRunner::exec()
 	{
 		wait_for_sync();
 		if( Runner::is_asking_stop()) continue;
-		if( Runner::is_asking_pause()) 
+/*		if( Runner::is_asking_pause()) 
 		{
 			std::cout << "RUNNER PAUSE " << std::endl;
 			pause();
@@ -41,7 +41,7 @@ void FRunner::exec()
 			wait_for_sync();
 			std::cout << "RUNNER END PAUSE " << std::endl;
 		}
-		
+*/		
 		consume(node);
 		
 		if(is_oscillo_active()) start = std::chrono::system_clock::now();
@@ -117,13 +117,8 @@ void FRunner::terminate()
 	/*
 	sync();
 	produce(node);
-
+*/
 	thx.detach();
 	thx.~thread();
-
-	// DO HERE ? 
-	Function * f = boost::get(boost::vertex_function , *g)[node] ;
-        f->onExit();
-*/
 }
 

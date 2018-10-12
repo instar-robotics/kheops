@@ -85,9 +85,10 @@ void RtToken::exec()
 		if( Runner::is_asking_pause())
 		{	
 			std::cout << "RT PAUSE ! " << std::endl;
-			sync_all();
+		//	sync_all();
 			pause();
-			Runner::wait_ask_resume();
+			//Runner::wait_ask_resume();
+			wait_ask_resume();
 			resume();
 
 			std::cout << "RT END PAUSE ! " << std::endl;
@@ -147,14 +148,11 @@ void RtToken::terminate()
 	/*
 	ask_stop();
 	join();
-	
+	*/
 
         thx.detach();
         thx.~thread();
 
-
-
-	*/
 }
 
 void RtToken::active_oscillo(bool state)
@@ -267,3 +265,22 @@ void RtToken::publish_message()
 		}
 	}
 }
+
+
+void RtToken::change_request(int request)
+{
+        {
+                std::unique_lock<std::mutex> lk(r_mtx);
+                Runner::request = request;
+        }
+        r_cv.notify_all();
+}
+
+void RtToken::wait_ask_resume()
+{
+        {
+                std::unique_lock<std::mutex> lk(r_mtx);
+                r_cv.wait(lk, [=] {  return  !is_asking_pause();}  );
+        }
+}
+

@@ -44,8 +44,8 @@ class Runner
 
 		static bool oscillo;
 		static int request;
-                static std::mutex r_mtx;
-                static std::condition_variable r_cv;
+                //static std::mutex r_mtx;
+                //static std::condition_variable r_cv;
 
 		
 	public :
@@ -94,12 +94,12 @@ class Runner
                 static inline bool is_asking_running() {return request== K_RUN;}
                 static inline bool is_asking_pause() {return request== K_PAUSE;}
 
-                static void wait_ask_resume();
+                /*static void wait_ask_resume();
                 static void change_request(int request);
                 static inline void ask_stop() {change_request(K_STOP); }
                 static inline void ask_pause() {change_request(K_PAUSE);}
                 static inline void ask_resume() {change_request(K_RUN); }
-                static inline int getRequest(){ return request;}
+               */ static inline int getRequest(){ return request;}
 
 
 		static inline bool is_oscillo_active(){return oscillo;}
