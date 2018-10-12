@@ -28,19 +28,25 @@ Kernel Kernel::singleton;
 
 Kernel::~Kernel()
 {	
+	std::cout << "K Destructor" << std::endl;
+
 	for( auto it = node_map.begin(); it != node_map.end(); it++)
 	{
 		Function *f = boost::get(boost::vertex_function , graph)[ it->second  ];
 		if( f != NULL ) delete(f);
 		
-/*		if(it->first != rttoken.getUuid())
+		/*
+		if(it->first != rttoken.getUuid())
 		{
 			Runner * runner = boost::get(boost::vertex_runner, graph)[it->second];
+			std::cout << "Delete runner : " << it->first  << std::endl;
 			delete(runner);
+			std::cout << "Delete done!"  << std::endl;
 		}
 		*/
 	}
 	
+	std::cout << "K Destructor merde" << std::endl;
 
 	for( auto it = edge_map.begin(); it != edge_map.end(); it++)
 	{
@@ -61,6 +67,8 @@ Kernel::~Kernel()
 	input_to_funct.clear();
 	
 	inputs.clear();
+	
+	std::cout << "K Destructor merde 2" << std::endl;
 }
 
 /********************************************************************************************************/
@@ -822,12 +830,17 @@ void Kernel::quit()
 {
 	std::cout << "QUIT 1 " << std::endl;
 
-	// Call Function::onQuit 
-	singleton.onQuit_functions();
+
+
 
 	std::cout << "QUIT 2 " << std::endl;
 
 	Runner::ask_stop();
+	sleep(2);
+
+	// Call Function::onQuit 
+	singleton.onQuit_functions();
+
         singleton.rttoken.wait_for_quit();
 	
 	std::cout << "QUIT 3 " << std::endl;
@@ -838,6 +851,7 @@ void Kernel::quit()
 	 */
 //	singleton.join_runners();
 
+	singleton.terminate_runners();
 	// si mal passé : terminate !
 }
 

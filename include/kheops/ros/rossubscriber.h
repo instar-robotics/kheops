@@ -44,8 +44,8 @@ class RosSubscriber
 
 			t = topic_name;
 			size = size_queue;
-//			n.setCallbackQueue(&my_queue);
-//			sub = n.subscribe( topic_name, size_queue, &RosSubscriber<RosMessage>::callback, this);
+			n.setCallbackQueue(&my_queue);
+			sub = n.subscribe( topic_name, size_queue, &RosSubscriber<RosMessage>::callback, this);
 		}
 
 
@@ -56,8 +56,6 @@ class RosSubscriber
 			my_queue.disable();
 			n.shutdown();
 		}
-
-
 
 		virtual void callback(const typename RosMessage::ConstPtr &msg) = 0;
 };

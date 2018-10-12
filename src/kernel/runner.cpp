@@ -16,12 +16,16 @@ The fact that you are presently reading this means that you have had knowledge o
 
 #include "kheops/kernel/runner.h"
 
+#include <iostream>
+
 bool Runner::oscillo = false;
 int Runner::request = K_PAUSE;
 std::mutex Runner::r_mtx;
 std::condition_variable Runner::r_cv;
 
-Runner::~Runner(){}
+Runner::~Runner(){
+	std::cout << "RUNNER Destructor" << std::endl;
+}
 
 void Runner::produce(const Graph::vertex_descriptor  v_mtx)
 {

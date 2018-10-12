@@ -42,6 +42,7 @@ RtToken::RtToken(double value, std::string unit) : Runner(), publish(false)
 
 RtToken::~RtToken()
 {
+	std::cout << "PUTE PUTE PUTE" << std::endl;
 	if( o_pub != NULL )
 	{
 		if( o_pub->is_open() ) o_pub->close();	
@@ -53,6 +54,7 @@ RtToken::~RtToken()
 		if( rt_pub->is_open() ) rt_pub->close();
 		delete(rt_pub);
 	}
+	std::cout << "PUTE PUTE PUTE" << std::endl;
 }
 
 void RtToken::setToken(double value, std::string unit)

@@ -176,5 +176,6 @@ int main(int argc, char **argv)
 	Kernel::quit();
 	delete(cinter);
 
+	std::cout << "END !!" << std::endl;
 	return 0;
 }

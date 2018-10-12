@@ -31,7 +31,7 @@ class FRunner : public Runner
 
         public :
                 FRunner() : Runner(),bsync(false) {}
-                virtual ~FRunner() {}
+                virtual ~FRunner() { std::cout << "FRUNNER DESTRUCTOR" << std::endl;  }
 
                 virtual void exec();
 		virtual void terminate();

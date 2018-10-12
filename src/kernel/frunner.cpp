@@ -47,8 +47,10 @@ void FRunner::exec()
 		if(is_oscillo_active()) start = std::chrono::system_clock::now();
 
 		try{	
-			std::cout << "RUNNER COMPUTE " << std::endl;
+			std::cout << "RUNNER DEB COMPUTE " << std::endl;
 			f->compute();
+			std::cout << "RUNNER END COMPUTE " << std::endl;
+
 		}
 		catch(std::exception& e)
 		{
@@ -80,6 +82,7 @@ void FRunner::exec()
 			nbrun++;
 		}
 	}
+	std::cout <<"RUNER EXIT" << std::endl;
 	produce(node);
 	stop();
 }
