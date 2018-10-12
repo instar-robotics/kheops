@@ -32,18 +32,28 @@ void FRunner::exec()
 	{
 		wait_for_sync();
 		if( Runner::is_asking_stop()) continue;
+		if( Runner::is_asking_pause()) 
+		{
+			std::cout << "RUNNER PAUSE " << std::endl;
+			pause();
+                	Runner::wait_ask_resume();
+                	resume();
+			wait_for_sync();
+			std::cout << "RUNNER END PAUSE " << std::endl;
+		}
 		
 		consume(node);
 		
-		if(is_oscillo_active() ) start = std::chrono::system_clock::now();
+		if(is_oscillo_active()) start = std::chrono::system_clock::now();
 
 		try{	
+			std::cout << "RUNNER COMPUTE " << std::endl;
 			f->compute();
 		}
 		catch(std::exception& e)
 		{
 			std::cerr << "FATAL in Function.compute " << f->getUuid() << ". " <<  e.what() << std::endl;
-			Kernel::quit();
+			Kernel::ask_quit();
 			continue;
 		}
 
@@ -57,7 +67,7 @@ void FRunner::exec()
 		catch(std::exception& e)
 		{
 			std::cerr << "FATAL in Function.exec_afterCompute " << f->getUuid() << ". " <<  e.what() << std::endl;
-			Kernel::quit();
+			Kernel::ask_quit();
 			continue;
 		}
 			
@@ -101,6 +111,16 @@ void FRunner::sync()
 
 void FRunner::terminate()
 {
+	/*
 	sync();
-	join();
+	produce(node);
+
+	thx.detach();
+	thx.~thread();
+
+	// DO HERE ? 
+	Function * f = boost::get(boost::vertex_function , *g)[node] ;
+        f->onExit();
+*/
 }
+

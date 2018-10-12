@@ -32,7 +32,15 @@ Kernel::~Kernel()
 	{
 		Function *f = boost::get(boost::vertex_function , graph)[ it->second  ];
 		if( f != NULL ) delete(f);
+		
+/*		if(it->first != rttoken.getUuid())
+		{
+			Runner * runner = boost::get(boost::vertex_runner, graph)[it->second];
+			delete(runner);
+		}
+		*/
 	}
+	
 
 	for( auto it = edge_map.begin(); it != edge_map.end(); it++)
 	{
@@ -183,6 +191,8 @@ void Kernel::del_function(const std::string& uuid)
 
 	Function *f =  boost::get(boost::vertex_function , graph)[ node_map[uuid]];
 
+	f->onQuit();
+
 	//purge all ilinks in all inputs
 	for( auto input = f->get_input().begin() ; input !=  f->get_input().end(); input++)
 	{
@@ -195,7 +205,7 @@ void Kernel::del_function(const std::string& uuid)
 	// purge all klinks for the function
 	purge_klinks(uuid);
 	
-	// remove from runner
+	// remove the runner
 	remove_runner(uuid);
 	
 	clear_vertex(node_map[uuid] , graph);
@@ -213,6 +223,33 @@ void Kernel::prerun_functions()
 		Function *f =  boost::get(boost::vertex_function , graph)[ node_map[it->first]];
 		if( f != NULL ) f->prerun();
         }
+}
+
+void Kernel::onQuit_functions()
+{
+        for(auto it = node_map.begin(); it != node_map.end(); ++it)
+        {
+		Function *f =  boost::get(boost::vertex_function , graph)[ node_map[it->first]];
+		if( f != NULL ) f->onQuit();
+	}
+}
+
+void Kernel::onPause_functions()
+{
+        for(auto it = node_map.begin(); it != node_map.end(); ++it)
+        {
+		Function *f =  boost::get(boost::vertex_function , graph)[ node_map[it->first]];
+		if( f != NULL ) f->onPause();
+	}
+}
+
+void Kernel::onRun_functions()
+{
+        for(auto it = node_map.begin(); it != node_map.end(); ++it)
+        {
+		Function *f =  boost::get(boost::vertex_function , graph)[ node_map[it->first]];
+		if( f != NULL ) f->onRun();
+	}
 }
 
 /********************************************************************************************************/
@@ -574,10 +611,21 @@ void Kernel::join_runners()
 		if( runner != NULL )
 		{	
 			if( runner->joinable()) runner->join();
+			// TODO : use wait_for_quit instead
 		}
 	}
 }
 
+void Kernel::terminate_runners()
+{
+	std::pair<vertex_iter, vertex_iter> it = boost::vertices(graph);
+	for( ; it.first != it.second; ++it.first)
+	{	
+		Runner* runner = boost::get(boost::vertex_runner, graph, *it.first);
+		
+		if( runner != NULL )  runner->terminate();
+	}
+}
 
 /*******************************************************************************************************/
 /****************** 			Bind Section 				      ******************/
@@ -766,34 +814,29 @@ void Kernel::init(std::string script_file, std::string weight_file, bool ignore_
 
 void Kernel::terminate()
 {
-	singleton.rttoken.ask_stop();
-	singleton.join_runners();
+	singleton.terminate_runners();
 }
 
-void Kernel::wait()
-{
-//	singleton.join_runners();
-//	TODO : DO not juse JOIN here !  
 
-	/*
+void Kernel::quit()
+{
+	std::cout << "QUIT 1 " << std::endl;
+
+	// Call Function::onQuit 
+	singleton.onQuit_functions();
+
+	std::cout << "QUIT 2 " << std::endl;
+
+	Runner::ask_stop();
+        singleton.rttoken.wait_for_quit();
+	
+	std::cout << "QUIT 3 " << std::endl;
+	/*TODO
 	 * wait for each runner to stop
 	 * then join
 	 *
 	 */
-
-	singleton.rttoken.wait_for_quit();
-	
-}
-
-void Kernel::quit()
-{
-	// Call onQuit
-
-	Runner::ask_stop();
-        singleton.rttoken.wait_for_quit();
-
-	// Quit variable
-	singleton.state
+//	singleton.join_runners();
 
 	// si mal passé : terminate !
 }
@@ -801,15 +844,17 @@ void Kernel::quit()
 void Kernel::resume()
 {
 	// Call onResume
+	singleton.onRun_functions();
 	
 	Runner::ask_resume();	
-        singleton.rttoken.wait_for_resume();
-
+        singleton.rttoken.wait_for_run();
+	// TODO : wait for each runners
 }
 
 void Kernel::pause()
 {
 	// Call onPause
+	singleton.onPause_functions();
 	
 	Runner::ask_pause();
         singleton.rttoken.wait_for_pause();

@@ -61,11 +61,11 @@ class Kernel
 		XScript xs;
 
 		bool ignore_matrix_check;
-		bool quit;
+		bool squit;
 	
 	public :
 	
-		Kernel() : quit(false) {}
+		Kernel() : squit(false) {}
 		~Kernel();
 		Kernel(const Kernel&) = delete;
                 Kernel& operator=(const Kernel&) = delete;
@@ -101,6 +101,9 @@ class Kernel
 		void add_function(const XFunction&);
 		void del_function(const std::string & uuid);
 		void prerun_functions();
+		void onQuit_functions();
+		void onPause_functions();
+		void onRun_functions();
 		
 		void init_rt_token();
 		void update_rt_token_value( const XRtToken& xrt );
@@ -111,6 +114,7 @@ class Kernel
 		void remove_runner(const std::string& uuid);
 		void spawn_runners();
 		void join_runners();
+		void terminate_runners();
 
 		void bind( InputBase& value,const std::string& var_name,const std::string& uuid );
 		void bind( IString& value,const std::string& var_name,const std::string& uuid );
@@ -149,9 +153,8 @@ class Kernel
 		static void prerun(); 	
 		static void terminate();
 		static void quit();
-		static void ask_quit() {quit = true;}
-		static bool is_asking_quit() {return quit;}
-		static void wait();
+		static void ask_quit() {singleton.squit = true;}
+		static bool is_asking_quit() {return singleton.squit;}
 		static void resume(); 
 		static void pause(); 
 		static void start(bool run);

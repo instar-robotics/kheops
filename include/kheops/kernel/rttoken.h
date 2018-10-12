@@ -36,9 +36,6 @@ class RtToken : public Runner
                 // In second
                 double period;
 		
-                std::mutex rt_mtx;
-                std::condition_variable rt_cv;
-		
 		bool publish;
 	
 		OscilloPublisher *o_pub;
@@ -74,12 +71,6 @@ class RtToken : public Runner
 		virtual void exec();
 		virtual void terminate();
 		
-                void wait_for_pause();
-                void wait_for_quit();
-                void wait_for_run();
-
-                virtual void change_state(int state);
-                
 		void sync_all();
 
 		inline bool is_publish_active(){return publish;}

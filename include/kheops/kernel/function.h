@@ -64,20 +64,42 @@ class Function
 
 		// This function is called by the runner after free mutex
 		virtual void exec_afterCompute();
-		// This function can be overloaded by user to add traitment after compute
-		// This functions is called by nsync_afterCompute
-		virtual void uexec_afterCompute() = 0;
-                
-		// This function is called by the runner just before the main loop
+		// This function is called before starting the Runner (kernel part)
 		virtual void prerun() = 0;
-		// This function is called by prerun : can be overloaded by user
+
+
+		/*  USER Part function : */
+
+		// This function can be overloaded by user to add traitment after the compute function
+		// This functions is called by nsync_afterCompute
+		// Operation perform by this functions is out the RT token control
+		// Run operation which no requiert synchronisation
+		// AND keep traitement shorter than the dead time 
+		virtual void uexec_afterCompute() = 0;
+
+		// This function is called before starting the Runner (user part)
+		// It 's useful to set ressources when all functions and links are created
 		virtual void uprerun() = 0;
 
 		//this two functions must be overloaded for each Function 
 		// Payload of the function
 		virtual void compute() = 0;
 		// Called by kernel to set Input to the current Function
+		// This function is called before building links between functions 
+		// So at this moment you can't acces to input information
+		// If you want perform control to the input use "uprerun" function instead
 		virtual void setparameters() = 0;
+
+		// This function are called after starting the runner
+		// On each state changement, the function is executed
+		// Note : onRun function are always run ones when starting the runner
+		// call when the Runner move to QUIT state
+		virtual void onQuit() = 0;
+		// call when the Runner move to RUN state
+		virtual void onRun() = 0;
+		// call when the Runner move to PAUSE state
+		virtual void onPause() = 0;
+
 
 		inline bool is_publish_active(){return publish;}
 		inline void set_publish(bool state){publish = state;}
@@ -88,6 +110,7 @@ class Function
 		inline void set_save(bool state){save = state;}
                 virtual void active_save(bool state) = 0; 
 };
+
 
 template<class T>
 class FTemplate : public Function
@@ -127,6 +150,10 @@ class FTemplate : public Function
 		virtual void prerun();
 		// Do nothing : can be overloaded by user
 		virtual void uprerun(){}
+		
+		virtual void onQuit() {}
+		virtual void onRun() {}
+		virtual void onPause() {}
 
 		virtual void set_topic_name(const std::string &topic);
 		virtual void active_publish(bool state);

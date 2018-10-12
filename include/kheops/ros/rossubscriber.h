@@ -30,6 +30,9 @@ class RosSubscriber
 		ros::CallbackQueue my_queue;
 		ros::NodeHandle n;
 
+
+		std::string t;
+		int size;
 	public : 
 	
 		RosSubscriber() {}
@@ -38,9 +41,23 @@ class RosSubscriber
 		void subscribe(std::string& topic_name,int size_queue)
 		{
 			RosWrapper::clean_topic_name(topic_name);
-			n.setCallbackQueue(&my_queue);
-			sub = n.subscribe( topic_name, size_queue, &RosSubscriber<RosMessage>::callback, this);
+
+			t = topic_name;
+			size = size_queue;
+//			n.setCallbackQueue(&my_queue);
+//			sub = n.subscribe( topic_name, size_queue, &RosSubscriber<RosMessage>::callback, this);
 		}
+
+
+		void enable(){ 
+			my_queue.enable();
+		}
+		void disable(){ 
+			my_queue.disable();
+			n.shutdown();
+		}
+
+
 
 		virtual void callback(const typename RosMessage::ConstPtr &msg) = 0;
 };

@@ -41,7 +41,6 @@ class FRunner : public Runner
                 void sync();
 
 		void checkFunction();
-
 };
 
 #endif //__FR_RUNNER_H__

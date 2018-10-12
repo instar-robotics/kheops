@@ -18,6 +18,8 @@ The fact that you are presently reading this means that you have had knowledge o
 
 bool Runner::oscillo = false;
 int Runner::request = K_PAUSE;
+std::mutex Runner::r_mtx;
+std::condition_variable Runner::r_cv;
 
 Runner::~Runner(){}
 
@@ -41,17 +43,51 @@ void Runner::consume(const Graph::vertex_descriptor  v_mtx)
 void Runner::change_request(int request)
 {
         {
-                std::unique_lock<std::mutex> lk(k_mtx);
-                this->request = request;
+                std::unique_lock<std::mutex> lk(r_mtx);
+		Runner::request = request;
         }
-        k_cv.notify_all();
+        r_cv.notify_all();
 }
 
 void Runner::wait_ask_resume()
 {
         {
-                std::unique_lock<std::mutex> lk(k_mtx);
-                k_cv.wait(lk, [=] {  return  !is_asking_pause();}  );
+                std::unique_lock<std::mutex> lk(r_mtx);
+                r_cv.wait(lk, [=] {  return  !is_asking_pause();}  );
         }
+}
+
+
+void Runner::wait_for_quit()
+{
+        {
+                std::unique_lock<std::mutex> lk(s_mtx);
+                s_cv.wait(lk,  [=] {return is_stop();}  );
+        }
+}
+
+void Runner::wait_for_run()
+{
+        {
+                std::unique_lock<std::mutex> lk(s_mtx);
+                s_cv.wait(lk,  [=] {return is_run();}  );
+        }
+}
+
+void Runner::wait_for_pause()
+{
+        {
+                std::unique_lock<std::mutex> lk(s_mtx);
+                s_cv.wait(lk,  [=] {return is_pause();}  );
+        }
+}
+
+void Runner::change_state(int state)
+{
+        {
+                std::unique_lock<std::mutex> lk(s_mtx);
+                this->state = state;
+        }
+        s_cv.notify_all();
 }
 

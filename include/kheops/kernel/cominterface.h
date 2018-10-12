@@ -77,18 +77,18 @@ struct Request
 {
 	int id;
 	std::vector<std::string> args;
-}
+};
 
 class ComInterface
 {
-	private : 
+	protected : 
 
-		std::queue<Request> request;
+		std::queue<Request> qrequest;
 
 	public : 
 
 		ComInterface(){}
-		virtual ~ComInterface(){ request.clear(); }
+		virtual ~ComInterface(){}
 
 		virtual void init(int argc, char ** argv, std::string prog_name, std::string script_name) = 0;
 		virtual void registerListener() = 0;

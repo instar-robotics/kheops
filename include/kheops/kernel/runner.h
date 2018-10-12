@@ -38,6 +38,8 @@ class Runner
                 double last_duration;
 		double date_start;
 	
+		std::mutex s_mtx;
+                std::condition_variable s_cv;
 		int state;
 
 		static bool oscillo;
@@ -65,8 +67,8 @@ class Runner
                 virtual void exec() = 0;
 		virtual void terminate() = 0;
 
-                void produce(const Graph::vertex_descriptor  v_mtx);
-                void consume(const Graph::vertex_descriptor  v_mtx);
+                void produce(const Graph::vertex_descriptor v_mtx);
+                void consume(const Graph::vertex_descriptor v_mtx);
 
 		inline void spawn() {thx = std::thread( [=] { exec(); } );}
 		inline void join() {thx.join();}
@@ -78,10 +80,14 @@ class Runner
                 inline bool is_stop() { return state==K_STOP;}
                 inline bool is_pause() { return state==K_PAUSE;}
 
-		virtual void change_state(int state) = 0;
+		void change_state(int state);
 		inline void stop() {change_state(K_STOP);}
                 inline void pause() {change_state(K_PAUSE);}
                 inline void resume() {change_state(K_RUN);}
+
+		void wait_for_pause();
+                void wait_for_quit();
+                void wait_for_run();
 
 		// Static parts
 		static inline bool is_asking_stop() {return request == K_STOP;}
