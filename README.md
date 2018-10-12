@@ -44,7 +44,7 @@
 
 **_apt-get update_**
 
-**_apt-get install cmake libeigen3-dev libboost-graph-dev libboost-graph1.58.0 libboost-all-dev libboost-all-dev libboost1.58-dev ros-melodic-joy_**
+**_apt-get install cmake libeigen3-dev libboost-graph-dev libboost-graph1.58.0 libboost-all-dev libboost-all-dev libboost1.58-dev_**
 
 * On ubuntu 18.04 : 
 
