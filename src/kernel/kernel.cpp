@@ -823,20 +823,31 @@ void Kernel::quit()
 	// Call Function::onQuit 
 	singleton.onQuit_functions();
 
-
 	Runner::ask_stop();
 
 
-        singleton.rttoken.wait_for_quit();
+	std::cout << "WAIT FOR RT TOKEN" << std::endl;
+        
 	
+	if( !singleton.rttoken.wait_for_quit_timeout(100) )
+	{
+		std::cout << "TIMEOUT : TERMINATE" << std::endl;
+		singleton.terminate_runners();
+	}
+	else
+	{
+		std::cout << "END OK : JOIN" << std::endl;
+		singleton.join_runners();
+	}
+
 	/*TODO
 	 * wait for each runner to stop
 	 * then join
 	 *
 	 */
-	singleton.join_runners();
 
-//	singleton.terminate_runners();
+
+
 	// si mal passé : terminate !
 }
 

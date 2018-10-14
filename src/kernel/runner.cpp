@@ -82,6 +82,38 @@ void Runner::wait_for_pause()
         }
 }
 
+
+bool Runner::wait_for_quit_timeout(unsigned int duration)
+{
+	bool ret = false;
+        {
+                std::unique_lock<std::mutex> lk(s_mtx);
+		ret = s_cv.wait_for(lk,std::chrono::milliseconds(duration),  [=] {return is_stop();});
+        }
+	return ret;
+}
+
+bool Runner::wait_for_run_timeout(unsigned int duration)
+{
+	bool ret = false;
+        {
+                std::unique_lock<std::mutex> lk(s_mtx);
+		ret = s_cv.wait_for(lk,std::chrono::milliseconds(duration),  [=] {return is_run();});
+        }
+	return ret;
+}
+
+bool Runner::wait_for_pause_timeout(unsigned int duration)
+{
+	bool ret = false;
+        {
+                std::unique_lock<std::mutex> lk(s_mtx);
+		ret = s_cv.wait_for(lk,std::chrono::milliseconds(duration),  [=] {return is_pause();});
+        }
+	return ret;
+}
+
+
 void Runner::change_state(int state)
 {
         {

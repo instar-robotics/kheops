@@ -88,6 +88,11 @@ class Runner
 		void wait_for_pause();
                 void wait_for_quit();
                 void wait_for_run();
+		
+		// duration in milliseconds
+		bool wait_for_pause_timeout(unsigned int duration);
+                bool wait_for_quit_timeout(unsigned int duration);
+                bool wait_for_run_timeout(unsigned int duration);
 
 		// Static parts
 		static inline bool is_asking_stop() {return request == K_STOP;}

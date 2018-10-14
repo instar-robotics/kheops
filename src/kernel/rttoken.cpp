@@ -118,6 +118,8 @@ void RtToken::exec()
 			publish_message();
 		}
 	}
+
+	sleep(10);
 	sync_all();
 	stop();
 }
