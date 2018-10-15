@@ -155,12 +155,13 @@ class Kernel
                 
 		static void load(); 	
 		static void prerun(); 	
+		static void start(bool run);
+		static void pause(); 
+		static void resume(); 
 		static void quit();
 		static void ask_quit() {singleton.squit = true;}
 		static bool is_asking_quit() {return singleton.squit;}
-		static void resume(); 
-		static void pause(); 
-		static void start(bool run);
+
 		
 		static void iBind(InputBase& value,const std::string& var_name,const std::string& uuid );
 		static void iBind(IString& value,const std::string& var_name,const std::string& uuid );

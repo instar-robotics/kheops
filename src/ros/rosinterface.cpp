@@ -215,34 +215,24 @@ bool RosInterface::callback_rt_stat( hieroglyph::RtStat::Request&, hieroglyph::R
 
 bool RosInterface::callback_weight( hieroglyph::ArgCmd::Request& request, hieroglyph::ArgCmd::Response& response)
 {
-	int state = Kernel::instance().getState();
-	if(state == K_RUN) Kernel::instance().pause();
+	Request r;
 
 	if( request.cmd == CMD[S_SAVE] )
 	{
-		if( request.arg.size() == 0 )
-		{
-			Kernel::instance().save_weight();
-		}
-		else{
-			Kernel::instance().save_weight(request.arg);
-		}
-		response.ret = CMD[S_SAVE];
+		r.id = S_SAVE;
 	}
-	else if( request.cmd == CMD[S_LOAD] )
+	else if (  request.cmd == CMD[S_LOAD] )
 	{
-		if( request.arg.size() == 0 )
-		{
-			Kernel::instance().load_weight();
-		}
-		else{
-			 Kernel::instance().load_weight(request.arg);
-		}
-		response.ret = CMD[S_LOAD] ;
+		r.id = S_LOAD;
+	}	
+	else{
+	       	response.ret = RETURN[0];
+		return true;  // No, this not an error, needed by ROS to not breking truth ... :)
 	}
-	else  response.ret = RETURN[0];
 
-	if( state == K_RUN) Kernel::instance().resume();
+	r.args.push_back( request.arg );
+	qrequest.push(r);
+	response.ret = request.cmd ;
 
 	return true;
 }
