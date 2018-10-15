@@ -29,24 +29,15 @@ class FRunner : public Runner
                 std::mutex mtx_sync;
                 std::condition_variable cv_sync;
 
-		int local_state;
-		int local_request;
-
-		inline bool __is_asking_local_stop(){ return local_request == R_STOP;}
-
         public :
-                FRunner() : Runner(),bsync(false),local_state(R_RUN),local_request(R_RUN) {}
+                FRunner() : Runner(),bsync(false) {}
                 virtual ~FRunner() {}
 
                 virtual void exec();
-		virtual void terminate();
+		virtual void change_state(int state) {this->state = state;}
 
 		void wait_for_sync();
                 void sync();
-		inline void local_stop() { local_state = R_STOP;}
-		inline void local_run() { local_state = R_RUN;}
-		inline void ask_local_stop() { local_request = R_STOP;}
-		inline void ask_local_run() { local_request = R_RUN;}
 
 		void checkFunction();
 };

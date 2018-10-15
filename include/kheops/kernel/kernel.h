@@ -19,6 +19,7 @@ The fact that you are presently reading this means that you have had knowledge o
 
 #include <map>
 #include <memory>
+#include "kheops/kernel/kstate.h"
 #include "kheops/kernel/graph.h"
 #include "kheops/kernel/runner.h"
 #include "kheops/kernel/inputbase.h"
@@ -27,11 +28,13 @@ The fact that you are presently reading this means that you have had knowledge o
 #include "kheops/links/iscalar.h"
 #include "kheops/links/imatrix.h"
 
-const std::string K_STATE[] = {"stop","pause","run"};
+// in millisecondes
+const int wait_delay = 100;
 
 class Kernel 
 {
 	private :
+		static Kernel singleton;
 
 		std::string script_file;
 		std::string weight_file;
@@ -60,13 +63,12 @@ class Kernel
 		
 		XScript xs;
 
-		static Kernel singleton;
-
 		bool ignore_matrix_check;
-
+		bool squit;
+	
 	public :
 	
-		Kernel(){}
+		Kernel() : squit(false) {}
 		~Kernel();
 		Kernel(const Kernel&) = delete;
                 Kernel& operator=(const Kernel&) = delete;
@@ -102,6 +104,9 @@ class Kernel
 		void add_function(const XFunction&);
 		void del_function(const std::string & uuid);
 		void prerun_functions();
+		void onQuit_functions();
+		void onPause_functions();
+		void onRun_functions();
 		
 		void init_rt_token();
 		void update_rt_token_value( const XRtToken& xrt );
@@ -111,7 +116,9 @@ class Kernel
 		void add_runner(const std::string& uuid);
 		void remove_runner(const std::string& uuid);
 		void spawn_runners();
-		void join_runners();
+		void quit_runners();
+		void wait_for_resume_runners();
+		void wait_for_pause_runners();
 
 		void bind( InputBase& value,const std::string& var_name,const std::string& uuid );
 		void bind( IString& value,const std::string& var_name,const std::string& uuid );
@@ -145,11 +152,12 @@ class Kernel
 		// Static member : 
 		static inline Kernel& instance() noexcept {return singleton;}
 		static void init(std::string scriptfile, std::string resfile, bool ignore_matrix_check = false);
+                
 		static void load(); 	
 		static void prerun(); 	
-		static void terminate();
 		static void quit();
-		static void wait();
+		static void ask_quit() {singleton.squit = true;}
+		static bool is_asking_quit() {return singleton.squit;}
 		static void resume(); 
 		static void pause(); 
 		static void start(bool run);

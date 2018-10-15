@@ -14,25 +14,24 @@ and, more generally, to use and operate it in the same conditions as regards sec
 The fact that you are presently reading this means that you have had knowledge of the CeCILL v2.1 license and that you accept its terms.
 */
 
-#include <iostream>
 #include "kheops/kernel/rttoken.h"
 #include "kheops/kernel/frunner.h"
 #include "kheops/ros/rospublisher.h"
 
 
-RtToken::RtToken() : Runner(),period(0), state(R_PAUSE), publish(false) 
+RtToken::RtToken() : Runner(),period(0),  publish(false) 
 {
 	o_pub = new RosOscilloPublisher(1,"oscillo");
 	rt_pub = new RosRtTokenOutputPublisher(1, "rt_token"); 
 }
 
-RtToken::RtToken(double period) : Runner(),period(period),state(R_PAUSE),publish(false)
+RtToken::RtToken(double period) : Runner(),period(period),publish(false)
 { 
 	o_pub = new RosOscilloPublisher(1,"oscillo");
 	rt_pub = new RosRtTokenOutputPublisher(1, "rt_token"); 
 }
 
-RtToken::RtToken(double value, std::string unit) : Runner(),state(R_PAUSE), publish(false)
+RtToken::RtToken(double value, std::string unit) : Runner(), publish(false)
 {
 	setToken(value,unit); 
 	o_pub = new RosOscilloPublisher(1,"oscillo");
@@ -78,10 +77,15 @@ void RtToken::setToken(double value, std::string unit)
 
 void RtToken::exec()
 {
-	while( !__is_asking_stop() )
+	while( ! Runner::is_asking_stop() )
 	{
-		wait_ask_resume();
-		if( __is_asking_stop() ) continue;
+		if( Runner::is_asking_pause())
+		{	
+			sync_all();
+			pause();
+			Runner::wait_ask_resume();
+			resume();
+		}
 
 		auto start = std::chrono::system_clock::now();
 
@@ -118,44 +122,6 @@ void RtToken::exec()
 	stop();
 }
 
-void RtToken::wait_ask_resume()
-{
-        {
-		if( __is_asking_pause()) pause();
-                std::unique_lock<std::mutex> lk(rt_mtx);
-                rt_cv.wait(lk, [=] {  return  !__is_asking_pause();}  );
-        }
-	resume();
-}
-
-
-void RtToken::wait_for_pause()
-{
-        {
-                std::unique_lock<std::mutex> lk(rt_mtx);
-                rt_cv.wait(lk,   [=] {return is_pause();  }  );
-        }
-}
-
-void RtToken::change_request(int request)
-{
-        {
-                std::unique_lock<std::mutex> lk(rt_mtx);
-                Runner::request = request;
-        }
-        rt_cv.notify_all();
-}
-
-
-void RtToken::change_state(int state)
-{
-        {
-                std::unique_lock<std::mutex> lk(rt_mtx);
-                this->state = state;
-        }
-        rt_cv.notify_all();
-}
-
 void RtToken::sync_all()
 {
         std::pair<vertex_iter, vertex_iter> it = boost::vertices(*g);
@@ -168,12 +134,6 @@ void RtToken::sync_all()
           	dynamic_cast<FRunner*>(r)->sync();
        	    }
 	}
-}
-
-void RtToken::terminate()
-{
-	ask_stop();
-	join();
 }
 
 void RtToken::active_oscillo(bool state)
@@ -286,3 +246,4 @@ void RtToken::publish_message()
 		}
 	}
 }
+

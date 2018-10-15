@@ -32,8 +32,16 @@ Kernel::~Kernel()
 	{
 		Function *f = boost::get(boost::vertex_function , graph)[ it->second  ];
 		if( f != NULL ) delete(f);
+		
+		
+		if(it->first != rttoken.getUuid())
+		{
+			Runner * runner = boost::get(boost::vertex_runner, graph)[it->second];
+			delete(runner);
+		}
+		
 	}
-
+	
 	for( auto it = edge_map.begin(); it != edge_map.end(); it++)
 	{
 		kLink *l = boost::get(boost::edge_klink , graph)[ it->second  ];
@@ -183,6 +191,8 @@ void Kernel::del_function(const std::string& uuid)
 
 	Function *f =  boost::get(boost::vertex_function , graph)[ node_map[uuid]];
 
+	f->onQuit();
+
 	//purge all ilinks in all inputs
 	for( auto input = f->get_input().begin() ; input !=  f->get_input().end(); input++)
 	{
@@ -195,7 +205,7 @@ void Kernel::del_function(const std::string& uuid)
 	// purge all klinks for the function
 	purge_klinks(uuid);
 	
-	// remove from runner
+	// remove the runner
 	remove_runner(uuid);
 	
 	clear_vertex(node_map[uuid] , graph);
@@ -213,6 +223,33 @@ void Kernel::prerun_functions()
 		Function *f =  boost::get(boost::vertex_function , graph)[ node_map[it->first]];
 		if( f != NULL ) f->prerun();
         }
+}
+
+void Kernel::onQuit_functions()
+{
+        for(auto it = node_map.begin(); it != node_map.end(); ++it)
+        {
+		Function *f =  boost::get(boost::vertex_function , graph)[ node_map[it->first]];
+		if( f != NULL ) f->onQuit();
+	}
+}
+
+void Kernel::onPause_functions()
+{
+        for(auto it = node_map.begin(); it != node_map.end(); ++it)
+        {
+		Function *f =  boost::get(boost::vertex_function , graph)[ node_map[it->first]];
+		if( f != NULL ) f->onPause();
+	}
+}
+
+void Kernel::onRun_functions()
+{
+        for(auto it = node_map.begin(); it != node_map.end(); ++it)
+        {
+		Function *f =  boost::get(boost::vertex_function , graph)[ node_map[it->first]];
+		if( f != NULL ) f->onRun();
+	}
 }
 
 /********************************************************************************************************/
@@ -526,9 +563,9 @@ void Kernel::purge_output_ilinks(const std::string& uuid)
 	}
 }
 
-/********************************************************************************************************/
-/****************** 			Runner Section	 			      *******************/
-/********************************************************************************************************/
+/*******************************************************************************************************/
+/****************** 			Runner Section	 			      ******************/
+/*******************************************************************************************************/
 
 void Kernel::add_runner(const std::string& uuid)
 {
@@ -564,24 +601,66 @@ void Kernel::spawn_runners()
 	}
 }
 
-void Kernel::join_runners()
+void Kernel::quit_runners()
 {
 	std::pair<vertex_iter, vertex_iter> it = boost::vertices(graph);
-	for( ; it.first != it.second; ++it.first)
-	{	
-		Runner* runner = boost::get(boost::vertex_runner, graph, *it.first);
-		
-		if( runner != NULL )
-		{	
-			if( runner->joinable()) runner->join();
+        for( ; it.first != it.second; ++it.first)
+        {
+                Runner* runner = boost::get(boost::vertex_runner, graph, *it.first);
+
+                if( runner != NULL ) 
+		{
+			if( runner->wait_for_quit_timeout(wait_delay) &&  runner->joinable() )
+			{	
+				runner->join();
+			}
+			else 
+			{
+				runner->terminate();
+        		}
 		}
 	}
 }
 
+void Kernel::wait_for_resume_runners()
+{
+	std::pair<vertex_iter, vertex_iter> it = boost::vertices(graph);
+        for( ; it.first != it.second; ++it.first)
+        {
+                Runner* runner = boost::get(boost::vertex_runner, graph, *it.first);
 
-/********************************************************************************************************/
-/****************** 			Bind Section 				      *******************/
-/********************************************************************************************************/
+                if( runner != NULL )
+                {
+                        if( ! runner->wait_for_run_timeout(wait_delay))
+                        {
+                        	throw std::invalid_argument( "Kernel : unable to resume the kernel, RUNNER is \"locked\" in pause mode");
+                        }
+                }
+        }
+
+}
+
+void Kernel::wait_for_pause_runners()
+{
+        std::pair<vertex_iter, vertex_iter> it = boost::vertices(graph);
+        for( ; it.first != it.second; ++it.first)
+        {
+                Runner* runner = boost::get(boost::vertex_runner, graph, *it.first);
+
+                if( runner != NULL )
+                {
+                        if( ! runner->wait_for_pause_timeout(wait_delay))
+                        {
+                                throw std::invalid_argument( "Kernel : unable to pause the kernel, RUNNER is locked in \"resume\" mode");
+                        }
+                }
+        }
+
+}
+
+/*******************************************************************************************************/
+/****************** 			Bind Section 				      ******************/
+/*******************************************************************************************************/
 
 void Kernel::bind(InputBase& value,const std::string& var_name,const std::string& uuid)
 {
@@ -636,9 +715,9 @@ void Kernel::purge_empty_links(const std::string& uuid)
 }
 
 
-/********************************************************************************************************/
-/****************** 			Publish Section 			      *******************/
-/********************************************************************************************************/
+/*******************************************************************************************************/
+/****************** 			Publish Section 			      ******************/
+/*******************************************************************************************************/
 
 bool Kernel::active_publish(const std::string& uuid, bool state)
 {
@@ -670,9 +749,9 @@ bool Kernel::active_publish(const std::string& uuid, bool state)
 	return ret;
 }
 
-/********************************************************************************************************/
-/****************** 		    	 Save Activity  			      *******************/
-/********************************************************************************************************/
+/*******************************************************************************************************/
+/****************** 		    	 Save Activity  			      ******************/
+/*******************************************************************************************************/
 
 bool Kernel::save_activity(const std::string& uuid, bool state)
 {
@@ -688,9 +767,9 @@ bool Kernel::save_activity(const std::string& uuid, bool state)
 	return ret;
 }
 
-/********************************************************************************************************/
-/****************** 			Objects Section 			      *******************/
-/********************************************************************************************************/
+/*******************************************************************************************************/
+/****************** 			Objects Section 			      ******************/
+/*******************************************************************************************************/
 
 void Kernel::get_objects(std::vector<std::string> & objects)
 {
@@ -730,9 +809,10 @@ void Kernel::get_rt_token(std::vector<std::string> & objects)
 }
 
 
-/********************************************************************************************************/
-/****************** 			Static Section 				      *******************/
-/********************************************************************************************************/
+
+/*******************************************************************************************************/
+/**************** 			Static Section 				     *******************/
+/*******************************************************************************************************/
 
 void Kernel::init(std::string script_file, std::string weight_file, bool ignore_matrix_check)
 {
@@ -761,31 +841,32 @@ void Kernel::init(std::string script_file, std::string weight_file, bool ignore_
 	singleton.ignore_matrix_check = ignore_matrix_check;
 }
 
+
 void Kernel::quit()
 {
-	singleton.rttoken.ask_stop();
-}
+	Runner::ask_stop();
 
-void Kernel::terminate()
-{
-	singleton.rttoken.ask_stop();
-	singleton.join_runners();
-}
-
-void Kernel::wait()
-{
-	singleton.join_runners();
+	// Call Function::onQuit 
+	singleton.onQuit_functions();
+	singleton.quit_runners();
 }
 
 void Kernel::resume()
 {
-        singleton.rttoken.ask_resume();
+	// Call onResume
+	singleton.onRun_functions();
+	
+	Runner::ask_resume();	
+        singleton.wait_for_resume_runners();
 }
 
 void Kernel::pause()
 {
-        singleton.rttoken.ask_pause();
-        singleton.rttoken.wait_for_pause();
+	Runner::ask_pause();
+	
+	// Call onPause
+	singleton.onPause_functions();
+        singleton.wait_for_pause_runners();
 }
 
 void Kernel::load()
@@ -795,7 +876,7 @@ void Kernel::load()
         singleton.load_rttoken();
         singleton.load_weight();
 }
-	
+
 void Kernel::prerun()
 {
 	singleton.prerun_functions();

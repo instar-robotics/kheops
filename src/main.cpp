@@ -39,12 +39,12 @@ void signals_handler(int number)
     case SIGINT:
       	syslog( LOG_LOCAL0|LOG_LOCAL0 , "KHEOPS SIGINT received : interruption " );
       	if( cinter != NULL) delete(cinter); 
-	Kernel::terminate();
+	Kernel::quit();
       	break;
     case SIGTERM :
         syslog( LOG_LOCAL0|LOG_LOCAL0 , "KHEOPS SIGTERM received : terminaison" );
 	if(cinter != NULL) delete(cinter);
-        Kernel::terminate();
+        Kernel::quit();
 	break;
     default : 
 	std::string mess = "KHEOPS received unknown SIGNAL" + number;
@@ -155,7 +155,7 @@ int main(int argc, char **argv)
 	LibManager::init(libdir);
 	LibManager::load();
 
-	Kernel::init(script,weight, ignore_matrix_check);	
+	Kernel::init(script, weight, ignore_matrix_check);	
 	
 	try{
 
@@ -171,10 +171,9 @@ int main(int argc, char **argv)
 	catch (std::exception& e)
 	{
 		std::cerr << "FATAL. " <<  e.what() << std::endl;		
-		Kernel::quit();
 	}
 
-	Kernel::wait();
+	Kernel::quit();
 	delete(cinter);
 
 	return 0;

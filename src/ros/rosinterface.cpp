@@ -26,8 +26,9 @@ void RosInterface::enter()
 {
 	ros::Rate r(DEFAULT_RATE);
 
-	while( Kernel::instance().getState() != R_STOP )
+	while( !Kernel::is_asking_quit() )
 	{
+	    exec_request();
 	    ros::spinOnce();
 	    r.sleep();
 	}
@@ -63,7 +64,7 @@ bool RosInterface::callback_activity(hieroglyph::ArgCmd::Request& request,hierog
         }
         else if( request.cmd == CMD[S_STOP])
         {
-                if(state == R_RUN) Kernel::instance().pause();
+                if(state == K_RUN) Kernel::instance().pause();
 
                 if( Kernel::instance().save_activity( request.arg, false ) )
                 {
@@ -74,7 +75,7 @@ bool RosInterface::callback_activity(hieroglyph::ArgCmd::Request& request,hierog
                         response.ret = RETURN[1];
                 }
 
-                if( state == R_RUN) Kernel::instance().resume();
+                if( state == K_RUN) Kernel::instance().resume();
         }
         else  response.ret = RETURN[0];
 
@@ -125,12 +126,12 @@ bool RosInterface::callback_rt_token( hieroglyph::SimpleCmd::Request& request, h
 	}
 	else if( request.cmd == CMD[S_STOP]  )
 	{
-		if(state == R_RUN) Kernel::instance().pause();
+		if(state == K_RUN) Kernel::instance().pause();
 
 		rt.active_publish(false);
 		response.ret = CMD[S_STOP];
 
-		if( state == R_RUN) Kernel::instance().resume();
+		if( state == K_RUN) Kernel::instance().resume();
 	}
 	else  response.ret = RETURN[0];
 
@@ -150,13 +151,13 @@ bool RosInterface::callback_oscillo( hieroglyph::SimpleCmd::Request& request, hi
 	}
 	else if( request.cmd == CMD[S_STOP])
 	{
-		if(state == R_RUN) Kernel::instance().pause();
+		if(state == K_RUN) Kernel::instance().pause();
 
 		// Stop TOPIC 
 		rt.active_oscillo(false);
 		response.ret = CMD[S_STOP];
 		
-		if( state == R_RUN) Kernel::instance().resume();
+		if( state == K_RUN) Kernel::instance().resume();
 	}
 	else  response.ret = RETURN[0];
 
@@ -180,7 +181,7 @@ bool RosInterface::callback_output( hieroglyph::ArgCmd::Request& request, hierog
 	}
 	else if( request.cmd == CMD[S_STOP])
 	{
-		if(state == R_RUN) Kernel::instance().pause();
+		if(state == K_RUN) Kernel::instance().pause();
 
 		if( Kernel::instance().active_publish( request.arg, false ) )
 		{
@@ -191,7 +192,7 @@ bool RosInterface::callback_output( hieroglyph::ArgCmd::Request& request, hierog
 			response.ret = RETURN[1];
 		}
 
-		if( state == R_RUN) Kernel::instance().resume();
+		if( state == K_RUN) Kernel::instance().resume();
 	}
 	else  response.ret = RETURN[0];
 
@@ -215,7 +216,7 @@ bool RosInterface::callback_rt_stat( hieroglyph::RtStat::Request&, hieroglyph::R
 bool RosInterface::callback_weight( hieroglyph::ArgCmd::Request& request, hieroglyph::ArgCmd::Response& response)
 {
 	int state = Kernel::instance().getState();
-	if(state == R_RUN) Kernel::instance().pause();
+	if(state == K_RUN) Kernel::instance().pause();
 
 	if( request.cmd == CMD[S_SAVE] )
 	{
@@ -241,27 +242,32 @@ bool RosInterface::callback_weight( hieroglyph::ArgCmd::Request& request, hierog
 	}
 	else  response.ret = RETURN[0];
 
-	if( state == R_RUN) Kernel::instance().resume();
+	if( state == K_RUN) Kernel::instance().resume();
 
 	return true;
 }
 
 bool RosInterface::callback_control(hieroglyph::SimpleCmd::Request& request, hieroglyph::SimpleCmd::Response& response)
 {
+	Request r;
+
 	if( request.cmd == CMD[S_RESUME])
 	{
+		r.id = S_RESUME;
 		response.ret = CMD[S_RESUME];
-		Kernel::resume();
+		qrequest.push(r);
 	}
 	else if( request.cmd == CMD[S_QUIT] )
 	{
+		r.id = S_QUIT;
 		response.ret = CMD[S_QUIT];
-		Kernel::quit();
+		qrequest.push(r);
 	}
 	else if( request.cmd == CMD[S_PAUSE] )
 	{
+		r.id = S_PAUSE;
 		response.ret = CMD[S_PAUSE];
-		Kernel::pause();
+		qrequest.push(r);
 	}
 	else if( request.cmd == CMD[S_STATUS] )
 	{

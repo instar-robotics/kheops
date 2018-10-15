@@ -18,6 +18,8 @@ The fact that you are presently reading this means that you have had knowledge o
 #define __COM_INTERFACE_H__
 
 #include <string>
+#include <queue>
+#include <vector>
 
 /**************************  List of interfaces *******************************
 *  1- help : list all the request supported by kheops
@@ -70,8 +72,19 @@ const int S_INPUTS=12;
 const int S_ILINKS=13;
 const int S_ACTIVITY=14;
 
+
+struct Request
+{
+	int id;
+	std::vector<std::string> args;
+};
+
 class ComInterface
 {
+	protected : 
+
+		std::queue<Request> qrequest;
+
 	public : 
 
 		ComInterface(){}
@@ -80,6 +93,8 @@ class ComInterface
 		virtual void init(int argc, char ** argv, std::string prog_name, std::string script_name) = 0;
 		virtual void registerListener() = 0;
 		virtual void enter() = 0;
+
+		void exec_request();
 };
 
 #endif // __COM_INTERFACE_H__
