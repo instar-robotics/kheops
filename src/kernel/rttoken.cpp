@@ -118,8 +118,6 @@ void RtToken::exec()
 			publish_message();
 		}
 	}
-
-	sleep(10);
 	sync_all();
 	stop();
 }
@@ -136,14 +134,6 @@ void RtToken::sync_all()
           	dynamic_cast<FRunner*>(r)->sync();
        	    }
 	}
-}
-
-void RtToken::terminate()
-{
-//	sync_all();
-
-//        thx.detach();
-        thx.~thread();
 }
 
 void RtToken::active_oscillo(bool state)

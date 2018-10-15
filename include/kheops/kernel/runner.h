@@ -27,6 +27,7 @@ class Runner
 {
         protected :
 		
+		std::thread::native_handle_type handle;
                 std::thread thx;
                 Graph const *g;
 		Graph::vertex_descriptor node;
@@ -65,12 +66,18 @@ class Runner
 
 		// Payload of the runner
                 virtual void exec() = 0;
-		virtual void terminate() = 0;
+
 
                 void produce(const Graph::vertex_descriptor v_mtx);
                 void consume(const Graph::vertex_descriptor v_mtx);
 
-		inline void spawn() {thx = std::thread( [=] { exec(); } );}
+		inline void spawn() { 
+//			thx = std::thread( [=] { exec(); } );
+			thx = std::thread(&Runner::exec, this);
+			handle = thx.native_handle();
+		}
+		
+		void terminate();
 		inline void join() {thx.join();}
 		inline bool joinable() { return thx.joinable();}
 		inline std::thread & getThread() {return thx;}

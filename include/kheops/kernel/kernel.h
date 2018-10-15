@@ -28,6 +28,9 @@ The fact that you are presently reading this means that you have had knowledge o
 #include "kheops/links/iscalar.h"
 #include "kheops/links/imatrix.h"
 
+// in millisecondes
+const int wait_delay = 100;
+
 class Kernel 
 {
 	private :
@@ -113,8 +116,9 @@ class Kernel
 		void add_runner(const std::string& uuid);
 		void remove_runner(const std::string& uuid);
 		void spawn_runners();
-		void join_runners();
-		void terminate_runners();
+		void quit_runners();
+		void wait_for_resume_runners();
+		void wait_for_pause_runners();
 
 		void bind( InputBase& value,const std::string& var_name,const std::string& uuid );
 		void bind( IString& value,const std::string& var_name,const std::string& uuid );
@@ -151,7 +155,6 @@ class Kernel
                 
 		static void load(); 	
 		static void prerun(); 	
-		static void terminate();
 		static void quit();
 		static void ask_quit() {singleton.squit = true;}
 		static bool is_asking_quit() {return singleton.squit;}

@@ -70,7 +70,6 @@ class RtToken : public Runner
 
 		void setToken(double value, std::string unit);
 		virtual void exec();
-		virtual void terminate();
 		
 		void sync_all();
 

@@ -123,3 +123,10 @@ void Runner::change_state(int state)
         s_cv.notify_all();
 }
 
+void Runner::terminate()
+{
+        thx.detach();
+        pthread_cancel(handle); 
+        thx.~thread();
+}
+

@@ -39,12 +39,12 @@ void signals_handler(int number)
     case SIGINT:
       	syslog( LOG_LOCAL0|LOG_LOCAL0 , "KHEOPS SIGINT received : interruption " );
       	if( cinter != NULL) delete(cinter); 
-	Kernel::terminate();
+	Kernel::quit();
       	break;
     case SIGTERM :
         syslog( LOG_LOCAL0|LOG_LOCAL0 , "KHEOPS SIGTERM received : terminaison" );
 	if(cinter != NULL) delete(cinter);
-        Kernel::terminate();
+        Kernel::quit();
 	break;
     default : 
 	std::string mess = "KHEOPS received unknown SIGNAL" + number;

@@ -34,7 +34,6 @@ class FRunner : public Runner
                 virtual ~FRunner() {}
 
                 virtual void exec();
-		virtual void terminate();
 		virtual void change_state(int state) {this->state = state;}
 
 		void wait_for_sync();

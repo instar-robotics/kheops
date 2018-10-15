@@ -601,30 +601,61 @@ void Kernel::spawn_runners()
 	}
 }
 
-void Kernel::join_runners()
+void Kernel::quit_runners()
 {
 	std::pair<vertex_iter, vertex_iter> it = boost::vertices(graph);
-	for( ; it.first != it.second; ++it.first)
-	{	
-		Runner* runner = boost::get(boost::vertex_runner, graph, *it.first);
-		
-		if( runner != NULL )
-		{	
-			if( runner->joinable()) runner->join();
-			// TODO : use wait_for_quit instead
+        for( ; it.first != it.second; ++it.first)
+        {
+                Runner* runner = boost::get(boost::vertex_runner, graph, *it.first);
+
+                if( runner != NULL ) 
+		{
+			if( runner->wait_for_quit_timeout(wait_delay) &&  runner->joinable() )
+			{	
+				runner->join();
+			}
+			else 
+			{
+				runner->terminate();
+        		}
 		}
 	}
 }
 
-void Kernel::terminate_runners()
+void Kernel::wait_for_resume_runners()
 {
 	std::pair<vertex_iter, vertex_iter> it = boost::vertices(graph);
-	for( ; it.first != it.second; ++it.first)
-	{	
-		Runner* runner = boost::get(boost::vertex_runner, graph, *it.first);
-		
-		if( runner != NULL )  runner->terminate();
-	}
+        for( ; it.first != it.second; ++it.first)
+        {
+                Runner* runner = boost::get(boost::vertex_runner, graph, *it.first);
+
+                if( runner != NULL )
+                {
+                        if( ! runner->wait_for_run_timeout(wait_delay))
+                        {
+                        	throw std::invalid_argument( "Kernel : unable to resume the kernel, RUNNER is \"locked\" in pause mode");
+                        }
+                }
+        }
+
+}
+
+void Kernel::wait_for_pause_runners()
+{
+        std::pair<vertex_iter, vertex_iter> it = boost::vertices(graph);
+        for( ; it.first != it.second; ++it.first)
+        {
+                Runner* runner = boost::get(boost::vertex_runner, graph, *it.first);
+
+                if( runner != NULL )
+                {
+                        if( ! runner->wait_for_pause_timeout(wait_delay))
+                        {
+                                throw std::invalid_argument( "Kernel : unable to pause the kernel, RUNNER is locked in \"resume\" mode");
+                        }
+                }
+        }
+
 }
 
 /*******************************************************************************************************/
@@ -811,44 +842,13 @@ void Kernel::init(std::string script_file, std::string weight_file, bool ignore_
 }
 
 
-
-void Kernel::terminate()
-{
-	singleton.terminate_runners();
-}
-
-
 void Kernel::quit()
 {
-	// Call Function::onQuit 
-	singleton.onQuit_functions();
-
 	Runner::ask_stop();
 
-
-	std::cout << "WAIT FOR RT TOKEN" << std::endl;
-        
-	
-	if( !singleton.rttoken.wait_for_quit_timeout(100) )
-	{
-		std::cout << "TIMEOUT : TERMINATE" << std::endl;
-		singleton.terminate_runners();
-	}
-	else
-	{
-		std::cout << "END OK : JOIN" << std::endl;
-		singleton.join_runners();
-	}
-
-	/*TODO
-	 * wait for each runner to stop
-	 * then join
-	 *
-	 */
-
-
-
-	// si mal passé : terminate !
+	// Call Function::onQuit 
+	singleton.onQuit_functions();
+	singleton.quit_runners();
 }
 
 void Kernel::resume()
@@ -857,8 +857,7 @@ void Kernel::resume()
 	singleton.onRun_functions();
 	
 	Runner::ask_resume();	
-        singleton.rttoken.wait_for_run();
-	// TODO : wait for each runners
+        singleton.wait_for_resume_runners();
 }
 
 void Kernel::pause()
@@ -867,8 +866,7 @@ void Kernel::pause()
 	
 	// Call onPause
 	singleton.onPause_functions();
-
-        singleton.rttoken.wait_for_pause();
+        singleton.wait_for_pause_runners();
 }
 
 void Kernel::load()

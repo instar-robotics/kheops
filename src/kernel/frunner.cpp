@@ -48,7 +48,6 @@ void FRunner::exec()
 
 		try{	
 			f->compute();
-
 		}
 		catch(std::exception& e)
 		{
@@ -108,13 +107,3 @@ void FRunner::sync()
         }
         cv_sync.notify_one();
 }
-
-void FRunner::terminate()
-{
-//	sync();
-//	produce(node);
-
-	thx.detach();
-	thx.~thread();
-}
-
