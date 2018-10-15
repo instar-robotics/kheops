@@ -67,13 +67,11 @@ class Runner
 		// Payload of the runner
                 virtual void exec() = 0;
 
-
                 void produce(const Graph::vertex_descriptor v_mtx);
                 void consume(const Graph::vertex_descriptor v_mtx);
 
 		inline void spawn() { 
-//			thx = std::thread( [=] { exec(); } );
-			thx = std::thread(&Runner::exec, this);
+			thx = std::thread( [=] { exec(); } );
 			handle = thx.native_handle();
 		}
 		
