@@ -111,10 +111,9 @@ void FRunner::sync()
 
 void FRunner::terminate()
 {
-	/*
-	sync();
-	produce(node);
-*/
+//	sync();
+//	produce(node);
+
 	thx.detach();
 	thx.~thread();
 }

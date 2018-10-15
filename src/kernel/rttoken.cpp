@@ -140,14 +140,10 @@ void RtToken::sync_all()
 
 void RtToken::terminate()
 {
-	/*
-	ask_stop();
-	join();
-	*/
+//	sync_all();
 
-        thx.detach();
+//        thx.detach();
         thx.~thread();
-
 }
 
 void RtToken::active_oscillo(bool state)
