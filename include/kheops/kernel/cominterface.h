@@ -84,7 +84,6 @@ class ComInterface
 	protected : 
 
 		std::queue<Request> qrequest;
-
 	public : 
 
 		ComInterface(){}

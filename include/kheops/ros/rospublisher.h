@@ -20,6 +20,7 @@ The fact that you are presently reading this means that you have had knowledge o
 #include "ros/ros.h"
 #include "std_msgs/Float64MultiArray.h"
 #include "std_msgs/Float64.h"
+#include "diagnostic_msgs/KeyValue.h"
 #include "kheops/kernel/publisher.h" 
 #include "kheops/ros/roswrapper.h"
 #include "hieroglyph/OscilloArray.h"
@@ -134,6 +135,19 @@ class RosMatrixPublisher : public RosDataPublisher<MatrixXd, std_msgs::Float64Mu
 		virtual void setMessage(const MatrixXd& m);
 		virtual void setSize(unsigned int rows,unsigned int cols);
 		virtual bool checkSize( unsigned int rows, unsigned int cols );
+};
+
+class RosStatusPublisher : public RosDataPublisher<StatusMessage,diagnostic_msgs::KeyValue>
+{
+	public : 
+		RosStatusPublisher(int size, const std::string& pub_name ) : RosDataPublisher(size)
+		{
+			Publisher::pub_name = pub_name ;
+			RosWrapper::clean_topic_name(Publisher::pub_name);
+		}
+                virtual ~RosStatusPublisher(){}
+
+                virtual void setMessage(const StatusMessage& m);
 };
 
 #endif // __ROS_PUBLISHER_H__

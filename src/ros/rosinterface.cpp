@@ -227,7 +227,7 @@ bool RosInterface::callback_weight( hieroglyph::ArgCmd::Request& request, hierog
 	}	
 	else{
 	       	response.ret = RETURN[0];
-		return true;  // No, this not an error, needed by ROS to not breking truth ... :)
+		return true;  // No, this is not an error, needed by ROS to not breking truth ... :)
 	}
 
 	r.args.push_back( request.arg );

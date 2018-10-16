@@ -19,6 +19,7 @@ The fact that you are presently reading this means that you have had knowledge o
 
 #include <map>
 #include <memory>
+#include "kheops/kernel/publisher.h"
 #include "kheops/kernel/kstate.h"
 #include "kheops/kernel/graph.h"
 #include "kheops/kernel/runner.h"
@@ -65,10 +66,12 @@ class Kernel
 
 		bool ignore_matrix_check;
 		bool squit;
+
+		StatusPublisher *k_pub;
 	
 	public :
 	
-		Kernel() : squit(false) {}
+		Kernel();
 		~Kernel();
 		Kernel(const Kernel&) = delete;
                 Kernel& operator=(const Kernel&) = delete;
@@ -135,9 +138,6 @@ class Kernel
 		RtToken& getRtToken() {return rttoken;}
 		const std::string& getPath(){return script_file;}
 
-
-		// Output 		
-		bool active_publish(const std::string& uuid, bool state);
 		
 		// Save activity  		
 		bool save_activity(const std::string& uuid, bool state);
@@ -148,6 +148,12 @@ class Kernel
 		void get_ilinks(std::vector<std::string> & objects);
 		void get_functions(std::vector<std::string> & objects);
 		void get_rt_token(std::vector<std::string> & objects);
+
+		//Publish
+		// Active publishing of the object defined by UUID
+		bool active_publish(const std::string& uuid, bool state);
+		void publish_status(StatusMessage &message);
+		void active_status(bool state);
 
 		// Static member : 
 		static inline Kernel& instance() noexcept {return singleton;}
@@ -161,11 +167,9 @@ class Kernel
 		static void quit();
 		static void ask_quit() {singleton.squit = true;}
 		static bool is_asking_quit() {return singleton.squit;}
-
 		
 		static void iBind(InputBase& value,const std::string& var_name,const std::string& uuid );
 		static void iBind(IString& value,const std::string& var_name,const std::string& uuid );
-
 };
 
 #endif // __KERNEL_H__

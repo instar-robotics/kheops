@@ -29,7 +29,6 @@ void ComInterface::exec_request()
 		{
 			case S_RESUME :
 				Kernel::resume();
-				// Send on topic : resume OK
 				break;
 			case S_QUIT :
 				Kernel::ask_quit();

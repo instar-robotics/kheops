@@ -80,9 +80,16 @@ class OscilloMessage{
 		OscilloMessage(const std::string &uuid) : uuid(uuid) {}
 };
 
+class StatusMessage{
+	public : 
+		std::string key;
+		std::string value;
+};
+
 typedef ArrayPublisher<OscilloMessage> OscilloPublisher;
 typedef DataPublisher<OscilloMessage> RtTokenOutputPublisher;
 typedef DataPublisher<MatrixXd> MatrixPublisher;
 typedef DataPublisher<double> ScalarPublisher;
+typedef DataPublisher<StatusMessage> StatusPublisher;
 
 #endif // __PUBLISHER_H__

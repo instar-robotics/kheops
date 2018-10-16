@@ -171,7 +171,6 @@ void RtToken::publish_oscillo()
         {
             Runner *r = boost::get(boost::vertex_runner, *g, *it.first);
 
-
             if( r == this)
             {
 	    	OscilloMessage om( getUuid() );
@@ -185,7 +184,6 @@ void RtToken::publish_oscillo()
 		else  om.warning = false; 
             
 		o_pub->add( om );	
-
             }
 	    else
 	    {

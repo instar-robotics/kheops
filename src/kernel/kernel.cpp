@@ -23,8 +23,16 @@ The fact that you are presently reading this means that you have had knowledge o
 #include "kheops/kernel/frunner.h"
 #include "kheops/iostream/weightconverter.h"
 #include "kheops/util/util.h"
+#include "kheops/kernel/cominterface.h"
+#include "kheops/ros/rospublisher.h"
+
 
 Kernel Kernel::singleton;
+
+Kernel::Kernel() : squit(false), k_pub(NULL) 
+{	 
+	k_pub = new RosStatusPublisher(5, "status");
+}
 
 Kernel::~Kernel()
 {	
@@ -39,7 +47,6 @@ Kernel::~Kernel()
 			Runner * runner = boost::get(boost::vertex_runner, graph)[it->second];
 			delete(runner);
 		}
-		
 	}
 	
 	for( auto it = edge_map.begin(); it != edge_map.end(); it++)
@@ -61,6 +68,13 @@ Kernel::~Kernel()
 	input_to_funct.clear();
 	
 	inputs.clear();
+
+	if( k_pub != NULL )
+        {
+                if( k_pub->is_open() ) k_pub->close();
+                delete(k_pub);
+        }
+
 }
 
 /********************************************************************************************************/
@@ -316,9 +330,9 @@ void Kernel::clear_rt_klink()
 	}
 }
 
-/********************************************************************************************************/
-/****************** 			        kLink Section			      *******************/
-/********************************************************************************************************/
+/*******************************************************************************************************/
+/******************* 		           kLink Section		   	   *********************/
+/*******************************************************************************************************/
 
 void Kernel::add_klink(const std::string &in_uuid, const XLink& xl)
 {
@@ -714,41 +728,6 @@ void Kernel::purge_empty_links(const std::string& uuid)
         else throw std::invalid_argument("Kernel : unable to purge ilink from input "+uuid );
 }
 
-
-/*******************************************************************************************************/
-/****************** 			Publish Section 			      ******************/
-/*******************************************************************************************************/
-
-bool Kernel::active_publish(const std::string& uuid, bool state)
-{
-	bool ret = true;
-
-	// Active RtToken Output
-	if( uuid == rttoken.getUuid() )
-	{
-		rttoken.active_publish(state);
-	}
-	// Active Function Output 
-	else if( node_map.find( uuid ) != node_map.end() )
-	{
-		Function *f =  boost::get(boost::vertex_function , graph)[ node_map[uuid]];
-
-		if( f != NULL ) f->active_publish(state);
-		else ret = false;
-	}
-	// Active ilink Output
-	else if( ilinks.find( uuid ) != ilinks.end() ) 
-	{
-		ilinks[uuid]->active_publish(state);		
-	}
-	else 
-	{
-		ret = false;
-	}
-
-	return ret;
-}
-
 /*******************************************************************************************************/
 /****************** 		    	 Save Activity  			      ******************/
 /*******************************************************************************************************/
@@ -809,6 +788,67 @@ void Kernel::get_rt_token(std::vector<std::string> & objects)
 }
 
 
+/*******************************************************************************************************/
+/****************** 			Publish Section 			      ******************/
+/*******************************************************************************************************/
+
+bool Kernel::active_publish(const std::string& uuid, bool state)
+{
+	bool ret = true;
+
+	// Active RtToken Output
+	if( uuid == rttoken.getUuid() )
+	{
+		rttoken.active_publish(state);
+	}
+	// Active Function Output 
+	else if( node_map.find( uuid ) != node_map.end() )
+	{
+		Function *f =  boost::get(boost::vertex_function , graph)[ node_map[uuid]];
+
+		if( f != NULL ) f->active_publish(state);
+		else ret = false;
+	}
+	// Active ilink Output
+	else if( ilinks.find( uuid ) != ilinks.end() ) 
+	{
+		ilinks[uuid]->active_publish(state);		
+	}
+	else 
+	{
+		ret = false;
+	}
+
+	return ret;
+}
+
+void Kernel::publish_status(StatusMessage &message)
+{	
+	if( k_pub == NULL ) return;
+	if( !k_pub->is_open()) return; 
+
+	k_pub->setMessage(message);
+	k_pub->publish();
+}
+
+void Kernel::active_status(bool state)
+{
+        if(state)
+        {
+                if( k_pub != NULL )
+                {
+                        if( !k_pub->is_open()) k_pub->open();
+                }
+                else throw std::invalid_argument("Kernel : failed to open status publisher");
+        }
+        else
+        {
+                if( k_pub != NULL)
+                {
+                        if( k_pub->is_open() )  k_pub->close();
+                }
+        }
+}
 
 /*******************************************************************************************************/
 /**************** 			Static Section 				     *******************/
@@ -849,6 +889,11 @@ void Kernel::quit()
 	// Call Function::onQuit 
 	singleton.onQuit_functions();
 	singleton.quit_runners();
+	
+	StatusMessage m;
+	m.key = "control" ;
+	m.value = CMD[S_QUIT];
+	singleton.publish_status(m);
 }
 
 void Kernel::resume()
@@ -858,6 +903,11 @@ void Kernel::resume()
 	
 	Runner::ask_resume();	
         singleton.wait_for_resume_runners();
+
+	StatusMessage m;
+	m.key = "control" ;
+	m.value = CMD[S_RESUME];
+	singleton.publish_status(m);
 }
 
 void Kernel::pause()
@@ -867,6 +917,11 @@ void Kernel::pause()
 	// Call onPause
 	singleton.onPause_functions();
         singleton.wait_for_pause_runners();
+	
+	StatusMessage m;
+	m.key = "control" ;
+	m.value = CMD[S_PAUSE];
+	singleton.publish_status(m);
 }
 
 void Kernel::load()
@@ -883,9 +938,11 @@ void Kernel::prerun()
 }
 
 void Kernel::start(bool run)
-{
+{ 	
+	singleton.active_status(true);
 	singleton.spawn_runners();
 	if( run ) resume();
+	else pause();
 }
 
 void Kernel::iBind( InputBase& value,const std::string& var_name,const std::string& uuid )

@@ -38,6 +38,7 @@
   <buildtool_depend>catkin</buildtool_depend>
   <depend>hieroglyph</depend>
   <depend>roscpp</depend>
+  <depend>diagnostic_msgs</depend>
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>

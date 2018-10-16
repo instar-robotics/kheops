@@ -4,6 +4,7 @@ project(kheops)
 set(CATKIN_DEP
   roscpp
   hieroglyph
+  diagnostic_msgs
 )
 
 find_package(catkin REQUIRED COMPONENTS ${CATKIN_DEP})
