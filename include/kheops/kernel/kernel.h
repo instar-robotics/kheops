@@ -148,6 +148,7 @@ class Kernel
 		void get_ilinks(std::vector<std::string> & objects);
 		void get_functions(std::vector<std::string> & objects);
 		void get_rt_token(std::vector<std::string> & objects);
+		bool find_object(const std::string& uuid);
 
 		//Publish
 		// Active publishing of the object defined by UUID
@@ -169,6 +170,9 @@ class Kernel
 		static bool is_asking_quit() {return singleton.squit;}
 		static void sweight_save(std::string& path);
 		static void sweight_load(std::string& path);
+		static void active_oscillo(bool order);
+		static void active_output(const std::string& uuid, bool order);
+		static void active_rt_token(bool order);
 		
 		static void iBind(InputBase& value,const std::string& var_name,const std::string& uuid );
 		static void iBind(IString& value,const std::string& var_name,const std::string& uuid );

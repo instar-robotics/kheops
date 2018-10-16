@@ -789,6 +789,28 @@ void Kernel::get_rt_token(std::vector<std::string> & objects)
 	objects.push_back("rt_token:"+rttoken.getUuid());
 }
 
+bool Kernel::find_object(const std::string& uuid)
+{
+	bool ret = false;
+
+	// Active RtToken Output
+        if( uuid == rttoken.getUuid() )
+        {
+		ret = true;
+        }
+        // Active Function Output
+        else if( node_map.find( uuid ) != node_map.end() )
+        {
+		ret = true;
+        }
+        // Active ilink Output
+        else if( ilinks.find( uuid ) != ilinks.end() )
+        {
+		ret = true;
+        }
+
+	return ret;
+}
 
 /*******************************************************************************************************/
 /****************** 			Publish Section 			      ******************/
@@ -896,18 +918,19 @@ void Kernel::quit()
 		singleton.onQuit_functions();
 		singleton.quit_runners();
 
-		m.key = "control" ;
+		m.key = CMD[C_CONTROL] ;
 		m.value = CARG[S_QUIT];
 		singleton.publish_status(m);
 	}
 	catch(...)
 	{
+	  m.key = CMD[C_CONTROL] ;
+	  m.value = CARG[S_QUIT]+"_failed";
+	  singleton.publish_status(m);
+
 	  eptr = std::current_exception(); 
 	  if (eptr) 
 	  { 
-		  m.key = "control" ;
-		  m.value = CARG[S_QUIT]+"_failed";
-		  singleton.publish_status(m);
 		  std::rethrow_exception(eptr);
 	  }
 	}
@@ -925,18 +948,19 @@ void Kernel::resume()
 		Runner::ask_resume();	
         	singleton.wait_for_resume_runners();
 
-		m.key = "control" ;
+		m.key = CMD[C_CONTROL] ;
 		m.value = CARG[S_RESUME];
 		singleton.publish_status(m);
 	}
 	catch(...)
 	{
+	  m.key = CMD[C_CONTROL] ;
+	  m.value = CARG[S_RESUME]+"_failed";
+	  singleton.publish_status(m);
+
 	  eptr = std::current_exception(); 
 	  if (eptr) 
 	  { 
-		  m.key = "control" ;
-		  m.value = CARG[S_RESUME]+"_failed";
-		  singleton.publish_status(m);
 		  std::rethrow_exception(eptr);
 	  }
 	}
@@ -954,18 +978,19 @@ void Kernel::pause()
 		singleton.onPause_functions();
 		singleton.wait_for_pause_runners();
 	
-		m.key = "control" ;
+		m.key = CMD[C_CONTROL] ;
 		m.value = CARG[S_PAUSE];
 		singleton.publish_status(m);
 	}
 	catch(...)
 	{
+	  m.key = CMD[C_CONTROL] ;
+	  m.value = CARG[S_PAUSE]+"_failed";
+	  singleton.publish_status(m);
+
 	  eptr = std::current_exception(); 
 	  if (eptr) 
-	  { 
-		  m.key = "control" ;
-		  m.value = CARG[S_PAUSE]+"_failed";
-		  singleton.publish_status(m);
+	  {
 		  std::rethrow_exception(eptr);
 	  }
 	}
@@ -1004,16 +1029,21 @@ void Kernel::sweight_save(std::string& path)
 		if( path.size() == 0) singleton.save_weight();
 		else singleton.save_weight(path);
 
-		m.key = "weight" ;
+		m.key = CMD[C_WEIGHT] ;
 		m.value = CARG[S_SAVE];
 		singleton.publish_status(m);
 	}
 	catch(...)
 	{
-	  m.key = "weight" ;
-	  m.value = CARG[S_SAVE]+"_failed";
-	  singleton.publish_status(m);
-	  std::rethrow_exception(eptr);
+		m.key = CMD[C_WEIGHT] ;
+		m.value = CARG[S_SAVE]+"_failed";
+		singleton.publish_status(m);
+
+		eptr = std::current_exception(); 
+		if (eptr) 
+		{
+			std::rethrow_exception(eptr);
+		}
 	}
 	resume();
 }
@@ -1029,17 +1059,77 @@ void Kernel::sweight_load(std::string& path)
 		if( path.size() == 0) singleton.load_weight();
 		else singleton.load_weight(path);
 
-		m.key = "weight" ;
+	  	m.key = CMD[C_WEIGHT] ;
 		m.value = CARG[S_LOAD];
 		singleton.publish_status(m);
 	}
 	catch(...)
 	{
-	  m.key = "weight" ;
-          m.value = CARG[S_LOAD]+"_failed";
-          singleton.publish_status(m);
-          std::rethrow_exception(eptr);
+		m.key = CMD[C_WEIGHT] ;
+		m.value = CARG[S_LOAD]+"_failed";
+		singleton.publish_status(m);
+
+		eptr = std::current_exception(); 
+		if (eptr) 
+		{
+			std::rethrow_exception(eptr);
+		}
 	}
+	resume();
+}
+
+void Kernel::active_oscillo(bool order)
+{
+	//StatusMessage m;
+        //std::exception_ptr eptr;
+
+	pause();
+	singleton.rttoken.active_oscillo(order);
+	resume();	
+
+	/*
+	try{
+        	singleton.rttoken.active_oscillo(order);
+
+		m.key = CMD[C_OSCILLO];
+		if( order ) m.value = CARG[S_START];
+		else m.value = CARG[S_STOP];
+		singleton.publish_status(m);
+	}
+        catch(...)
+	{
+		m.key = CMD[C_OSCILLO];
+                if( order ) m.value = CARG[S_START]+"_failed";
+                else m.value = CARG[S_STOP]+"_failed";
+		singleton.publish_status(m);
+		
+		eptr = std::current_exception(); 
+		if (eptr) 
+		{
+			std::rethrow_exception(eptr);
+		}
+	}	
+	resume();	
+	*/
+
+}
+
+void Kernel::active_output(const std::string& uuid, bool order)
+{
+	pause();
+
+	if( ! singleton.active_publish( uuid, order) )
+	{
+		//TODO publish Message : failed
+	}
+
+	resume();
+}
+
+void Kernel::active_rt_token(bool order)
+{
+	pause();
+	singleton.rttoken.active_publish(order);
 	resume();
 }
 

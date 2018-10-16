@@ -20,30 +20,64 @@ The fact that you are presently reading this means that you have had knowledge o
 #include <iostream>
 void ComInterface::exec_request()
 {
+	bool order;
 	while( !qrequest.empty() )
 	{
 		Request r =  qrequest.front();
 		qrequest.pop();
 
-//		if( r.cmd = 
-		switch(r.id_arg)
-		{
-			case S_RESUME :
-				Kernel::resume();
+		switch(r.id_cmd)
+		{	
+			case C_CONTROL:
+
+				switch(r.id_arg)
+				{
+					case S_RESUME :
+						Kernel::resume();
+						break;
+					case S_QUIT :
+						Kernel::ask_quit();
+						break;
+					case S_PAUSE :
+						Kernel::pause();
+						break;
+				}
 				break;
-			case S_QUIT :
-				Kernel::ask_quit();
+
+			case C_WEIGHT:
+				switch(r.id_arg)
+				{
+					case S_LOAD :
+						Kernel::sweight_load(r.args[0]);
+						break;
+					case S_SAVE :
+						Kernel::sweight_save(r.args[0]);
+						break;
+				}
 				break;
-			case S_PAUSE :
-				Kernel::pause();
+
+			case C_OSCILLO:
+
+				if( r.id_arg == S_START) order = true;
+				else order = false;
+				
+				Kernel::active_oscillo(order);
 				break;
-			case S_LOAD :
-				Kernel::sweight_load(r.args[0]);
+
+			case C_RTTOKEN:
+				if( r.id_arg == S_START) order = true;
+				else order = false;	
+
+				Kernel::active_rt_token(order);
+
 				break;
-			case S_SAVE :
-				Kernel::sweight_save(r.args[0]);
+			case C_OUTPUT:
+				if( r.id_arg == S_START) order = true;
+				else order = false;	
+		
+				Kernel::active_output(r.args[0], order);
+
 				break;
-		//	case S_START :
-		}
+		}	
 	}
-}	
+}

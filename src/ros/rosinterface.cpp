@@ -116,17 +116,19 @@ bool RosInterface::callback_objects(hieroglyph::Objects::Request& request,hierog
 
 bool RosInterface::callback_rt_token( hieroglyph::SimpleCmd::Request& request, hieroglyph::SimpleCmd::Response& response)
 {
-	RtToken& rt = Kernel::instance().getRtToken();
-	int state = Kernel::instance().getState();
-	
+	Request r;
+	r.id_cmd = C_RTTOKEN;
+
 	if( request.cmd == CARG[S_START] )
 	{
-		rt.active_publish(true);
+		r.id_arg = S_START;
+		qrequest.push(r);
 		response.ret = CARG[S_START];
 	}
 	else if( request.cmd == CARG[S_STOP] )
 	{
-		rt.active_publish(false);
+		r.id_arg = S_STOP;
+		qrequest.push(r);
 		response.ret = CARG[S_STOP];
 	}
 	else  response.ret = RETURN[0];
@@ -136,24 +138,20 @@ bool RosInterface::callback_rt_token( hieroglyph::SimpleCmd::Request& request, h
 
 bool RosInterface::callback_oscillo( hieroglyph::SimpleCmd::Request& request, hieroglyph::SimpleCmd::Response& response)
 {
-	RtToken& rt = Kernel::instance().getRtToken();
-	int state = Kernel::instance().getState();
+	Request r;
+	r.id_cmd = C_OSCILLO;
 
 	if( request.cmd == CARG[S_START] )
 	{
-		// Start TOPIC 
-		rt.active_oscillo(true);
 		response.ret = CARG[S_START] ;
+		r.id_arg = S_START;
+		qrequest.push(r);
 	}
 	else if( request.cmd == CARG[S_STOP])
 	{
-		if(state == K_RUN) Kernel::instance().pause();
-
-		// Stop TOPIC 
-		rt.active_oscillo(false);
 		response.ret = CARG[S_STOP];
-		
-		if( state == K_RUN) Kernel::instance().resume();
+		r.id_arg = S_STOP;
+		qrequest.push(r);
 	}
 	else  response.ret = RETURN[0];
 
@@ -162,33 +160,31 @@ bool RosInterface::callback_oscillo( hieroglyph::SimpleCmd::Request& request, hi
 
 bool RosInterface::callback_output( hieroglyph::ArgCmd::Request& request, hieroglyph::ArgCmd::Response& response)
 {
-	int state = Kernel::instance().getState();
+	Request r;
+	r.id_cmd = C_OUTPUT;
+
 
 	if( request.cmd ==  CARG[S_START] )
 	{
-		if( Kernel::instance().active_publish( request.arg, true ) )
+		if(  Kernel::instance().find_object( request.arg )) 
 		{
+			r.id_arg = S_START;	
+			r.args.push_back( request.arg );
 			response.ret =  CARG[S_START]+" : "+request.arg;
+			qrequest.push(r);
 		}
-		else
-		{
-			response.ret = RETURN[1];
-		}
+		else response.ret = RETURN[1];
 	}
 	else if( request.cmd == CARG[S_STOP])
 	{
-		if(state == K_RUN) Kernel::instance().pause();
-
-		if( Kernel::instance().active_publish( request.arg, false ) )
+		if(  Kernel::instance().find_object( request.arg )) 
 		{
-			response.ret = CARG[S_STOP]+" : "+request.arg;
+			r.id_arg = S_STOP;	
+			r.args.push_back( request.arg );
+			response.ret =  CARG[S_STOP]+" : "+request.arg;
+			qrequest.push(r);
 		}
-		else
-		{
-			response.ret = RETURN[1];
-		}
-
-		if( state == K_RUN) Kernel::instance().resume();
+		else response.ret = RETURN[1];
 	}
 	else  response.ret = RETURN[0];
 
@@ -212,6 +208,7 @@ bool RosInterface::callback_rt_stat( hieroglyph::RtStat::Request&, hieroglyph::R
 bool RosInterface::callback_weight( hieroglyph::ArgCmd::Request& request, hieroglyph::ArgCmd::Response& response)
 {
 	Request r;
+	r.id_cmd = C_WEIGHT;
 
 	if( request.cmd == CARG[S_SAVE] )
 	{
@@ -237,6 +234,7 @@ bool RosInterface::callback_control(hieroglyph::SimpleCmd::Request& request, hie
 {
 	Request r;
 
+	r.id_cmd = C_CONTROL;
 	if( request.cmd == CARG[S_RESUME])
 	{
 		r.id_arg = S_RESUME;
