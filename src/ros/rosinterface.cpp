@@ -263,12 +263,37 @@ bool RosInterface::callback_control(hieroglyph::SimpleCmd::Request& request, hie
 	return true;
 }
 
-//bool RosInterface::callback_helper( hieroglyph::Help::Request& request, hieroglyph::Help::Response& response)
 bool RosInterface::callback_helper( hieroglyph::Help::Request&, hieroglyph::Help::Response& response)
 {
-	response.help = " 1-cmd : list toto \n 2-titi : titi \t a- titu";
-	
-	std::cout <<  response.help  << std::endl;
+	response.help.push_back("1- help : list all the request supported by kheops\n");
+	response.help.push_back("2- control : general command\n");
+	response.help.push_back("   a- resume\n");
+	response.help.push_back("   b- pause\n");
+	response.help.push_back("   c- quit\n");
+	response.help.push_back("   d- status\n");
+	response.help.push_back("   e- path\n");
+	response.help.push_back("3- weight : command relative to the weight file\n");
+	response.help.push_back("   a- save 'path'  (path is not mandatory, take the default weigth path)\n");
+	response.help.push_back("   b- load 'path'  (path is not mandatory, take the default weigth path)\n");
+	response.help.push_back("4- rt_stat : get rt_token status\n");
+	response.help.push_back("5- oscillo :\n");
+	response.help.push_back("   a- start  (active oscillo)\n");
+	response.help.push_back("   b- stop   (stop oscillo)\n");
+	response.help.push_back("6- output :\n");
+	response.help.push_back("   a- start 'uuid'  (active output for uuid object )\n");
+	response.help.push_back("   b- stop  'uuid'  (stop output for uuid object )\n");
+	response.help.push_back("7- objects :\n");
+	response.help.push_back("   a- all : get the list of uuid/type of all the objects\n");
+	response.help.push_back("   b- ilink : get list of uuid of ilink\n");
+	response.help.push_back("   c- input : get list of uuid of input\n");
+	response.help.push_back("   d- function  get list of uuid of function\n");
+	response.help.push_back("   c- rt_token :  get list of uuid of rt_token\n");
+	response.help.push_back("8- rt_token :\n");
+	response.help.push_back("   a- start (active rt_token topic)\n");
+	response.help.push_back("   b- stop  (stop rt_token topic)\n");
+	response.help.push_back("9- save_activity :\n");
+	response.help.push_back("   a- start 'uuid' (start saving function's activity into SHM)\n");
+	response.help.push_back("   b- stop 'uuid' (stop saving function's activity into SHM)\n");
 
 	return true;
 }
