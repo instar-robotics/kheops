@@ -37,6 +37,7 @@
 * libeigen 3.3
 * ROS Lunar or Melodic (we recommand to use Melodic, the current LTS)
 * hieroglyph 1.0
+* ROS diagnostic_msgs
 
 ### Install dependancies ###
 * On ubuntu 16.04 : 
@@ -54,6 +55,10 @@
 * For __ROS Lunar__ installation and workspace configuration, please refer to : http://wiki.ros.org/lunar/Installation/Ubuntu
 
 * For __ROS Melodic__ installation and workspace configuration, please refer to : http://wiki.ros.org/melodic/Installation/Ubuntu
+
+* Instal __ROS diagnostics_msgs__ : 
+
+**_apt-get install ros-melodic-diagnostic-msgs__**   [or ros-lunar-diagnostic-msgs]
 
 * For the next section, we admit you have install __ROS __ and configure a workspace using catkin_make
 * The workspace directory will be :
