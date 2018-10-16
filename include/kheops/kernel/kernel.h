@@ -172,6 +172,7 @@ class Kernel
 		static void sweight_load(std::string& path);
 		static void active_oscillo(bool order);
 		static void active_output(const std::string& uuid, bool order);
+		static void active_save_activity(const std::string& uuid, bool order);
 		static void active_rt_token(bool order);
 		
 		static void iBind(InputBase& value,const std::string& var_name,const std::string& uuid );

@@ -78,6 +78,13 @@ void ComInterface::exec_request()
 				Kernel::active_output(r.args[0], order);
 
 				break;
+			case C_ACTIVITY:
+				if( r.id_arg == S_START) order = true;
+				else order = false;	
+		
+				Kernel::active_save_activity(r.args[0], order);
+
+				break;
 		}	
 	}
 }

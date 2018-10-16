@@ -49,37 +49,34 @@ void RosInterface::registerListener()
 
 bool RosInterface::callback_activity(hieroglyph::ArgCmd::Request& request,hieroglyph::ArgCmd::Response& response)
 {
-	int state = Kernel::instance().getState();
+        Request r;
+        r.id_cmd = C_ACTIVITY;
 
         if( request.cmd ==  CARG[S_START] )
         {
-                if( Kernel::instance().save_activity( request.arg, true ) )
+                if(  Kernel::instance().find_object( request.arg ))
                 {
+                        r.id_arg = S_START;
+                        r.args.push_back( request.arg );
                         response.ret =  CARG[S_START]+" : "+request.arg;
+                        qrequest.push(r);
                 }
-                else
-                {
-                        response.ret = RETURN[1];
-                }
+                else response.ret = RETURN[1];
         }
         else if( request.cmd == CARG[S_STOP])
         {
-                if(state == K_RUN) Kernel::instance().pause();
-
-                if( Kernel::instance().save_activity( request.arg, false ) )
+                if(  Kernel::instance().find_object( request.arg ))
                 {
-                        response.ret = CARG[S_STOP]+" : "+request.arg;
+                        r.id_arg = S_STOP;
+                        r.args.push_back( request.arg );
+                        response.ret =  CARG[S_STOP]+" : "+request.arg;
+                        qrequest.push(r);
                 }
-                else
-                {
-                        response.ret = RETURN[1];
-                }
-
-                if( state == K_RUN) Kernel::instance().resume();
+                else response.ret = RETURN[1];
         }
         else  response.ret = RETURN[0];
 
-	return true;
+        return true;
 }
 
 bool RosInterface::callback_objects(hieroglyph::Objects::Request& request,hieroglyph::Objects::Response& response)

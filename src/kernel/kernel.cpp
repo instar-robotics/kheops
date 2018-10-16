@@ -1133,6 +1133,13 @@ void Kernel::active_rt_token(bool order)
 	resume();
 }
 
+void Kernel::active_save_activity(const std::string& uuid, bool order)
+{
+	pause();
+	singleton.save_activity(uuid,order);
+	resume();
+}
+
 void Kernel::iBind( InputBase& value,const std::string& var_name,const std::string& uuid )
 {
 	singleton.bind(value,var_name,uuid);

@@ -48,13 +48,13 @@ The fact that you are presently reading this means that you have had knowledge o
 *  8- rt_token : 
 *	a- start (active rt_token topic)
 *	b- stop  (stop rt_token topic)
-*  9- activity :
-*  	a- save 'uuid' (save function's activity into SHM)
-*  	b- load 'uuid' (load function's activity into SHM)
+*  9- save_activity :
+*  	a- start 'uuid' (start saving function's activity into SHM)
+*  	b- stop 'uuid' (stop saving function's activity into SHM)
 ********************************************************************************/
 
 const std::string RETURN[] = {"unknown command","unknown uuid"};
-const std::string CMD[] = {"help","control","weight","rt_stat","output","oscillo","objects","rt_token","activity"};
+const std::string CMD[] = {"help","control","weight","rt_stat","output","oscillo","objects","rt_token","save_activity"};
 
 const int C_HELP=0; 
 const int C_CONTROL=1; 
