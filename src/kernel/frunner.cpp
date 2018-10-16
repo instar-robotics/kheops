@@ -27,6 +27,14 @@ void FRunner::exec()
 	checkFunction();
 			
 	Function * f = boost::get(boost::vertex_function , *g)[node] ;
+		
+	if( Runner::is_asking_pause()) 
+	{
+		pause();
+		Runner::wait_ask_resume();
+	}
+	
+	resume();
 
 	while( ! Runner::is_asking_stop() )
 	{
@@ -35,7 +43,6 @@ void FRunner::exec()
 		
 		if( Runner::is_asking_pause()) 
 		{
-			
 			pause();
                 	Runner::wait_ask_resume();
                 	resume();

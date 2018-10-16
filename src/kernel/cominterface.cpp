@@ -25,7 +25,8 @@ void ComInterface::exec_request()
 		Request r =  qrequest.front();
 		qrequest.pop();
 
-		switch(r.id)
+//		if( r.cmd = 
+		switch(r.id_arg)
 		{
 			case S_RESUME :
 				Kernel::resume();
@@ -37,17 +38,12 @@ void ComInterface::exec_request()
 				Kernel::pause();
 				break;
 			case S_LOAD :
-				Kernel::pause();		
-				if( r.args[0].size() == 0) Kernel::instance().load_weight();
-				else Kernel::instance().load_weight(r.args[0]);
-				Kernel::resume();
+				Kernel::sweight_load(r.args[0]);
 				break;
 			case S_SAVE :
-				Kernel::pause();		
-				if( r.args[0].size() == 0) Kernel::instance().save_weight();
-				else Kernel::instance().save_weight(r.args[0]);
-				Kernel::resume();
+				Kernel::sweight_save(r.args[0]);
 				break;
+		//	case S_START :
 		}
 	}
 }	

@@ -36,39 +36,39 @@ void RosInterface::enter()
 
 void RosInterface::registerListener()
 {
-	sHelper = RosWrapper::getNodeHandle()->advertiseService( RosWrapper::getNodeName()+"/help" , &RosInterface::callback_helper, this);
-	sControl = RosWrapper::getNodeHandle()->advertiseService( RosWrapper::getNodeName()+"/control" ,&RosInterface::callback_control, this);
-	sWeight = RosWrapper::getNodeHandle()->advertiseService( RosWrapper::getNodeName()+"/weight" , &RosInterface::callback_weight, this);
-	sRtStat = RosWrapper::getNodeHandle()->advertiseService( RosWrapper::getNodeName()+"/rt_stat" , &RosInterface::callback_rt_stat, this);
-	sOutput = RosWrapper::getNodeHandle()->advertiseService( RosWrapper::getNodeName()+"/output" , &RosInterface::callback_output, this);
-	sOscillo = RosWrapper::getNodeHandle()->advertiseService( RosWrapper::getNodeName()+"/oscillo" ,&RosInterface::callback_oscillo, this);
-	sObjects = RosWrapper::getNodeHandle()->advertiseService( RosWrapper::getNodeName()+"/objects", &RosInterface::callback_objects, this);
-	sRtToken = RosWrapper::getNodeHandle()->advertiseService( RosWrapper::getNodeName()+"/rt_token" , &RosInterface::callback_rt_token, this);
-	sActivity = RosWrapper::getNodeHandle()->advertiseService( RosWrapper::getNodeName()+"/activity" , &RosInterface::callback_activity, this);
+	sHelper = RosWrapper::getNodeHandle()->advertiseService( RosWrapper::getNodeName()+"/"+CMD[C_HELP] , &RosInterface::callback_helper, this);
+	sControl = RosWrapper::getNodeHandle()->advertiseService( RosWrapper::getNodeName()+"/"+CMD[C_CONTROL] ,&RosInterface::callback_control, this);
+	sWeight = RosWrapper::getNodeHandle()->advertiseService( RosWrapper::getNodeName()+"/"+CMD[C_WEIGHT] , &RosInterface::callback_weight, this);
+	sRtStat = RosWrapper::getNodeHandle()->advertiseService( RosWrapper::getNodeName()+"/"+CMD[C_RTSTAT] , &RosInterface::callback_rt_stat, this);
+	sOutput = RosWrapper::getNodeHandle()->advertiseService( RosWrapper::getNodeName()+"/"+CMD[C_OUTPUT] , &RosInterface::callback_output, this);
+	sOscillo = RosWrapper::getNodeHandle()->advertiseService( RosWrapper::getNodeName()+"/"+CMD[C_OSCILLO] ,&RosInterface::callback_oscillo, this);
+	sObjects = RosWrapper::getNodeHandle()->advertiseService( RosWrapper::getNodeName()+"/"+CMD[C_OBJECTS], &RosInterface::callback_objects, this);
+	sRtToken = RosWrapper::getNodeHandle()->advertiseService( RosWrapper::getNodeName()+"/"+CMD[C_RTTOKEN] , &RosInterface::callback_rt_token, this);
+	sActivity = RosWrapper::getNodeHandle()->advertiseService( RosWrapper::getNodeName()+"/"+CMD[C_ACTIVITY] , &RosInterface::callback_activity, this);
 }
 
 bool RosInterface::callback_activity(hieroglyph::ArgCmd::Request& request,hieroglyph::ArgCmd::Response& response)
 {
 	int state = Kernel::instance().getState();
 
-        if( request.cmd ==  CMD[S_START] )
+        if( request.cmd ==  CARG[S_START] )
         {
                 if( Kernel::instance().save_activity( request.arg, true ) )
                 {
-                        response.ret =  CMD[S_START]+" : "+request.arg;
+                        response.ret =  CARG[S_START]+" : "+request.arg;
                 }
                 else
                 {
                         response.ret = RETURN[1];
                 }
         }
-        else if( request.cmd == CMD[S_STOP])
+        else if( request.cmd == CARG[S_STOP])
         {
                 if(state == K_RUN) Kernel::instance().pause();
 
                 if( Kernel::instance().save_activity( request.arg, false ) )
                 {
-                        response.ret = CMD[S_STOP]+" : "+request.arg;
+                        response.ret = CARG[S_STOP]+" : "+request.arg;
                 }
                 else
                 {
@@ -84,30 +84,30 @@ bool RosInterface::callback_activity(hieroglyph::ArgCmd::Request& request,hierog
 
 bool RosInterface::callback_objects(hieroglyph::Objects::Request& request,hieroglyph::Objects::Response& response)
 {
-	if( request.object == CMD[S_ALL] ) 
+	if( request.object == CARG[S_ALL] ) 
 	{
 		Kernel::instance().get_objects(response.list);
-		response.ret = CMD[S_ALL] ;
+		response.ret = CARG[S_ALL] ;
 	}
-	else if( request.object == CMD[S_RTTOKEN])
+	else if( request.object == CARG[S_RTTOKEN])
 	{
 		Kernel::instance().get_rt_token(response.list);
-		response.ret = CMD[S_RTTOKEN] ;
+		response.ret = CARG[S_RTTOKEN] ;
 	}
-	else if( request.object == CMD[S_FUNCTIONS] )
+	else if( request.object == CARG[S_FUNCTIONS] )
 	{
 		Kernel::instance().get_functions(response.list);
-		response.ret = CMD[S_FUNCTIONS] ;
+		response.ret = CARG[S_FUNCTIONS] ;
 	}
-	else if( request.object == CMD[S_INPUTS])
+	else if( request.object == CARG[S_INPUTS])
 	{
 		Kernel::instance().get_inputs(response.list);
-		response.ret = CMD[S_INPUTS] ;
+		response.ret = CARG[S_INPUTS] ;
 	}
-	else if( request.object == CMD[S_ILINKS])
+	else if( request.object == CARG[S_ILINKS])
 	{
 		Kernel::instance().get_ilinks(response.list);
-		response.ret = CMD[S_ILINKS] ;
+		response.ret = CARG[S_ILINKS] ;
 	}
 	else response.ret = RETURN[0];
 
@@ -119,19 +119,15 @@ bool RosInterface::callback_rt_token( hieroglyph::SimpleCmd::Request& request, h
 	RtToken& rt = Kernel::instance().getRtToken();
 	int state = Kernel::instance().getState();
 	
-	if( request.cmd == CMD[S_START] )
+	if( request.cmd == CARG[S_START] )
 	{
 		rt.active_publish(true);
-		response.ret = CMD[S_START];
+		response.ret = CARG[S_START];
 	}
-	else if( request.cmd == CMD[S_STOP]  )
+	else if( request.cmd == CARG[S_STOP] )
 	{
-		if(state == K_RUN) Kernel::instance().pause();
-
 		rt.active_publish(false);
-		response.ret = CMD[S_STOP];
-
-		if( state == K_RUN) Kernel::instance().resume();
+		response.ret = CARG[S_STOP];
 	}
 	else  response.ret = RETURN[0];
 
@@ -143,19 +139,19 @@ bool RosInterface::callback_oscillo( hieroglyph::SimpleCmd::Request& request, hi
 	RtToken& rt = Kernel::instance().getRtToken();
 	int state = Kernel::instance().getState();
 
-	if( request.cmd == CMD[S_START] )
+	if( request.cmd == CARG[S_START] )
 	{
 		// Start TOPIC 
 		rt.active_oscillo(true);
-		response.ret = CMD[S_START] ;
+		response.ret = CARG[S_START] ;
 	}
-	else if( request.cmd == CMD[S_STOP])
+	else if( request.cmd == CARG[S_STOP])
 	{
 		if(state == K_RUN) Kernel::instance().pause();
 
 		// Stop TOPIC 
 		rt.active_oscillo(false);
-		response.ret = CMD[S_STOP];
+		response.ret = CARG[S_STOP];
 		
 		if( state == K_RUN) Kernel::instance().resume();
 	}
@@ -168,24 +164,24 @@ bool RosInterface::callback_output( hieroglyph::ArgCmd::Request& request, hierog
 {
 	int state = Kernel::instance().getState();
 
-	if( request.cmd ==  CMD[S_START] )
+	if( request.cmd ==  CARG[S_START] )
 	{
 		if( Kernel::instance().active_publish( request.arg, true ) )
 		{
-			response.ret =  CMD[S_START]+" : "+request.arg;
+			response.ret =  CARG[S_START]+" : "+request.arg;
 		}
 		else
 		{
 			response.ret = RETURN[1];
 		}
 	}
-	else if( request.cmd == CMD[S_STOP])
+	else if( request.cmd == CARG[S_STOP])
 	{
 		if(state == K_RUN) Kernel::instance().pause();
 
 		if( Kernel::instance().active_publish( request.arg, false ) )
 		{
-			response.ret = CMD[S_STOP]+" : "+request.arg;
+			response.ret = CARG[S_STOP]+" : "+request.arg;
 		}
 		else
 		{
@@ -217,13 +213,13 @@ bool RosInterface::callback_weight( hieroglyph::ArgCmd::Request& request, hierog
 {
 	Request r;
 
-	if( request.cmd == CMD[S_SAVE] )
+	if( request.cmd == CARG[S_SAVE] )
 	{
-		r.id = S_SAVE;
+		r.id_arg = S_SAVE;
 	}
-	else if (  request.cmd == CMD[S_LOAD] )
+	else if (  request.cmd == CARG[S_LOAD] )
 	{
-		r.id = S_LOAD;
+		r.id_arg = S_LOAD;
 	}	
 	else{
 	       	response.ret = RETURN[0];
@@ -241,29 +237,29 @@ bool RosInterface::callback_control(hieroglyph::SimpleCmd::Request& request, hie
 {
 	Request r;
 
-	if( request.cmd == CMD[S_RESUME])
+	if( request.cmd == CARG[S_RESUME])
 	{
-		r.id = S_RESUME;
-		response.ret = CMD[S_RESUME];
+		r.id_arg = S_RESUME;
+		response.ret = CARG[S_RESUME];
 		qrequest.push(r);
 	}
-	else if( request.cmd == CMD[S_QUIT] )
+	else if( request.cmd == CARG[S_QUIT] )
 	{
-		r.id = S_QUIT;
-		response.ret = CMD[S_QUIT];
+		r.id_arg = S_QUIT;
+		response.ret = CARG[S_QUIT];
 		qrequest.push(r);
 	}
-	else if( request.cmd == CMD[S_PAUSE] )
+	else if( request.cmd == CARG[S_PAUSE] )
 	{
-		r.id = S_PAUSE;
-		response.ret = CMD[S_PAUSE];
+		r.id_arg = S_PAUSE;
+		response.ret = CARG[S_PAUSE];
 		qrequest.push(r);
 	}
-	else if( request.cmd == CMD[S_STATUS] )
+	else if( request.cmd == CARG[S_STATUS] )
 	{
 		response.ret = Kernel::instance().getStateName();
 	}
-	else if( request.cmd == CMD[S_PATH] )
+	else if( request.cmd == CARG[S_PATH] )
 	{
 		response.ret = Kernel::instance().getPath();
 	}

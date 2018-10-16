@@ -167,6 +167,8 @@ class Kernel
 		static void quit();
 		static void ask_quit() {singleton.squit = true;}
 		static bool is_asking_quit() {return singleton.squit;}
+		static void sweight_save(std::string& path);
+		static void sweight_load(std::string& path);
 		
 		static void iBind(InputBase& value,const std::string& var_name,const std::string& uuid );
 		static void iBind(IString& value,const std::string& var_name,const std::string& uuid );

@@ -16,6 +16,8 @@ The fact that you are presently reading this means that you have had knowledge o
 
 #include <iostream>
 #include <boost/filesystem.hpp>
+#include <exception>
+#include <stdexcept>
 
 #include "kheops/kernel/kernel.h"
 #include "kheops/kernel/factory.h"
@@ -884,44 +886,89 @@ void Kernel::init(std::string script_file, std::string weight_file, bool ignore_
 
 void Kernel::quit()
 {
-	Runner::ask_stop();
-
-	// Call Function::onQuit 
-	singleton.onQuit_functions();
-	singleton.quit_runners();
-	
 	StatusMessage m;
-	m.key = "control" ;
-	m.value = CMD[S_QUIT];
-	singleton.publish_status(m);
+	std::exception_ptr eptr;
+
+	try{
+		Runner::ask_stop();
+
+		// Call Function::onQuit 
+		singleton.onQuit_functions();
+		singleton.quit_runners();
+
+		m.key = "control" ;
+		m.value = CARG[S_QUIT];
+		singleton.publish_status(m);
+	}
+	catch(...)
+	{
+	  eptr = std::current_exception(); 
+	  if (eptr) 
+	  { 
+		  m.key = "control" ;
+		  m.value = CARG[S_QUIT]+"_failed";
+		  singleton.publish_status(m);
+		  std::rethrow_exception(eptr);
+	  }
+	}
 }
 
 void Kernel::resume()
 {
-	// Call onResume
-	singleton.onRun_functions();
-	
-	Runner::ask_resume();	
-        singleton.wait_for_resume_runners();
-
 	StatusMessage m;
-	m.key = "control" ;
-	m.value = CMD[S_RESUME];
-	singleton.publish_status(m);
+	std::exception_ptr eptr;
+
+	try{
+		// Call onResume
+		singleton.onRun_functions();
+	
+		Runner::ask_resume();	
+        	singleton.wait_for_resume_runners();
+
+		m.key = "control" ;
+		m.value = CARG[S_RESUME];
+		singleton.publish_status(m);
+	}
+	catch(...)
+	{
+	  eptr = std::current_exception(); 
+	  if (eptr) 
+	  { 
+		  m.key = "control" ;
+		  m.value = CARG[S_RESUME]+"_failed";
+		  singleton.publish_status(m);
+		  std::rethrow_exception(eptr);
+	  }
+	}
 }
 
 void Kernel::pause()
 {
-	Runner::ask_pause();
-	
-	// Call onPause
-	singleton.onPause_functions();
-        singleton.wait_for_pause_runners();
-	
 	StatusMessage m;
-	m.key = "control" ;
-	m.value = CMD[S_PAUSE];
-	singleton.publish_status(m);
+	std::exception_ptr eptr;
+
+	try{
+		Runner::ask_pause();
+	
+		// Call onPause
+		singleton.onPause_functions();
+		singleton.wait_for_pause_runners();
+	
+		m.key = "control" ;
+		m.value = CARG[S_PAUSE];
+		singleton.publish_status(m);
+	}
+	catch(...)
+	{
+	  eptr = std::current_exception(); 
+	  if (eptr) 
+	  { 
+		  m.key = "control" ;
+		  m.value = CARG[S_PAUSE]+"_failed";
+		  singleton.publish_status(m);
+		  std::rethrow_exception(eptr);
+	  }
+	}
 }
 
 void Kernel::load()
@@ -945,6 +992,57 @@ void Kernel::start(bool run)
 	else pause();
 }
 
+void Kernel::sweight_save(std::string& path)
+{
+	StatusMessage m;
+	std::exception_ptr eptr;
+
+	pause();
+	
+	try
+	{
+		if( path.size() == 0) singleton.save_weight();
+		else singleton.save_weight(path);
+
+		m.key = "weight" ;
+		m.value = CARG[S_SAVE];
+		singleton.publish_status(m);
+	}
+	catch(...)
+	{
+	  m.key = "weight" ;
+	  m.value = CARG[S_SAVE]+"_failed";
+	  singleton.publish_status(m);
+	  std::rethrow_exception(eptr);
+	}
+	resume();
+}
+
+void Kernel::sweight_load(std::string& path)
+{
+	StatusMessage m;
+	std::exception_ptr eptr;
+
+	pause();
+
+	try{
+		if( path.size() == 0) singleton.load_weight();
+		else singleton.load_weight(path);
+
+		m.key = "weight" ;
+		m.value = CARG[S_LOAD];
+		singleton.publish_status(m);
+	}
+	catch(...)
+	{
+	  m.key = "weight" ;
+          m.value = CARG[S_LOAD]+"_failed";
+          singleton.publish_status(m);
+          std::rethrow_exception(eptr);
+	}
+	resume();
+}
+
 void Kernel::iBind( InputBase& value,const std::string& var_name,const std::string& uuid )
 {
 	singleton.bind(value,var_name,uuid);
@@ -954,4 +1052,3 @@ void Kernel::iBind( IString& value,const std::string& var_name,const std::string
 {
 	singleton.bind(value,var_name,uuid);
 }
-

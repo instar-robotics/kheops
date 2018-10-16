@@ -77,6 +77,14 @@ void RtToken::setToken(double value, std::string unit)
 
 void RtToken::exec()
 {
+	if( Runner::is_asking_pause())
+        {
+                pause();
+                Runner::wait_ask_resume();
+        }
+        resume();
+
+
 	while( ! Runner::is_asking_stop() )
 	{
 		if( Runner::is_asking_pause())
@@ -86,6 +94,7 @@ void RtToken::exec()
 			Runner::wait_ask_resume();
 			resume();
 		}
+		else resume();
 
 		auto start = std::chrono::system_clock::now();
 

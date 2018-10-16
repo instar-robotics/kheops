@@ -54,7 +54,19 @@ The fact that you are presently reading this means that you have had knowledge o
 ********************************************************************************/
 
 const std::string RETURN[] = {"unknown command","unknown uuid"};
-const std::string CMD[] = {"resume","quit","pause","status","path" ,"save","load","start","stop","all","rt_token","functions","inputs","ilinks","activity"};
+const std::string CMD[] = {"help","control","weight","rt_stat","output","oscillo","objects","rt_token","activity"};
+
+const int C_HELP=0; 
+const int C_CONTROL=1; 
+const int C_WEIGHT=2; 
+const int C_RTSTAT=3; 
+const int C_OUTPUT=4; 
+const int C_OSCILLO=5; 
+const int C_OBJECTS=6; 
+const int C_RTTOKEN=7; 
+const int C_ACTIVITY=8; 
+
+const std::string CARG[] = {"resume","quit","pause","status","path" ,"save","load","start","stop","all","rt_token","functions","inputs","ilinks","activity"};
 
 const int S_RESUME=0; 
 const int S_QUIT=1; 
@@ -75,7 +87,8 @@ const int S_ACTIVITY=14;
 
 struct Request
 {
-	int id;
+	int id_cmd;
+	int id_arg;
 	std::vector<std::string> args;
 };
 
