@@ -23,7 +23,7 @@ The fact that you are presently reading this means that you have had knowledge o
 template<class RosMessage>
 void RosTopic<RosMessage>::open(const std::string &topic)
 {
-	pub = RosWrapper::getNodeHandle()->advertise<RosMessage>( topic , size_queue);
+	pub = RosWrapper::getNodeHandle()->advertise<RosMessage>( topic , size_queue, latch);
 }
 
 /*******************************************************************************************************/

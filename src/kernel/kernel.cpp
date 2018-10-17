@@ -1013,7 +1013,9 @@ void Kernel::start(bool run)
 { 	
 	singleton.active_status(true);
 	singleton.spawn_runners();
-	if( run ) resume();
+	if( run ){
+	       	resume();
+	}
 	else pause();
 }
 

@@ -40,11 +40,12 @@ class RosTopic
 		
 		int size_queue;
 		ros::Publisher pub;
+		bool latch;
 
 	public : 
 
-		RosTopic(){}
-		RosTopic(int size) : size_queue(size){}
+		RosTopic() : latch(false) {}
+		RosTopic(int size) : size_queue(size), latch(false){}
 		virtual ~RosTopic(){}
 
 		void setSize(int size) {size_queue = size;}
@@ -57,6 +58,8 @@ class RosTopic
 		void open(const std::string &topic);
 		void close() { pub.shutdown();}
 		void publish(){	pub.publish(msg);}
+
+		void setLatch(bool latch) {this->latch = latch;}
 };
 
 
@@ -142,6 +145,7 @@ class RosStatusPublisher : public RosDataPublisher<StatusMessage,diagnostic_msgs
 	public : 
 		RosStatusPublisher(int size, const std::string& pub_name ) : RosDataPublisher(size)
 		{
+			RosTopic::setLatch(true);
 			Publisher::pub_name = pub_name ;
 			RosWrapper::clean_topic_name(Publisher::pub_name);
 		}
