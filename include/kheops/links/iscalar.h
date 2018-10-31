@@ -28,7 +28,7 @@ class iScalar : public iLink<double,double>
                 iScalar(double const * i);
                 virtual ~iScalar();
 
-                virtual double operator()(){return (*input) * weight;}
+                double operator()(){return (*input) * weight;}
 
                 inline virtual double& accumulate(double& res){return res = (*input) * weight;}
                 inline virtual double& mul_accumulate(double& res){return res *= (*input) * weight;}

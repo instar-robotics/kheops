@@ -59,7 +59,8 @@ class iScalarMatrix : public iMatrix<double>
                 virtual ~iScalarMatrix();
 
                 Ref<MatrixXd> operator()(Ref<MatrixXd> res){return accumulate(res);}
-                virtual MatrixXd operator()(){return (*input) * weight;}
+                //virtual MatrixXd operator()(){return (*input) * weight;}
+                auto operator()(){return (*input) * weight;}
 
                 virtual Ref<MatrixXd> accumulate(Ref<MatrixXd> res);
                 virtual Ref<MatrixXd> mul_accumulate(Ref<MatrixXd> res);
