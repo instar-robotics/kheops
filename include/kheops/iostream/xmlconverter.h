@@ -36,7 +36,6 @@ struct XLink
 	std::string uuid_pred;
 
 	bool isSecondary;
-	bool isCst;
 	
 	double weight;
 	std::string value;
@@ -70,6 +69,16 @@ struct XFunction
 	std::map<std::string,XInput> inputs;
 };
 
+struct XConstant
+{
+	std::string uuid;
+	std::string name; 
+	
+	std::string type;
+	unsigned int rows;
+	unsigned int cols;
+};
+
 struct XRtToken
 {
 	std::string uuid;
@@ -84,6 +93,9 @@ struct XScript
 
 	// string : function uuid
 	std::map<std::string, XFunction> functions;
+	std::map<std::string, XConstant> constants;
+
+	bool isLinkCst(const XLink& l) { return (constants.find( l.uuid_pred) != constants.end() );}
 };
 
 class XmlConverter
@@ -93,7 +105,7 @@ class XmlConverter
 	ptree tree;
 
 	void __convertXmlToFunction(const ptree &tree, XFunction &f);
-
+	void __convertXmlToConstant(const ptree &tree, XConstant &c);
 	void __convertXmlToInput( const ptree &tree, XInput &xi );
 	void __convertXmlToLink( const ptree &tree, XLink &xi );
 	
@@ -101,6 +113,7 @@ class XmlConverter
 	void __loadLinks( const ptree &tree, std::vector<XLink> &inputs  );
 
 	void __loadFunctions(std::map<std::string,XFunction> &functions);
+	void __loadConstants(std::map<std::string,XConstant> &constants);
 	void __loadRtToken(XRtToken & rt);
 
 	public : 

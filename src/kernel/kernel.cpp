@@ -79,9 +79,9 @@ Kernel::~Kernel()
 
 }
 
-/********************************************************************************************************/
-/****************** 			Load Section	 			      *******************/
-/********************************************************************************************************/
+/*******************************************************************************************************/
+/****************** 	 		Load Section	 			      ******************/
+/*******************************************************************************************************/
 
 void Kernel::load_functions()
 {
@@ -117,7 +117,7 @@ void Kernel::load_links()
 			//TODO : check here Input type
 			for( auto link = input->second.links.begin(); link !=  input->second.links.end(); link++)
 			{
-				if( !link->isCst )
+				if( !xs.isLinkCst(*link) )
 				{
 					add_klink( funct->second.uuid , *link );
 				}
@@ -167,9 +167,9 @@ void Kernel::save_weight(const std::string& filename)
 	wc.save(inputs);
 }
 
-/********************************************************************************************************/
-/****************** 			Function Section 			      *******************/
-/********************************************************************************************************/
+/*******************************************************************************************************/
+/****************** 			Function Section 			      ******************/
+/*******************************************************************************************************/
 
 void Kernel::add_function( const XFunction& xf)
 {
@@ -268,9 +268,9 @@ void Kernel::onRun_functions()
 	}
 }
 
-/********************************************************************************************************/
-/****************** 		        	RTTOKEN Section	              	      *******************/
-/********************************************************************************************************/
+/*******************************************************************************************************/
+/***************** 		        	RTTOKEN Section	              	      ******************/
+/*******************************************************************************************************/
 
 void Kernel::init_rt_token()
 {
@@ -391,14 +391,14 @@ void Kernel::purge_klinks(const std::string& uuid)
 	}
 }
 
-/********************************************************************************************************/
-/****************** 			iLink Section	 			      *******************/
-/********************************************************************************************************/
+/*******************************************************************************************************/
+/****************** 			iLink Section	 			      ******************/
+/*******************************************************************************************************/
 
 void Kernel::add_ilink(const std::string& in_uuid, const XLink& xl)
 {
 	// Control klink exist : non constant input and klink doesn't exist -> error 
-	if( !xl.isCst)
+	if( !xs.isLinkCst(xl) )
 	{
 		if(edge_map.find( xl.uuid) == edge_map.end() ) throw std::invalid_argument( "Kernel : unable to find link "+xl.uuid );
 		if( node_map.find( xl.uuid_pred ) == node_map.end()) throw std::invalid_argument( "Kernel : try to add ilink from unkown function "+xl.uuid_pred );
@@ -438,7 +438,7 @@ void Kernel::add_iscalar(const std::string& in_uuid,const XLink& xl)
 	is->setUuid(xl.uuid);
 	dynamic_cast<iScalar*>(is.get())->w( xl.weight );
 
-	if( xl.isCst == true )
+	if( xs.isLinkCst(xl) )
 	{
 		dynamic_cast<iScalar*>(is.get())->setCValue(1);
 	}
@@ -465,15 +465,18 @@ void Kernel::add_ismatrix(const std::string& in_uuid,const XLink& xl)
 	// Build ilink
 	std::shared_ptr<iLinkBase> ism(new iScalarMatrix);
 	
-	Function *sf =  boost::get(boost::vertex_function, graph,  node_map[input_to_funct[in_uuid]]) ;
-
 	//set is
 	ism->setUuid(xl.uuid);
 	dynamic_cast<iScalarMatrix*>(ism.get())->w( xl.weight );
 
-	if( xl.isCst == true )
+	if( xs.isLinkCst(xl) )
 	{
-		dynamic_cast<iScalarMatrix*>(ism.get())->setCValue( MatrixXd::Constant( sf->getRows(),sf->getCols(), 1 )); 
+		if( xs.constants.find(xl.uuid_pred) == xs.constants.end() ) throw std::invalid_argument("Kernel : unable to find constant : "+xl.uuid_pred);
+
+		if( xs.constants[xl.uuid_pred].type != "MATRIX" ) throw std::invalid_argument("Kernel : constant "+xl.uuid_pred+" must be type MATRIX to be linked to Function "+in_uuid) ;
+
+		dynamic_cast<iScalarMatrix*>(ism.get())->setCValue( MatrixXd::Constant( xs.constants[xl.uuid_pred].rows , xs.constants[xl.uuid_pred].cols , 1 )); 
+
 	}
 	else
 	{
@@ -507,13 +510,13 @@ void Kernel::add_immatrix(const std::string& in_uuid,const XLink& xl)
 	//set is
 	imm->setUuid(xl.uuid);
 
-	if( xl.isCst == true )
+	if( xs.isLinkCst(xl) )
 	{
-		//By default constant are 1x1 Matrix 
-		dynamic_cast<iMMatrix*>(imm.get())->setCValue( MatrixXd::Constant( 1, 1 , 1 )); 
+		if( xs.constants.find(xl.uuid_pred) == xs.constants.end() ) throw std::invalid_argument("Kernel : unable to find constant : "+xl.uuid_pred);
 
-		//TODO : should be possible to and rows/cols size into XLink to custom the constant size
-		//imm->setCValue( MatrixXd::Constant( sf->getRows(),sf->getCols(), std::stod( it->value ))); 
+		if( xs.constants[xl.uuid_pred].type != "MATRIX" ) throw std::invalid_argument("Kernal : constant "+xl.uuid_pred+" must be type MATRIX to be linked to Function "+in_uuid) ;
+
+		dynamic_cast<iMMatrix*>(imm.get())->setCValue( MatrixXd::Constant( xs.constants[xl.uuid_pred].rows , xs.constants[xl.uuid_pred].cols , 1 )); 
 	}
 	else
 	{
@@ -695,7 +698,7 @@ void Kernel::bind(IString& value,const std::string& var_name,const std::string& 
 
         if( xs.functions[uuid].inputs.find(var_name) ==  xs.functions[uuid].inputs.end() )  throw std::invalid_argument( "Kernel : unable to find input "+var_name+" for function "+uuid  );
 
-        if( xs.functions[uuid].inputs[var_name].links[0].isCst == true )
+        if( xs.isLinkCst( xs.functions[uuid].inputs[var_name].links[0]) )
         {
                 value = xs.functions[uuid].inputs[var_name].links[0].value; 
         }
