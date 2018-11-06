@@ -26,17 +26,23 @@ typedef std::string IString;
 class InputBase
 {
 	protected :
+
 		std::string uuid;
+		bool multiple;
+		bool checkSize;
 
 	public : 
-		InputBase(){}
+		InputBase() : multiple(false), checkSize(true) {}
 		virtual ~InputBase() = 0;
 		
 		inline const std::string& getUuid() { return uuid; }
                 inline void setUuid(const std::string& uuid  ) { this->uuid = uuid;}
 		
-		virtual bool isMultiple() = 0;
-		virtual void setMultiple(bool m) = 0;
+		inline bool isMultiple(){return multiple;} 
+		inline void setMultiple(bool m){multiple=m;} 
+
+		inline bool isCheckSize(){return checkSize;} 
+		inline void setCheckSize(bool s){checkSize=s;} 
 
 		virtual void clear() = 0;
 		virtual void add( std::shared_ptr<iLinkBase> &i) = 0;
@@ -57,15 +63,10 @@ class Input : public InputBase
 	protected: 
 
 		std::vector<std::weak_ptr<I>> ilinks;
-		bool multiple;
 
 	public : 
-		Input() : multiple(false) {}
-		Input(bool m) : multiple(m) {}
+		Input() {}
 		virtual ~Input() {ilinks.clear();}
-
-		inline virtual bool isMultiple(){return multiple;} 
-		inline virtual void setMultiple(bool m){multiple=m;} 
 
 		virtual void clear(){ ilinks.clear(); }
 

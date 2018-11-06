@@ -35,10 +35,10 @@ class Function
 {
 	private : 
 		std::string uuid;
-		std::vector<InputBase*> input;
 
 	protected:
 
+		std::vector<InputBase*> input;
 		bool publish;
 		bool save;
 
@@ -159,6 +159,9 @@ class FTemplate : public Function
 		virtual void active_publish(bool state);
 		virtual void active_save(bool state);
 		virtual void exec_afterCompute();
+
+		virtual void checkSize();
+		virtual void compareSize(iLinkBase& i) = 0;
 };
 
 class FMatrix : public FTemplate<MatrixXd>
@@ -177,12 +180,15 @@ class FMatrix : public FTemplate<MatrixXd>
 
 		inline virtual void setValue(double dvalue, int row,int col) { output=MatrixXd::Constant(row,col,dvalue);}
 		inline virtual void setSize(int rows, int cols){ output = MatrixXd::Constant( rows , cols ,0); }
+		
+		virtual void compareSize(iLinkBase& link);
 };
 
 
 class FScalar : public FTemplate<double>
 {
 	public : 
+
 		FScalar();
                 FScalar( double dvalue);
 		virtual ~FScalar() {}
@@ -195,6 +201,8 @@ class FScalar : public FTemplate<double>
 	//	inline virtual void setValue(double dvalue, int x =1 ,int y =1){ output = dvalue; }
 		inline virtual int getRows(){return 1;}
 		inline virtual int getCols(){return 1;}
+		
+		virtual void compareSize(iLinkBase& link);
 };
 
 #endif  // __FUNCTION_H__

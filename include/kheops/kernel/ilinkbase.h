@@ -47,6 +47,9 @@ class iLinkBase
                 virtual bool is_publish_active() = 0;
                 virtual void active_publish(bool state) = 0;
                 virtual void publish_message() = 0;
+                
+                virtual size_t w_type() = 0;
+                virtual std::string w_type_name() = 0;
 
                 /***********************************************************************/
                 /************************  Input Accessor API  *************************/

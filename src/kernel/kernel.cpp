@@ -480,11 +480,7 @@ void Kernel::add_ismatrix(const std::string& in_uuid,const XLink& xl)
 		Function *pf =  boost::get(boost::vertex_function, graph, node_map[xl.uuid_pred]) ;
 		if( pf->type() == ism->i_type())
 		{
-			//check size (rows/cols). All inputs must have the same size 
-			if( pf->getRows() != sf->getRows() || pf->getCols() != sf->getCols()) throw  std::invalid_argument( "Kernel : try to bind scalar matrix with different sizes ");
-
 			dynamic_cast<iScalarMatrix*>(ism.get())->i( &(dynamic_cast<FMatrix*>(pf)->getOutput()) );
-	 
 		}else throw std::invalid_argument( "Kernel : try to bind no compatible type. Input "+ism->i_type_name()+" on  Function "+pf->type_name());
 	
 		if( input_to_funct[in_uuid] == xl.uuid_pred) ism->activateBuffer();

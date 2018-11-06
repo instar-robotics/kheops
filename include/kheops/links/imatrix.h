@@ -47,9 +47,9 @@ class iMatrix : public iLink<MatrixXd,W>
 };
 
 
-/**************************************************************************************************************/
+/*******************************************************************************************************/
 /*                                              SCALAR_MATRIX Link
-***************************************************************************************************************/
+********************************************************************************************************/
 
 class iScalarMatrix : public iMatrix<double>
 {
@@ -59,7 +59,6 @@ class iScalarMatrix : public iMatrix<double>
                 virtual ~iScalarMatrix();
 
                 Ref<MatrixXd> operator()(Ref<MatrixXd> res){return accumulate(res);}
-                //virtual MatrixXd operator()(){return (*input) * weight;}
                 auto operator()(){return (*input) * weight;}
 
                 virtual Ref<MatrixXd> accumulate(Ref<MatrixXd> res);
@@ -76,9 +75,9 @@ class iScalarMatrix : public iMatrix<double>
 
 typedef Input<iScalarMatrix> ISMInput;
 
-/**************************************************************************************************************/
+/*******************************************************************************************************/
 /*                                              MATRIX_MATRIX Link
-***************************************************************************************************************/
+********************************************************************************************************/
 
 // Connectivity Rules :
 const std::string one_to_one = "ONE_TO_ONE";
