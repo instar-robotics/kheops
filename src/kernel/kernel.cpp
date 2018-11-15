@@ -503,8 +503,6 @@ void Kernel::add_immatrix(const std::string& in_uuid,const XLink& xl)
 	
 	if( xl.con.type.size() == 0 ) throw std::invalid_argument("Kernel : you have to specify the connectivity for MATRIX_MATRIX Link ! ilink UUID : "+in_uuid);
 
-	// TODO : first version to build connectivity
-	// Do better function directly in ilink
 	imm =  std::shared_ptr<iMMatrix>(new iMMatrix( sf->getRows(), sf->getCols()  ));
 
 	//set is
@@ -529,8 +527,11 @@ void Kernel::add_immatrix(const std::string& in_uuid,const XLink& xl)
 		
 		if( input_to_funct[in_uuid] == xl.uuid_pred) imm->activateBuffer();
 	}
+
 	dynamic_cast<iMMatrix*>(imm.get())->resizeWeight();
 	dynamic_cast<iMMatrix*>(imm.get())->initWeight(xl.weight);
+	// TODO : first version to build connectivity
+	// Do better function directly in ilink
 	dynamic_cast<iMMatrix*>(imm.get())->buildFilter(xl.con.type);
 
 	// Add ilink

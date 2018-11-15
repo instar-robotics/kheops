@@ -39,7 +39,7 @@ class iScalar : public iLink<double,double>
                 friend double& operator+=(double& res, iScalar& val) {return val.sum_accumulate(res);}
                 friend double& operator-=(double& res, iScalar& val) {return val.sub_accumulate(res);}
                 friend double& operator/=(double& res, iScalar& val) {return val.div_accumulate(res);}
-                friend double& operator*=(double& res, iScalar& val) {return val.sub_accumulate(res);}
+                friend double& operator*=(double& res, iScalar& val) {return val.mul_accumulate(res);}
 };
 
 typedef Input<iScalar> ISInput;
