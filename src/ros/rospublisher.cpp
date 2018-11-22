@@ -171,10 +171,13 @@ void RosMatrixPublisher::setMessage(const MatrixXd& m)
 
 void RosMatrixPublisher::setSize(unsigned int rows,unsigned int cols)
 {
+	msg.layout.dim[0].label = "rows" ;
 	msg.layout.dim[0].stride = rows  * cols ;
 	msg.layout.dim[0].size = rows;
 	msg.layout.dim[1].stride = cols;
 	msg.layout.dim[1].size = cols;
+	msg.layout.dim[1].label = "cols" ;
+	msg.layout.data_offset = 0;
 
 	msg.data.resize( rows * cols );
 }
