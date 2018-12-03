@@ -14,6 +14,8 @@ and, more generally, to use and operate it in the same conditions as regards sec
 The fact that you are presently reading this means that you have had knowledge of the CeCILL v2.1 license and that you accept its terms.
 */
 
+#include <sstream>
+#include <cxxabi.h>
 #include <chrono>
 #include "kheops/kernel/function.h"
 #include "kheops/ros/rospublisher.h"
@@ -53,14 +55,49 @@ void Function::publish_data()
         }
 }
 
-void Function::exec_afterCompute()
+void Function::ksetparameters()
+{
+	checkType();
+	setparameters();
+}
+
+void Function::kexec_afterCompute()
 {
 	// Buffer input
 	// Send debug output [ROS Topic ] ...
 	copy_buffer();
 	publish_data();
+	
+	if( is_publish_active() )
+	{
+		publish_activity();
+	}
 
-	uexec_afterCompute();
+	// Save Activity
+	if( is_save_active() )
+	{
+		save_activity();
+	}
+	exec_afterCompute();
+}
+
+void Function::kprerun()
+{
+	// Crapy ! Should be better to create an intermediate class between FTemplate and FMatrix
+	checkSize();
+
+	if( is_save_active() )
+	{
+		load_save();
+		active_save(true);
+
+		// Allow to get activity for reccurent link
+		copy_buffer();
+	}
+
+	active_publish(is_publish_active());
+
+	prerun();
 }
 
 /*******************************************************************************************************/
@@ -113,25 +150,6 @@ void FTemplate<T>::active_publish(bool state)
 }
 
 template<class T>
-void FTemplate<T>::prerun()
-{
-	if( is_save_active() )
-	{
-		shm_read( getUuid() , output );
-		active_save(true);
-
-		// Allow to get activity for reccurent link
-		copy_buffer();
-	}
-
-	checkSize();
-	
-	active_publish(is_publish_active());
-
-	uprerun();
-}
-
-template<class T>
 void FTemplate<T>::checkSize()
 {
         for( auto in = input.begin() ; in != input.end(); in++  )
@@ -161,11 +179,15 @@ void FTemplate<T>::active_save(bool state)
 }
 
 template<class T>
-void FTemplate<T>::exec_afterCompute()
+void FTemplate<T>::load_save()
 {
-	Function::exec_afterCompute();
+	shm_read( getUuid() , output );
+}
 
-	if( is_publish_active() && o_pub != NULL)
+template<class T>
+void FTemplate<T>::publish_activity()
+{
+	if( o_pub != NULL )
 	{
 		if( o_pub->is_open() )
 		{
@@ -173,34 +195,20 @@ void FTemplate<T>::exec_afterCompute()
 			o_pub->publish();
 		}
 	}
+}
 
-	// Save Activity
-	if( is_save_active() )
-	{
+template<class T>
+void FTemplate<T>::save_activity()
+{
 		serializer.write(output);		
-	}
 }
 
 /*******************************************************************************************************/
 /********************************************* FMATRIX *************************************************/
 /*******************************************************************************************************/
 
-FMatrix::FMatrix() : FTemplate()  
+FMatrix::FMatrix(unsigned int type) : FTemplate(), type(type)  
 {
-	o_pub = new RosMatrixPublisher(1);
-}
-
-FMatrix::FMatrix( int X,int Y) : FTemplate()  
-{ 
-	output = MatrixXd::Constant( X , Y ,0);
-	
-	o_pub = new  RosMatrixPublisher(1);
-}
-
-FMatrix::FMatrix(int X,int Y, double dvalue) : FTemplate() 
-{
-	output = MatrixXd::Constant( X , Y ,dvalue);
-	
 	o_pub = new RosMatrixPublisher(1);
 }
 
@@ -220,7 +228,6 @@ void FMatrix::compareSize(iLinkBase& link)
 			col = dynamic_cast<iLink<MatrixXd,double>&>(link).i().cols();
 		}
 
-
 		if(   output.rows() != 	row || output.cols() !=  col )
 		{
 			 std::stringstream buf ;
@@ -228,6 +235,26 @@ void FMatrix::compareSize(iLinkBase& link)
                 	 throw std::invalid_argument(buf.str());
 		}
 	}
+}
+
+void FMatrix::checkType()
+{
+	if( type == POINT && !isPoint() )
+	{
+		 throw std::invalid_argument(class_name()+" : output must be a Point [(1,1) Matrix]");
+	}
+	if( type == VECTOR && !isVect() )
+	{
+		 throw std::invalid_argument(class_name()+" : output must be a Vector [ROW or COL]");
+	}
+	if( type == RVECTOR && !isRowVect() ) 
+	{
+		 throw std::invalid_argument(class_name()+" : output must be a ROW Vector");
+	}	
+	if( type == CVECTOR && !isColVect() ) 
+	{
+		 throw std::invalid_argument(class_name()+" : output must be a COL Vector");
+	}	
 }
 
 /*******************************************************************************************************/
@@ -246,5 +273,3 @@ FScalar::FScalar( double dvalue) : FTemplate() {
 	o_pub = new RosScalarPublisher(1);
 }
 
-void FScalar::compareSize(iLinkBase& link)
-{}

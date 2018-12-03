@@ -106,17 +106,17 @@ Map<const VectorXd> getCMapVect(const MatrixXd & m)
 /*************************  Constructor Section  ***********************/
 /***********************************************************************/
 
-iMMatrix::iMMatrix(unsigned int oRows, unsigned int oCols) : iMatrix(), oRows(oRows),oCols(oCols)
+iMMatrix::iMMatrix(unsigned int oRow, unsigned int oCol) : iMatrix(), oRow(oRow),oCol(oCol)
 {
         o_pub = new RosMatrixPublisher(1);
 }
 
-iMMatrix::iMMatrix( MatrixXd const *  i, unsigned int oRows , unsigned int oCols) : iMatrix(i), oRows(oRows), oCols(oCols)
+iMMatrix::iMMatrix( MatrixXd const *  i, unsigned int oRow , unsigned int oCol) : iMatrix(i), oRow(oRow), oCol(oCol)
 {
         o_pub = new RosMatrixPublisher(1);
 }
 
-iMMatrix::iMMatrix( MatrixXd const *  i, unsigned int oRows , unsigned int oCols, double value) : iMatrix(i), oRows(oRows), oCols(oCols)
+iMMatrix::iMMatrix( MatrixXd const *  i, unsigned int oRow , unsigned int oCol, double value) : iMatrix(i), oRow(oRow), oCol(oCol)
 {
         o_pub = new RosMatrixPublisher(1);
         resizeWeight();
@@ -138,8 +138,8 @@ iMMatrix::~iMMatrix()
 
 void iMMatrix::resizeWeight()
 {
-        if( getIRows()==0 || getICols()==0) throw std::invalid_argument("iLink : Matrix try to resize weight without knowing input size");
-        if( getORows()==0 || getOCols()==0) throw std::invalid_argument("iLink : Matrix try to resize weight without knowing output size");
+        if( iRows()==0 || iCols()==0) throw std::invalid_argument("iLink : Matrix try to resize weight without knowing input size");
+        if( oRows()==0 || oCols()==0) throw std::invalid_argument("iLink : Matrix try to resize weight without knowing output size");
 
         weight.resize(  getInitWRows() , getInitWCols() );
 }
@@ -177,47 +177,47 @@ Map<MatrixXd> iMMatrix::wm()
         return Map<MatrixXd>( weight.data() , weight.rows() , weight.cols() ) ;
 }
 
-Map<MatrixXd> iMMatrix::wj(unsigned int oRows,unsigned int oCols)
+Map<MatrixXd> iMMatrix::wj(unsigned int oRow,unsigned int oCol)
 {
-        if( oRows >= getORows() || oCols >= getOCols() ) throw std::invalid_argument("iLink : try to get weight for an outbound neuron");
+        if( oRow >= oRows() || oCol >= oCols() ) throw std::invalid_argument("iLink : try to get weight for an outbound neuron");
 
-        unsigned int offset = getISize() * (oRows * getOCols() + oCols)  ;
+        unsigned int offset = iSize() * (oRow * oCols() + oCol)  ;
 
-        return Map<MatrixXd>( weight.data() + offset , getIRows() , getICols()) ;
+        return Map<MatrixXd>( weight.data() + offset , iRows() , iCols()) ;
 }
 
-Map<MatrixXd> iMMatrix::wj(unsigned int wCols)
+Map<MatrixXd> iMMatrix::wj(unsigned int wCol)
 {
-        if( wCols >= getWCols() ) throw std::invalid_argument("iLink : try to get weight for an outbound neuron");
-        unsigned int offset = getISize() * (wCols)  ;
+        if( wCol >= wCols() ) throw std::invalid_argument("iLink : try to get weight for an outbound neuron");
+        unsigned int offset = iSize() * (wCol)  ;
 
-        return Map<MatrixXd>( weight.data() + offset , getIRows() * getICols() , 1) ;
+        return Map<MatrixXd>( weight.data() + offset , iRows() * iCols() , 1) ;
 }
 
-Map<VectorXd> iMMatrix::wj_vect(unsigned int wCols)
+Map<VectorXd> iMMatrix::wj_vect(unsigned int wCol)
 {
-        if( wCols >= getWCols() ) throw std::invalid_argument("iLink : try to get weight for an outbound neuron");
-        unsigned int offset = getISize() * (wCols)  ;
+        if( wCol >= wCols() ) throw std::invalid_argument("iLink : try to get weight for an outbound neuron");
+        unsigned int offset = iSize() * (wCol)  ;
 
-        return Map<VectorXd>( weight.data() + offset , getISize()) ;
+        return Map<VectorXd>( weight.data() + offset , iSize()) ;
 }
 
-double iMMatrix::wij(unsigned int wRows,unsigned int wCols)
+double iMMatrix::wij(unsigned int wRow,unsigned int wCol)
 {
-        if( wRows >= getWRows() || wCols >= getWCols() ) throw std::invalid_argument("iLink : try to get weight for an outbound neuron for Weight Matrix");
-        return weight(wRows,wCols);
+        if( wRow >= wRows() || wCol >= wCols() ) throw std::invalid_argument("iLink : try to get weight for an outbound neuron for Weight Matrix");
+        return weight(wRow,wCol);
 }
 
 void iMMatrix::wij(double weight, unsigned int wRow, unsigned int wCol)
 {
-        if( wRow >= getWRows() || wCol >= getWCols()) throw std::invalid_argument("iLink : row,col index are outside the Weight Matrix boundaries");
+        if( wRow >= wRows() || wCol >= wCols()) throw std::invalid_argument("iLink : row,col index are outside the Weight Matrix boundaries");
 
         this->weight(wRow,wCol) = weight;
 }
 
 void iMMatrix::wj(const Ref<VectorXd> &weight,unsigned int wCol)
 {
-        if( wCol >= getWCols()) throw std::invalid_argument("iLink : col index is outside the Weight Matrix boundaries");
+        if( wCol >= wCols()) throw std::invalid_argument("iLink : col index is outside the Weight Matrix boundaries");
         this->weight.col(wCol) = weight;
 }
 
@@ -227,17 +227,17 @@ void iMMatrix::wj(const Ref<VectorXd> &weight,unsigned int wCol)
 
 Map<const MatrixXd> iMMatrix::irow()
 {
-        return Map<const MatrixXd> ( i().data(),1, getISize() ) ;
+        return Map<const MatrixXd> ( i().data(),1, iSize() ) ;
 }
 
 Map<const MatrixXd> iMMatrix::icol()
 {
-        return Map<const MatrixXd> ( i().data(), getISize(), 1 ) ;
+        return Map<const MatrixXd> ( i().data(), iSize(), 1 ) ;
 }
 
 Map<const VectorXd> iMMatrix::ivec()
 {
-        return Map<const VectorXd> ( i().data(),getISize() ) ;
+        return Map<const VectorXd> ( i().data(),iSize() ) ;
 }
 
 /***********************************************************************/
@@ -275,30 +275,30 @@ Map<const MatrixXb> iMMatrix::fm()
         return Map<const MatrixXb>( filter.data() , filter.rows() , filter.cols() ) ;
 }
 
-Map<const MatrixXb> iMMatrix::fj(unsigned int oRows,unsigned int oCols)
+Map<const MatrixXb> iMMatrix::fj(unsigned int oRow,unsigned int oCol)
 {
 
-        if( oRows >= getORows() || oCols >= getOCols() ) throw std::invalid_argument("iLink : try to get filter for an outbound neuron");
+        if( oRow >= oRows() || oCol >= oCols() ) throw std::invalid_argument("iLink : try to get filter for an outbound neuron");
 
-        unsigned int offset = getISize() * (oRows * getOCols() + oCols)  ;
+        unsigned int offset = iSize() * (oRow * oCols() + oCol)  ;
 
-        return Map<const MatrixXb>( filter.data() + offset , getIRows() , getICols()) ;
+        return Map<const MatrixXb>( filter.data() + offset , iRows() , iCols()) ;
 }
 
-Map<const MatrixXb> iMMatrix::fj(unsigned int wCols)
+Map<const MatrixXb> iMMatrix::fj(unsigned int wCol)
 {
-        if( wCols >= getWCols()) throw std::invalid_argument("iLink : try to get weight for an outbound neuron");
-        unsigned int offset = getISize() * (wCols)  ;
+        if( wCol >= wCols()) throw std::invalid_argument("iLink : try to get weight for an outbound neuron");
+        unsigned int offset = iSize() * (wCol)  ;
 
-        return Map<const MatrixXb>( filter.data() + offset , getISize() , 1) ;
+        return Map<const MatrixXb>( filter.data() + offset , iSize() , 1) ;
 }
 
-Map<const VectorXb> iMMatrix::fj_vec(unsigned int wCols)
+Map<const VectorXb> iMMatrix::fj_vec(unsigned int wCol)
 {
-        if( wCols >= getWCols()) throw std::invalid_argument("iLink : try to get weight for an outbound neuron");
-        unsigned int offset = getIRows() * getICols() * (wCols)  ;
+        if( wCol >= wCols()) throw std::invalid_argument("iLink : try to get weight for an outbound neuron");
+        unsigned int offset = iRows() * iCols() * (wCol)  ;
 
-        return Map<const VectorXb>( filter.data() + offset , getISize()) ;
+        return Map<const VectorXb>( filter.data() + offset , iSize()) ;
 }
 
 double iMMatrix::fij(unsigned int fRows,unsigned int fCols)

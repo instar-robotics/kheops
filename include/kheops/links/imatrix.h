@@ -41,15 +41,20 @@ class iMatrix : public iLink<MatrixXd,W>
 
                 inline double operator()(int x,int y) const {return (*iLink<MatrixXd,W>::input)(x,y);}
 
-                inline unsigned int getIRows(){return (*iLink<MatrixXd,W>::input).cols();}
-                inline unsigned int getICols(){return (*iLink<MatrixXd,W>::input).rows();}
-                inline unsigned int getISize(){return (*iLink<MatrixXd,W>::input).size();}
+                inline unsigned int iRows(){return (*iLink<MatrixXd,W>::input).rows();}
+                inline unsigned int iCols(){return (*iLink<MatrixXd,W>::input).cols();}
+                inline unsigned int iSize(){return (*iLink<MatrixXd,W>::input).size();}
+
+		inline bool isPoint(){return iSize() == 1;}
+                inline bool isVect(){ return iRows() == 1 || iCols() == 1;}
+                inline bool isRowVect(){ return iRows() == 1 && iCols() > 1;}
+                inline bool isColVect(){ return iRows() > 1 && iCols() == 1;}
 };
 
 
 /*******************************************************************************************************/
-/*                                              SCALAR_MATRIX Link
-********************************************************************************************************/
+/*                                              SCALAR_MATRIX Link				       */
+/*******************************************************************************************************/
 
 class iScalarMatrix : public iMatrix<double>
 {
@@ -110,22 +115,22 @@ class iMMatrix : public iMatrix<MatrixXd>
         protected :
 
                 MatrixXb filter;
-                unsigned int oRows;
-                unsigned int oCols;
+                unsigned int oRow;
+                unsigned int oCol;
 
         public :
-                iMMatrix(unsigned int oRows=0, unsigned int oCols=0);
-                iMMatrix( MatrixXd const *  i, unsigned int oRows = 0, unsigned int oCols=0);
-                iMMatrix( MatrixXd const *  i, unsigned int oRows , unsigned int oCols, double value);
+                iMMatrix(unsigned int oRow=0, unsigned int oCol=0);
+                iMMatrix( MatrixXd const *  i, unsigned int oRow = 0, unsigned int oCol=0);
+                iMMatrix( MatrixXd const *  i, unsigned int oRow , unsigned int oCol, double value);
                 virtual ~iMMatrix();
 
 
                 /***********************************************************************/
                 /*****************************  Output API  ****************************/
                 /***********************************************************************/
-                inline unsigned int getORows(){return oCols;}
-                inline unsigned int getOCols(){return oRows;}
-                inline unsigned int getOSize(){return oRows * oCols;}
+                inline unsigned int oRows(){return oCol;}
+                inline unsigned int oCols(){return oRow;}
+                inline unsigned int oSize(){return oRow * oCol;}
 
                 /***********************************************************************/
                 /************************  Weight Management API  **********************/
@@ -134,13 +139,13 @@ class iMMatrix : public iMatrix<MatrixXd>
                 virtual void resizeWeight();
                 virtual bool checkWeightSize(unsigned int rows, unsigned int cols );
 
-                inline unsigned int getWRows(){return weight.rows();}
-                inline unsigned int getWCols(){return weight.cols();}
-                inline unsigned int getWSize(){return weight.size();}
+                inline unsigned int wRows(){return weight.rows();}
+                inline unsigned int wCols(){return weight.cols();}
+                inline unsigned int wSize(){return weight.size();}
 
-                inline unsigned int getInitWRows(){return getIRows() * getICols();}
-                inline unsigned int getInitWCols(){return getORows() * getOCols();}
-                inline unsigned int getInitWSize(){return getOSize() * getISize();}
+                inline unsigned int getInitWRows(){return iRows() * iCols();}
+                inline unsigned int getInitWCols(){return oRows() * oCols();}
+                inline unsigned int getInitWSize(){return oSize() * iSize();}
 
                 /***********************************************************************/
                 /*************************  Weight Access API  *************************/

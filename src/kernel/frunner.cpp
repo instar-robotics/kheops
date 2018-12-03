@@ -68,7 +68,7 @@ void FRunner::exec()
 		produce(node);
 
 		try{	
-			f->exec_afterCompute();
+			f->kexec_afterCompute();
 		}
 		catch(std::exception& e)
 		{

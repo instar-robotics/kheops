@@ -48,6 +48,8 @@ class Function
 
 		virtual size_t type() = 0;
 		virtual std::string type_name() = 0;
+		std::string class_name(){ return abi::__cxa_demangle(typeid(*this).name(),0,0,NULL) ;}
+
 		//virtual void setValue(double dvalue, int x,int y) = 0;
 		//virtual void setSize(int x,int y) = 0;
 		virtual int getRows()=0;
@@ -62,11 +64,15 @@ class Function
 		void copy_buffer();
 		void publish_data();
 
-		// This function is called by the runner after free mutex
-		virtual void exec_afterCompute();
-		// This function is called before starting the Runner (kernel part)
-		virtual void prerun() = 0;
 
+		/*  Kernel Part function : */
+
+		// Called by kernel to set Input to the current Function and to control Input type
+		virtual void ksetparameters();
+		// This function is called by the runner after free mutex
+		virtual void kexec_afterCompute();
+		// This function is called before starting the Runner (kernel part)
+		virtual void kprerun();
 
 		/*  USER Part function : */
 
@@ -75,11 +81,11 @@ class Function
 		// Operation perform by this functions is out the RT token control
 		// Run operation which no requiert synchronisation
 		// AND keep traitement shorter than the dead time 
-		virtual void uexec_afterCompute() = 0;
+		virtual void exec_afterCompute() = 0;
 
 		// This function is called before starting the Runner (user part)
 		// It 's useful to set ressources when all functions and links are created
-		virtual void uprerun() = 0;
+		virtual void prerun() = 0;
 
 		//this two functions must be overloaded for each Function 
 		// Payload of the function
@@ -105,10 +111,20 @@ class Function
 		inline void set_publish(bool state){publish = state;}
                 virtual void active_publish(bool state) = 0; 
 		virtual void set_topic_name(const std::string &topic) = 0;
+		virtual void publish_activity() = 0;
 		
 		inline bool is_save_active(){return save;}
 		inline void set_save(bool state){save = state;}
                 virtual void active_save(bool state) = 0; 
+		virtual void load_save() = 0;
+		virtual void save_activity() = 0;
+
+		// Perhaps move this function in a intermediate class between FTemplate and FMatrix : 
+		// FCollection and put all the interface to check Size, dimension, etc ...
+		// FMatrix and futur class (FImage, etc ... ) should extend FCollection
+		// Could avoid to implement CompareSize in FScalar ... 
+		virtual void checkType() = 0;
+		virtual void checkSize() = 0;
 };
 
 
@@ -127,7 +143,7 @@ class FTemplate : public Function
 		virtual ~FTemplate();
                 
 		virtual size_t type(){ return typeid(T).hash_code();}
-		std::string type_name() { return typeid(T).name();}
+		virtual std::string type_name() { return typeid(T).name();}
 		
 		inline const T& getOutput() const { return output;}
                 operator  T& () { return output; }
@@ -137,19 +153,20 @@ class FTemplate : public Function
                         return output;
                 }
 		
+		/*  USER Part function : */
+
+		// Called by kernel to set Input to the current Function
+		virtual void setparameters() = 0;
+
 		//this two functions must be overloaded for each Function 
 		// Payload of the function
 		virtual void compute() = 0;
-		// Called by kernel to set Input to the current Function
-		virtual void setparameters() = 0;
 		
 		// Do nothing, can be overloaded by end users
-		virtual void uexec_afterCompute(){}
-		
-		// This function is called by the runner just before the main loop
-		virtual void prerun();
+		virtual void exec_afterCompute(){}
+
 		// Do nothing : can be overloaded by user
-		virtual void uprerun(){}
+		virtual void prerun(){}
 		
 		virtual void onQuit() {}
 		virtual void onRun() {}
@@ -157,31 +174,53 @@ class FTemplate : public Function
 
 		virtual void set_topic_name(const std::string &topic);
 		virtual void active_publish(bool state);
+		virtual void publish_activity();
 		virtual void active_save(bool state);
-		virtual void exec_afterCompute();
+		virtual void load_save();
+		virtual void save_activity();
 
+		// Perhaps move this function in a intermediate class between FTemplate and FMatrix : 
+		// FCollection and put all the interface to check Size, dimension, etc ...
+		// FMatrix and futur class (FImage, etc ... ) should extend FCollection
+		// Could avoid to implement CompareSize in FScalar ... 
+		virtual void checkType(){}
 		virtual void checkSize();
-		virtual void compareSize(iLinkBase& i) = 0;
+		virtual void compareSize(iLinkBase& i){ (void)(i);}
 };
 
+
+enum MATRIXTYPE{POINT,VECTOR,RVECTOR,CVECTOR,MATRIX};
+
+//Note : should be possible to use eigen template power to get FVector class
+// Could be a better option than using flag into FMatrix Constructor to build Vector Function
 class FMatrix : public FTemplate<MatrixXd>
 {
+	private : 
+
+		unsigned int type;
+
 	public : 
-		FMatrix();
-		FMatrix(int X,int Y);
-                FMatrix(int X,int Y, double dvalue);
+		FMatrix(unsigned int type = MATRIX);
 		virtual ~FMatrix(){}
 
                 virtual void compute() = 0;
 		virtual void setparameters() = 0;
-		inline virtual int getRows(){return output.rows();}
-		inline virtual int getCols(){return output.cols();}
-		inline virtual int getSize(){return output.size();}
-
+		
 		inline virtual void setValue(double dvalue, int row,int col) { output=MatrixXd::Constant(row,col,dvalue);}
 		inline virtual void setSize(int rows, int cols){ output = MatrixXd::Constant( rows , cols ,0); }
-		
 		virtual void compareSize(iLinkBase& link);
+
+		inline int getRows(){return output.rows();}
+		inline int getCols(){return output.cols();}
+		inline int getSize(){return output.size();}
+
+		inline bool isPoint(){ return output.size() == 1;}
+		inline bool isVect(){ return output.rows() == 1 || output.cols() == 1;}
+		inline bool isRowVect(){ return output.rows() == 1 && output.cols() > 1;}
+		inline bool isColVect(){ return output.rows() > 1 && output.cols() == 1;}
+
+		inline unsigned int getType(){return type;}
+		virtual void checkType();
 };
 
 
@@ -197,12 +236,8 @@ class FScalar : public FTemplate<double>
 		virtual void setparameters() = 0;
 
 		inline void setValue(double dvalue){ output = dvalue; }
-	//	inline virtual void setSize(int x=1, int y=1){}
-	//	inline virtual void setValue(double dvalue, int x =1 ,int y =1){ output = dvalue; }
 		inline virtual int getRows(){return 1;}
 		inline virtual int getCols(){return 1;}
-		
-		virtual void compareSize(iLinkBase& link);
 };
 
 #endif  // __FUNCTION_H__

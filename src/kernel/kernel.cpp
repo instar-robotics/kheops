@@ -102,7 +102,7 @@ void Kernel::load_functions()
 		Function *f = boost::get(boost::vertex_function , graph)[ it->second  ];
 		if( f != NULL )
 		{
-		 	f->setparameters();
+		 	f->ksetparameters();
 		}
 	}
 }
@@ -237,7 +237,7 @@ void Kernel::prerun_functions()
         for(auto it = node_map.begin(); it != node_map.end(); ++it)
         {
 		Function *f =  boost::get(boost::vertex_function , graph)[ node_map[it->first]];
-		if( f != NULL ) f->prerun();
+		if( f != NULL ) f->kprerun();
         }
 }
 
