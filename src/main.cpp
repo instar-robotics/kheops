@@ -20,6 +20,7 @@ The fact that you are presently reading this means that you have had knowledge o
 #include <syslog.h>
 #include <signal.h>
 #include <exception>
+#include <cstdlib>
 
 #include "kheops/kernel/rttoken.h"
 #include "kheops/kernel/frunner.h"
@@ -29,6 +30,8 @@ The fact that you are presently reading this means that you have had knowledge o
 #include "kheops/kernel/publisher.h"
 #include "kheops/ros/rosinterface.h"
 #include "kheops/util/util.h"
+
+const std::string KHEOPS_LIB_PATH = "KHEOPS_LIB_PATH";
 
 ComInterface * cinter = NULL;
 
@@ -148,8 +151,16 @@ int main(int argc, char **argv)
 		return 0;
 	}
 
-        /************* End Signaux handler operation ****************/
+        /************* End Signaux handler operation *************/
 
+	char* lib = secure_getenv(KHEOPS_LIB_PATH.c_str());
+
+	if( lib != NULL )
+	{
+		libdir+=":";
+		libdir.append(lib);
+	}
+	/*********************************************************/
 	cinter = new RosInterface();
 
 	LibManager::init(libdir);

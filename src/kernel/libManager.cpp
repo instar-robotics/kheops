@@ -49,26 +49,32 @@ void LibManager::load_lib(const std::string& name)
 
 void LibManager::load_libs()
 {
-  std::vector<std::string> files;
-  getdir (libdir, files);
+  std::vector<std::string> dirs;
+  boost::algorithm::split(dirs, libdir, boost::algorithm::is_any_of(":"));	
 
-  std::cout << "Load librairies in " << libdir << std::endl; 
-
-  for( auto it  = files.begin(); it != files.end(); it++)
+  for(auto const& dir: dirs)
   {
-	std::string file_extension,file_name,file_path;
-	
-	get_file_extension( *it, file_extension );
-	get_file_name(*it, file_name);
+  	std::vector<std::string> files;
+  	getdir (dir, files);
 
-	boost::replace_first(file_name ,"lib","");
+  	std::cout << "Load librairies in " << dir << std::endl; 
+
+  	for(auto const& file: files) 
+  	{
+		std::string file_extension,file_name,file_path;
 	
-	//check .so
-	if( file_extension == libExt ) 
-	{
-		file_path = (libdir+(*it));
-		std::cout << "Find Lib : "  << file_name << " in "<< file_path << std::endl;
-		libs[file_name] = file_path;
+		get_file_extension( file, file_extension );
+		get_file_name(file, file_name);
+
+		boost::replace_first(file_name ,"lib","");
+	
+		//check .so
+		if( file_extension == libExt ) 
+		{
+			file_path = (dir+file);
+			std::cout << "Find Lib : "  << file_name << " in "<< file_path << std::endl;
+			libs[file_name] = file_path;
+		}
 	}
   }
 }
