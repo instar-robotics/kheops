@@ -51,7 +51,7 @@ class RosInterface : public ComInterface{
 	public : 
 
 		RosInterface(){}
-		virtual ~RosInterface(){ ros::shutdown(); }
+		virtual ~RosInterface(){ RosWrapper::shutdown(); }
 
 		virtual void init(int argc, char ** argv, std::string prog_name, std::string script_name);
 		virtual void registerListener();

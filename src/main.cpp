@@ -41,13 +41,9 @@ void signals_handler(int number)
   {
     case SIGINT:
       	syslog( LOG_LOCAL0|LOG_LOCAL0 , "KHEOPS SIGINT received : interruption " );
-      	if( cinter != NULL) delete(cinter); 
-	Kernel::quit();
       	break;
     case SIGTERM :
         syslog( LOG_LOCAL0|LOG_LOCAL0 , "KHEOPS SIGTERM received : terminaison" );
-	if(cinter != NULL) delete(cinter);
-        Kernel::quit();
 	break;
     default : 
 	std::string mess = "KHEOPS received unknown SIGNAL" + number;
@@ -55,8 +51,10 @@ void signals_handler(int number)
 	break;
   }
 
+  if(cinter != NULL) delete(cinter);
+  Kernel::quit();
+
   syslog( LOG_LOCAL0|LOG_LOCAL0 , "KHEOPS signal handler end " );
-  exit(0);
 }
 
 void print_splash(void)
@@ -157,7 +155,7 @@ int main(int argc, char **argv)
 
 	if( lib != NULL )
 	{
-		libdir+=":";
+		if( libdir.size() > 0 ) libdir+=":";
 		libdir.append(lib);
 	}
 	/*********************************************************/

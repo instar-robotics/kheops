@@ -25,18 +25,20 @@ class RosWrapper
 	private : 
 
 		std::string node_name;
-		ros::NodeHandle * n;
+		ros::NodeHandle n;
 
-		static RosWrapper singleton;
+		static RosWrapper *singleton;
 
 	public :
 
-		RosWrapper(){}
-		~RosWrapper(){if(n != NULL) delete(n);} 
+		RosWrapper() {}
+		~RosWrapper(){} 
 
 		static void init(int argc, char ** argv, std::string prog_name, std::string script_name);
-		static ros::NodeHandle* getNodeHandle(){return singleton.n;}
-		static std::string getNodeName() {return singleton.node_name;}
+		static void shutdown();
+
+		static ros::NodeHandle* getNodeHandle(){return &(singleton->n);}
+		static std::string getNodeName() {return singleton->node_name;}
 
 		static void clean_topic_name(std::string& str);
 };

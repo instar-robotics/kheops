@@ -60,7 +60,7 @@ void FRunner::exec()
 		{
 			std::cerr << "FATAL in Function.compute " << f->getUuid() << ". " <<  e.what() << std::endl;
 			Kernel::ask_quit();
-			continue;
+			break;
 		}
 
 		if( is_oscillo_active() ) end = std::chrono::system_clock::now();	
@@ -74,7 +74,7 @@ void FRunner::exec()
 		{
 			std::cerr << "FATAL in Function.exec_afterCompute " << f->getUuid() << ". " <<  e.what() << std::endl;
 			Kernel::ask_quit();
-			continue;
+			break;
 		}
 			
 		if( is_oscillo_active() ) 

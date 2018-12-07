@@ -16,16 +16,26 @@ The fact that you are presently reading this means that you have had knowledge o
 
 #include "kheops/ros/roswrapper.h"
 
-RosWrapper RosWrapper::singleton;
+RosWrapper * RosWrapper::singleton = NULL;
 
 void RosWrapper::init(int argc, char ** argv, std::string prog_name, std::string script_name)
 {
-	singleton.node_name = prog_name+"_"+script_name;
+	std::string node_name = prog_name+"_"+script_name;
 
-	ros::init(argc, argv, singleton.node_name);
+	ros::init(argc, argv, node_name);
 
-	singleton.n = new ros::NodeHandle();
+	if( singleton == NULL)
+	{	
+		singleton = new RosWrapper();
+		singleton->node_name = node_name;
+	}
 } 
+
+void RosWrapper::shutdown()
+{
+	delete(singleton);
+	ros::shutdown();
+}
 
 void RosWrapper::clean_topic_name(std::string& str)
 {
