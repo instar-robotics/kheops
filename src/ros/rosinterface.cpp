@@ -322,5 +322,5 @@ bool RosInterface::callback_helper( hieroglyph::Help::Request&, hieroglyph::Help
 void RosInterface::_setDefaultName(std::string& str)
 {
 	str = name + "/" + str;
-	RosWrapper::clean_topic_name(str);
+	RosUtil::clean_topic_name(str);
 }

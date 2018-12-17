@@ -14,18 +14,18 @@ and, more generally, to use and operate it in the same conditions as regards sec
 The fact that you are presently reading this means that you have had knowledge of the CeCILL v2.1 license and that you accept its terms.
 */
 
-#ifndef __ROS_WRAPPER_H__
-#define __ROS_WRAPPER_H__
+#ifndef __ROS_UTIL_H__
+#define __ROS_UTIL_H__
 
 #include <string>
 #include <ros/ros.h>
 
-class RosWrapper
+class RosUtil
 {
 	public :
 
-		RosWrapper() {}
-		~RosWrapper(){} 
+		RosUtil() {}
+		~RosUtil(){} 
 
 		static void clean_topic_name(std::string& str);
 };

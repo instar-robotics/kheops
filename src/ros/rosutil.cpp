@@ -14,10 +14,10 @@ and, more generally, to use and operate it in the same conditions as regards sec
 The fact that you are presently reading this means that you have had knowledge of the CeCILL v2.1 license and that you accept its terms.
 */
 
-#include "kheops/ros/roswrapper.h"
+#include "kheops/ros/rosutil.h"
 #include <regex>
 
-void RosWrapper::clean_topic_name(std::string& str)
+void RosUtil::clean_topic_name(std::string& str)
 {
         std::replace( str.begin(), str.end(), ' ', '_');
         std::replace( str.begin(), str.end(), '-', '_');

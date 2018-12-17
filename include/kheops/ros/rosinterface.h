@@ -21,7 +21,7 @@ The fact that you are presently reading this means that you have had knowledge o
 #include <ros/ros.h>
 #include "kheops/kernel/cominterface.h"
 #include "kheops/kernel/kernel.h"
-#include "kheops/ros/roswrapper.h"
+#include "kheops/ros/rosutil.h"
 #include "hieroglyph/Help.h"
 #include "hieroglyph/RtStat.h"
 #include "hieroglyph/SimpleCmd.h"
