@@ -16,10 +16,29 @@ The fact that you are presently reading this means that you have had knowledge o
 
 #include "kheops/ros/rosinterface.h"
 #include "kheops/kernel/runner.h"
+#include <regex>
 
-void RosInterface::init(int argc, char ** argv, std::string prog_name, std::string script_name)
+void RosInterface::build()
 {
-	RosWrapper::init(argc, argv, prog_name, script_name);
+        if (NULL == singleton)
+        {
+                singleton =  new RosInterface();
+        }
+}
+
+void RosInterface::destroy()
+{
+    if (NULL != singleton)
+    {
+        delete singleton;
+        singleton = NULL;
+    }
+}
+
+void RosInterface::_init(int argc, char ** argv, std::string prog_name, std::string script_name)
+{
+	name = prog_name+"_"+script_name;
+        ros::init(argc, argv, name);
 }
 
 void RosInterface::enter()
@@ -36,15 +55,17 @@ void RosInterface::enter()
 
 void RosInterface::registerListener()
 {
-	sHelper = RosWrapper::getNodeHandle()->advertiseService( RosWrapper::getNodeName()+"/"+CMD[C_HELP] , &RosInterface::callback_helper, this);
-	sControl = RosWrapper::getNodeHandle()->advertiseService( RosWrapper::getNodeName()+"/"+CMD[C_CONTROL] ,&RosInterface::callback_control, this);
-	sWeight = RosWrapper::getNodeHandle()->advertiseService( RosWrapper::getNodeName()+"/"+CMD[C_WEIGHT] , &RosInterface::callback_weight, this);
-	sRtStat = RosWrapper::getNodeHandle()->advertiseService( RosWrapper::getNodeName()+"/"+CMD[C_RTSTAT] , &RosInterface::callback_rt_stat, this);
-	sOutput = RosWrapper::getNodeHandle()->advertiseService( RosWrapper::getNodeName()+"/"+CMD[C_OUTPUT] , &RosInterface::callback_output, this);
-	sOscillo = RosWrapper::getNodeHandle()->advertiseService( RosWrapper::getNodeName()+"/"+CMD[C_OSCILLO] ,&RosInterface::callback_oscillo, this);
-	sObjects = RosWrapper::getNodeHandle()->advertiseService( RosWrapper::getNodeName()+"/"+CMD[C_OBJECTS], &RosInterface::callback_objects, this);
-	sRtToken = RosWrapper::getNodeHandle()->advertiseService( RosWrapper::getNodeName()+"/"+CMD[C_RTTOKEN] , &RosInterface::callback_rt_token, this);
-	sActivity = RosWrapper::getNodeHandle()->advertiseService( RosWrapper::getNodeName()+"/"+CMD[C_ACTIVITY] , &RosInterface::callback_activity, this);
+	ros::NodeHandle n;
+
+	sHelper = n.advertiseService( name+"/"+CMD[C_HELP] , &RosInterface::callback_helper, this);
+	sControl = n.advertiseService( name+"/"+CMD[C_CONTROL] ,&RosInterface::callback_control, this);
+	sWeight = n.advertiseService( name+"/"+CMD[C_WEIGHT] , &RosInterface::callback_weight, this);
+	sRtStat = n.advertiseService( name+"/"+CMD[C_RTSTAT] , &RosInterface::callback_rt_stat, this);
+	sOutput = n.advertiseService( name+"/"+CMD[C_OUTPUT] , &RosInterface::callback_output, this);
+	sOscillo = n.advertiseService( name+"/"+CMD[C_OSCILLO] ,&RosInterface::callback_oscillo, this);
+	sObjects = n.advertiseService( name+"/"+CMD[C_OBJECTS], &RosInterface::callback_objects, this);
+	sRtToken = n.advertiseService( name+"/"+CMD[C_RTTOKEN] , &RosInterface::callback_rt_token, this);
+	sActivity = n.advertiseService( name+"/"+CMD[C_ACTIVITY] ,&RosInterface::callback_activity,this);
 }
 
 bool RosInterface::callback_activity(hieroglyph::ArgCmd::Request& request,hieroglyph::ArgCmd::Response& response)
@@ -298,3 +319,8 @@ bool RosInterface::callback_helper( hieroglyph::Help::Request&, hieroglyph::Help
 	return true;
 }
 
+void RosInterface::_setDefaultName(std::string& str)
+{
+	str = name + "/" + str;
+	RosWrapper::clean_topic_name(str);
+}

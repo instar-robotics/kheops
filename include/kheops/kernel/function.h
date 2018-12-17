@@ -110,7 +110,7 @@ class Function
 		inline bool is_publish_active(){return publish;}
 		inline void set_publish(bool state){publish = state;}
                 virtual void active_publish(bool state) = 0; 
-		virtual void set_topic_name(const std::string &topic) = 0;
+		virtual void set_pub_name(const std::string &name) = 0;
 		virtual void publish_activity() = 0;
 		
 		inline bool is_save_active(){return save;}
@@ -172,7 +172,7 @@ class FTemplate : public Function
 		virtual void onRun() {}
 		virtual void onPause() {}
 
-		virtual void set_topic_name(const std::string &topic);
+		virtual void set_pub_name(const std::string &pub);
 		virtual void active_publish(bool state);
 		virtual void publish_activity();
 		virtual void active_save(bool state);

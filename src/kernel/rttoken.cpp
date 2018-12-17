@@ -21,23 +21,22 @@ The fact that you are presently reading this means that you have had knowledge o
 
 RtToken::RtToken() : Runner(),period(0),  publish(false) 
 {
-	o_pub = new RosOscilloPublisher(1,"oscillo");
-	rt_pub = new RosRtTokenOutputPublisher(1, "rt_token"); 
+	o_pub = new RosOscilloPublisher(1);
+	rt_pub = new RosRtTokenOutputPublisher(1); 
 }
 
 RtToken::RtToken(double period) : Runner(),period(period),publish(false)
 { 
-	o_pub = new RosOscilloPublisher(1,"oscillo");
-	rt_pub = new RosRtTokenOutputPublisher(1, "rt_token"); 
+	o_pub = new RosOscilloPublisher(1);
+	rt_pub = new RosRtTokenOutputPublisher(1); 
 }
 
 RtToken::RtToken(double value, std::string unit) : Runner(), publish(false)
 {
 	setToken(value,unit); 
-	o_pub = new RosOscilloPublisher(1,"oscillo");
-	rt_pub = new RosRtTokenOutputPublisher(1, "rt_token"); 
+	o_pub = new RosOscilloPublisher(1);
+	rt_pub = new RosRtTokenOutputPublisher(1); 
 }
-
 
 RtToken::~RtToken()
 {
@@ -252,5 +251,19 @@ void RtToken::publish_message()
 			rt_pub->publish();	
 		}
 	}
+}
+
+void RtToken::set_rt_pub_name(const std::string& name)
+{
+	std::string pname = name;
+	ComInterface::setDefaultName(pname);
+	rt_pub->setPubName(pname);
+}
+
+void RtToken::set_oscillo_pub_name(const std::string& name)
+{
+	std::string pname = name;
+	ComInterface::setDefaultName(pname);
+	o_pub->setPubName(pname);
 }
 

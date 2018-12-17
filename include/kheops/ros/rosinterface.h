@@ -35,8 +35,6 @@ class RosInterface : public ComInterface{
 	
 	private :
 
-		std::string node_name;
-
 		ros::ServiceServer sHelper;
 		ros::ServiceServer sControl;
 		ros::ServiceServer sWeight;
@@ -47,15 +45,21 @@ class RosInterface : public ComInterface{
 		ros::ServiceServer sRtToken;
 		ros::ServiceServer sActivity;
 		ros::ServiceServer sGetControlStatus;
+		
+		RosInterface(){}
 
 	public : 
 
-		RosInterface(){}
-		virtual ~RosInterface(){ RosWrapper::shutdown(); }
+		static void build();
+		static void destroy();
+		static RosInterface *getInstance(){return dynamic_cast<RosInterface*>(singleton);}
 
-		virtual void init(int argc, char ** argv, std::string prog_name, std::string script_name);
+		virtual ~RosInterface(){ros::shutdown();}
+
 		virtual void registerListener();
 		virtual void enter();
+		virtual void _init(int argc, char ** argv, std::string prog_name, std::string script_name);
+		virtual void _setDefaultName(std::string& str);
 
 		bool callback_activity(hieroglyph::ArgCmd::Request& request, hieroglyph::ArgCmd::Response& response);
 		bool callback_rt_token(hieroglyph::SimpleCmd::Request& request, hieroglyph::SimpleCmd::Response& response);

@@ -17,7 +17,8 @@ The fact that you are presently reading this means that you have had knowledge o
 #include "kheops/kernel/cominterface.h"
 #include "kheops/kernel/kernel.h"
 
-#include <iostream>
+ComInterface *ComInterface::singleton = NULL;
+
 void ComInterface::exec_request()
 {
 	bool order;

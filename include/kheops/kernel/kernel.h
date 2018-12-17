@@ -69,9 +69,9 @@ class Kernel
 
 		StatusPublisher *k_pub;
 	
-	public :
-	
 		Kernel();
+	public :
+
 		~Kernel();
 		Kernel(const Kernel&) = delete;
                 Kernel& operator=(const Kernel&) = delete;
@@ -160,6 +160,8 @@ class Kernel
 		static inline Kernel& instance() noexcept {return singleton;}
 		static void init(std::string scriptfile, std::string resfile, bool ignore_matrix_check = false);
                 
+		static void build();
+		static void destroy();
 		static void load(); 	
 		static void prerun(); 	
 		static void start(bool run);

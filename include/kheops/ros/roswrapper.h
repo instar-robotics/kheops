@@ -22,23 +22,10 @@ The fact that you are presently reading this means that you have had knowledge o
 
 class RosWrapper
 {
-	private : 
-
-		std::string node_name;
-		ros::NodeHandle n;
-
-		static RosWrapper *singleton;
-
 	public :
 
 		RosWrapper() {}
 		~RosWrapper(){} 
-
-		static void init(int argc, char ** argv, std::string prog_name, std::string script_name);
-		static void shutdown();
-
-		static ros::NodeHandle* getNodeHandle(){return &(singleton->n);}
-		static std::string getNodeName() {return singleton->node_name;}
 
 		static void clean_topic_name(std::string& str);
 };

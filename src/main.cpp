@@ -22,6 +22,7 @@ The fact that you are presently reading this means that you have had knowledge o
 #include <exception>
 #include <cstdlib>
 
+
 #include "kheops/kernel/rttoken.h"
 #include "kheops/kernel/frunner.h"
 #include "kheops/kernel/kernel.h"
@@ -32,8 +33,6 @@ The fact that you are presently reading this means that you have had knowledge o
 #include "kheops/util/util.h"
 
 const std::string KHEOPS_LIB_PATH = "KHEOPS_LIB_PATH";
-
-ComInterface * cinter = NULL;
 
 void signals_handler(int number)
 {
@@ -51,8 +50,9 @@ void signals_handler(int number)
 	break;
   }
 
-  if(cinter != NULL) delete(cinter);
+
   Kernel::quit();
+  RosInterface::destroy();
 
   syslog( LOG_LOCAL0|LOG_LOCAL0 , "KHEOPS signal handler end " );
 }
@@ -85,7 +85,6 @@ void print_help(void)
 
 int main(int argc, char **argv)
 {
-	
 	struct sigaction action;
 	bool verbose = false;
 	bool resume = true;
@@ -123,6 +122,7 @@ int main(int argc, char **argv)
 		}	
 	}
 	
+	
 	if( !run )
 	{
 		std::cout << "Fatal : need to load a XML Script file \n" << std::endl;
@@ -131,7 +131,7 @@ int main(int argc, char **argv)
 		return 0;
 	} 	
 
-        /*************Signaux handler operation ****************/
+        // *************Signaux handler operation ****************
 	sigfillset(&action.sa_mask);
 	action.sa_handler = signals_handler;
   	action.sa_flags = 0;
@@ -149,7 +149,7 @@ int main(int argc, char **argv)
 		return 0;
 	}
 
-        /************* End Signaux handler operation *************/
+        // ************* End Signaux handler operation *************
 
 	char* lib = secure_getenv(KHEOPS_LIB_PATH.c_str());
 
@@ -158,8 +158,10 @@ int main(int argc, char **argv)
 		if( libdir.size() > 0 ) libdir+=":";
 		libdir.append(lib);
 	}
-	/*********************************************************/
-	cinter = new RosInterface();
+
+	// *********************************************************
+	// Use Ros builder by default
+	RosInterface::build();
 
 	LibManager::init(libdir);
 	LibManager::load();
@@ -167,15 +169,14 @@ int main(int argc, char **argv)
 	Kernel::init(script, weight, ignore_matrix_check);	
 	
 	try{
-
-		cinter->init( argc, argv, progname , Kernel::instance().getName() );	
+		ComInterface::init( argc, argv, progname , Kernel::instance().getName() );	
 
 		Kernel::load();
 		Kernel::prerun();
 		Kernel::start(resume);
 
-		cinter->registerListener();
-		cinter->enter();
+		RosInterface::getInstance()->registerListener();
+		RosInterface::getInstance()->enter();
 	}
 	catch (std::exception& e)
 	{
@@ -183,7 +184,7 @@ int main(int argc, char **argv)
 	}
 
 	Kernel::quit();
-	delete(cinter);
+	RosInterface::destroy();
 
 	return 0;
 }

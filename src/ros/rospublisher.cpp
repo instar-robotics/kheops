@@ -23,7 +23,28 @@ The fact that you are presently reading this means that you have had knowledge o
 template<class RosMessage>
 void RosTopic<RosMessage>::open(const std::string &topic)
 {
-	pub = RosWrapper::getNodeHandle()->advertise<RosMessage>( topic , size_queue, latch);
+	if(!state)
+	{
+		try{
+			ros::NodeHandle n;
+			pub = n.advertise<RosMessage>( topic , size_queue, latch);
+		}catch(...)
+		{
+			std::cerr <<"FATAL : Error when open rostopic publisher." << std::endl;
+			throw;
+		}
+		state = true;
+	}
+}
+
+template<class RosMessage>
+void RosTopic<RosMessage>::close()
+{
+	if(state)
+	{
+		pub.shutdown();
+		state = false;
+	}
 }
 
 /*******************************************************************************************************/
@@ -33,20 +54,12 @@ void RosTopic<RosMessage>::open(const std::string &topic)
 template<class Message, class RosMessage>
 void RosDataPublisher<Message,RosMessage>::open()
 {
-	Publisher::state = false;
-	RosTopic<RosMessage>::close();
-
-	if( ! Publisher::state )
-	{
-		RosTopic<RosMessage>::open( RosWrapper::getNodeName() +"/"+Publisher::pub_name );
-	}
-	Publisher::state = true;
+	RosTopic<RosMessage>::open( Publisher::pub_name );
 }
 
 template<class Message, class RosMessage>
 void RosDataPublisher<Message,RosMessage>::close()
 {
-	Publisher::state = false;
 	RosTopic<RosMessage>::close();
 }
 
@@ -56,13 +69,6 @@ void RosDataPublisher<Message,RosMessage>::publish()
 	RosTopic<RosMessage>::publish();
 }
 
-template<class Message, class RosMessage>
-void RosDataPublisher<Message,RosMessage>::setPubName(const std::string & pub_name)
-{
-	Publisher::pub_name = pub_name;	
-	RosWrapper::clean_topic_name(Publisher::pub_name);
-}
-
 /*******************************************************************************************************/
 /*****************                        ROSArrayPublisher                          *******************/
 /*******************************************************************************************************/
@@ -70,35 +76,19 @@ void RosDataPublisher<Message,RosMessage>::setPubName(const std::string & pub_na
 template<class Message, class RosMessage>
 void RosArrayPublisher<Message,RosMessage>::open()
 {
-	Publisher::state = false;
-	RosTopic<RosMessage>::close();
-
-	if( !Publisher::state )
-	{
-		RosTopic<RosMessage>::open(  RosWrapper::getNodeName() +"/"+Publisher::pub_name );
-	}
-	Publisher::state = true;
+	RosTopic<RosMessage>::open( Publisher::pub_name );
 }
 
 template<class Message, class RosMessage>
 void RosArrayPublisher<Message,RosMessage>::close()
 {
-	Publisher::state = false;
 	RosTopic<RosMessage>::close();
 }
-
 
 template<class Message, class RosMessage>
 void RosArrayPublisher<Message,RosMessage>::publish()
 {
 	 RosTopic<RosMessage>::publish();
-}
-
-template<class Message, class RosMessage>
-void RosArrayPublisher<Message,RosMessage>::setPubName(const std::string & pub_name)
-{
-	Publisher::pub_name = pub_name;	
-	RosWrapper::clean_topic_name(Publisher::pub_name);
 }
 
 /*******************************************************************************************************/

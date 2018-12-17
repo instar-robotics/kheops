@@ -19,7 +19,7 @@ The fact that you are presently reading this means that you have had knowledge o
 
 #include <ros/ros.h>
 #include <ros/callback_queue.h>
-#include "kheops/ros/roswrapper.h"
+#include "kheops/ros/rosinterface.h"
 
 template<class RosMessage>
 class RosSubscriber
@@ -39,7 +39,6 @@ class RosSubscriber
 
 		void enable(std::string& topic_name,int size_queue ){ 
 			my_queue.enable();
-			RosWrapper::clean_topic_name(topic_name);
 			sub = n.subscribe( topic_name, size_queue, &RosSubscriber<RosMessage>::callback, this);
 		}
 

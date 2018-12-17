@@ -25,17 +25,17 @@ using Eigen::MatrixXd;
 class Publisher
 {
 	protected : 
-		bool state;
+
 		std::string pub_name;
 
 	public : 
-		Publisher() : state(false) {}
+		Publisher() {}
 		virtual ~Publisher(){}
 
 		virtual void open() = 0;
 		virtual void close() = 0;
 		virtual void publish() = 0;
-		virtual bool is_open() {return state;}
+		virtual bool is_open() = 0;
 	
 		virtual void setPubName(const std::string & pub_name) 
 		{

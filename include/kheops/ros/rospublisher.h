@@ -22,7 +22,7 @@ The fact that you are presently reading this means that you have had knowledge o
 #include "std_msgs/Float64.h"
 #include "diagnostic_msgs/KeyValue.h"
 #include "kheops/kernel/publisher.h" 
-#include "kheops/ros/roswrapper.h"
+#include "kheops/ros/rosinterface.h"
 #include "hieroglyph/OscilloArray.h"
 #include <Eigen/Core>
 #include <Eigen/Dense>
@@ -36,6 +36,7 @@ class RosTopic
 {
 	protected : 
 
+		bool state;
 		RosMessage msg;
 		
 		int size_queue;
@@ -44,8 +45,8 @@ class RosTopic
 
 	public : 
 
-		RosTopic() : latch(false) {}
-		RosTopic(int size) : size_queue(size), latch(false){}
+		RosTopic() : state(false), latch(false) {}
+		RosTopic(int size) : state(false), size_queue(size), latch(false){}
 		virtual ~RosTopic(){}
 
 		void setSize(int size) {size_queue = size;}
@@ -56,8 +57,9 @@ class RosTopic
 		// however, this could had some latency during start/stop call
 		// So it should be a better idee to had a Condition_variable in RosTopic class to avoid problem and remove kernel pause during services call execution
 		void open(const std::string &topic);
-		void close() { pub.shutdown();}
+		void close();
 		void publish(){	pub.publish(msg);}
+		bool is_open() {return state;}
 
 		void setLatch(bool latch) {this->latch = latch;}
 };
@@ -73,9 +75,7 @@ class RosDataPublisher : public DataPublisher<Message>, public RosTopic<RosMessa
 		virtual void open();
 		virtual void close();
 		virtual void publish();
-
-		virtual void setPubName(const std::string & pub_name);
-
+		virtual bool is_open() { return RosTopic<RosMessage>::is_open();}
 };
 
 template<class Message, class RosMessage>
@@ -88,17 +88,13 @@ class RosArrayPublisher : public ArrayPublisher<Message> , public RosTopic<RosMe
 		virtual void open();
                 virtual void close();
                 virtual void publish();
-		
-		virtual void setPubName(const std::string & pub_name);
+		virtual bool is_open() { return  RosTopic<RosMessage>::is_open();}
 };
 
 class RosOscilloPublisher : public RosArrayPublisher<OscilloMessage,hieroglyph::OscilloArray>
 {
 	public : 
-		RosOscilloPublisher(int size, const std::string& pub_name) : RosArrayPublisher(size) {
-			Publisher::pub_name = pub_name ;
-			RosWrapper::clean_topic_name(Publisher::pub_name);
-		}
+		RosOscilloPublisher(int size) : RosArrayPublisher(size) {}
 		virtual ~RosOscilloPublisher(){}
 
 		virtual void add(const OscilloMessage &m);
@@ -110,10 +106,7 @@ class RosRtTokenOutputPublisher : public RosDataPublisher<OscilloMessage, hierog
 {
 	public : 
 
-		RosRtTokenOutputPublisher(int size, const std::string& pub_name ) : RosDataPublisher(size) {
-			Publisher::pub_name=pub_name; 
-			RosWrapper::clean_topic_name(Publisher::pub_name);
-		}
+		RosRtTokenOutputPublisher(int size) : RosDataPublisher(size) {}
 
 		virtual ~RosRtTokenOutputPublisher(){}
 		virtual void setMessage(const OscilloMessage& m);
@@ -143,11 +136,9 @@ class RosMatrixPublisher : public RosDataPublisher<MatrixXd, std_msgs::Float64Mu
 class RosStatusPublisher : public RosDataPublisher<StatusMessage,diagnostic_msgs::KeyValue>
 {
 	public : 
-		RosStatusPublisher(int size, const std::string& pub_name ) : RosDataPublisher(size)
+		RosStatusPublisher(int size) : RosDataPublisher(size)
 		{
 			RosTopic::setLatch(true);
-			Publisher::pub_name = pub_name ;
-			RosWrapper::clean_topic_name(Publisher::pub_name);
 		}
                 virtual ~RosStatusPublisher(){}
 

@@ -73,10 +73,12 @@ class RtToken : public Runner
 		
 		void sync_all();
 
+		void set_rt_pub_name(const std::string& name);
 		inline bool is_publish_active(){return publish;}
 		void active_publish(bool state);
 		void publish_message();
 
+		void set_oscillo_pub_name(const std::string& name);
 		void active_oscillo(bool state);
 		void publish_oscillo();
 

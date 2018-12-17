@@ -17,6 +17,7 @@ The fact that you are presently reading this means that you have had knowledge o
 #ifndef __ILINK_BASE_H__
 #define __ILINK_BASE_H__
 
+#include "kheops/kernel/cominterface.h"
 #include "kheops/kernel/publisher.h"
 
 class iLinkBase
@@ -79,7 +80,10 @@ class iLink : public iLinkBase
                 inline virtual void setUuid(const std::string& uuid)
                 {
                         this->uuid = uuid;
-                        o_pub->setPubName("ilink_"+getUuid());
+			               
+			std::string name = "ilink_"+getUuid();
+                	ComInterface::setDefaultName(name);
+                        o_pub->setPubName(name);
                 }
 
                 /***********************************************************************/

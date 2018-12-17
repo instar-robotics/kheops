@@ -19,6 +19,7 @@ The fact that you are presently reading this means that you have had knowledge o
 #include <chrono>
 #include "kheops/kernel/function.h"
 #include "kheops/ros/rospublisher.h"
+#include "kheops/kernel/cominterface.h"
 
 /*******************************************************************************************************/
 /******************************************** FUNCTION *************************************************/
@@ -115,16 +116,19 @@ FTemplate<T>::~FTemplate()
 }
 
 template<class T>
-void FTemplate<T>::set_topic_name(const std::string& topic)
+void FTemplate<T>::set_pub_name(const std::string& pubname)
 {
-	std::string name = "function_";
-	if(topic.size()==0 )
+	if(pubname.size()==0 )
 	{
+		std::string name = "function_";
 		name+=getUuid();
+		ComInterface::setDefaultName(name);
+		o_pub->setPubName(name);
 	}
-	else name+=topic;
-
-	o_pub->setPubName(name);
+	else 
+	{
+		o_pub->setPubName(pubname);
+	}
 }
 
 

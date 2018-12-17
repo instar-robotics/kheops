@@ -96,15 +96,26 @@ class ComInterface
 {
 	protected : 
 
+		std::string name;
 		std::queue<Request> qrequest;
+
+		static ComInterface* singleton;
+		ComInterface(){}
+
 	public : 
 
-		ComInterface(){}
 		virtual ~ComInterface(){}
 
-		virtual void init(int argc, char ** argv, std::string prog_name, std::string script_name) = 0;
+		static ComInterface *getInstance(){return singleton;}
+
+		static void init(int argc, char ** argv, std::string prog_name, std::string script_name){singleton->_init(argc, argv,prog_name,script_name);}
+		static void setDefaultName(std::string& str) {return singleton->_setDefaultName(str);}
+		static std::string getName() {return singleton->name;}
+
 		virtual void registerListener() = 0;
 		virtual void enter() = 0;
+		virtual void _init(int argc, char ** argv, std::string prog_name, std::string script_name)=0;
+		virtual void _setDefaultName(std::string& str) = 0;
 
 		void exec_request();
 };

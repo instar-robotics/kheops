@@ -33,7 +33,7 @@ Kernel Kernel::singleton;
 
 Kernel::Kernel() : squit(false), k_pub(NULL) 
 {	 
-	k_pub = new RosStatusPublisher(5, "status");
+	k_pub = new RosStatusPublisher(5);
 }
 
 Kernel::~Kernel()
@@ -96,6 +96,7 @@ void Kernel::load_functions()
 		
 		add_function( it->second );	
 	}
+
 	//setparameters : call bind function for each inputs
 	for( auto it = node_map.begin(); it != node_map.end(); it++)
 	{
@@ -132,6 +133,8 @@ void Kernel::load_links()
 
 void Kernel::load_rttoken()
 {
+	rttoken.set_rt_pub_name("rt_token");
+	rttoken.set_oscillo_pub_name("oscillo");
 	update_rt_token_value(xs.rt);
 	create_rt_klink();
 	clear_rt_klink();
@@ -178,7 +181,7 @@ void Kernel::add_function( const XFunction& xf)
       else
       { 
 		f->setUuid(xf.uuid);
-		f->set_topic_name(xf.topic_name);
+		f->set_pub_name(xf.topic_name);
 		f->set_publish(xf.publish);
 		f->set_save(xf.save);
 
@@ -861,7 +864,12 @@ void Kernel::active_status(bool state)
         {
                 if( k_pub != NULL )
                 {
-                        if( !k_pub->is_open()) k_pub->open();
+                        if( !k_pub->is_open()){
+				std::string name = "status";
+				ComInterface::setDefaultName(name);
+				k_pub->setPubName(name);
+			       	k_pub->open();
+			}
                 }
                 else throw std::invalid_argument("Kernel : failed to open status publisher");
         }
