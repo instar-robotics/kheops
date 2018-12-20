@@ -107,8 +107,8 @@ Map<const MatrixXd> getCMapCol(const MatrixXd & m);
 /* Return Map in a one row Matrix  */
 Map<const VectorXd> getCMapVect(const MatrixXd & m);
 
-typedef Matrix<bool, Dynamic, Dynamic> MatrixXb;
-typedef Matrix<bool, Dynamic,1> VectorXb;
+typedef Matrix<uint8_t , Dynamic, Dynamic> MatrixXb;
+typedef Matrix<uint8_t, Dynamic,1> VectorXb;
 
 class iMMatrix : public iMatrix<MatrixXd>
 {
@@ -128,8 +128,8 @@ class iMMatrix : public iMatrix<MatrixXd>
                 /***********************************************************************/
                 /*****************************  Output API  ****************************/
                 /***********************************************************************/
-                inline unsigned int oRows(){return oCol;}
-                inline unsigned int oCols(){return oRow;}
+                inline unsigned int oRows(){return oRow;}
+                inline unsigned int oCols(){return oCol;}
                 inline unsigned int oSize(){return oRow * oCol;}
 
                 /***********************************************************************/
@@ -180,15 +180,39 @@ class iMMatrix : public iMatrix<MatrixXd>
                 // The Matrix have (iRows,iCols) dimension
                 // Becareful : the returned Map is writable !
                 Map<MatrixXd> wj(unsigned int oRows,unsigned int oCols);
+                
+		// Get Weight matrix for the output neuron (o)
+                // The Matrix have (iRows,iCols) dimension
+                // Becareful : the returned Map is writable !
+                Map<MatrixXd> wj(unsigned int o);
 
-                // Get Weight colons for the output neuron (wCols)
+                // Get Weight row for the output neuron (oRows,oCols)
+                // The Matrix have (1,wCols) dimension
+                // Becareful : the returned Map is writable !
+                Map<MatrixXd> wj_row(unsigned int oRows, unsigned int oCols);
+
+                // Get Weight row for the output neuron (o)
+                // The Matrix have (1, wCols) dimension
+                // Becareful : the returned Map is writable !
+                Map<MatrixXd> wj_row(unsigned int o);
+                
+		// Get Weight colomn for the output neuron (oRows,oCols)
                 // The Matrix have (wRows,1) dimension
                 // Becareful : the returned Map is writable !
-                Map<MatrixXd> wj(unsigned int wCols);
+                Map<MatrixXd> wj_col(unsigned int oRows, unsigned int oCols);
 
-                // Get Weight colons for the output neuron (wCols)
+                // Get Weight colomn for the output neuron (o)
+                // The Matrix have (wRows, 1) dimension
                 // Becareful : the returned Map is writable !
-                Map<VectorXd> wj_vect(unsigned int wCols);
+                Map<MatrixXd> wj_col(unsigned int o);
+
+                // Get Weight vector for the output neuron (oRows,oCols)
+                // Becareful : the returned Map is writable !
+                Map<VectorXd> wj_vect(unsigned int wRows, unsigned int wCols);
+
+                // Get Weight vector for the output neuron (o)
+                // Becareful : the returned Map is writable !
+                Map<VectorXd> wj_vect(unsigned int o);
 
                 double wij(unsigned int wRows,unsigned int wCols);
 
@@ -214,34 +238,56 @@ class iMMatrix : public iMatrix<MatrixXd>
                 inline unsigned int getFRows(){return filter.rows();}
                 inline unsigned int getFCols(){return filter.cols();}
 
-                // Basic accessor : just in case we want update Filter (add or delete connectivity at runtime)
                 MatrixXb& f() { return filter;}
                 void f(const MatrixXb &filter);
+                
+		Map<MatrixXb> fm();
 
                 // Use Eigen::Ref
                 // Eigen::Ref gives more generalization abilities and better performance
                 void fref(const Ref<const MatrixXb>& filter);
 
                 //Set Weight Value
-                void fij(bool weight, unsigned int fRow, unsigned int fCol);
+                void fij(typename MatrixXb::Scalar weight, unsigned int fRow, unsigned int fCol);
                 void fj(const Ref<VectorXb> &weight,unsigned int fCol);
 
-                // Return the map of the weight Matrix
-                // In user functions, use link this :
-                Map<const MatrixXb> fm();
-
-                // Get filter matrix for the output neuron (oRows,oCols)
+                // Get Filter matrix for the output neuron (oRows,oCols)
                 // The Matrix have (iRows,iCols) dimension
-                Map<const MatrixXb> fj(unsigned int oRows,unsigned int oCols);
+                // Becareful : the returned Map is writable !
+                Map<MatrixXb> fj(unsigned int oRows,unsigned int oCols);
 
-                // Get Weight colons for the output neuron (wCols)
+                // Get Filter matrix for the output neuron (o)
+                // The Matrix have (iRows,iCols) dimension
+                // Becareful : the returned Map is writable !
+                Map<MatrixXb> fj(unsigned int o);
+                
+		// Get Filter row vector for the output neuron (oRows,oCols)
+                // The Matrix have (1,wCols) dimension
+                // Becareful : the returned Map is writable !
+                Map<MatrixXb> fj_row(unsigned int oRows,unsigned int oCols);
+
+                // Get Filter row vector for the output neuron (o)
+                // The Matrix have (1,wCols) dimension
+                // Becareful : the returned Map is writable !
+                Map<MatrixXb> fj_row(unsigned int o);
+                
+		// Get Filter colmn vector for the output neuron (oRows,oCols)
                 // The Matrix have (wRows,1) dimension
                 // Becareful : the returned Map is writable !
-                Map<const MatrixXb> fj(unsigned int wCols);
+                Map<MatrixXb> fj_col(unsigned int oRows,unsigned int oCols);
 
-                // Get Weight colons for the output neuron (wCols)
+                // Get Filter colomn vector for the output neuron (o)
+                // The Matrix have (wRows,1) dimension
                 // Becareful : the returned Map is writable !
-                Map<const VectorXb> fj_vec(unsigned int wCols);
+                Map<MatrixXb> fj_col(unsigned int o);
+
+                // Get Filter vector for the output neuron (oRows,oCols)
+                // Becareful : the returned Map is writable !
+                Map<VectorXb> fj_vec(unsigned int oRows,unsigned int oCols);
+                
+		// Get Filter colomns for the output neuron (wCols)
+                // Becareful : the returned Map is writable !
+                Map<VectorXb> fj_vec(unsigned int wCols);
 
                 double fij(unsigned int wRows,unsigned int wCols);
 
