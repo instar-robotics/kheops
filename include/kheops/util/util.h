@@ -36,4 +36,15 @@ double convert_period_frequency(double value);
 
 std::string generate_uuid();
 
+template<class T>
+inline bool isequal(T x, T y){ return (fabs(x - y) < std::numeric_limits<T>::epsilon());}
+
+template<class T>
+T rectification(T x,T thresold)
+{
+ if(x <= thresold) return 0.;
+ return ( x - thresold);
+}
+
+
 #endif // __UTIL_HPP__
