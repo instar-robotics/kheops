@@ -39,6 +39,14 @@ void RosInterface::_init(int argc, char ** argv, std::string prog_name, std::str
 {
 	name = prog_name+"_"+script_name;
         ros::init(argc, argv, name);
+
+	ros::Time::init();
+        while (!ros::master::check())
+        {
+                std::cout << "waiting..." << std::endl;
+                ros::Duration(0.5).sleep();
+        }
+        std::cout << "master started!" << std::endl;
 }
 
 void RosInterface::enter()
