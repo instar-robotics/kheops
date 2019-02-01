@@ -49,16 +49,21 @@ void RosInterface::_init(int argc, char ** argv, std::string prog_name, std::str
         std::cout << "master started!" << std::endl;
 }
 
-void RosInterface::enter()
+int RosInterface::enter()
 {
+	int ret = 0;
 	ros::Rate r(DEFAULT_RATE);
 
-	while( !Kernel::is_asking_quit() )
+	while( !Kernel::is_asking_quit() && ros::master::check() )
 	{
 	    exec_request();
 	    ros::spinOnce();
 	    r.sleep();
 	}
+
+	if( !ros::master::check()) ret = 1;
+
+	return ret;
 }
 
 void RosInterface::registerListener()

@@ -123,7 +123,7 @@ class Function
 		// FCollection and put all the interface to check Size, dimension, etc ...
 		// FMatrix and futur class (FImage, etc ... ) should extend FCollection
 		// Could avoid to implement CompareSize in FScalar ... 
-		virtual void checkType() = 0;
+		virtual void checkShape() = 0;
 		virtual void checkSize() = 0;
 };
 
@@ -183,13 +183,13 @@ class FTemplate : public Function
 		// FCollection and put all the interface to check Size, dimension, etc ...
 		// FMatrix and futur class (FImage, etc ... ) should extend FCollection
 		// Could avoid to implement CompareSize in FScalar ... 
-		virtual void checkType(){}
+		virtual void checkShape(){}
 		virtual void checkSize();
 		virtual void compareSize(iLinkBase& i){ (void)(i);}
 };
 
 
-enum MATRIXTYPE{POINT,VECTOR,RVECTOR,CVECTOR,MATRIX};
+enum MATRIXSHAPE{POINT,VECTOR,RVECTOR,CVECTOR,MATRIX};
 
 //Note : should be possible to use eigen template power to get FVector class
 // Could be a better option than using flag into FMatrix Constructor to build Vector Function
@@ -197,10 +197,10 @@ class FMatrix : public FTemplate<MatrixXd>
 {
 	private : 
 
-		unsigned int type;
+		unsigned int shape;
 
 	public : 
-		FMatrix(unsigned int type = MATRIX);
+		FMatrix(unsigned int shape = MATRIX);
 		virtual ~FMatrix(){}
 
                 virtual void compute() = 0;
@@ -219,8 +219,8 @@ class FMatrix : public FTemplate<MatrixXd>
 		inline bool isRowVect(){ return output.rows() == 1 && output.cols() > 1;}
 		inline bool isColVect(){ return output.rows() > 1 && output.cols() == 1;}
 
-		inline unsigned int getType(){return type;}
-		virtual void checkType();
+		inline unsigned int getShape(){return shape;}
+		virtual void checkShape();
 };
 
 

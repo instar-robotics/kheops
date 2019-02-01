@@ -112,8 +112,8 @@ class ComInterface
 		static void setDefaultName(std::string& str) {return singleton->_setDefaultName(str);}
 		static std::string getName() {return singleton->name;}
 
+		virtual int enter() = 0;
 		virtual void registerListener() = 0;
-		virtual void enter() = 0;
 		virtual void _init(int argc, char ** argv, std::string prog_name, std::string script_name)=0;
 		virtual void _setDefaultName(std::string& str) = 0;
 

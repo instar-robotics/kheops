@@ -91,6 +91,7 @@ int main(int argc, char **argv)
 	bool run = false;
 	bool ignore_matrix_check = false;
 	char opt;
+	int ret = 0;
 	
 	std::string script;
 	std::string libdir;
@@ -176,7 +177,7 @@ int main(int argc, char **argv)
 		Kernel::start(resume);
 
 		RosInterface::getInstance()->registerListener();
-		RosInterface::getInstance()->enter();
+		ret = RosInterface::getInstance()->enter();
 	}
 	catch (std::exception& e)
 	{
@@ -186,5 +187,5 @@ int main(int argc, char **argv)
 	Kernel::quit();
 	RosInterface::destroy();
 
-	return 0;
+	return ret;
 }

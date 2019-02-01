@@ -56,8 +56,8 @@ class RosInterface : public ComInterface{
 
 		virtual ~RosInterface(){ros::shutdown();}
 
+		virtual int enter();
 		virtual void registerListener();
-		virtual void enter();
 		virtual void _init(int argc, char ** argv, std::string prog_name, std::string script_name);
 		virtual void _setDefaultName(std::string& str);
 

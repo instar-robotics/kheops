@@ -58,7 +58,7 @@ void Function::publish_data()
 
 void Function::ksetparameters()
 {
-	checkType();
+	checkShape();
 	setparameters();
 }
 
@@ -211,7 +211,7 @@ void FTemplate<T>::save_activity()
 /********************************************* FMATRIX *************************************************/
 /*******************************************************************************************************/
 
-FMatrix::FMatrix(unsigned int type) : FTemplate(), type(type)  
+FMatrix::FMatrix(unsigned int shape) : FTemplate(), shape(shape)  
 {
 	o_pub = new RosMatrixPublisher(1);
 }
@@ -241,21 +241,21 @@ void FMatrix::compareSize(iLinkBase& link)
 	}
 }
 
-void FMatrix::checkType()
+void FMatrix::checkShape()
 {
-	if( type == POINT && !isPoint() )
+	if( shape == POINT && !isPoint() )
 	{
 		 throw std::invalid_argument(class_name()+" : output must be a Point [(1,1) Matrix]");
 	}
-	if( type == VECTOR && !isVect() )
+	if( shape == VECTOR && !isVect() )
 	{
 		 throw std::invalid_argument(class_name()+" : output must be a Vector [ROW or COL]");
 	}
-	if( type == RVECTOR && !isRowVect() ) 
+	if( shape == RVECTOR && !isRowVect() ) 
 	{
 		 throw std::invalid_argument(class_name()+" : output must be a ROW Vector");
 	}	
-	if( type == CVECTOR && !isColVect() ) 
+	if( shape == CVECTOR && !isColVect() ) 
 	{
 		 throw std::invalid_argument(class_name()+" : output must be a COL Vector");
 	}	
