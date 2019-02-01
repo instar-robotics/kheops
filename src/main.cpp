@@ -50,7 +50,7 @@ void signals_handler(int number)
 	break;
   }
 
-
+  Kernel::ask_quit();
   Kernel::quit();
   RosInterface::destroy();
 
@@ -133,6 +133,7 @@ int main(int argc, char **argv)
 	} 	
 
         // *************Signaux handler operation ****************
+	
 	sigfillset(&action.sa_mask);
 	action.sa_handler = signals_handler;
   	action.sa_flags = 0;
