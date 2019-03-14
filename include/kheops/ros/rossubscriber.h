@@ -21,6 +21,8 @@ The fact that you are presently reading this means that you have had knowledge o
 #include <ros/callback_queue.h>
 #include "kheops/ros/rosinterface.h"
 
+#define TIMEMAX 10000
+
 template<class RosMessage>
 class RosSubscriber
 {
@@ -48,6 +50,24 @@ class RosSubscriber
 		}
 
 		virtual void callback(const typename RosMessage::ConstPtr &msg) = 0;
+		virtual void callOne(double time)
+		{
+			if( time < 0 )
+        		{
+                		ros::CallbackQueue::CallOneResult res = ros::CallbackQueue::TryAgain ;
+				while( ros::ok() && 
+					res != ros::CallbackQueue::Called &&  
+						res != ros::CallbackQueue::Disabled )
+				{
+					res = my_queue.callOne(); 
+					usleep(TIMEMAX);
+				}
+
+        		}
+        		else{
+                		my_queue.callOne(ros::WallDuration(time));
+        		}
+		}
 };
 
 #endif // __ROS_SUBSCRIBER_HPP__

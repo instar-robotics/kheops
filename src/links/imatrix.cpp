@@ -15,6 +15,7 @@ The fact that you are presently reading this means that you have had knowledge o
 */
 
 #include "kheops/links/imatrix.h"
+#include "kheops/links/nei_parser.h"
 #include "kheops/ros/rospublisher.h"
 
 /*******************************************************************************************************/
@@ -394,7 +395,7 @@ double iMMatrix::fij(unsigned int fRows,unsigned int fCols)
         return filter(fRows,fCols);
 }
 
-void iMMatrix::buildFilter(const std::string& con)
+void iMMatrix::buildFilter(const std::string& con, const std::vector<std::string>& exprs)
 {
         if( con == one_to_one )
         {
@@ -407,7 +408,15 @@ void iMMatrix::buildFilter(const std::string& con)
         }
         else if( con == one_to_nei)
         {
+		NEI_Parser parser;
 
+		for( unsigned int i = 0; i < exprs.size(); i++)
+		{
+			parser.parseExpr(exprs[i]);
+
+			// checksize src and checksize dst
+			//
+		}
         }
         else  std::invalid_argument("iLink : unknown connectivity : "+con+" , allowed : "+one_to_one+" , "+one_to_all+" or "+one_to_nei);
 }

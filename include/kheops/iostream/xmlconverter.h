@@ -28,6 +28,7 @@ using namespace boost::property_tree;
 struct XConnectivity
 {
 	std::string type;
+	std::vector<std::string> nei_expr;
 };
 
 struct XLink

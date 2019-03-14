@@ -20,7 +20,6 @@ The fact that you are presently reading this means that you have had knowledge o
 #include "kheops/kernel/ilinkbase.h"
 #include "kheops/kernel/inputbase.h"
 
-
 using Eigen::Ref;
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
@@ -28,7 +27,6 @@ using Eigen::Map;
 using Eigen::EigenBase;
 
 using namespace Eigen;
-
 
 template<class W>
 class iMatrix : public iLink<MatrixXd,W>
@@ -291,8 +289,7 @@ class iMMatrix : public iMatrix<MatrixXd>
 
                 double fij(unsigned int wRows,unsigned int wCols);
 
-                void buildFilter(const std::string& con);
-
+                void buildFilter(const std::string& con,const std::vector<std::string>& exprs );
 };
 
 typedef Input<iMMatrix> IMMInput;

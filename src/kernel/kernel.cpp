@@ -533,9 +533,7 @@ void Kernel::add_immatrix(const std::string& in_uuid,const XLink& xl)
 
 	dynamic_cast<iMMatrix*>(imm.get())->resizeWeight();
 	dynamic_cast<iMMatrix*>(imm.get())->initWeight(xl.weight);
-	// TODO : first version to build connectivity
-	// Do better function directly in ilink
-	dynamic_cast<iMMatrix*>(imm.get())->buildFilter(xl.con.type);
+	dynamic_cast<iMMatrix*>(imm.get())->buildFilter(xl.con.type, xl.con.nei_expr);
 
 	// Add ilink
 	inputs[in_uuid]->add(imm);

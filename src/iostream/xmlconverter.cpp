@@ -112,10 +112,16 @@ void XmlConverter::__convertXmlToLink( const ptree &tree, XLink &xl )
 
 	try{
 		xl.con.type = tree.get<std::string>("connectivity.<xmlattr>.type");
-		//TODO : READ Complexe connectivity
+
+		for( const ptree::value_type &xExpr : tree.get_child("connectivity."))
+                {
+			if( xExpr.first == "expression" )
+			{
+				xl.con.nei_expr.push_back(xExpr.second.data());
+			}
+		}
 	}
 	catch(...){}
-
 }
 
 void XmlConverter::loadScript(XScript &xs)
