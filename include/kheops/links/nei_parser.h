@@ -23,8 +23,8 @@ The fact that you are presently reading this means that you have had knowledge o
 
 // ONE_TO_NEI expression : [(src)op(dst)](d;d)r
 //
-//   src : int,int,int,int
-//   dst : int,int,int,int
+//   src : int,int,int,int  -> row,col,height,width
+//   dst : int,int,int,int  -> row,col,height,width
 //
 //   op : . or x
 //   d : r or c
@@ -87,6 +87,10 @@ class NEI_Parser
 		const nBlock& getSrc(){return src;}
 		const nBlock& getDst(){return dst;}
 		const nPropagation& getnPropagation(){return prop;}
+		char getOp(){ return op;}
+
+		bool checkSize();
+		int getDim();
 };
 
 #endif // __NEI_PARSER_H__

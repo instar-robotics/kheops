@@ -395,43 +395,96 @@ double iMMatrix::fij(unsigned int fRows,unsigned int fCols)
         return filter(fRows,fCols);
 }
 
-void iMMatrix::buildFilter(const std::string& con, const std::vector<std::string>& exprs)
+void iMMatrix::buildFilter(const XConnectivity& con)
 {
-        if( con == one_to_one )
+        if( con.type == one_to_one )
         {
                 //TODO : modulo or crash if dimension is not oK
                 filter =  MatrixXb::Identity( getInitWRows(), getInitWCols()  );
         }
-        else if( con == one_to_all )
+        else if( con.type == one_to_all )
         {
                 filter =  MatrixXb::Constant( getInitWRows(), getInitWCols(),1 );
         }
-        else if( con == one_to_nei)
+        else if( con.type == one_to_nei)
         {
 		NEI_Parser parser;
 
-		for( unsigned int i = 0; i < exprs.size(); i++)
+		for( unsigned int i = 0; i < con.nei_expr.size(); i++)
 		{
-			parser.parseExpr(exprs[i]);
+			try{
+				parser.parseExpr(con.nei_expr[i]);
+			}
+			catch(...)
+			{
+				std::cout << "iMMatrix [" << getUuid() << "] : invalid ONE_TO_NEI connectivity rule !" << std::endl; 
+				std::exception_ptr eptr = std::current_exception();;
+				if( eptr)  std::rethrow_exception(eptr);
+			}
+					
+			// checkSize Src : 
+			if( parser.getSrc().row + parser.getSrc().height > iRows() 
+					|| parser.getSrc().col + parser.getSrc().width > iCols())
+			{
+        			throw std::invalid_argument("iMMatrix ["+getUuid()+"] : invalid ONE_TO_NEI expression. The size of the sub-projection does not match the size of the source matrix. ");
+			}
+			
+			// checksize dst
+			if( parser.getDst().row + parser.getDst().height > oRows() 
+					|| parser.getDst().col + parser.getDst().width > oCols())
+			{
+        			throw std::invalid_argument("iMMatrix ["+getUuid()+"] : invalid ONE_TO_NEI expression. The size of the sub-projection does not match the size of the destination matrix.");
+			}
 
-			// checksize src and checksize dst
-			//
+			//if one to one projection
+			if( parser.getOp() == OTO_OP )
+			{
+				/* I = r + cxR + Dr + Dc * R 
+				 * J = r + cxR + Dr + Dc * R 
+				 *
+				 * Dr = I % H;
+				 * Dc = (int) i / H;
+				 *
+				 * Or
+				 *
+				 * Dr = i / W;
+				 * Dc = i % W +1;
+				 */
+                
+				filter =  MatrixXb::Constant( getInitWRows(), getInitWCols(), 0 );
+
+				MatrixXd::Index size = parser.getDim();
+				for( MatrixXd::Index i = 0; i < size ; i++)
+				{
+					MatrixXd::Index dRsrc,dCsrc,dRdst,dCdst;
+
+					dRsrc = i % parser.getSrc().height;
+					dCsrc = (int)(i / parser.getSrc().height);
+					
+					dRdst = i % parser.getDst().height;
+					dCdst = (int)(i / parser.getDst().height);
+
+					MatrixXd::Index I = parser.getSrc().row + parser.getSrc().col * iRows() + dRsrc + dCsrc * iRows();
+					MatrixXd::Index J = parser.getDst().row + parser.getDst().col * oRows() + dRdst + dCdst * oRows();
+					filter(I,J) = 1;		
+				}
+			}
+			else if( parser.getOp() == OTA_OP)
+			{
+
+				MatrixXb src = MatrixXb::Constant(iRows(),iCols(),0);
+				src.block(parser.getSrc().row, parser.getSrc().col, parser.getSrc().height, parser.getSrc().width)  = MatrixXb::Constant(parser.getSrc().height,parser.getSrc().width, 1);
+
+				MatrixXb dst = MatrixXb::Constant(oRows(),oCols(),0);
+				dst.block(parser.getDst().row, parser.getDst().col, parser.getDst().height, parser.getDst().width)  = MatrixXb::Constant(parser.getDst().height,parser.getDst().width, 1);
+
+				auto vSrc = Map<VectorXb>(src.data(), src.size());
+				auto vDst = Map<RVectorXb>(dst.data(), dst.size());
+
+				filter = vSrc * vDst;
+			}
 		}
         }
-        else  std::invalid_argument("iLink : unknown connectivity : "+con+" , allowed : "+one_to_one+" , "+one_to_all+" or "+one_to_nei);
+        else throw std::invalid_argument("iMMatrix ["+getUuid()+"] : unknown connectivity : "+con.type+" , allowed : "+one_to_one+" , "+one_to_all+" or "+one_to_nei);
 }
-
-/*
-value compute_val()
-
-
-for(int i = 0;  i < w.cols(); i++)
-{
-s(i) = (ve + w.col(i)).sum() ;
-}
-
-std::cout << s << std::endl;
-
-s.colwise().sum();
-*/
 

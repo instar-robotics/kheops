@@ -111,6 +111,28 @@ void NEI_Parser::parsePropagation(const std::string& nei)
         prop.dst = vpr[1][0];
 }
 
+bool NEI_Parser::checkSize()
+{
+	if( getOp() == OTA_OP ) return true;
+
+	bool ret = false;
+	if( src.height * src.width == dst.height * dst.width)
+	{
+//		if( src.height == dst.height && src.width == dst.width 
+//			|| src.height == dst.width && src.width == dst.height)	 ret = true;
+		
+		if( src.height == dst.height && src.width == dst.width) ret = true;
+	}	
+	return ret;
+}
+
+int NEI_Parser::getDim()
+{
+	if( getOp() == OTA_OP ) return -1;
+
+	return src.width * src.height;
+}
+
 void NEI_Parser::parseExpr(const std::string& nei)
 {
 	if( isMatching(nei) )
@@ -125,6 +147,9 @@ void NEI_Parser::parseExpr(const std::string& nei)
         }
 	else
 	{
-		std::invalid_argument("NEI_Parser : false expression for One To neighborhood connectivity");
+		throw std::invalid_argument("NEI_Parser : expression doesn't match ONE_TO_NEI connectivities rules");
 	}
+
+	if( !checkSize() ) throw std::invalid_argument("NEI_Parser : invalid size between source and destination for ONE TO ONE sub-projection");
+
 }

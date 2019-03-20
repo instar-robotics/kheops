@@ -19,6 +19,7 @@ The fact that you are presently reading this means that you have had knowledge o
 
 #include "kheops/kernel/ilinkbase.h"
 #include "kheops/kernel/inputbase.h"
+#include "kheops/iostream/xmlconverter.h"
 
 using Eigen::Ref;
 using Eigen::MatrixXd;
@@ -39,9 +40,9 @@ class iMatrix : public iLink<MatrixXd,W>
 
                 inline double operator()(int x,int y) const {return (*iLink<MatrixXd,W>::input)(x,y);}
 
-                inline unsigned int iRows(){return (*iLink<MatrixXd,W>::input).rows();}
-                inline unsigned int iCols(){return (*iLink<MatrixXd,W>::input).cols();}
-                inline unsigned int iSize(){return (*iLink<MatrixXd,W>::input).size();}
+                inline auto iRows(){return (*iLink<MatrixXd,W>::input).rows();}
+                inline auto iCols(){return (*iLink<MatrixXd,W>::input).cols();}
+                inline auto iSize(){return (*iLink<MatrixXd,W>::input).size();}
 
 		inline bool isPoint(){return iSize() == 1;}
                 inline bool isVect(){ return iRows() == 1 || iCols() == 1;}
@@ -107,6 +108,8 @@ Map<const VectorXd> getCMapVect(const MatrixXd & m);
 
 typedef Matrix<uint8_t , Dynamic, Dynamic> MatrixXb;
 typedef Matrix<uint8_t, Dynamic,1> VectorXb;
+typedef Matrix<uint8_t, 1,Dynamic> RVectorXb;
+
 
 class iMMatrix : public iMatrix<MatrixXd>
 {
@@ -289,7 +292,7 @@ class iMMatrix : public iMatrix<MatrixXd>
 
                 double fij(unsigned int wRows,unsigned int wCols);
 
-                void buildFilter(const std::string& con,const std::vector<std::string>& exprs );
+                void buildFilter(const XConnectivity& con );
 };
 
 typedef Input<iMMatrix> IMMInput;

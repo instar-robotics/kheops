@@ -533,7 +533,7 @@ void Kernel::add_immatrix(const std::string& in_uuid,const XLink& xl)
 
 	dynamic_cast<iMMatrix*>(imm.get())->resizeWeight();
 	dynamic_cast<iMMatrix*>(imm.get())->initWeight(xl.weight);
-	dynamic_cast<iMMatrix*>(imm.get())->buildFilter(xl.con.type, xl.con.nei_expr);
+	dynamic_cast<iMMatrix*>(imm.get())->buildFilter(xl.con);
 
 	// Add ilink
 	inputs[in_uuid]->add(imm);
@@ -915,7 +915,6 @@ void Kernel::init(std::string script_file, std::string weight_file, bool ignore_
 void Kernel::quit()
 {
 	StatusMessage m;
-	std::exception_ptr eptr;
 
 	try{
 		Runner::ask_stop();
@@ -934,7 +933,7 @@ void Kernel::quit()
 	  m.value = CARG[S_QUIT]+"_failed";
 	  singleton.publish_status(m);
 
-	  eptr = std::current_exception(); 
+	  std::exception_ptr eptr = std::current_exception(); 
 	  if (eptr) 
 	  { 
 		  std::rethrow_exception(eptr);
@@ -945,7 +944,6 @@ void Kernel::quit()
 void Kernel::resume()
 {
 	StatusMessage m;
-	std::exception_ptr eptr;
 
 	try{
 		// Call onResume
@@ -964,7 +962,7 @@ void Kernel::resume()
 	  m.value = CARG[S_RESUME]+"_failed";
 	  singleton.publish_status(m);
 
-	  eptr = std::current_exception(); 
+	  std::exception_ptr eptr = std::current_exception(); 
 	  if (eptr) 
 	  { 
 		  std::rethrow_exception(eptr);
@@ -975,7 +973,6 @@ void Kernel::resume()
 void Kernel::pause()
 {
 	StatusMessage m;
-	std::exception_ptr eptr;
 
 	try{
 		Runner::ask_pause();
@@ -994,7 +991,7 @@ void Kernel::pause()
 	  m.value = CARG[S_PAUSE]+"_failed";
 	  singleton.publish_status(m);
 
-	  eptr = std::current_exception(); 
+	  std::exception_ptr eptr = std::current_exception(); 
 	  if (eptr) 
 	  {
 		  std::rethrow_exception(eptr);
