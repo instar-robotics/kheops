@@ -160,6 +160,10 @@ class Kernel
 		static inline Kernel& instance() noexcept {return singleton;}
 		static void init(std::string scriptfile, std::string resfile, bool ignore_matrix_check = false);
                 
+		static bool is_run() { return singleton.getRtToken().is_run();}
+                static bool is_stop() { return singleton.getRtToken().is_stop();}
+                static bool is_pause() { return singleton.getRtToken().is_pause();}
+
 		static void build();
 		static void destroy();
 		static void load(); 	

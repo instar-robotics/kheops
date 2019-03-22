@@ -1121,6 +1121,7 @@ void Kernel::active_oscillo(bool order)
 
 void Kernel::active_output(const std::string& uuid, bool order)
 {
+	bool state = is_pause();
 	pause();
 
 	if( ! singleton.active_publish( uuid, order) )
@@ -1128,21 +1129,23 @@ void Kernel::active_output(const std::string& uuid, bool order)
 		//TODO publish Message : failed
 	}
 
-	resume();
+	if( !state ) resume();
 }
 
 void Kernel::active_rt_token(bool order)
 {
+	bool state = is_pause();
 	pause();
 	singleton.rttoken.active_publish(order);
-	resume();
+	if( !state ) resume();
 }
 
 void Kernel::active_save_activity(const std::string& uuid, bool order)
 {
+	bool state = is_pause();
 	pause();
 	singleton.save_activity(uuid,order);
-	resume();
+	if( !state ) resume();
 }
 
 void Kernel::iBind( InputBase& value,const std::string& var_name,const std::string& uuid )

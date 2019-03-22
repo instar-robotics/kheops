@@ -66,7 +66,7 @@ const int C_OBJECTS=6;
 const int C_RTTOKEN=7; 
 const int C_ACTIVITY=8; 
 
-const std::string CARG[] = {"resume","quit","pause","status","path" ,"save","load","start","stop","all","rt_token","functions","inputs","ilinks","activity"};
+const std::string CARG[] = {"resume","quit","pause","status","path" ,"save","load","start","stop","all","rt_token","function","input","ilink","activity"};
 
 const int S_RESUME=0; 
 const int S_QUIT=1; 
