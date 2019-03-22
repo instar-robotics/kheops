@@ -30,7 +30,6 @@ The fact that you are presently reading this means that you have had knowledge o
 //   d : r or c or d or n
 //   r : int or *
 //
-//^[-+]?\d*$
 
 const std::string NEI = "\\[\\(([0-9]+[,]){3}[0-9]+\\)[\\.x]\\(([0-9]+[,]){3}[0-9]+\\)\\](\\([rcnd][0-9]*,[rcnd][0-9]*\\)([0-9]*|\\*))?";
 const std::string NEI_WP = "\\[\\(([0-9]+[,]){3}[0-9]+\\)[\\.x]\\(([0-9]+[,]){3}[0-9]+\\)\\](\\([rcnd][0-9]*,[rcnd][0-9]*\\)([0-9]*|\\*)){1}";
