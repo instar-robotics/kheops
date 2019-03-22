@@ -27,20 +27,26 @@ The fact that you are presently reading this means that you have had knowledge o
 //   dst : int,int,int,int  -> row,col,height,width
 //
 //   op : . or x
-//   d : r or c
+//   d : r or c or d or n
 //   r : int or *
+//
+//^[-+]?\d*$
 
-const std::string NEI = "\\[\\(([0-9]+[,]){3}[0-9]+\\)[\\.x]\\(([0-9]+[,]){3}[0-9]+\\)\\](\\([rc],[rc]\\)([0-9]*|\\*))?";
-const std::string NEI_WP = "\\[\\(([0-9]+[,]){3}[0-9]+\\)[\\.x]\\(([0-9]+[,]){3}[0-9]+\\)\\](\\([rc],[rc]\\)([0-9]*|\\*)){1}";
+const std::string NEI = "\\[\\(([0-9]+[,]){3}[0-9]+\\)[\\.x]\\(([0-9]+[,]){3}[0-9]+\\)\\](\\([rcnd][0-9]*,[rcnd][0-9]*\\)([0-9]*|\\*))?";
+const std::string NEI_WP = "\\[\\(([0-9]+[,]){3}[0-9]+\\)[\\.x]\\(([0-9]+[,]){3}[0-9]+\\)\\](\\([rcnd][0-9]*,[rcnd][0-9]*\\)([0-9]*|\\*)){1}";
 
 const std::string CORD = "\\(([0-9]+[,]){3}[0-9]+\\)";
 const std::string OP = "\\)[\\.x]\\(";
-const std::string PROP = "(\\([rc],[rc]\\))(.*)$";
-const std::string PROP_WR = "(\\([rc],[rc]\\)([0-9]+|\\*{1})){1}";
+const std::string PROP = "(\\([rcnd][0-9]*,[rcnd][0-9]*\\))(.*)$";
+const std::string PROP_WR = "(\\([rcnd][0-9]*,[rcnd][0-9]*\\)([0-9]+|\\*{1})){1}";
 const std::string START = "^.*\\*{1}$";
+const std::string PROP_RULEBASE= "^[rcnd]$";
+const std::string PROP_RULEFULL = "^[rcnd][0-9]+$";
 
+const char RNOT = 'n';
 const char RCOL = 'c';
 const char RROW = 'r';
+const char RDIA = 'd';
 const int  RINFINITY = -1;
 
 const char OTO_OP = '.';
@@ -59,6 +65,12 @@ struct nPropagation
         char src;
         char dst;
         int nbr;
+
+	int src_roffset;
+	int src_coffset;
+	
+	int dst_roffset;
+	int dst_coffset;
 };
 
 class NEI_Parser
@@ -70,10 +82,22 @@ class NEI_Parser
 		nBlock dst;	
 		nPropagation prop;
 
+		int iRows;
+		int iCols;
+		int oRows;
+		int oCols;
+
 	public : 
 
-		NEI_Parser(){}
+		NEI_Parser() : iRows(0),iCols(0),oRows(0),oCols(0) {
+			prop.nbr = 0;
+		}
+		NEI_Parser(int iRows,int iCols,int oRows, int oCols) : iRows(iRows),iCols(iCols),oRows(oRows),oCols(oCols) {
+			prop.nbr = 0;
+		}
 		~NEI_Parser(){}
+
+		void setDimension(int iRows,int iCols, int oRows, int oCols);
 
 		void parseExpr(const std::string& nei);
 		void parseOp(const std::string& nei);
@@ -89,8 +113,14 @@ class NEI_Parser
 		const nPropagation& getnPropagation(){return prop;}
 		char getOp(){ return op;}
 
-		bool checkSize();
-		int getDim();
+		void nextBlock();
+		bool hasBlock();
+
+		void checkPropagation();
+		bool checkSrcDim();
+		bool checkDstDim();
+		bool checkProjSize();
+		int getNbCon();
 };
 
 #endif // __NEI_PARSER_H__

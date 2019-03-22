@@ -408,80 +408,73 @@ void iMMatrix::buildFilter(const XConnectivity& con)
         }
         else if( con.type == one_to_nei)
         {
-		NEI_Parser parser;
+		filter = MatrixXb::Constant( getInitWRows(), getInitWCols(), 0 );
+
+		NEI_Parser parser(iRows(),iCols(),oRows(), oCols());
 
 		for( unsigned int i = 0; i < con.nei_expr.size(); i++)
 		{
 			try{
 				parser.parseExpr(con.nei_expr[i]);
+
+				while(parser.hasBlock())	 
+				{
+					//if one to one projection
+					if( parser.getOp() == OTO_OP )
+					{
+						/* I = r + cxR + Dr + Dc * R 
+						 * J = r + cxR + Dr + Dc * R 
+						 *
+						 * Dr = I % H;
+						 * Dc = (int) i / H;
+						 *
+						 * Or
+						 *
+						 * Dr = i / W;
+						 * Dc = i % W +1;
+						 */
+			
+						MatrixXd::Index size = parser.getNbCon();
+						for( MatrixXd::Index i = 0; i < size ; i++)
+						{
+							MatrixXd::Index dRsrc,dCsrc,dRdst,dCdst;
+
+							dRsrc = i % parser.getSrc().height;
+							dCsrc = (int)(i / parser.getSrc().height);
+						
+							dRdst = i % parser.getDst().height;
+							dCdst = (int)(i / parser.getDst().height);
+
+							MatrixXd::Index I = parser.getSrc().row + parser.getSrc().col * iRows() + dRsrc + dCsrc * iRows();
+							MatrixXd::Index J = parser.getDst().row + parser.getDst().col * oRows() + dRdst + dCdst * oRows();
+							filter(I,J) = 1;		
+						}
+					}
+					else if( parser.getOp() == OTA_OP)
+					{
+						MatrixXb tmpFilter;	
+
+						MatrixXb src = MatrixXb::Constant(iRows(),iCols(),0);
+						src.block(parser.getSrc().row, parser.getSrc().col, parser.getSrc().height, parser.getSrc().width)  = MatrixXb::Constant(parser.getSrc().height,parser.getSrc().width, 1);
+
+						MatrixXb dst = MatrixXb::Constant(oRows(),oCols(),0);
+						dst.block(parser.getDst().row, parser.getDst().col, parser.getDst().height, parser.getDst().width)  = MatrixXb::Constant(parser.getDst().height,parser.getDst().width, 1);
+
+						auto vSrc = Map<VectorXb>(src.data(), src.size());
+						auto vDst = Map<RVectorXb>(dst.data(), dst.size());
+
+						tmpFilter = vSrc * vDst;
+
+						filter += tmpFilter;
+					}
+					parser.nextBlock();
+				}
 			}
 			catch(...)
 			{
 				std::cout << "iMMatrix [" << getUuid() << "] : invalid ONE_TO_NEI connectivity rule !" << std::endl; 
 				std::exception_ptr eptr = std::current_exception();;
 				if( eptr)  std::rethrow_exception(eptr);
-			}
-					
-			// checkSize Src : 
-			if( parser.getSrc().row + parser.getSrc().height > iRows() 
-					|| parser.getSrc().col + parser.getSrc().width > iCols())
-			{
-        			throw std::invalid_argument("iMMatrix ["+getUuid()+"] : invalid ONE_TO_NEI expression. The size of the sub-projection does not match the size of the source matrix. ");
-			}
-			
-			// checksize dst
-			if( parser.getDst().row + parser.getDst().height > oRows() 
-					|| parser.getDst().col + parser.getDst().width > oCols())
-			{
-        			throw std::invalid_argument("iMMatrix ["+getUuid()+"] : invalid ONE_TO_NEI expression. The size of the sub-projection does not match the size of the destination matrix.");
-			}
-
-			//if one to one projection
-			if( parser.getOp() == OTO_OP )
-			{
-				/* I = r + cxR + Dr + Dc * R 
-				 * J = r + cxR + Dr + Dc * R 
-				 *
-				 * Dr = I % H;
-				 * Dc = (int) i / H;
-				 *
-				 * Or
-				 *
-				 * Dr = i / W;
-				 * Dc = i % W +1;
-				 */
-                
-				filter =  MatrixXb::Constant( getInitWRows(), getInitWCols(), 0 );
-
-				MatrixXd::Index size = parser.getDim();
-				for( MatrixXd::Index i = 0; i < size ; i++)
-				{
-					MatrixXd::Index dRsrc,dCsrc,dRdst,dCdst;
-
-					dRsrc = i % parser.getSrc().height;
-					dCsrc = (int)(i / parser.getSrc().height);
-					
-					dRdst = i % parser.getDst().height;
-					dCdst = (int)(i / parser.getDst().height);
-
-					MatrixXd::Index I = parser.getSrc().row + parser.getSrc().col * iRows() + dRsrc + dCsrc * iRows();
-					MatrixXd::Index J = parser.getDst().row + parser.getDst().col * oRows() + dRdst + dCdst * oRows();
-					filter(I,J) = 1;		
-				}
-			}
-			else if( parser.getOp() == OTA_OP)
-			{
-
-				MatrixXb src = MatrixXb::Constant(iRows(),iCols(),0);
-				src.block(parser.getSrc().row, parser.getSrc().col, parser.getSrc().height, parser.getSrc().width)  = MatrixXb::Constant(parser.getSrc().height,parser.getSrc().width, 1);
-
-				MatrixXb dst = MatrixXb::Constant(oRows(),oCols(),0);
-				dst.block(parser.getDst().row, parser.getDst().col, parser.getDst().height, parser.getDst().width)  = MatrixXb::Constant(parser.getDst().height,parser.getDst().width, 1);
-
-				auto vSrc = Map<VectorXb>(src.data(), src.size());
-				auto vDst = Map<RVectorXb>(dst.data(), dst.size());
-
-				filter = vSrc * vDst;
 			}
 		}
         }
