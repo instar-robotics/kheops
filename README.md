@@ -56,7 +56,7 @@
 
 * For __ROS Melodic__ installation and workspace configuration, please refer to : http://wiki.ros.org/melodic/Installation/Ubuntu
 
-* Instal __ROS diagnostics_msgs__ : 
+* Install __ROS diagnostics_msgs__ : 
 
 **_apt-get install ros-melodic-diagnostic-msgs__**   [or ros-lunar-diagnostic-msgs]
 
