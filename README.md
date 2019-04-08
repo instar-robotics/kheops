@@ -75,7 +75,7 @@
 
 **_cd /home/johndoe/catkin_workspace/src_**
 
-**_git clone git@github.com:instar-robotics/kheops.git_**
+**_git clone https://github.com/instar-robotics/kheops.git_**
 
 * go to your root catkin workspace :
 
