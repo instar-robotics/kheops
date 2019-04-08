@@ -1,4 +1,5 @@
 ![Alt text](icon/kheops_icon.png?raw=true "Title")
+<img src="/docs/logo.png" alt="My cool logo"/>
 
 # README #
 
