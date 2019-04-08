@@ -1,6 +1,6 @@
-# README #
-
 ![Alt text](icon/kheops_icon.png?raw=true "Title")
+
+# README #
 
 ## I Description ##
 
