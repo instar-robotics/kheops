@@ -1,3 +1,5 @@
+![Alt text](icon/kheops_icon.png?raw=true "Title")
+
 # README #
 
 ## I Description ##
@@ -65,7 +67,7 @@
 
 **_/home/johndoe/catkin_workspace_**
 
-* For __hieroglyph__ installation, please go to : https://git.instar-robotics.com/software/NeuralNetwork/hieroglyph
+* For __hieroglyph__ installation, please go to : https://github.com/instar-robotics/hieroglyph
 * For the next step, we assume you have __hieroglyph__ install in your catkin\_workspace (home/johndoe/catkin\_workspace/src/hieroglyph)
 
 ### Install Kheops ###
@@ -73,7 +75,7 @@
 
 **_cd /home/johndoe/catkin_workspace/src_**
 
-**_git clone git@git.instar-robotics.com:software/NeuralNetwork/kheops.git_**
+**_git clone https://github.com/instar-robotics/kheops.git_**
 
 * go to your root catkin workspace :
 
