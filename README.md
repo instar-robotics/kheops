@@ -1,5 +1,7 @@
 # README #
 
+![Alt text](icon/kheops_icon.png?raw=true "Title")
+
 ## I Description ##
 
 * What is kheops : a Neural Network and Dynamical Function simulator
