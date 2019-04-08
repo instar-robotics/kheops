@@ -2,10 +2,10 @@
 <package format="2">
   <name>kheops</name>
   <version>1.0.0</version>
-  <description>kheops : the neural network simulator</description>
+  <description>kheops : ROS based software for designing dynamic robot behaviors</description>
 
   <maintainer email="pierre.delarboulas@instar-robotics.com">Pierre Delarboulas</maintainer>
-  <license>CeCILL v2.1</license>
+  <license>GPL v3.0</license>
 
   <!-- Url tags are optional, but multiple are allowed, one per tag -->
   <!-- Optional attribute type can be: website, bugtracker, or repository -->
