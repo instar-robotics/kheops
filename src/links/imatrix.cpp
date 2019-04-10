@@ -220,7 +220,7 @@ Map<MATRIX> iMMatrix::wj_row(unsigned int wCol)
 
 Map<MATRIX> iMMatrix::wj_col(unsigned int oRow,unsigned int oCol)
 {
-        if( oRow >= oRows() || oCol >= oCols() ) throw std::invalid_argument("PUTEiLink : try to get weight for an outbound neuron");
+        if( oRow >= oRows() || oCol >= oCols() ) throw std::invalid_argument("iLink : try to get weight for an outbound neuron");
 
         unsigned int offset = iSize() * (oRow * oCols() + oCol)  ;
 
@@ -229,7 +229,7 @@ Map<MATRIX> iMMatrix::wj_col(unsigned int oRow,unsigned int oCol)
 
 Map<MATRIX> iMMatrix::wj_col(unsigned int wCol)
 {
-        if( wCol >= wCols() ) throw std::invalid_argument("PUTEiLink : try to get weight for an outbound neuron");
+        if( wCol >= wCols() ) throw std::invalid_argument("iLink : try to get weight for an outbound neuron");
         unsigned int offset = iSize() * (wCol)  ;
 
         return Map<MATRIX>( weight.data() + offset , iSize(), 1) ;
