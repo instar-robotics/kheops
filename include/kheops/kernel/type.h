@@ -19,32 +19,21 @@
   along with dogtag. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef __TYPE_H__
+#define __TYPE_H__
 
-#include "kheops/links/iscalar.h"
-#include "kheops/ros/rospublisher.h"
+#include <Eigen/Dense>
+#include <Eigen/Core>
 
+using Eigen::MatrixXd;
+using Eigen::Matrix;
+using Eigen::Dynamic;
 
-/********************************************************************************************************/
-/******************                     iScalar Section                           *******************/
-/********************************************************************************************************/
+typedef double SCALAR;
+typedef Matrix<SCALAR, Dynamic, Dynamic> MATRIX;
+typedef Matrix<SCALAR, Dynamic, Dynamic> MATRIX;
 
-iScalar::iScalar() : iLink()
-{
-        o_pub = new RosScalarPublisher(1);
-}
+typedef Matrix<SCALAR, Dynamic,1> VectorXs;
+typedef Matrix<SCALAR, 1,Dynamic> RVectorXs;
 
-
-iScalar::iScalar(SCALAR const * i) : iLink(i)
-{
-        o_pub = new RosScalarPublisher(1);
-}
-
-iScalar::~iScalar()
-{
-        if( o_pub != NULL )
-        {
-                if( o_pub->is_open() ) o_pub->close();
-                delete(o_pub);
-        }
-}
-
+#endif // __TYPE_H__

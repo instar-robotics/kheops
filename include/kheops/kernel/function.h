@@ -19,12 +19,9 @@
   along with dogtag. If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #ifndef __FUNCTION_H__
 #define __FUNCTION_H__
 
-#include <Eigen/Dense>
-#include <Eigen/Core>
 #include <string>
 #include <vector>
 #include <memory>
@@ -33,6 +30,7 @@
 #include "kheops/kernel/inputbase.h"
 #include "kheops/kernel/publisher.h"
 #include "kheops/iostream/shmserializer.h"
+#include "kheops/kernel/type.h"
 
 #define REGISTER_FUNCTION(classname) \
    static const BuilderImpl<classname,Function> classname(#classname); 
@@ -194,26 +192,25 @@ class FTemplate : public Function
 		virtual void compareSize(iLinkBase& i){ (void)(i);}
 };
 
-
-enum MATRIXSHAPE{POINT,VECTOR,RVECTOR,CVECTOR,MATRIX};
+enum MATRIXSHAPE{POINT,VECTOR,RVECTOR,CVECTOR,NONE_SHAPE};
 
 //Note : should be possible to use eigen template power to get FVector class
 // Could be a better option than using flag into FMatrix Constructor to build Vector Function
-class FMatrix : public FTemplate<MatrixXd>
+class FMatrix : public FTemplate<MATRIX>
 {
 	private : 
 
 		unsigned int shape;
 
 	public : 
-		FMatrix(unsigned int shape = MATRIX);
+		FMatrix(unsigned int shape = NONE_SHAPE);
 		virtual ~FMatrix(){}
 
                 virtual void compute() = 0;
 		virtual void setparameters() = 0;
 		
-		inline virtual void setValue(double dvalue, int row,int col) { output=MatrixXd::Constant(row,col,dvalue);}
-		inline virtual void setSize(int rows, int cols){ output = MatrixXd::Constant( rows , cols ,0); }
+		inline virtual void setValue(SCALAR dvalue, int row,int col) { output=MATRIX::Constant(row,col,dvalue);}
+		inline virtual void setSize(int rows, int cols){ output = MATRIX::Constant( rows , cols ,0); }
 		virtual void compareSize(iLinkBase& link);
 
 		inline int getRows(){return output.rows();}
@@ -230,18 +227,18 @@ class FMatrix : public FTemplate<MatrixXd>
 };
 
 
-class FScalar : public FTemplate<double>
+class FScalar : public FTemplate<SCALAR>
 {
 	public : 
 
 		FScalar();
-                FScalar( double dvalue);
+                FScalar( SCALAR dvalue);
 		virtual ~FScalar() {}
                 
 		virtual void compute() = 0;
 		virtual void setparameters() = 0;
 
-		inline void setValue(double dvalue){ output = dvalue; }
+		inline void setValue(SCALAR dvalue){ output = dvalue; }
 		inline virtual int getRows(){return 1;}
 		inline virtual int getCols(){return 1;}
 };

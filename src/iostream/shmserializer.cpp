@@ -21,8 +21,7 @@
 
 
 #include "kheops/iostream/shmserializer.h"
-
-using namespace Eigen;
+#include "kheops/kernel/type.h"
 
 /*
 template<class Type>
@@ -36,10 +35,10 @@ void ShmSerializer<Type>::buildSHM( const  std::string name, const Type &T)
 */
 
 template<>
-void ShmSerializer<MatrixXd>::buildSHM( const  std::string name, const MatrixXd& M )
+void ShmSerializer<MATRIX>::buildSHM( const  std::string name, const MATRIX& M )
 {
         if( shm == NULL ) shm = new bip::shared_memory_object(bip::open_or_create, name.c_str(), bip::read_write);
-        int seg_size = M.size()* sizeof(double) + sizeof(MatrixXd::Index) * 2+ sizeof(MatrixXd) + PADDING;
+        int seg_size = M.size()* sizeof(double) + sizeof(MATRIX::Index) * 2+ sizeof(MATRIX) + PADDING;
         shm->truncate(seg_size);
 
         if( region == NULL ) region = new bip::mapped_region(*shm, bip::read_write);

@@ -33,7 +33,7 @@ iScalarMatrix::iScalarMatrix() : iMatrix()
 	o_pub = new RosScalarPublisher(1); 
 }
 
-iScalarMatrix::iScalarMatrix( MatrixXd const *  i) : iMatrix(i)
+iScalarMatrix::iScalarMatrix( MATRIX const *  i) : iMatrix(i)
 {
 	o_pub = new RosScalarPublisher(1); 
 }
@@ -47,30 +47,30 @@ iScalarMatrix::~iScalarMatrix()
 	}
 }
 
-Ref<MatrixXd> iScalarMatrix::accumulate(Ref<MatrixXd> res)
+Ref<MATRIX> iScalarMatrix::accumulate(Ref<MATRIX> res)
 {
 	return res = (*input) * weight;
 }
 
-Ref<MatrixXd> iScalarMatrix::mul_accumulate(Ref<MatrixXd> res)
+Ref<MATRIX> iScalarMatrix::mul_accumulate(Ref<MATRIX> res)
 {
 	return res=res.cwiseProduct( (*input) * weight );
 }
 
-Ref<MatrixXd> iScalarMatrix::sum_accumulate(Ref<MatrixXd> res)
+Ref<MATRIX> iScalarMatrix::sum_accumulate(Ref<MATRIX> res)
 {
 	res.array() += (*input).array() * weight;
 	return res;
 }
 
 
-Ref<MatrixXd> iScalarMatrix::sub_accumulate(Ref<MatrixXd> res)
+Ref<MATRIX> iScalarMatrix::sub_accumulate(Ref<MATRIX> res)
 {
 	res.array()-= (*input).array() * weight;
 	return res;
 }
 
-Ref<MatrixXd> iScalarMatrix::div_accumulate(Ref<MatrixXd> res)
+Ref<MATRIX> iScalarMatrix::div_accumulate(Ref<MATRIX> res)
 {
 	return res=res.cwiseQuotient( (*input) * weight );
 }
@@ -80,34 +80,34 @@ Ref<MatrixXd> iScalarMatrix::div_accumulate(Ref<MatrixXd> res)
 /******************                      iMMatrix Section                            *******************/
 /*******************************************************************************************************/
 
-Map<MatrixXd> getMapRow(MatrixXd & m)
+Map<MATRIX> getMapRow(MATRIX & m)
 {
-        return Map<MatrixXd>( m.data() , 1 , m.size() ) ;
+        return Map<MATRIX>( m.data() , 1 , m.size() ) ;
 }
 
-Map<MatrixXd> getMapCol(MatrixXd & m)
+Map<MATRIX> getMapCol(MATRIX & m)
 {
-        return Map<MatrixXd> ( m.data(), m.size() , 1 ) ;
+        return Map<MATRIX> ( m.data(), m.size() , 1 ) ;
 }
 
-Map<VectorXd> getMapVect(MatrixXd & m)
+Map<VectorXs> getMapVect(MATRIX & m)
 {
-        return Map<VectorXd> ( m.data(), m.size() ) ;
+        return Map<VectorXs> ( m.data(), m.size() ) ;
 }
 
-Map<const MatrixXd> getCMapRow(const MatrixXd & m)
+Map<const MATRIX> getCMapRow(const MATRIX & m)
 {
-        return Map<const MatrixXd>( m.data() , 1 , m.size() ) ;
+        return Map<const MATRIX>( m.data() , 1 , m.size() ) ;
 }
 
-Map<const MatrixXd> getCMapCol(const MatrixXd & m)
+Map<const MATRIX> getCMapCol(const MATRIX & m)
 {
-        return Map<const MatrixXd> ( m.data(), m.size() , 1 ) ;
+        return Map<const MATRIX> ( m.data(), m.size() , 1 ) ;
 }
 
-Map<const VectorXd> getCMapVect(const MatrixXd & m)
+Map<const VectorXs> getCMapVect(const MATRIX & m)
 {
-        return Map<const VectorXd> ( m.data(), m.size() ) ;
+        return Map<const VectorXs> ( m.data(), m.size() ) ;
 }
 /***********************************************************************/
 /*************************  Constructor Section  ***********************/
@@ -118,12 +118,12 @@ iMMatrix::iMMatrix(unsigned int oRow, unsigned int oCol) : iMatrix(), oRow(oRow)
         o_pub = new RosMatrixPublisher(1);
 }
 
-iMMatrix::iMMatrix( MatrixXd const *  i, unsigned int oRow , unsigned int oCol) : iMatrix(i), oRow(oRow), oCol(oCol)
+iMMatrix::iMMatrix( MATRIX const *  i, unsigned int oRow , unsigned int oCol) : iMatrix(i), oRow(oRow), oCol(oCol)
 {
         o_pub = new RosMatrixPublisher(1);
 }
 
-iMMatrix::iMMatrix( MatrixXd const *  i, unsigned int oRow , unsigned int oCol, double value) : iMatrix(i), oRow(oRow), oCol(oCol)
+iMMatrix::iMMatrix( MATRIX const *  i, unsigned int oRow , unsigned int oCol, SCALAR value) : iMatrix(i), oRow(oRow), oCol(oCol)
 {
         o_pub = new RosMatrixPublisher(1);
         resizeWeight();
@@ -151,9 +151,9 @@ void iMMatrix::resizeWeight()
         weight.resize(  getInitWRows() , getInitWCols() );
 }
 
-void iMMatrix::initWeight(double w)
+void iMMatrix::initWeight(SCALAR w)
 {
-        weight << MatrixXd::Constant( weight.rows() , weight.cols(),w);
+        weight << MATRIX::Constant( weight.rows() , weight.cols(),w);
 }
 
 bool iMMatrix::checkWeightSize(unsigned int rows, unsigned int cols )
@@ -166,106 +166,106 @@ bool iMMatrix::checkWeightSize(unsigned int rows, unsigned int cols )
 /*************************  Weight Access API  *************************/
 /***********************************************************************/
 
-void iMMatrix::w(const MatrixXd& weight)
+void iMMatrix::w(const MATRIX& weight)
 {
         if(weight.rows() != getInitWRows() || weight.cols() != getInitWCols()) throw std::invalid_argument("iLink : Matrix size doesn't match with Weight Matrix dimension");
         this->weight = weight;
 }
 
 
-void iMMatrix::wref(const Ref<const MatrixXd>& weight)
+void iMMatrix::wref(const Ref<const MATRIX>& weight)
 {
         if(weight.rows() != getInitWRows() || weight.cols() != getInitWCols()) throw std::invalid_argument("iLink : Matrix size doesn't match with Weight Matrix dimension");
         this->weight = weight;
 }
 
-Map<MatrixXd> iMMatrix::wm()
+Map<MATRIX> iMMatrix::wm()
 {
-        return Map<MatrixXd>( weight.data() , weight.rows() , weight.cols() ) ;
+        return Map<MATRIX>( weight.data() , weight.rows() , weight.cols() ) ;
 }
 
-Map<MatrixXd> iMMatrix::wj(unsigned int oRow,unsigned int oCol)
-{
-        if( oRow >= oRows() || oCol >= oCols() ) throw std::invalid_argument("iLink : try to get weight for an outbound neuron");
-
-        unsigned int offset = iSize() * (oRow * oCols() + oCol)  ;
-
-        return Map<MatrixXd>( weight.data() + offset , iRows() , iCols()) ;
-}
-
-Map<MatrixXd> iMMatrix::wj(unsigned int wCol)
-{
-        if( wCol >= wCols() ) throw std::invalid_argument("iLink : try to get weight for an outbound neuron");
-        unsigned int offset = iSize() * (wCol)  ;
-
-        return Map<MatrixXd>( weight.data() + offset , iRows() , iCols()) ;
-}
-
-Map<MatrixXd> iMMatrix::wj_row(unsigned int oRow,unsigned int oCol)
+Map<MATRIX> iMMatrix::wj(unsigned int oRow,unsigned int oCol)
 {
         if( oRow >= oRows() || oCol >= oCols() ) throw std::invalid_argument("iLink : try to get weight for an outbound neuron");
 
         unsigned int offset = iSize() * (oRow * oCols() + oCol)  ;
 
-        return Map<MatrixXd>( weight.data() + offset , 1 , iSize()) ;
+        return Map<MATRIX>( weight.data() + offset , iRows() , iCols()) ;
 }
 
-Map<MatrixXd> iMMatrix::wj_row(unsigned int wCol)
+Map<MATRIX> iMMatrix::wj(unsigned int wCol)
 {
         if( wCol >= wCols() ) throw std::invalid_argument("iLink : try to get weight for an outbound neuron");
         unsigned int offset = iSize() * (wCol)  ;
 
-        return Map<MatrixXd>( weight.data() + offset , 1 , iSize()) ;
+        return Map<MATRIX>( weight.data() + offset , iRows() , iCols()) ;
 }
 
-Map<MatrixXd> iMMatrix::wj_col(unsigned int oRow,unsigned int oCol)
+Map<MATRIX> iMMatrix::wj_row(unsigned int oRow,unsigned int oCol)
+{
+        if( oRow >= oRows() || oCol >= oCols() ) throw std::invalid_argument("iLink : try to get weight for an outbound neuron");
+
+        unsigned int offset = iSize() * (oRow * oCols() + oCol)  ;
+
+        return Map<MATRIX>( weight.data() + offset , 1 , iSize()) ;
+}
+
+Map<MATRIX> iMMatrix::wj_row(unsigned int wCol)
+{
+        if( wCol >= wCols() ) throw std::invalid_argument("iLink : try to get weight for an outbound neuron");
+        unsigned int offset = iSize() * (wCol)  ;
+
+        return Map<MATRIX>( weight.data() + offset , 1 , iSize()) ;
+}
+
+Map<MATRIX> iMMatrix::wj_col(unsigned int oRow,unsigned int oCol)
 {
         if( oRow >= oRows() || oCol >= oCols() ) throw std::invalid_argument("PUTEiLink : try to get weight for an outbound neuron");
 
         unsigned int offset = iSize() * (oRow * oCols() + oCol)  ;
 
-        return Map<MatrixXd>( weight.data() + offset ,  iSize(), 1) ;
+        return Map<MATRIX>( weight.data() + offset ,  iSize(), 1) ;
 }
 
-Map<MatrixXd> iMMatrix::wj_col(unsigned int wCol)
+Map<MATRIX> iMMatrix::wj_col(unsigned int wCol)
 {
         if( wCol >= wCols() ) throw std::invalid_argument("PUTEiLink : try to get weight for an outbound neuron");
         unsigned int offset = iSize() * (wCol)  ;
 
-        return Map<MatrixXd>( weight.data() + offset , iSize(), 1) ;
+        return Map<MATRIX>( weight.data() + offset , iSize(), 1) ;
 }
 
-Map<VectorXd> iMMatrix::wj_vect(unsigned int oRow,unsigned int oCol)
+Map<VectorXs> iMMatrix::wj_vect(unsigned int oRow,unsigned int oCol)
 {
         if( oRow >= oRows() || oCol >= oCols() ) throw std::invalid_argument("iLink : try to get weight for an outbound neuron");
         
 	unsigned int offset = iSize() * (oRow * oCols() + oCol)  ;
         
-	return Map<VectorXd>( weight.data() + offset , iSize()) ;
+	return Map<VectorXs>( weight.data() + offset , iSize()) ;
 }
 
-Map<VectorXd> iMMatrix::wj_vect(unsigned int wCol)
+Map<VectorXs> iMMatrix::wj_vect(unsigned int wCol)
 {
         if( wCol >= wCols() ) throw std::invalid_argument("iLink : try to get weight for an outbound neuron");
         unsigned int offset = iSize() * (wCol)  ;
 
-        return Map<VectorXd>( weight.data() + offset , iSize()) ;
+        return Map<VectorXs>( weight.data() + offset , iSize()) ;
 }
 
-double iMMatrix::wij(unsigned int wRow,unsigned int wCol)
+SCALAR iMMatrix::wij(unsigned int wRow,unsigned int wCol)
 {
         if( wRow >= wRows() || wCol >= wCols() ) throw std::invalid_argument("iLink : try to get weight for an outbound neuron for Weight Matrix");
         return weight(wRow,wCol);
 }
 
-void iMMatrix::wij(double weight, unsigned int wRow, unsigned int wCol)
+void iMMatrix::wij(SCALAR weight, unsigned int wRow, unsigned int wCol)
 {
         if( wRow >= wRows() || wCol >= wCols()) throw std::invalid_argument("iLink : row,col index are outside the Weight Matrix boundaries");
 
         this->weight(wRow,wCol) = weight;
 }
 
-void iMMatrix::wj(const Ref<VectorXd> &weight,unsigned int wCol)
+void iMMatrix::wj(const Ref<VectorXs> &weight,unsigned int wCol)
 {
         if( wCol >= wCols()) throw std::invalid_argument("iLink : col index is outside the Weight Matrix boundaries");
         this->weight.col(wCol) = weight;
@@ -275,19 +275,19 @@ void iMMatrix::wj(const Ref<VectorXd> &weight,unsigned int wCol)
 /*****************************  Input API  *****************************/
 /***********************************************************************/
 
-Map<const MatrixXd> iMMatrix::irow()
+Map<const MATRIX> iMMatrix::irow()
 {
-        return Map<const MatrixXd> ( i().data(),1, iSize() ) ;
+        return Map<const MATRIX> ( i().data(),1, iSize() ) ;
 }
 
-Map<const MatrixXd> iMMatrix::icol()
+Map<const MATRIX> iMMatrix::icol()
 {
-        return Map<const MatrixXd> ( i().data(), iSize(), 1 ) ;
+        return Map<const MATRIX> ( i().data(), iSize(), 1 ) ;
 }
 
-Map<const VectorXd> iMMatrix::ivec()
+Map<const VectorXs> iMMatrix::ivec()
 {
-        return Map<const VectorXd> ( i().data(),iSize() ) ;
+        return Map<const VectorXs> ( i().data(),iSize() ) ;
 }
 
 /***********************************************************************/
@@ -395,7 +395,7 @@ Map<VectorXb> iMMatrix::fj_vec(unsigned int o)
         return Map<VectorXb>( filter.data() + offset , iSize()) ;
 }
 
-double iMMatrix::fij(unsigned int fRows,unsigned int fCols)
+typename MatrixXb::Scalar iMMatrix::fij(unsigned int fRows,unsigned int fCols)
 {
         if( fRows >= getFRows() || fCols >= getFCols() ) throw std::invalid_argument("iLink : try to get weight for an outbound neuron for Filter Matrix");
         return filter(fRows,fCols);
@@ -440,10 +440,10 @@ void iMMatrix::buildFilter(const XConnectivity& con)
 						 * Dc = i % W +1;
 						 */
 			
-						MatrixXd::Index size = parser.getNbCon();
-						for( MatrixXd::Index i = 0; i < size ; i++)
+						MATRIX::Index size = parser.getNbCon();
+						for( MATRIX::Index i = 0; i < size ; i++)
 						{
-							MatrixXd::Index dRsrc,dCsrc,dRdst,dCdst;
+							MATRIX::Index dRsrc,dCsrc,dRdst,dCdst;
 
 							dRsrc = i % parser.getSrc().height;
 							dCsrc = (int)(i / parser.getSrc().height);
@@ -451,8 +451,8 @@ void iMMatrix::buildFilter(const XConnectivity& con)
 							dRdst = i % parser.getDst().height;
 							dCdst = (int)(i / parser.getDst().height);
 
-							MatrixXd::Index I = parser.getSrc().row + parser.getSrc().col * iRows() + dRsrc + dCsrc * iRows();
-							MatrixXd::Index J = parser.getDst().row + parser.getDst().col * oRows() + dRdst + dCdst * oRows();
+							MATRIX::Index I = parser.getSrc().row + parser.getSrc().col * iRows() + dRsrc + dCsrc * iRows();
+							MATRIX::Index J = parser.getDst().row + parser.getDst().col * oRows() + dRdst + dCdst * oRows();
 							filter(I,J) = 1;		
 						}
 					}

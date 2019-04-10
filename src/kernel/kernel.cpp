@@ -191,7 +191,7 @@ void Kernel::add_function( const XFunction& xf)
 		f->set_publish(xf.publish);
 		f->set_save(xf.save);
 
-		if( f->type() == typeid(MatrixXd).hash_code()) 		
+		if( f->type() == typeid(MATRIX).hash_code()) 		
 		{
 		  if( xf.rows <= 0 || xf.cols <= 0)  throw  std::invalid_argument("Kernel : Can't build Matrix Function without valid rows/cols value");
 		  dynamic_cast<FMatrix*>(f)->setSize(xf.rows,xf.cols);
@@ -484,7 +484,7 @@ void Kernel::add_ismatrix(const std::string& in_uuid,const XLink& xl)
 
 		if( xs.constants[xl.uuid_pred].type != "MATRIX" ) throw std::invalid_argument("Kernel : constant "+xl.uuid_pred+" must be type MATRIX to be linked to Function "+in_uuid) ;
 
-		dynamic_cast<iScalarMatrix*>(ism.get())->setCValue( MatrixXd::Constant( xs.constants[xl.uuid_pred].rows , xs.constants[xl.uuid_pred].cols , 1 )); 
+		dynamic_cast<iScalarMatrix*>(ism.get())->setCValue( MATRIX::Constant( xs.constants[xl.uuid_pred].rows , xs.constants[xl.uuid_pred].cols , 1 )); 
 
 	}
 	else
@@ -523,7 +523,7 @@ void Kernel::add_immatrix(const std::string& in_uuid,const XLink& xl)
 
 		if( xs.constants[xl.uuid_pred].type != "MATRIX" ) throw std::invalid_argument("Kernal : constant "+xl.uuid_pred+" must be type MATRIX to be linked to Function "+in_uuid) ;
 
-		dynamic_cast<iMMatrix*>(imm.get())->setCValue( MatrixXd::Constant( xs.constants[xl.uuid_pred].rows , xs.constants[xl.uuid_pred].cols , 1 )); 
+		dynamic_cast<iMMatrix*>(imm.get())->setCValue( MATRIX::Constant( xs.constants[xl.uuid_pred].rows , xs.constants[xl.uuid_pred].cols , 1 )); 
 	}
 	else
 	{

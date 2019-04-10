@@ -52,7 +52,7 @@ void WeightConverter::load(std::map<std::string, InputBase*> &inputs, bool ignor
 			for(unsigned int i = 0; i < nb_link; i++)
 			{
 				std::string il_uuid;
-				MatrixXd tmpM;
+				MATRIX tmpM;
 				MatrixXb tmpF;
 
 				ia >> il_uuid;

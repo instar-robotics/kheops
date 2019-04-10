@@ -28,27 +28,25 @@
 #include "kheops/iostream/xmlconverter.h"
 
 using Eigen::Ref;
-using Eigen::MatrixXd;
-using Eigen::VectorXd;
 using Eigen::Map;
 using Eigen::EigenBase;
 
 using namespace Eigen;
 
 template<class W>
-class iMatrix : public iLink<MatrixXd,W>
+class iMatrix : public iLink<MATRIX,W>
 {
         public :
 
-                iMatrix() : iLink<MatrixXd,W>() {}
-                iMatrix(MatrixXd const * i) : iLink<MatrixXd,W>(i){}
+                iMatrix() : iLink<MATRIX,W>() {}
+                iMatrix(MATRIX const * i) : iLink<MATRIX,W>(i){}
                 virtual ~iMatrix() {}
 
-                inline double operator()(int x,int y) const {return (*iLink<MatrixXd,W>::input)(x,y);}
+                inline SCALAR operator()(int x,int y) const {return (*iLink<MATRIX,W>::input)(x,y);}
 
-                inline auto iRows(){return (*iLink<MatrixXd,W>::input).rows();}
-                inline auto iCols(){return (*iLink<MatrixXd,W>::input).cols();}
-                inline auto iSize(){return (*iLink<MatrixXd,W>::input).size();}
+                inline auto iRows(){return (*iLink<MATRIX,W>::input).rows();}
+                inline auto iCols(){return (*iLink<MATRIX,W>::input).cols();}
+                inline auto iSize(){return (*iLink<MATRIX,W>::input).size();}
 
 		inline bool isPoint(){return iSize() == 1;}
                 inline bool isVect(){ return iRows() == 1 || iCols() == 1;}
@@ -61,26 +59,26 @@ class iMatrix : public iLink<MatrixXd,W>
 /*                                              SCALAR_MATRIX Link				       */
 /*******************************************************************************************************/
 
-class iScalarMatrix : public iMatrix<double>
+class iScalarMatrix : public iMatrix<SCALAR>
 {
         public :
                 iScalarMatrix();
-                iScalarMatrix( MatrixXd const *  i);
+                iScalarMatrix( MATRIX const *  i);
                 virtual ~iScalarMatrix();
 
-                Ref<MatrixXd> operator()(Ref<MatrixXd> res){return accumulate(res);}
+                Ref<MATRIX> operator()(Ref<MATRIX> res){return accumulate(res);}
                 auto operator()(){return (*input) * weight;}
 
-                virtual Ref<MatrixXd> accumulate(Ref<MatrixXd> res);
-                virtual Ref<MatrixXd> mul_accumulate(Ref<MatrixXd> res);
-                virtual Ref<MatrixXd> sum_accumulate(Ref<MatrixXd> res);
-                virtual Ref<MatrixXd> sub_accumulate(Ref<MatrixXd> res);
-                virtual Ref<MatrixXd> div_accumulate(Ref<MatrixXd> res);
+                virtual Ref<MATRIX> accumulate(Ref<MATRIX> res);
+                virtual Ref<MATRIX> mul_accumulate(Ref<MATRIX> res);
+                virtual Ref<MATRIX> sum_accumulate(Ref<MATRIX> res);
+                virtual Ref<MATRIX> sub_accumulate(Ref<MATRIX> res);
+                virtual Ref<MATRIX> div_accumulate(Ref<MATRIX> res);
 
-                friend Ref<MatrixXd> operator+=(Ref<MatrixXd> res,iScalarMatrix& val){return val.sum_accumulate(res);}
-                friend Ref<MatrixXd> operator-=(Ref<MatrixXd> res,iScalarMatrix& val){return val.sub_accumulate(res);}
-                friend Ref<MatrixXd> operator/=(Ref<MatrixXd> res,iScalarMatrix& val){return val.div_accumulate(res);}
-                friend Ref<MatrixXd> operator*=(Ref<MatrixXd> res,iScalarMatrix& val){return val.mul_accumulate(res);}
+                friend Ref<MATRIX> operator+=(Ref<MATRIX> res,iScalarMatrix& val){return val.sum_accumulate(res);}
+                friend Ref<MATRIX> operator-=(Ref<MATRIX> res,iScalarMatrix& val){return val.sub_accumulate(res);}
+                friend Ref<MATRIX> operator/=(Ref<MATRIX> res,iScalarMatrix& val){return val.div_accumulate(res);}
+                friend Ref<MATRIX> operator*=(Ref<MATRIX> res,iScalarMatrix& val){return val.mul_accumulate(res);}
 };
 
 typedef Input<iScalarMatrix> ISMInput;
@@ -95,29 +93,29 @@ const std::string one_to_all = "ONE_TO_ALL";
 const std::string one_to_nei = "ONE_TO_NEI";
 
 /* Return Map in a one row Matrix  */
-Map<MatrixXd> getMapRow(MatrixXd & m);
+Map<MATRIX> getMapRow(MATRIX & m);
 
 /* Return Map in a one row Matrix  */
-Map<MatrixXd> getMapCol(MatrixXd & m);
+Map<MATRIX> getMapCol(MATRIX & m);
 
 /* Return Map in a one row Matrix  */
-Map<VectorXd> getMapVect(MatrixXd & m);
+Map<VectorXs> getMapVect(MATRIX & m);
 
 /* Return Const Map in a one row Matrix  */
-Map<const MatrixXd> getCMapRow(const MatrixXd & m);
+Map<const MATRIX> getCMapRow(const MATRIX & m);
 
 /* Return Map in a one row Matrix  */
-Map<const MatrixXd> getCMapCol(const MatrixXd & m);
+Map<const MATRIX> getCMapCol(const MATRIX & m);
 
 /* Return Map in a one row Matrix  */
-Map<const VectorXd> getCMapVect(const MatrixXd & m);
+Map<const VectorXs> getCMapVect(const MATRIX & m);
 
 typedef Matrix<uint8_t , Dynamic, Dynamic> MatrixXb;
 typedef Matrix<uint8_t, Dynamic,1> VectorXb;
 typedef Matrix<uint8_t, 1,Dynamic> RVectorXb;
 
 
-class iMMatrix : public iMatrix<MatrixXd>
+class iMMatrix : public iMatrix<MATRIX>
 {
         protected :
 
@@ -127,8 +125,8 @@ class iMMatrix : public iMatrix<MatrixXd>
 
         public :
                 iMMatrix(unsigned int oRow=0, unsigned int oCol=0);
-                iMMatrix( MatrixXd const *  i, unsigned int oRow = 0, unsigned int oCol=0);
-                iMMatrix( MatrixXd const *  i, unsigned int oRow , unsigned int oCol, double value);
+                iMMatrix( MATRIX const *  i, unsigned int oRow = 0, unsigned int oCol=0);
+                iMMatrix( MATRIX const *  i, unsigned int oRow , unsigned int oCol, SCALAR value);
                 virtual ~iMMatrix();
 
 
@@ -142,7 +140,7 @@ class iMMatrix : public iMatrix<MatrixXd>
                 /***********************************************************************/
                 /************************  Weight Management API  **********************/
                 /***********************************************************************/
-                virtual void initWeight(double weight);
+                virtual void initWeight(SCALAR weight);
                 virtual void resizeWeight();
                 virtual bool checkWeightSize(unsigned int rows, unsigned int cols );
 
@@ -159,85 +157,85 @@ class iMMatrix : public iMatrix<MatrixXd>
                 /***********************************************************************/
 
                 /*
-                 *      iMMatrix link have MatrixXd& w() and w(const MatrixXd&) API
+                 *      iMMatrix link have MATRIX& w() and w(const MATRIX&) API
                  *      This functions could be use but :
                  *      1- The function could be not works with all Eigen function
                  *      2- Dont't use Lazy evaluation
                  *      Better to use : wm or wref functions
                  */
-                virtual void w(const MatrixXd& w);
-                virtual MatrixXd& w() {return weight;}
+                virtual void w(const MATRIX& w);
+                virtual MATRIX& w() {return weight;}
 
-                // Use to replace w(const MatrixXd& ) to use Eigen::Ref
+                // Use to replace w(const MATRIX& ) to use Eigen::Ref
                 // Eigen::Ref gives more generalization abilities and better performance
-                void wref(const Ref<const MatrixXd>& weight);
+                void wref(const Ref<const MATRIX>& weight);
 
                 // Return the map of the weight Matrix
                 // In user functions, use like this :
                 //
                 //  iMMatrix imm;
                 //
-                //  Map<MatrixXd> map = imm.wm();
+                //  Map<MATRIX> map = imm.wm();
                 //
                 //  ... (do things)
                 //
-                Map<MatrixXd> wm();
+                Map<MATRIX> wm();
 
                 // Get Weight matrix for the output neuron (oRows,oCols)
                 // The Matrix have (iRows,iCols) dimension
                 // Becareful : the returned Map is writable !
-                Map<MatrixXd> wj(unsigned int oRows,unsigned int oCols);
+                Map<MATRIX> wj(unsigned int oRows,unsigned int oCols);
                 
 		// Get Weight matrix for the output neuron (o)
                 // The Matrix have (iRows,iCols) dimension
                 // Becareful : the returned Map is writable !
-                Map<MatrixXd> wj(unsigned int o);
+                Map<MATRIX> wj(unsigned int o);
 
                 // Get Weight row for the output neuron (oRows,oCols)
                 // The Matrix have (1,wCols) dimension
                 // Becareful : the returned Map is writable !
-                Map<MatrixXd> wj_row(unsigned int oRows, unsigned int oCols);
+                Map<MATRIX> wj_row(unsigned int oRows, unsigned int oCols);
 
                 // Get Weight row for the output neuron (o)
                 // The Matrix have (1, wCols) dimension
                 // Becareful : the returned Map is writable !
-                Map<MatrixXd> wj_row(unsigned int o);
+                Map<MATRIX> wj_row(unsigned int o);
                 
 		// Get Weight colomn for the output neuron (oRows,oCols)
                 // The Matrix have (wRows,1) dimension
                 // Becareful : the returned Map is writable !
-                Map<MatrixXd> wj_col(unsigned int oRows, unsigned int oCols);
+                Map<MATRIX> wj_col(unsigned int oRows, unsigned int oCols);
 
                 // Get Weight colomn for the output neuron (o)
                 // The Matrix have (wRows, 1) dimension
                 // Becareful : the returned Map is writable !
-                Map<MatrixXd> wj_col(unsigned int o);
+                Map<MATRIX> wj_col(unsigned int o);
 
                 // Get Weight vector for the output neuron (oRows,oCols)
                 // Becareful : the returned Map is writable !
-                Map<VectorXd> wj_vect(unsigned int wRows, unsigned int wCols);
+                Map<VectorXs> wj_vect(unsigned int wRows, unsigned int wCols);
 
                 // Get Weight vector for the output neuron (o)
                 // Becareful : the returned Map is writable !
-                Map<VectorXd> wj_vect(unsigned int o);
+                Map<VectorXs> wj_vect(unsigned int o);
 
-                double wij(unsigned int wRows,unsigned int wCols);
+                SCALAR wij(unsigned int wRows,unsigned int wCols);
 
                 //Set Weight Value
-                void wij(double weight, unsigned int wRow, unsigned int wCol);
-                void wj(const Ref<VectorXd> &weight,unsigned int wCol);
+                void wij(SCALAR weight, unsigned int wRow, unsigned int wCol);
+                void wj(const Ref<VectorXs> &weight,unsigned int wCol);
                 /***********************************************************************/
                 /*****************************  Input API  *****************************/
                 /***********************************************************************/
 
                 // Return a const map of the input Matrix in row form
-                Map<const MatrixXd> irow();
+                Map<const MATRIX> irow();
 
                 // Return a const map of the input Matrix in colon form
-                Map<const MatrixXd> icol();
+                Map<const MATRIX> icol();
 
                 // Return a const map of the input Matrix in vector form
-                Map<const VectorXd> ivec();
+                Map<const VectorXs> ivec();
 
                 /***********************************************************************/
                 /****************************  Filter API  *****************************/
@@ -296,7 +294,7 @@ class iMMatrix : public iMatrix<MatrixXd>
                 // Becareful : the returned Map is writable !
                 Map<VectorXb> fj_vec(unsigned int wCols);
 
-                double fij(unsigned int wRows,unsigned int wCols);
+                typename MatrixXb::Scalar fij(unsigned int wRows,unsigned int wCols);
 
                 void buildFilter(const XConnectivity& con );
 };

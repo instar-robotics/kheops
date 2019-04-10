@@ -30,12 +30,8 @@
 #include "kheops/kernel/publisher.h" 
 #include "kheops/ros/rosinterface.h"
 #include "hieroglyph/OscilloArray.h"
-#include <Eigen/Core>
-#include <Eigen/Dense>
 
 using Eigen::Map;
-using Eigen::MatrixXd;
-
 
 template<class RosMessage> 
 class RosTopic 
@@ -118,23 +114,23 @@ class RosRtTokenOutputPublisher : public RosDataPublisher<OscilloMessage, hierog
 		virtual void setMessage(const OscilloMessage& m);
 };
 
-class RosScalarPublisher : public RosDataPublisher<double,std_msgs::Float64>
+class RosScalarPublisher : public RosDataPublisher<SCALAR,std_msgs::Float64>
 {
 	public :
 		RosScalarPublisher(int size) : RosDataPublisher(size){}
 		virtual ~RosScalarPublisher(){}
 		
-		virtual void setMessage(const double& m);
+		virtual void setMessage(const SCALAR& m);
 };
 
-class RosMatrixPublisher : public RosDataPublisher<MatrixXd, std_msgs::Float64MultiArray>
+class RosMatrixPublisher : public RosDataPublisher<MATRIX, std_msgs::Float64MultiArray>
 {
 	public : 
 
 		RosMatrixPublisher(int size) : RosDataPublisher(size){ msg.layout.dim.resize(2);}
 		virtual ~RosMatrixPublisher(){}
 
-		virtual void setMessage(const MatrixXd& m);
+		virtual void setMessage(const MATRIX& m);
 		virtual void setSize(unsigned int rows,unsigned int cols);
 		virtual bool checkSize( unsigned int rows, unsigned int cols );
 };

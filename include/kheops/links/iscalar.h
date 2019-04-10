@@ -26,26 +26,26 @@
 #include "kheops/kernel/ilinkbase.h"
 #include "kheops/kernel/inputbase.h"
 
-class iScalar : public iLink<double,double>
+class iScalar : public iLink<SCALAR,SCALAR>
 {
         public:
 
                 iScalar();
-                iScalar(double const * i);
+                iScalar(SCALAR const * i);
                 virtual ~iScalar();
 
-                double operator()(){return (*input) * weight;}
+                SCALAR operator()(){return (*input) * weight;}
 
-                inline virtual double& accumulate(double& res){return res = (*input) * weight;}
-                inline virtual double& mul_accumulate(double& res){return res *= (*input) * weight;}
-                inline virtual double& sum_accumulate(double& res){return res += (*input) * weight;}
-                inline virtual double& sub_accumulate(double& res){return res -= (*input) * weight;}
-                inline virtual double& div_accumulate(double& res){return res /= (*input) * weight;}
+                inline virtual SCALAR& accumulate(SCALAR& res){return res = (*input) * weight;}
+                inline virtual SCALAR& mul_accumulate(SCALAR& res){return res *= (*input) * weight;}
+                inline virtual SCALAR& sum_accumulate(SCALAR& res){return res += (*input) * weight;}
+                inline virtual SCALAR& sub_accumulate(SCALAR& res){return res -= (*input) * weight;}
+                inline virtual SCALAR& div_accumulate(SCALAR& res){return res /= (*input) * weight;}
 
-                friend double& operator+=(double& res, iScalar& val) {return val.sum_accumulate(res);}
-                friend double& operator-=(double& res, iScalar& val) {return val.sub_accumulate(res);}
-                friend double& operator/=(double& res, iScalar& val) {return val.div_accumulate(res);}
-                friend double& operator*=(double& res, iScalar& val) {return val.mul_accumulate(res);}
+                friend SCALAR& operator+=(SCALAR& res, iScalar& val) {return val.sum_accumulate(res);}
+                friend SCALAR& operator-=(SCALAR& res, iScalar& val) {return val.sub_accumulate(res);}
+                friend SCALAR& operator/=(SCALAR& res, iScalar& val) {return val.div_accumulate(res);}
+                friend SCALAR& operator*=(SCALAR& res, iScalar& val) {return val.mul_accumulate(res);}
 };
 
 typedef Input<iScalar> ISInput;

@@ -148,7 +148,7 @@ void RosRtTokenOutputPublisher::setMessage(const OscilloMessage& m)
 /*****************                        RosScalarPublisher                         *******************/
 /*******************************************************************************************************/
 
-void RosScalarPublisher::setMessage(const double& m)
+void RosScalarPublisher::setMessage(const SCALAR& m)
 {
 	msg.data = m;
 }
@@ -157,11 +157,11 @@ void RosScalarPublisher::setMessage(const double& m)
 /*****************                        RosMatrixPublisher                         *******************/
 /*******************************************************************************************************/
 
-void RosMatrixPublisher::setMessage(const MatrixXd& m)
+void RosMatrixPublisher::setMessage(const MATRIX& m)
 {
 	if( !checkSize( m.rows(), m.cols() )) setSize(m.rows(), m.cols());
 
-	Map<MatrixXd> mEnc( msg.data.data() , msg.layout.dim[0].size ,msg.layout.dim[1].size );
+	Map<MATRIX> mEnc( msg.data.data() , msg.layout.dim[0].size ,msg.layout.dim[1].size );
 	mEnc = m;
 }
 

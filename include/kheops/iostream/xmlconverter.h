@@ -23,6 +23,7 @@
 #ifndef __XML_CONVERTER__
 #define __XML_CONVERTER__
 
+#include "kheops/kernel/type.h"
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
 #include <string>
@@ -44,7 +45,7 @@ struct XLink
 
 	bool isSecondary;
 	
-	double weight;
+	SCALAR weight;
 	std::string value;
 
 	XConnectivity con;

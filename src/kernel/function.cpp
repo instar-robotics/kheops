@@ -224,18 +224,18 @@ FMatrix::FMatrix(unsigned int shape) : FTemplate(), shape(shape)
 
 void FMatrix::compareSize(iLinkBase& link)
 {
-	double row,col;
+	MATRIX::Index row,col;
 	if( link.i_type_name() ==  type_name()) 
 	{
 		if( link.w_type_name() == type_name() )
 		{
-			row = dynamic_cast<iLink<MatrixXd,MatrixXd>&>(link).i().rows();
-			col = dynamic_cast<iLink<MatrixXd,MatrixXd>&>(link).i().cols();
+			row = dynamic_cast<iLink<MATRIX,MATRIX>&>(link).i().rows();
+			col = dynamic_cast<iLink<MATRIX,MATRIX>&>(link).i().cols();
 		}
 		else
 		{
-			row = dynamic_cast<iLink<MatrixXd,double>&>(link).i().rows();
-			col = dynamic_cast<iLink<MatrixXd,double>&>(link).i().cols();
+			row = dynamic_cast<iLink<MATRIX,SCALAR>&>(link).i().rows();
+			col = dynamic_cast<iLink<MATRIX,SCALAR>&>(link).i().cols();
 		}
 
 		if(   output.rows() != 	row || output.cols() !=  col )

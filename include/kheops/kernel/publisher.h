@@ -23,10 +23,7 @@
 #ifndef __PUBLISHER_H__
 #define __PUBLISHER_H__
 
-#include <Eigen/Core>
-#include <Eigen/Dense>
-
-using Eigen::MatrixXd;
+#include "type.h"
 
 class Publisher
 {
@@ -94,8 +91,8 @@ class StatusMessage{
 
 typedef ArrayPublisher<OscilloMessage> OscilloPublisher;
 typedef DataPublisher<OscilloMessage> RtTokenOutputPublisher;
-typedef DataPublisher<MatrixXd> MatrixPublisher;
-typedef DataPublisher<double> ScalarPublisher;
+typedef DataPublisher<MATRIX> MatrixPublisher;
+typedef DataPublisher<SCALAR> ScalarPublisher;
 typedef DataPublisher<StatusMessage> StatusPublisher;
 
 #endif // __PUBLISHER_H__
