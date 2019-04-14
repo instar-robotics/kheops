@@ -111,12 +111,13 @@ class Input : public InputBase
 			return *(ilinks[i].lock());
 		}
 		
-		I& i(unsigned int i){ 
+		I& i(){ 
 			if( ilinks.size() == 0 )  throw std::invalid_argument("Input : out of number ilink");
 			return *(ilinks[0].lock());
 		}
 
-		I& i(){ 
+
+		I& i(unsigned int i){ 
 			if( i >= ilinks.size()  )  throw std::invalid_argument("Input : out of number ilink");
 			return *(ilinks[i].lock());
 		}
