@@ -96,7 +96,7 @@ int main(int argc, char **argv)
 	bool resume = true;
 	bool run = false;
 	bool ignore_matrix_check = false;
-	char opt;
+	unsigned char opt;
 	int ret = 0;
 	
 	std::string script;
@@ -108,7 +108,7 @@ int main(int argc, char **argv)
 	std::string progname;
 	get_file_name( argv[0], progname);
 
-	while ((opt = getopt (argc, argv, "vphs:w:l:i")) != -1)
+	while (((opt = getopt (argc, argv, "vphs:w:l:i")) != -1) && (opt != 255))
 	{
 		switch( opt )	
 		{
