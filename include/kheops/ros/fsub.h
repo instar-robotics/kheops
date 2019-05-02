@@ -43,7 +43,7 @@
 template<class RosMessage>
 class FMatrixSub :  public FMatrix, public RosSubscriber<RosMessage>
 {
-        private :
+        protected :
 
                 IString topic_name;
                 ISInput size_queue;
@@ -51,7 +51,7 @@ class FMatrixSub :  public FMatrix, public RosSubscriber<RosMessage>
 
         public :
                 
-		FMatrixSub<RosMessage>() : FMatrix(), RosSubscriber<RosMessage>() {}
+		FMatrixSub<RosMessage>(unsigned int shape = NONE_SHAPE) : FMatrix(shape), RosSubscriber<RosMessage>() {}
 
                 virtual void onQuit()  {RosSubscriber<RosMessage>::disable();}
                 virtual void onPause() {RosSubscriber<RosMessage>::disable();}
@@ -69,7 +69,7 @@ class FMatrixSub :  public FMatrix, public RosSubscriber<RosMessage>
 template<class RosMessage>
 class FScalarSub :  public FScalar, public RosSubscriber<RosMessage>
 {
-        private :
+        protected :
 
                 IString topic_name;
                 ISInput size_queue;
