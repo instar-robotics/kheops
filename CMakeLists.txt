@@ -57,7 +57,12 @@ catkin_package(
 ## Build ##
 ###########
 
-set(CMAKE_CXX_FLAGS "-std=c++17 -O2 -msse2 -mtune=native -march=native -rdynamic ")
+if( ${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86_64" )
+	set(CMAKE_CXX_FLAGS "-std=c++17 -O2 -msse2 -mtune=native -march=native -rdynamic ")
+else()
+	set(CMAKE_CXX_FLAGS "-std=c++17 -O2 -mtune=native -march=native -rdynamic ")
+endif()
+
 add_definitions(-Wextra -Wall)
 file(GLOB_RECURSE sourcefiles src/*.cpp)
 
