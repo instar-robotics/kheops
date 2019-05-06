@@ -96,7 +96,7 @@ int main(int argc, char **argv)
 	bool resume = true;
 	bool run = false;
 	bool ignore_matrix_check = false;
-	unsigned char opt;
+	int opt;
 	int ret = 0;
 	
 	std::string script;
