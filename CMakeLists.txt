@@ -81,7 +81,7 @@ add_executable(
 	${sourcefiles}
 )
 
-add_dependencies(${PROJECT_NAME} ${hieroglyph_EXPORTED_TARGETS})
+add_dependencies(${PROJECT_NAME} ${hieroglyph_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
