@@ -1199,7 +1199,7 @@ void Kernel::active_comment(const std::string& uuid, bool order)
 {
 	bool state = is_pause();
 	pause();
-	singleton.comment();
+	singleton.comment(uuid,order);
 	if( !state ) resume();
 }
 

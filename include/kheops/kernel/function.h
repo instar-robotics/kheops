@@ -51,8 +51,10 @@ class Function
 		bool isInhib;
 		SCALAR inhibStren;
 
+		bool isComment;
+
 	public : 
-		Function(): publish(false),save(false), isInhib(false),inhibStren(0){}
+		Function(): publish(false),save(false), isInhib(false),inhibStren(0),isComment(false){}
 		virtual ~Function();
 
 		virtual size_t type() = 0;
@@ -73,7 +75,6 @@ class Function
 		void copy_buffer();
 		void publish_data();
 
-
 		/*  Kernel Part function : */
 
 		// Called by kernel to set Input to the current Function and to control Input type
@@ -85,6 +86,8 @@ class Function
 		// This function is kernel part of compute function
 		void kcompute();
 
+		void comment(bool state);
+		virtual void apply_comment() = 0;
 		void compute_inhibition();
 		virtual void apply_inhibition() = 0;
 
@@ -201,6 +204,7 @@ class FTemplate : public Function
 		virtual void checkSize();
 		virtual void compareSize(iLinkBase& i){ (void)(i);}
 		virtual void apply_inhibition();
+		virtual void apply_comment();
 };
 
 enum MATRIXSHAPE{POINT,VECTOR,RVECTOR,CVECTOR,NONE_SHAPE};

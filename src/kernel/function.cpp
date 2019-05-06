@@ -84,9 +84,10 @@ void Function::kcompute()
 {
 	compute_inhibition();
 
-	if( !isInhib ) compute();
+	if( !isInhib && !isComment) compute();
 
-	apply_inhibition();
+	if( isComment ) apply_comment();
+	else apply_inhibition();
 }
 
 void Function::ksetparameters()
@@ -98,7 +99,7 @@ void Function::ksetparameters()
 
 void Function::kexec_afterCompute()
 {
-	if( !isInhib ) 
+	if( !isInhib && !isComment ) 
 	{
 		// Buffer input
 		// Send debug output [ROS Topic ] ...
@@ -136,6 +137,11 @@ void Function::kprerun()
 	active_publish(is_publish_active());
 
 	prerun();
+}
+
+void Function::comment(bool state)
+{
+	isComment = state;
 }
 
 /*******************************************************************************************************/
@@ -245,9 +251,15 @@ void FTemplate<T>::save_activity()
 }
 
 template<class T>
+void FTemplate<T>::apply_comment()
+{
+	output *= 0;
+}
+
+template<class T>
 void FTemplate<T>::apply_inhibition()
 {
-	output = output * (1 - inhibStren);
+	output *= (1 - inhibStren);
 }
 /*******************************************************************************************************/
 /********************************************* FMATRIX *************************************************/
