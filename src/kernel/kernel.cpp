@@ -121,17 +121,22 @@ void Kernel::load_links()
 	{
 		for( auto input = funct->second.inputs.begin(); input != funct->second.inputs.end(); input++)
 		{
-			//TODO : check here Input type
 			for( auto link = input->second.links.begin(); link !=  input->second.links.end(); link++)
 			{
+				//if  Link is not a constant : 
+				// - add a klink 
+				// - create the ilink
 				if( !xs.isLinkCst(*link) )
 				{
 					add_klink( funct->second.uuid , *link );
+				      	add_ilink( input->second.uuid , *link );
 				}
-				//TODO : check that input is not a string !
-				// BUT this is creapy ! 
-				// Add check type INPUT instead!
-				if( link->value.size() == 0 ) add_ilink( input->second.uuid , *link );
+				// if link is a constant : check that is not a String 
+				//  - create the ilink to the CST
+				else if(  xs.constants[link->uuid_pred].type != "STRING" )
+				{
+				       	add_ilink( input->second.uuid , *link );
+				}
 			}
 		}
 	}	 	
@@ -708,6 +713,8 @@ void Kernel::bind(IString& value,const std::string& var_name,const std::string& 
 
         if( xs.isLinkCst( xs.functions[uuid].inputs[var_name].links[0]) )
         {
+		//TODO : change in XML the place of String value 
+		// have no sense to store the value in Link ! Store the value in Cst object
                 value = xs.functions[uuid].inputs[var_name].links[0].value; 
         }
         else throw std::invalid_argument( "Kernel : string input have to be constant");

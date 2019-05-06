@@ -31,6 +31,7 @@
 #include "kheops/kernel/publisher.h"
 #include "kheops/iostream/shmserializer.h"
 #include "kheops/kernel/type.h"
+#include "kheops/links/iscalar.h"
 
 #define REGISTER_FUNCTION(classname) \
    static const BuilderImpl<classname,Function> classname(#classname); 
@@ -46,8 +47,12 @@ class Function
 		bool publish;
 		bool save;
 
+		ISInput inhib;
+		bool isInhib;
+		SCALAR inhibStren;
+
 	public : 
-		Function(): publish(false),save(false){}
+		Function(): publish(false),save(false), isInhib(false),inhibStren(0){}
 		virtual ~Function();
 
 		virtual size_t type() = 0;
@@ -72,11 +77,16 @@ class Function
 		/*  Kernel Part function : */
 
 		// Called by kernel to set Input to the current Function and to control Input type
-		virtual void ksetparameters();
+		void ksetparameters();
 		// This function is called by the runner after free mutex
-		virtual void kexec_afterCompute();
+		void kexec_afterCompute();
 		// This function is called before starting the Runner (kernel part)
-		virtual void kprerun();
+		void kprerun();
+		// This function is kernel part of compute function
+		void kcompute();
+
+		void compute_inhibition();
+		virtual void apply_inhibition() = 0;
 
 		/*  USER Part function : */
 
@@ -190,6 +200,7 @@ class FTemplate : public Function
 		virtual void checkShape(){}
 		virtual void checkSize();
 		virtual void compareSize(iLinkBase& i){ (void)(i);}
+		virtual void apply_inhibition();
 };
 
 enum MATRIXSHAPE{POINT,VECTOR,RVECTOR,CVECTOR,NONE_SHAPE};
