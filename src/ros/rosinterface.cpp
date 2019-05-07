@@ -93,24 +93,24 @@ bool RosInterface::callback_comment(hieroglyph::ArgCmd::Request& request,hierogl
 	Request r;
         r.id_cmd = C_COMMENT;
 
-        if( request.cmd ==  CARG[S_START] )
+        if( request.cmd ==  CARG[S_TRUE] )
         {
                 if(  Kernel::instance().find_function( request.arg ))
                 {
-                        r.id_arg = S_START;
+                        r.id_arg = S_TRUE;
                         r.args.push_back( request.arg );
-                        response.ret =  CARG[S_START]+" : "+request.arg;
+                        response.ret =  CARG[S_TRUE]+" : "+request.arg;
                         qrequest.push(r);
                 }
                 else response.ret = RETURN[1];
         }
-        else if( request.cmd == CARG[S_STOP])
+        else if( request.cmd == CARG[S_FALSE])
         {
                 if(  Kernel::instance().find_function( request.arg ))
                 {
-                        r.id_arg = S_STOP;
+                        r.id_arg = S_FALSE;
                         r.args.push_back( request.arg );
-                        response.ret =  CARG[S_STOP]+" : "+request.arg;
+                        response.ret =  CARG[S_FALSE]+" : "+request.arg;
                         qrequest.push(r);
                 }
                 else response.ret = RETURN[1];

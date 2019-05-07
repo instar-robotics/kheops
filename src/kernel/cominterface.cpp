@@ -93,7 +93,7 @@ void ComInterface::exec_request()
 
 				break;
 			case C_COMMENT:
-				if( r.id_arg == S_START) order = true;
+				if( r.id_arg == S_TRUE) order = true;
 				else order = false;	
 
 				Kernel::active_comment(r.args[0], order);

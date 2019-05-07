@@ -76,7 +76,7 @@ const int C_RTTOKEN=7;
 const int C_ACTIVITY=8; 
 const int C_COMMENT=9; 
 
-const std::string CARG[] = {"resume","quit","pause","status","path" ,"save","load","start","stop","all","rt_token","function","input","ilink","activity"};
+const std::string CARG[] = {"resume","quit","pause","status","path" ,"save","load","start","stop","all","rt_token","function","input","ilink","activity","true","false"};
 
 const int S_RESUME=0; 
 const int S_QUIT=1; 
@@ -93,6 +93,8 @@ const int S_FUNCTIONS=11;
 const int S_INPUTS=12;
 const int S_ILINKS=13;
 const int S_ACTIVITY=14;
+const int S_TRUE=15;
+const int S_FALSE=16;
 
 
 struct Request

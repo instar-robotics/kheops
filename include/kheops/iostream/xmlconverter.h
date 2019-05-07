@@ -69,6 +69,7 @@ struct XFunction
 	unsigned int rows;
 	unsigned int cols;
 
+	bool commented;
 	bool publish;
 	bool save;
 	std::string topic_name;

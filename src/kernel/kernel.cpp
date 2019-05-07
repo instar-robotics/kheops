@@ -195,6 +195,7 @@ void Kernel::add_function( const XFunction& xf)
 		f->set_pub_name(xf.topic_name);
 		f->set_publish(xf.publish);
 		f->set_save(xf.save);
+		f->comment(xf.commented);
 
 		if( f->type() == typeid(MATRIX).hash_code()) 		
 		{
