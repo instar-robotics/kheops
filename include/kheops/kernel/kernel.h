@@ -36,7 +36,7 @@
 #include "kheops/links/imatrix.h"
 
 // in millisecondes
-const int wait_delay = 100;
+const int default_wait_delay = 100;
 
 class Kernel 
 {
@@ -74,6 +74,8 @@ class Kernel
 		bool squit;
 
 		StatusPublisher *k_pub;
+
+		int wait_delay;
 	
 		Kernel();
 	public :
@@ -186,6 +188,8 @@ class Kernel
 		static void active_output(const std::string& uuid, bool order);
 		static void active_save_activity(const std::string& uuid, bool order);
 		static void active_rt_token(bool order);
+		static void update_wait_delay();
+
 		
 		static void iBind(InputBase& value,const std::string& var_name,const std::string& uuid );
 		static void iBind(IString& value,const std::string& var_name,const std::string& uuid );

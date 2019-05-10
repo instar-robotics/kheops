@@ -118,6 +118,8 @@ void RtToken::exec()
 
 		date_start = start.time_since_epoch().count();
 		last_duration = elapsed_seconds.count();
+		if( last_duration > maxDuration ) maxDuration = last_duration;
+		if( last_duration < minDuration ) minDuration = last_duration;
 		last_sleep = sleep_duration;
 		means+= elapsed_seconds.count();
 		nbrun++;
@@ -193,6 +195,8 @@ void RtToken::publish_oscillo()
 		om.sleep = getLastSleep();
 		om.duration = getLastDuration();
 		om.start = getLastStart(); 
+		om.minDuration = getMinDuration();
+		om.maxDuration = getMaxDuration();
 
 		if( om.duration >= om.period ) om.warning = true;
 		else  om.warning = false; 
@@ -209,6 +213,8 @@ void RtToken::publish_oscillo()
 		om.sleep = r->getLastSleep();
 		om.duration = r->getLastDuration();
 		om.start = r->getLastStart(); 
+		om.minDuration = getMinDuration();
+		om.maxDuration = getMaxDuration();
 		om.warning = false;
             	
 		o_pub->add( om );	
@@ -245,6 +251,8 @@ void RtToken::publish_message()
 	om.sleep = getLastSleep();
 	om.duration = getLastDuration();
 	om.start = getLastStart(); 
+	om.minDuration = getMinDuration();
+	om.maxDuration = getMaxDuration();
 
 	if( om.duration >= om.period ) om.warning = true;
 	else  om.warning = false; 

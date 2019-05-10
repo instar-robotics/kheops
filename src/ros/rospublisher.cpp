@@ -112,6 +112,8 @@ void RosOscilloPublisher::add(const OscilloMessage &m)
 	osc_data.duration = m.duration;
 	osc_data.start = m.start;
 	osc_data.warning = m.warning;
+	osc_data.maxDuration = m.maxDuration;
+	osc_data.minDuration = m.minDuration;
 
 	msg.array.push_back(osc_data);
 }
@@ -141,6 +143,8 @@ void RosRtTokenOutputPublisher::setMessage(const OscilloMessage& m)
 	msg.duration = m.duration;
 	msg.start = m.start;
 	msg.warning = m.warning;
+	msg.maxDuration = m.maxDuration;
+	msg.minDuration = m.minDuration;
 }
 
 

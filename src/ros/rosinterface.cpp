@@ -62,6 +62,7 @@ int RosInterface::enter()
 
 	while( !Kernel::is_asking_quit() && ros::master::check() )
 	{
+	    Kernel::update_wait_delay();
 	    exec_request();
 	    ros::spinOnce();
 	    r.sleep();
@@ -238,6 +239,8 @@ bool RosInterface::callback_rt_stat( hieroglyph::RtStat::Request&, hieroglyph::R
 	response.data.sleep = rt.getLastSleep(); 
 	response.data.start = rt.getLastStart();
 	response.data.duration = rt.getLastDuration();
+	response.data.minDuration = rt.getMaxDuration();
+	response.data.maxDuration = rt.getMinDuration();
 	
 	return true;
 }

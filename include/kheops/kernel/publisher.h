@@ -78,6 +78,8 @@ class OscilloMessage{
 		double sleep;
 		double duration;
 		double start; 
+		double minDuration;
+		double maxDuration;
 		bool warning;
 
 		OscilloMessage(const std::string &uuid) : uuid(uuid) {}

@@ -37,7 +37,7 @@
 
 Kernel Kernel::singleton;
 
-Kernel::Kernel() : squit(false), k_pub(NULL) 
+Kernel::Kernel() : squit(false), k_pub(NULL), wait_delay(default_wait_delay)
 {	 
 	k_pub = new RosStatusPublisher(5);
 }
@@ -1152,6 +1152,12 @@ void Kernel::active_save_activity(const std::string& uuid, bool order)
 	pause();
 	singleton.save_activity(uuid,order);
 	if( !state ) resume();
+}
+
+
+void Kernel::update_wait_delay()
+{
+	singleton.wait_delay = default_wait_delay + singleton.rttoken.getMaxDuration() * 1000;
 }
 
 void Kernel::iBind( InputBase& value,const std::string& var_name,const std::string& uuid )

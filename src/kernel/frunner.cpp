@@ -88,6 +88,8 @@ void FRunner::exec()
 			std::chrono::duration<double> elapsed_seconds = end-start;
 			date_start = start.time_since_epoch().count();
 			last_duration = elapsed_seconds.count();
+			if( last_duration > maxDuration ) maxDuration = last_duration;
+			if( last_duration < minDuration ) minDuration = last_duration;
 			means+= elapsed_seconds.count();
 			nbrun++;
 		}

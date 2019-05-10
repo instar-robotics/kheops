@@ -44,6 +44,8 @@ class Runner
                 double last_sleep;
                 double last_duration;
 		double date_start;
+		double minDuration;
+		double maxDuration;
 	
 		std::mutex s_mtx;
                 std::condition_variable s_cv;
@@ -57,7 +59,9 @@ class Runner
 		
 	public :
 
-                Runner() : g(NULL),nbrun(0),means(0),last_sleep(0),last_duration(0),date_start(0),state(K_PAUSE) {}
+                Runner() : g(NULL),nbrun(0),means(0),last_sleep(0),last_duration(0),date_start(0),minDuration(0),maxDuration(0),state(K_PAUSE) {
+			minDuration = std::numeric_limits<double>::max();
+		}
 
                 virtual ~Runner() = 0;
                 inline void setGraph(Graph * g){this->g=g;}
@@ -69,6 +73,8 @@ class Runner
 		inline double getLastDuration(){ return last_duration;}
                 inline double getLastSleep() { return last_sleep;}
                 inline double getMeanDuration() { if( nbrun == 0) return 0;  return means/nbrun;}
+                inline double getMinDuration() {return minDuration;}
+                inline double getMaxDuration() {return maxDuration;}
 
 		// Payload of the runner
                 virtual void exec() = 0;
