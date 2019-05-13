@@ -89,7 +89,7 @@ $> catkin_make
 
 ## III Run kheops in standalone mode ##
 
-Note : For beginners, we recommand to start with the full installation and run Kheops using Papyrus GUI ! 
+Note : For beginners, we recommand to start with the full installation and run Kheops using Papyrus GUI !  See [Papyrus-How to use](https://github.com/instar-robotics/papyrus#how-to-use).
 
 ### Run Kheops : quick version ###
 
@@ -376,12 +376,3 @@ $> rostopic echo /kheops_action/oscillo
 ## VI Neurals developpers guide ##
 
 * Main information are provided in the Papyrus software description. See [Papyrus-How to use](https://github.com/instar-robotics/papyrus#how-to-use).
-
-
-
-
-
-
-  
-
-
