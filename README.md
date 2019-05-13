@@ -63,7 +63,7 @@ $> apt-get install cmake libeigen3-dev libboost-graph-dev libboost-graph1.65.1 l
 * Alexandria dependancies : 
 
 ```console
-$> apt-get install ros-melodic-joy ros-melodic-tf2
+$> apt-get install ros-melodic-joy ros-melodic-tf2 ros-melodic-nav-msgs
 ```
 
 ### Install Kheops and Alexandria ###
@@ -109,35 +109,51 @@ $> rosrun kheops kheops -h
 * To run kheops you can use __rosrun__ command :
 
 ```console
-$> rosrun kheops kheops -s path-to-script-file_ -l path/to/alexandria/lib
+$> rosrun kheops kheops -s MyScript.xml  -l path/to/lib/alexandria/
+```
+
+(See [Alexandria](https://github.com/instar-robotics/alexandria/blob/master/README.md#libraries-path) to get alexandria libraries path)
+
+* if you want launch Kheops without __-l__ option, you can set __KHEOPS_LIB_PATH__ variable into your bashrc : 
+
+```console
+$> echo "export KHEOPS_LIB_PATH=\"path/to/lib/alexandria/\"" >> ~/.bashrc
+$> source ~/.bashrc
+```
+
+* then just run 
+
+```console
+$> rosrun kheops kheops -s MyScript.xml 
 ```
 
 * Launch script and load weight from weight_file to the neural network
 
-**_rosrun kheops kheops -s path-to-script-file -w path-to-weight-file_**
+```console
+$> rosrun kheops kheops -s MyScript.xml -w path-to-weight-file
+```
 
 * By default, kheops start in __run__ mode
 * To start kheops in __pause__ mode, run : 
 
-**_rosrun kheops kheops -p_**
-
-### Load user functions libraries ###
-
-* Kheops is build to be modular. This means you can load function at the runtime like import lib in python.
-* When you launch __kheops__ you can specify the directory where __kheops__ will search the library : 
-
-**_rosrun kheops kheops -l /path/to/lib/directory_**
+```console
+$> rosrun kheops kheops -p
+```
 
 ### Kheops services and messages ###
 
 * All messages and services are defined in the __hieroglyph project__
 * To list __hieroglyph__ messages , run : 
 
-**_rosmsg package hieroglyph_**
+```console
+$> rosmsg package hieroglyph
+```
 
 * To list __hieroglyph__ services, run :
 
-**_rossrv package hieroglyph_**
+```console
+$> rossrv package hieroglyph
+```
 
 * __rosmsg__ and __rossrv__ command can print details of messages and services. See ROS wiki for details
 
@@ -149,7 +165,7 @@ $> rosrun kheops kheops -s path-to-script-file_ -l path/to/alexandria/lib
   2. We had the neural script name as suffix
   3. We use __underscore__ (\_) as separator
 
-* For example, a kheops script name "action.script" will have "kheops_action" as node name
+* For example, a script name __"action.script"__ will have __"kheops_action"__ as node name
 
 * To list the ROS node, use rosnode command :  
 
