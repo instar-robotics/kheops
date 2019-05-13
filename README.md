@@ -165,41 +165,52 @@ $> rossrv package hieroglyph
   2. We had the neural script name as suffix
   3. We use __underscore__ (\_) as separator
 
-* For example, a script name __"action.script"__ will have __"kheops_action"__ as node name
+* For example, a script name __"action.xml"__ will have __"kheops_action"__ as node name
 
 * To list the ROS node, use rosnode command :  
 
-**_rosnode list_**
+```console
+$> rosnode list
+```
 
 ### Command kheops with rosservice
 
-* We assume you launch a kheops script "__action.script__" with rosrun, like this : 
+* We assume you launch a kheops script "__action.xml" with rosrun, like this : 
 
-**_rosrun kheops kheops -s action.script_**
+```console
+$> rosrun kheops kheops -s action.xml
+```
 
 * At launch, kheops register some services : 
   1. help : print help message, list of services and arguments
   2. control : basic command, "resume", "pause", "quit", "status"
-  3. oscillo : create oscillo rostopic
-  4. output : create data rostopic for both links and functions
-  5. objects : print list of the objects (functions, links, inputs, rt\_token)
-  6. weight : load/save neural network weight
-  7. rt\_token : create data topic for rt\_token
-  8. rt\_stat : get rt\_token stat
-
+  3. weight : load/save neural network weight
+  4. rt\_stat : get rt\_token stat
+  5. oscillo : create oscillo rostopic
+  6. output : create data rostopic for both links and functions
+  7. objects : print list of the objects (functions, links, inputs, rt\_token)
+  8. rt\_token : create data topic for rt\_token
+  9. save\_activity : save Function's activity into SHM
+  10. comment : stop to run the Function (output are set to zero) 
 
 * To run services, you can use ROS command __rosservice__ 
 * To list services : 
 
-**_rosservice list_**
+```console
+$> rosservice list
+```
 
 * To call a service : 
 
-**_rosservice call /node\_name/service\_name  args1 args2 ... argsN_**
+```console
+$> rosservice call /node\_name/service\_name  args1 args2 ... argsN
+```
 
 * For example, to call help service for action srcipt: 
 
-**_rosservice call /kheops\_action/help_**
+```console
+$> rosservice call /kheops\_action/help
+```
 
 #### Control service ####
 
@@ -210,7 +221,9 @@ $> rossrv package hieroglyph
 
 * For example, to shutdown action script : 
 
-**_rosservice call /kheops\_action/control quit_**
+```console
+$> rosservice call /kheops\_action/control quit
+```
 
 #### Oscillo service ####
 
@@ -219,31 +232,37 @@ $> rossrv package hieroglyph
 
 * For example, to create and publish on oscillo rostopic, run : 
 
-**_rosservice call /kheops\_action/oscillo start_**
+```console
+$> rosservice call /kheops\_action/oscillo start
+```
 
 #### Objects service ####
 
-* Each object (link, function, rt_token, input) are identified by an UUID
-* The object service provide the list of all the object of a script with associated UUID
+* Each __Object__ (Link, Function, Rt_token, Input) are identified by an __UUID__
+* The object service provide the __list of all the object__ of a script with its associated __UUID__
 * The argument of the command are :
-  1. "all" : provide all the object
-  2. "rt\_token" : provide rt\_token UUID
-  3. "functions" : provide functions UUID
-  4. "links" : provide links UUID
-  5. "inputs" : provide inputs UUID
+  1. "all" : list all the object
+  2. "rt\_token" : get only rt\_token UUID
+  3. "functions" : list Functions UUID
+  4. "links" : list Links UUID
+  5. "inputs" : list Inputs UUID
 
 * For example, to list all functions UUID, run :
 
-**_rosservice call /kheops\_action/objects functions_**
+```console
+$> rosservice call /kheops\_action/objects functions
+```
 
 #### Output service ####
 
 * Start and stop output rostopic
-* Each topic contains output for the desire object (link or function). For details about the topic, go to "rostopic section"
+* Each topic contains output for the desire object (Link or Function). For details about the topic, go to "rostopic section"
 
 * For example, to create an output for object with UUID {70a19c5c-fc60-4275-bbd6-aac857190b3d} : 
 
-**_rosservice call /kheops\_action/output start {70a19c5c-fc60-4275-bbd6-aac857190b3d}_**
+```console
+$> rosservice call /kheops\_action/output start '{70a19c5c-fc60-4275-bbd6-aac857190b3d}'
+```
 
 #### Weight service ####
 
