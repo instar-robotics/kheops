@@ -4,8 +4,8 @@
 
 ## I Description ##
 
-* What is kheops : a Neural Network and Dynamical Function simulator
-  1. A neural network is reprented by a graph strucutre.
+* Kheops is a Neural Network and Dynamical function simulator
+  1. A neural network is reprented by a graph strucutre described in an XML file called a neural script
   2. Each neurons layer or group are graph vertex and are connected to other layer by link (edge of the graph).
   3. The weight of the neurons are contains into the link.
   4. And neural activities are propagated accros the link.
@@ -20,131 +20,139 @@
   4. Each function is exectued by his runner and spread the wave accros output link.
   5. When the last layer is executed, kheops sleeps until the new period.
 
-* Neural Network graph are described in an XML file called a neural script (the scruture of the XML file is described in section : Neural Script developpers guide)
-* Kheops should be use in interaction with Papyrus, an IHM design to generate neural script.
 * Kheops is designed to be used in online environnement, mainly to design robotics controller.
-* Kheops uses ROS communication tools to stream data betwwen different neural script, get sensors data and send motor orders.
-* Kheops is strongly typed : each function could be Scalar type or Matrix type (Eigen Matrix)
+
+* Kheops are based on [ROS](http://www.ros.org/):
+  1. scripts communicate with one another through ROS topics   
+  2. live visualization is achieved by having functions publish their outputs in a ROS topic  
+  3. ROS services are used to control scripts execution
+
+* Kheops should be use in interaction with [Papyrus](https://github.com/instar-robotics/papyrus) GUI to create, edit and debug neural script 
+
 
 ## II- Installation ##
 
+Kheops is a part of the Kheops/Papyrus software containing 4 components : Kheops, [Papyrus](https://github.com/instar-robotics/papyrus), [Alexandria](https://github.com/instar-robotics/alexandria) and [Hieroglyph](https://github.com/instar-robotics/hieroglyph)
+
+Please see [Papyrus's how-to-install](https://github.com/instar-robotics/papyrus/blob/master/README.org#how-to-install) tutorial for a Kheops/Papyrus full installation.
+
+or See below for a Kheops standlone installation.
+
+## III- Standalone Installation ##
+
+Standalone installation is useful to install Kheops without Papyrus GUI on devices like mobile robots.
+
 ### Dependancy ###
-* ubuntu 16.04 or 18.04 (we recommand to use 18.04 the last LTS)
 * cmake 3.5
-* libboost 1.58
-* libboost BGL 1.58
-* libboost SYSTEM  1.58
-* libboost FILESYSTEM  1.58
-* libboost SERIALIZATION  1.58
+* libboost (BGL, SYSTEM, FILESYSTEM, SERIALIZATION) at least 1.58
 * libeigen 3.3
-* ROS Lunar or Melodic (we recommand to use Melodic, the current LTS)
-* hieroglyph 1.0
-* ROS diagnostic_msgs
+* ROS Melodic 
 
 ### Install dependancies ###
-* On ubuntu 16.04 : 
+* Installation has been tested on __ubuntu 18.04__  
+* For __ROS Melodic__ installation and workspace configuration, please refer to : http://wiki.ros.org/melodic/Installation/Ubuntu or to [Papyrus's how-to-install](https://github.com/instar-robotics/papyrus/blob/master/README.org#how-to-install) tutorial.
 
-**_apt-get update_**
+* Kheops dependancies : 
 
-**_apt-get install cmake libeigen3-dev libboost-graph-dev libboost-graph1.58.0 libboost-all-dev libboost-all-dev libboost1.58-dev_**
+```console
+$> apt-get update
+$> apt-get install cmake libeigen3-dev libboost-graph-dev libboost-graph1.65.1 libboost-all-dev libboost-all-dev libboost1.65-dev ros-melodic-diagnostics
+```
 
-* On ubuntu 18.04 : 
+* Alexandria dependancies : 
 
-**_apt-get update_**
+```console
+$> apt-get install ros-melodic-joy ros-melodic-tf2 ros-melodic-nav-msgs
+```
 
-**_apt-get install cmake libeigen3-dev libboost-graph-dev libboost-graph1.65.1 libboost-all-dev libboost-all-dev libboost1.65-dev_**
+### Install Kheops and Alexandria ###
 
-* For __ROS Lunar__ installation and workspace configuration, please refer to : http://wiki.ros.org/lunar/Installation/Ubuntu
+* For the next section, we admit you :
+  1. have install __ROS__ and configure a workspace using __catkin_make__
+  2. Kheops and Alexandria dependancies are installed
 
-* For __ROS Melodic__ installation and workspace configuration, please refer to : http://wiki.ros.org/melodic/Installation/Ubuntu
+* To fetch the sources:
 
-* Install __ROS diagnostics_msgs__ : 
+```console
+$> cd ~/CATKIN_WS/PATH/src
+$> git clone https://github.com/instar-robotics/kheops.git
+$> git clone https://github.com/instar-robotics/alexandria.git
+$> git clone https://github.com/instar-robotics/hieroglyph.git
+```
 
-**_apt-get install ros-melodic-diagnostic-msgs__**   [or ros-lunar-diagnostic-msgs]
+* Then we build the whole workspace:
+```console
+$> cd ~/CATKIN_WS/PATH/
+$> catkin_make
+```
 
-* For the next section, we admit you have install __ROS __ and configure a workspace using catkin_make
-* The workspace directory will be :
+## III Run kheops in standalone mode ##
 
-**_/home/johndoe/catkin_workspace_**
-
-* For __hieroglyph__ installation, please go to : https://github.com/instar-robotics/hieroglyph
-* For the next step, we assume you have __hieroglyph__ install in your catkin\_workspace (home/johndoe/catkin\_workspace/src/hieroglyph)
-
-### Install Kheops ###
-* clone the repository in your catkin workspace :
-
-**_cd /home/johndoe/catkin_workspace/src_**
-
-**_git clone https://github.com/instar-robotics/kheops.git_**
-
-* go to your root catkin workspace :
-
-**_cd /home/johndoe/catkin_workspace_**
-
-* And run **_catkin_make_**
-
-### Building User functions libraries
-
-* For example, we create user_src directory with a demofct inside 
-* Users who want to build could reuse the example
-
-* To build __demofct__, go to the demofct directory :
-
-**_cd /home/johndoe/catkin_workspace/src/kheops/user_src/demofct_**
-
-* then, run the classical cmake/make command : 
-
-**_cmake \._**
-
-**_make_**
-
-* After the compilation, you get a __libdeomfct.so__
-* You can copy this file in your library directory and run kheops with -l option (see __Run__ section)
-
-## III Run kheops ##
+Note : For beginners, we recommand to start with the full installation and run Kheops using Papyrus GUI !  See [Papyrus-How to use](https://github.com/instar-robotics/papyrus#how-to-use).
 
 ### Run Kheops : quick version ###
 
-* Kheops is builded on top of ROS system. (In futur version, kheops will support other bus like dbus/yarp) 
+* Kheops is builded on top of ROS system.
 * Kheops need roscore to run properly. 
 * Launch roscore with :
 
-**_roscore_**
+```console
+$> roscore
+```
+* print Kheops help menu 
+
+```console
+$> rosrun kheops kheops -h
+```
 
 * To run kheops you can use __rosrun__ command :
 
-**_rosrun kheops kheops -s path-to-script-file_**
+```console
+$> rosrun kheops kheops -s MyScript.xml  -l path/to/lib/alexandria/
+```
 
-* print Help menu 
+(See [Alexandria](https://github.com/instar-robotics/alexandria/blob/master/README.md#libraries-path) to get alexandria libraries path)
 
-**_rosrun kheops kheops -h_**
+* if you want launch Kheops without __-l__ option, you can set __KHEOPS_LIB_PATH__ variable into your bashrc : 
+
+```console
+$> echo "export KHEOPS_LIB_PATH=\"path/to/lib/alexandria/\"" >> ~/.bashrc
+$> source ~/.bashrc
+```
+
+* then just run 
+
+```console
+$> rosrun kheops kheops -s MyScript.xml 
+```
 
 * Launch script and load weight from weight_file to the neural network
 
-**_rosrun kheops kheops -s path-to-script-file -w path-to-weight-file_**
+```console
+$> rosrun kheops kheops -s MyScript.xml -w path-to-weight-file
+```
 
 * By default, kheops start in __run__ mode
 * To start kheops in __pause__ mode, run : 
 
-**_rosrun kheops kheops -p_**
-
-### Load user functions libraries ###
-
-* Kheops is build to be modular. This means you can load function at the runtime like import lib in python.
-* When you launch __kheops__ you can specify the directory where __kheops__ will search the library : 
-
-**_rosrun kheops kheops -l /path/to/lib/directory_**
+```console
+$> rosrun kheops kheops -p
+```
 
 ### Kheops services and messages ###
 
 * All messages and services are defined in the __hieroglyph project__
 * To list __hieroglyph__ messages , run : 
 
-**_rosmsg package hieroglyph_**
+```console
+$> rosmsg package hieroglyph
+```
 
 * To list __hieroglyph__ services, run :
 
-**_rossrv package hieroglyph_**
+```console
+$> rossrv package hieroglyph
+```
 
 * __rosmsg__ and __rossrv__ command can print details of messages and services. See ROS wiki for details
 
@@ -156,41 +164,52 @@
   2. We had the neural script name as suffix
   3. We use __underscore__ (\_) as separator
 
-* For example, a kheops script name "action.script" will have "kheops_action" as node name
+* For example, a script name __"action.xml"__ will have __"kheops_action"__ as node name
 
 * To list the ROS node, use rosnode command :  
 
-**_rosnode list_**
+```console
+$> rosnode list
+```
 
 ### Command kheops with rosservice
 
-* We assume you launch a kheops script "__action.script__" with rosrun, like this : 
+* We assume you launch a kheops script "__action.xml" with rosrun, like this : 
 
-**_rosrun kheops kheops -s action.script_**
+```console
+$> rosrun kheops kheops -s action.xml
+```
 
 * At launch, kheops register some services : 
   1. help : print help message, list of services and arguments
   2. control : basic command, "resume", "pause", "quit", "status"
-  3. oscillo : create oscillo rostopic
-  4. output : create data rostopic for both links and functions
-  5. objects : print list of the objects (functions, links, inputs, rt\_token)
-  6. weight : load/save neural network weight
-  7. rt\_token : create data topic for rt\_token
-  8. rt\_stat : get rt\_token stat
-
+  3. weight : load/save neural network weight
+  4. rt\_stat : get rt\_token stat
+  5. oscillo : create oscillo rostopic
+  6. output : create data rostopic for both links and functions
+  7. objects : print list of the objects (functions, links, inputs, rt\_token)
+  8. rt\_token : create data topic for rt\_token
+  9. save\_activity : save Function's activity into SHM
+  10. comment : stop to run the Function (output are set to zero) 
 
 * To run services, you can use ROS command __rosservice__ 
 * To list services : 
 
-**_rosservice list_**
+```console
+$> rosservice list
+```
 
 * To call a service : 
 
-**_rosservice call /node\_name/service\_name  args1 args2 ... argsN_**
+```console
+$> rosservice call /node_name/service_name  args1 args2 ... argsN
+```
 
 * For example, to call help service for action srcipt: 
 
-**_rosservice call /kheops\_action/help_**
+```console
+$> rosservice call /kheops_action/help
+```
 
 #### Control service ####
 
@@ -201,7 +220,9 @@
 
 * For example, to shutdown action script : 
 
-**_rosservice call /kheops\_action/control quit_**
+```console
+$> rosservice call /kheops_action/control quit
+```
 
 #### Oscillo service ####
 
@@ -210,55 +231,63 @@
 
 * For example, to create and publish on oscillo rostopic, run : 
 
-**_rosservice call /kheops\_action/oscillo start_**
+```console
+$> rosservice call /kheops_action/oscillo start
+```
 
 #### Objects service ####
 
-* Each object (link, function, rt_token, input) are identified by an UUID
-* The object service provide the list of all the object of a script with associated UUID
+* Each __Object__ (Link, Function, Rt_token, Input) are identified by an __UUID__
+* The object service provide the __list of all the object__ of a script with its associated __UUID__
 * The argument of the command are :
-  1. "all" : provide all the object
-  2. "rt\_token" : provide rt\_token UUID
-  3. "functions" : provide functions UUID
-  4. "links" : provide links UUID
-  5. "inputs" : provide inputs UUID
+  1. "all" : list all the object
+  2. "rt\_token" : get only rt\_token UUID
+  3. "functions" : list Functions UUID
+  4. "links" : list Links UUID
+  5. "inputs" : list Inputs UUID
 
 * For example, to list all functions UUID, run :
 
-**_rosservice call /kheops\_action/objects functions_**
+```console
+$> rosservice call /kheops_action/objects functions
+```
 
 #### Output service ####
 
 * Start and stop output rostopic
-* Each topic contains output for the desire object (link or function). For details about the topic, go to "rostopic section"
+* Each topic contains output for the desire object (Link or Function). For details about the topic, go to "[rostopic section](https://github.com/instar-robotics/kheops/blob/master/README.md#rostopic-section)"
 
 * For example, to create an output for object with UUID {70a19c5c-fc60-4275-bbd6-aac857190b3d} : 
 
-**_rosservice call /kheops\_action/output start {70a19c5c-fc60-4275-bbd6-aac857190b3d}_**
+```console
+$> rosservice call /kheops_action/output start '{70a19c5c-fc60-4275-bbd6-aac857190b3d}'
+```
 
 #### Weight service ####
 
-* To load, neural network weight, you can use -w option with file path
-* But it can be useful to reload an other weight file at runtime or be able to save the weight before exit the script
+* To load neural network weight at launch, you can use -w option following by the path of the file
+* But it can be useful to reload weights at runtime or be able to save weights before exit the script
 * The weight service provide save/load command. 
-* When save or load are executed, the script is automatically paused. 
-* Then, the operation is executed. 
-* After the operation, the script is automatically resumed 
 
-* For example, to load a weight file : 
+* For example, to load a weight file during execution : 
 
-**_rosservice call /kheops\_action/weight load path\_to\_weight\_file_**
+```console
+$> rosservice call /kheops\_action/weight load path\_to\_weight\_file
+```
 
 #### Rt\_token service ####
 
-* The oscillo rostopic contains data for all runners. This could be represent a huge amont of data.
-* Some times, we just want monitor script perfomance without all the details
-* THe rt\_token service can create a rostopic where only global performance are printed. 
+* The oscillo topic contains data from all runners. This could be a huge amont of data.
+* Sometimes, we just want monitor script perfomance without all the details
+* The rt\_token service can create a rostopic where only global performance are printed. 
 * The argument of the service are simply start or stop.
 
-* For example to create and publish into the rt\_token topic, run : 
+* For example to publish into the rt\_token topic, and print the value, run : 
 
-**_rosservice call /kheops\_action/rt\_token start_**
+```console
+$> rosservice call /kheops_action/rt\_token start
+$> rostopic echo /kheops_action/rt_token
+```
 
 #### Rt\_stat service ####
 
@@ -267,42 +296,44 @@
 
 * For example, to read global information for action script, run : 
 
-**__rosservice call /kheops\_action/rt\_stat_**
+```console
+$> rosservice call /kheops_action/rt\_stat
+```
 
 ### Rostopic section ###
 
-* kheops use rostopic to stream data accros script and/or to the IHM Papyrus
-* Rostopic could be data send accros script or script management information send Papyrus 
+* kheops use rostopic to stream data accros script and/or to the Papyrus GUI
 * Each topic are stored in the script rosnode tree.
-* For example, each topic of the action script will be inside : 
-
-**_/kheops\_action/_**
+* For example, each topic of the action script will be inside : **_/kheops\_action/_**
 
 * To display the list of topic, you can use __rostopic__ command :
 
-**_rostopic list_**
+```console
+$> rostopic list
+```
 
 * To stream the contents of a rostopic, run :
 
-**_rostopic echo /kheops\_script\_name/topic\_name_**
+```console
+$> rostopic echo /kheops_script_name/topic_name
+```
 
 #### Output Topic ####
 
-* Data strucutre inside kheops functions and links are strongly typed. They could be Scalar (double) or Matrix (Using Eigen Matrix)
-* So, each function or link could output a Scalar Rostopic or a Matrix Rostopic depand of the type of the object.
+* Kheops's object like Functions or Links are strongly typed. They could be __SCALAR__ (double by default) or __MATRIX__ (Using Eigen Matrix)
+* Each function or link could output a SCALAR or MATRIX depanding of its type.
 
-* Rostopic output are created by default using XML script file (See Script developpers guide) or using the output service 
-* When a topic is created, the name conventions are :
+* Rostopic output are created by default using XML script file (See [Papyrus's properties panel](https://github.com/instar-robotics/papyrus#3-the-properties-panel))
+* Or you can used output service to create topic at runtime
+* The name convention is :
   1. The prefix is the type of the object (link or function)
   2. The suffix is the UUID of the object
   3. An underscore is used as a separator
 
-* For example, the output of the link {64a9913c-ac60-4b2a-bbd6-f0c868190b3f} from the action script will be :
+* For example, the output of the link {64a9913c-ac60-4b2a-bbd6-f0c868190b3f} from the action script will be : **_/kheops\_action/link\_64a9913c-ac60-4b2a-bbd6-f0c868190b3f_** 
 
-**_/kheops\_action/link_{64a9913c-ac60-4b2a-bbd6-f0c868190b3f}_** 
-
-* Scalar topic are simply a ros standard message Float64 
-* Matrix topic are a ros standard message Float64MultipleArray
+* __SCALAR__ topic are simply a ros standard message __Float64__ 
+* __MATRIX__ topic are a ros standard message __Float64MultipleArray__
 
 #### Oscillo and Rt_Token Topic ####
 
@@ -317,57 +348,30 @@
   4. float64 sleep : time spend to sleep
   5. float64 duration : execution time
   6. float64 start : date when last run was started
-  7. bool warning : real time constraint wasn't respected (duration > period)
+  7. float64 minDuration : better period 
+  8. float64 maxDuration : worst period
+  9. bool warning : real time constraint wasn't respected (duration > period)
 
 * Oscillo topics uses __OscilloArray__ message defined in hieroglyph.
 * An __OscilloArray__ message is an array of __OscilloData__ message
 * One __OscilloData__ message for each function in the script 
 
-## V Kernel developpers guide ##
+* To create oscillo topic : 
 
-* TODO
+```console
+$> rosservice call /kheops_action/oscillo start
+```
 
-* Kernel Object : 
-1. Runner : 
-2. FRunner : 
-3. RtToken : 
-4. kLink : 
-5. iLink (and iLinkBase) : 
-6. Input (and inputBase) : 
-7. Function : 
+* Then to print the value : 
 
-* Object : link, input an Function
+```console
+$> rostopic echo /kheops_action/oscillo
+```
 
-* Using Input and iLink 
+## V Functions developpers guide ##
 
-* Sparse Matrix : Connections is define is a Sparse Matrix Filter and we can generate every topology
+* Main information are provided in the alexandria software description. See [Functions developper's guide](https://github.com/instar-robotics/alexandria/blob/master/README.md#functions-developpers-guide).
 
-* Matrix_Matrix have 3 types of connections
-  1. One to All connections (ONE_TO_ALL) : Dense connections between input and output 
-  2. One to One connections (ONE_TO_ONE) : Sparse conenction between input and output 
-  3. One to Neighborhood connections (ONE_TO_NEI) : Sparse conenction between input and output 
+## VI Neurals developpers guide ##
 
-* IScalar
-* ISMatrix
-* IMMatrix
-1. Weight
-2. Filter
-
-* UUID definition
-
-## VI Functions developpers guide ##
-
-* Main information are provided in the alexandria software description. 
-
-## VII Neurals developpers guide ##
-
-* Main information are provided in the papyrus software description. 
-
-
-
-
-
-
-  
-
-
+* Main information are provided in the Papyrus software description. See [Papyrus-How to use](https://github.com/instar-robotics/papyrus#how-to-use).
