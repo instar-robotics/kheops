@@ -58,8 +58,8 @@
 *  	a- start 'uuid' (start saving function's activity into SHM)
 *  	b- stop 'uuid' (stop saving function's activity into SHM)
 *  10- comment : 
-*  	a- start 'uuid' (comment the function : stop to run compute and after_compute)  	
-*  	b- stop 'uuid' (uncomment the function)
+*  	a- true 'uuid' (comment the function : stop to run compute and after_compute)  	
+*  	b- false 'uuid' (uncomment the function)
 ********************************************************************************/
 
 const std::string RETURN[] = {"unknown command","unknown uuid"};
