@@ -256,7 +256,7 @@ $> rosservice call /kheops\_action/objects functions
 #### Output service ####
 
 * Start and stop output rostopic
-* Each topic contains output for the desire object (Link or Function). For details about the topic, go to "rostopic section"
+* Each topic contains output for the desire object (Link or Function). For details about the topic, go to "[rostopic section](https://github.com/instar-robotics/kheops/blob/master/README.md#rostopic-section)"
 
 * For example, to create an output for object with UUID {70a19c5c-fc60-4275-bbd6-aac857190b3d} : 
 
@@ -266,27 +266,29 @@ $> rosservice call /kheops\_action/output start '{70a19c5c-fc60-4275-bbd6-aac857
 
 #### Weight service ####
 
-* To load, neural network weight, you can use -w option with file path
-* But it can be useful to reload an other weight file at runtime or be able to save the weight before exit the script
+* To load neural network weight at launch, you can use -w option following by the path of the file
+* But it can be useful to reload weights at runtime or be able to save weights before exit the script
 * The weight service provide save/load command. 
-* When save or load are executed, the script is automatically paused. 
-* Then, the operation is executed. 
-* After the operation, the script is automatically resumed 
 
-* For example, to load a weight file : 
+* For example, to load a weight file during execution : 
 
-**_rosservice call /kheops\_action/weight load path\_to\_weight\_file_**
+```console
+$> rosservice call /kheops\_action/weight load path\_to\_weight\_file
+```
 
 #### Rt\_token service ####
 
-* The oscillo rostopic contains data for all runners. This could be represent a huge amont of data.
-* Some times, we just want monitor script perfomance without all the details
-* THe rt\_token service can create a rostopic where only global performance are printed. 
+* The oscillo topic contains data from all runners. This could be a huge amont of data.
+* Sometimes, we just want monitor script perfomance without all the details
+* The rt\_token service can create a rostopic where only global performance are printed. 
 * The argument of the service are simply start or stop.
 
-* For example to create and publish into the rt\_token topic, run : 
+* For example to publish into the rt\_token topic, and print the value, run : 
 
-**_rosservice call /kheops\_action/rt\_token start_**
+```console
+$> rosservice call /kheops\_action/rt\_token start
+$> rostopic echo /kheops\_action/rt_token
+```
 
 #### Rt\_stat service ####
 
@@ -295,42 +297,44 @@ $> rosservice call /kheops\_action/output start '{70a19c5c-fc60-4275-bbd6-aac857
 
 * For example, to read global information for action script, run : 
 
-**__rosservice call /kheops\_action/rt\_stat_**
+```console
+$> rosservice call /kheops\_action/rt\_stat
+```
 
 ### Rostopic section ###
 
-* kheops use rostopic to stream data accros script and/or to the IHM Papyrus
-* Rostopic could be data send accros script or script management information send Papyrus 
+* kheops use rostopic to stream data accros script and/or to the Papyrus GUI
 * Each topic are stored in the script rosnode tree.
-* For example, each topic of the action script will be inside : 
-
-**_/kheops\_action/_**
+* For example, each topic of the action script will be inside : **_/kheops\_action/_**
 
 * To display the list of topic, you can use __rostopic__ command :
 
-**_rostopic list_**
+```console
+$> rostopic list
+```
 
 * To stream the contents of a rostopic, run :
 
-**_rostopic echo /kheops\_script\_name/topic\_name_**
+```console
+$> rostopic echo /kheops\_script\_name/topic\_name
+```
 
 #### Output Topic ####
 
-* Data strucutre inside kheops functions and links are strongly typed. They could be Scalar (double) or Matrix (Using Eigen Matrix)
-* So, each function or link could output a Scalar Rostopic or a Matrix Rostopic depand of the type of the object.
+* Kheops's object like Functions or Links are strongly typed. They could be __SCALAR__ (double by default) or __MATRIX__ (Using Eigen Matrix)
+* Each function or link could output a SCALAR or MATRIX depanding of its type.
 
-* Rostopic output are created by default using XML script file (See Script developpers guide) or using the output service 
-* When a topic is created, the name conventions are :
+* Rostopic output are created by default using XML script file (See [Papyrus's properties panel](https://github.com/instar-robotics/papyrus#3-the-properties-panel))
+* Or you can used output service to create topic at runtime
+* The name convention is :
   1. The prefix is the type of the object (link or function)
   2. The suffix is the UUID of the object
   3. An underscore is used as a separator
 
-* For example, the output of the link {64a9913c-ac60-4b2a-bbd6-f0c868190b3f} from the action script will be :
+* For example, the output of the link {64a9913c-ac60-4b2a-bbd6-f0c868190b3f} from the action script will be : **_/kheops\_action/link_{64a9913c-ac60-4b2a-bbd6-f0c868190b3f}_** 
 
-**_/kheops\_action/link_{64a9913c-ac60-4b2a-bbd6-f0c868190b3f}_** 
-
-* Scalar topic are simply a ros standard message Float64 
-* Matrix topic are a ros standard message Float64MultipleArray
+* __SCALAR__ topic are simply a ros standard message __Float64__ 
+* __MATRIX__ topic are a ros standard message __Float64MultipleArray__
 
 #### Oscillo and Rt_Token Topic ####
 
