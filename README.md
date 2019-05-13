@@ -203,13 +203,13 @@ $> rosservice list
 * To call a service : 
 
 ```console
-$> rosservice call /node\_name/service\_name  args1 args2 ... argsN
+$> rosservice call /node_name/service_name  args1 args2 ... argsN
 ```
 
 * For example, to call help service for action srcipt: 
 
 ```console
-$> rosservice call /kheops\_action/help
+$> rosservice call /kheops_action/help
 ```
 
 #### Control service ####
@@ -222,7 +222,7 @@ $> rosservice call /kheops\_action/help
 * For example, to shutdown action script : 
 
 ```console
-$> rosservice call /kheops\_action/control quit
+$> rosservice call /kheops_action/control quit
 ```
 
 #### Oscillo service ####
@@ -233,7 +233,7 @@ $> rosservice call /kheops\_action/control quit
 * For example, to create and publish on oscillo rostopic, run : 
 
 ```console
-$> rosservice call /kheops\_action/oscillo start
+$> rosservice call /kheops_action/oscillo start
 ```
 
 #### Objects service ####
@@ -250,7 +250,7 @@ $> rosservice call /kheops\_action/oscillo start
 * For example, to list all functions UUID, run :
 
 ```console
-$> rosservice call /kheops\_action/objects functions
+$> rosservice call /kheops_action/objects functions
 ```
 
 #### Output service ####
@@ -261,7 +261,7 @@ $> rosservice call /kheops\_action/objects functions
 * For example, to create an output for object with UUID {70a19c5c-fc60-4275-bbd6-aac857190b3d} : 
 
 ```console
-$> rosservice call /kheops\_action/output start '{70a19c5c-fc60-4275-bbd6-aac857190b3d}'
+$> rosservice call /kheops_action/output start '{70a19c5c-fc60-4275-bbd6-aac857190b3d}'
 ```
 
 #### Weight service ####
@@ -286,8 +286,8 @@ $> rosservice call /kheops\_action/weight load path\_to\_weight\_file
 * For example to publish into the rt\_token topic, and print the value, run : 
 
 ```console
-$> rosservice call /kheops\_action/rt\_token start
-$> rostopic echo /kheops\_action/rt_token
+$> rosservice call /kheops_action/rt\_token start
+$> rostopic echo /kheops_action/rt_token
 ```
 
 #### Rt\_stat service ####
@@ -298,7 +298,7 @@ $> rostopic echo /kheops\_action/rt_token
 * For example, to read global information for action script, run : 
 
 ```console
-$> rosservice call /kheops\_action/rt\_stat
+$> rosservice call /kheops_action/rt\_stat
 ```
 
 ### Rostopic section ###
@@ -316,7 +316,7 @@ $> rostopic list
 * To stream the contents of a rostopic, run :
 
 ```console
-$> rostopic echo /kheops\_script\_name/topic\_name
+$> rostopic echo /kheops_script_name/topic_name
 ```
 
 #### Output Topic ####
@@ -331,7 +331,7 @@ $> rostopic echo /kheops\_script\_name/topic\_name
   2. The suffix is the UUID of the object
   3. An underscore is used as a separator
 
-* For example, the output of the link {64a9913c-ac60-4b2a-bbd6-f0c868190b3f} from the action script will be : **_/kheops\_action/link_{64a9913c-ac60-4b2a-bbd6-f0c868190b3f}_** 
+* For example, the output of the link {64a9913c-ac60-4b2a-bbd6-f0c868190b3f} from the action script will be : **_/kheops\_action/link\_64a9913c-ac60-4b2a-bbd6-f0c868190b3f_** 
 
 * __SCALAR__ topic are simply a ros standard message __Float64__ 
 * __MATRIX__ topic are a ros standard message __Float64MultipleArray__
@@ -349,51 +349,33 @@ $> rostopic echo /kheops\_script\_name/topic\_name
   4. float64 sleep : time spend to sleep
   5. float64 duration : execution time
   6. float64 start : date when last run was started
-  7. bool warning : real time constraint wasn't respected (duration > period)
+  7. float64 minDuration : better period 
+  8. float64 maxDuration : worst period
+  9. bool warning : real time constraint wasn't respected (duration > period)
 
 * Oscillo topics uses __OscilloArray__ message defined in hieroglyph.
 * An __OscilloArray__ message is an array of __OscilloData__ message
 * One __OscilloData__ message for each function in the script 
 
-## V Kernel developpers guide ##
+* To create oscillo topic : 
 
-* TODO
+```console
+$> rosservice call /kheops_action/oscillo start
+```
 
-* Kernel Object : 
-1. Runner : 
-2. FRunner : 
-3. RtToken : 
-4. kLink : 
-5. iLink (and iLinkBase) : 
-6. Input (and inputBase) : 
-7. Function : 
+* Then to print the value : 
 
-* Object : link, input an Function
+```console
+$> rostopic echo /kheops_action/oscillo
+```
 
-* Using Input and iLink 
+## V Functions developpers guide ##
 
-* Sparse Matrix : Connections is define is a Sparse Matrix Filter and we can generate every topology
+* Main information are provided in the alexandria software description. See [Functions developper's guide](https://github.com/instar-robotics/alexandria/blob/master/README.md#functions-developpers-guide).
 
-* Matrix_Matrix have 3 types of connections
-  1. One to All connections (ONE_TO_ALL) : Dense connections between input and output 
-  2. One to One connections (ONE_TO_ONE) : Sparse conenction between input and output 
-  3. One to Neighborhood connections (ONE_TO_NEI) : Sparse conenction between input and output 
+## VI Neurals developpers guide ##
 
-* IScalar
-* ISMatrix
-* IMMatrix
-1. Weight
-2. Filter
-
-* UUID definition
-
-## VI Functions developpers guide ##
-
-* Main information are provided in the alexandria software description. 
-
-## VII Neurals developpers guide ##
-
-* Main information are provided in the papyrus software description. 
+* Main information are provided in the Papyrus software description. See [Papyrus-How to use](https://github.com/instar-robotics/papyrus#how-to-use).
 
 
 
