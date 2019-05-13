@@ -121,17 +121,22 @@ void Kernel::load_links()
 	{
 		for( auto input = funct->second.inputs.begin(); input != funct->second.inputs.end(); input++)
 		{
-			//TODO : check here Input type
 			for( auto link = input->second.links.begin(); link !=  input->second.links.end(); link++)
 			{
+				//if  Link is not a constant : 
+				// - add a klink 
+				// - create the ilink
 				if( !xs.isLinkCst(*link) )
 				{
 					add_klink( funct->second.uuid , *link );
+				      	add_ilink( input->second.uuid , *link );
 				}
-				//TODO : check that input is not a string !
-				// BUT this is creapy ! 
-				// Add check type INPUT instead!
-				if( link->value.size() == 0 ) add_ilink( input->second.uuid , *link );
+				// if link is a constant : check that is not a String 
+				//  - create the ilink to the CST
+				else if(  xs.constants[link->uuid_pred].type != "STRING" )
+				{
+				       	add_ilink( input->second.uuid , *link );
+				}
 			}
 		}
 	}	 	
@@ -190,6 +195,7 @@ void Kernel::add_function( const XFunction& xf)
 		f->set_pub_name(xf.topic_name);
 		f->set_publish(xf.publish);
 		f->set_save(xf.save);
+		f->comment(xf.commented);
 
 		if( f->type() == typeid(MATRIX).hash_code()) 		
 		{
@@ -708,6 +714,8 @@ void Kernel::bind(IString& value,const std::string& var_name,const std::string& 
 
         if( xs.isLinkCst( xs.functions[uuid].inputs[var_name].links[0]) )
         {
+		//TODO : change in XML the place of String value 
+		// have no sense to store the value in Link ! Store the value in Cst object
                 value = xs.functions[uuid].inputs[var_name].links[0].value; 
         }
         else throw std::invalid_argument( "Kernel : string input have to be constant");
@@ -756,6 +764,24 @@ bool Kernel::save_activity(const std::string& uuid, bool state)
 }
 
 /*******************************************************************************************************/
+/******************                          Comment                                  ******************/
+/*******************************************************************************************************/
+
+bool Kernel::comment(const std::string& uuid, bool state)
+{
+	        bool ret = true;
+        if( node_map.find( uuid ) != node_map.end() )
+        {
+                Function *f =  boost::get(boost::vertex_function , graph)[ node_map[uuid]];
+
+                if( f != NULL ) f->comment(state);
+                else ret = false;
+        }
+
+        return ret;
+}
+
+/*******************************************************************************************************/
 /****************** 			Objects Section 			      ******************/
 /*******************************************************************************************************/
 
@@ -796,22 +822,38 @@ void Kernel::get_rt_token(std::vector<std::string> & objects)
 	objects.push_back("rt_token:"+rttoken.getUuid());
 }
 
+
+bool Kernel::find_function(const std::string& uuid)
+{
+	return (node_map.find( uuid ) != node_map.end());
+}
+
+bool Kernel::find_link(const std::string& uuid)
+{
+	return (ilinks.find( uuid ) != ilinks.end());
+}
+
+bool Kernel::find_rttoken(const std::string& uuid)
+{
+        return ( uuid == rttoken.getUuid());
+}
+
 bool Kernel::find_object(const std::string& uuid)
 {
 	bool ret = false;
 
 	// Active RtToken Output
-        if( uuid == rttoken.getUuid() )
+        if( find_rttoken(uuid) )
         {
 		ret = true;
         }
         // Active Function Output
-        else if( node_map.find( uuid ) != node_map.end() )
+        else if( find_function(uuid) )
         {
 		ret = true;
         }
         // Active ilink Output
-        else if( ilinks.find( uuid ) != ilinks.end() )
+        else if( find_link(uuid) )
         {
 		ret = true;
         }
@@ -1154,10 +1196,18 @@ void Kernel::active_save_activity(const std::string& uuid, bool order)
 	if( !state ) resume();
 }
 
-
 void Kernel::update_wait_delay()
 {
 	singleton.wait_delay = default_wait_delay + singleton.rttoken.getMaxDuration() * 1000;
+
+}
+
+void Kernel::active_comment(const std::string& uuid, bool order)
+{
+	bool state = is_pause();
+	pause();
+	singleton.comment(uuid,order);
+	if( !state ) resume();
 }
 
 void Kernel::iBind( InputBase& value,const std::string& var_name,const std::string& uuid )

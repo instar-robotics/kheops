@@ -62,30 +62,62 @@ void Function::publish_data()
         }
 }
 
+void Function::compute_inhibition()
+{
+	if( inhib.size() > 0 ) 
+	{
+		if( inhib()() >= 1.0 )
+		{	
+			inhibStren = 1.0;
+			isInhib = true;
+		}
+		else
+		{
+		       	isInhib = false;
+			inhibStren = inhib()();
+			if( inhibStren < 0) inhibStren = 0;
+		}
+	}
+}
+
+void Function::kcompute()
+{
+	compute_inhibition();
+
+	if( !isInhib && !isComment) compute();
+
+	if( isComment ) apply_comment();
+	else apply_inhibition();
+}
+
 void Function::ksetparameters()
 {
 	checkShape();
+	Kernel::iBind(inhib,"inhib",uuid);
 	setparameters();
 }
 
 void Function::kexec_afterCompute()
 {
-	// Buffer input
-	// Send debug output [ROS Topic ] ...
-	copy_buffer();
-	publish_data();
-	
-	if( is_publish_active() )
+	if( !isInhib && !isComment ) 
 	{
-		publish_activity();
-	}
+		// Buffer input
+		// Send debug output [ROS Topic ] ...
+		copy_buffer();
+		publish_data();
+		
+		if( is_publish_active() )
+		{
+			publish_activity();
+		}
 
-	// Save Activity
-	if( is_save_active() )
-	{
-		save_activity();
+		// Save Activity
+		if( is_save_active() )
+		{
+			save_activity();
+		}
+		exec_afterCompute();
 	}
-	exec_afterCompute();
 }
 
 void Function::kprerun()
@@ -105,6 +137,11 @@ void Function::kprerun()
 	active_publish(is_publish_active());
 
 	prerun();
+}
+
+void Function::comment(bool state)
+{
+	isComment = state;
 }
 
 /*******************************************************************************************************/
@@ -213,6 +250,17 @@ void FTemplate<T>::save_activity()
 		serializer.write(output);		
 }
 
+template<class T>
+void FTemplate<T>::apply_comment()
+{
+	output *= 0;
+}
+
+template<class T>
+void FTemplate<T>::apply_inhibition()
+{
+	output *= (1 - inhibStren);
+}
 /*******************************************************************************************************/
 /********************************************* FMATRIX *************************************************/
 /*******************************************************************************************************/

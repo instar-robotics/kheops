@@ -56,8 +56,7 @@ void XmlConverter::__convertXmlToFunction(const ptree &tree, XFunction &f)
         try{
                 std::string save  = tree.get<std::string>("save");
                 if( save == "true" ) f.save = true;
-                else if( save == "false" ) f.save = false;
-                else throw std::invalid_argument("XML : \"save\" attribute is boolean, value must be \"true\" or \"false\" ");
+                else if( save != "false" ) throw std::invalid_argument("XML : \"save\" attribute is boolean, value must be \"true\" or \"false\" ");
         }
         catch(std::invalid_argument e){throw;}
         catch(...){}
@@ -75,6 +74,15 @@ void XmlConverter::__convertXmlToFunction(const ptree &tree, XFunction &f)
         {
                 f.topic_name = tree.get<std::string>("publish.<xmlattr>.topic");
         }
+
+	f.commented = false;
+	try{
+		std::string com = tree.get<std::string>("<xmlattr>.commented");
+                if( com == "true" ) f.commented = true;
+                else if( com != "false" ) throw std::invalid_argument("XML : \"commented\" attribute is boolean, value must be \"true\" or \"false\" ");
+	}
+        catch(std::invalid_argument e){throw;}
+        catch(...){}
 
         f.rows = 0;
         f.cols = 0;

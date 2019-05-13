@@ -86,6 +86,39 @@ void RosInterface::registerListener()
 	sObjects = n.advertiseService( name+"/"+CMD[C_OBJECTS], &RosInterface::callback_objects, this);
 	sRtToken = n.advertiseService( name+"/"+CMD[C_RTTOKEN] , &RosInterface::callback_rt_token, this);
 	sActivity = n.advertiseService( name+"/"+CMD[C_ACTIVITY] ,&RosInterface::callback_activity,this);
+	sComment = n.advertiseService( name+"/"+CMD[C_COMMENT] ,&RosInterface::callback_comment,this);
+}
+
+bool RosInterface::callback_comment(hieroglyph::ArgCmd::Request& request,hieroglyph::ArgCmd::Response& response)
+{
+	Request r;
+        r.id_cmd = C_COMMENT;
+
+        if( request.cmd ==  CARG[S_TRUE] )
+        {
+                if(  Kernel::instance().find_function( request.arg ))
+                {
+                        r.id_arg = S_TRUE;
+                        r.args.push_back( request.arg );
+                        response.ret =  CARG[S_TRUE]+" : "+request.arg;
+                        qrequest.push(r);
+                }
+                else response.ret = RETURN[1];
+        }
+        else if( request.cmd == CARG[S_FALSE])
+        {
+                if(  Kernel::instance().find_function( request.arg ))
+                {
+                        r.id_arg = S_FALSE;
+                        r.args.push_back( request.arg );
+                        response.ret =  CARG[S_FALSE]+" : "+request.arg;
+                        qrequest.push(r);
+                }
+                else response.ret = RETURN[1];
+        }
+        else  response.ret = RETURN[0];
+
+	return true;
 }
 
 bool RosInterface::callback_activity(hieroglyph::ArgCmd::Request& request,hieroglyph::ArgCmd::Response& response)
@@ -95,7 +128,7 @@ bool RosInterface::callback_activity(hieroglyph::ArgCmd::Request& request,hierog
 
         if( request.cmd ==  CARG[S_START] )
         {
-                if(  Kernel::instance().find_object( request.arg ))
+                if(  Kernel::instance().find_function( request.arg ))
                 {
                         r.id_arg = S_START;
                         r.args.push_back( request.arg );
@@ -106,7 +139,7 @@ bool RosInterface::callback_activity(hieroglyph::ArgCmd::Request& request,hierog
         }
         else if( request.cmd == CARG[S_STOP])
         {
-                if(  Kernel::instance().find_object( request.arg ))
+                if(  Kernel::instance().find_function( request.arg ))
                 {
                         r.id_arg = S_STOP;
                         r.args.push_back( request.arg );

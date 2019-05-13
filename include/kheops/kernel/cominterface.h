@@ -57,10 +57,13 @@
 *  9- save_activity :
 *  	a- start 'uuid' (start saving function's activity into SHM)
 *  	b- stop 'uuid' (stop saving function's activity into SHM)
+*  10- comment : 
+*  	a- true 'uuid' (comment the function : stop to run compute and after_compute)  	
+*  	b- false 'uuid' (uncomment the function)
 ********************************************************************************/
 
 const std::string RETURN[] = {"unknown command","unknown uuid"};
-const std::string CMD[] = {"help","control","weight","rt_stat","output","oscillo","objects","rt_token","save_activity"};
+const std::string CMD[] = {"help","control","weight","rt_stat","output","oscillo","objects","rt_token","save_activity","comment"};
 
 const int C_HELP=0; 
 const int C_CONTROL=1; 
@@ -71,8 +74,9 @@ const int C_OSCILLO=5;
 const int C_OBJECTS=6; 
 const int C_RTTOKEN=7; 
 const int C_ACTIVITY=8; 
+const int C_COMMENT=9; 
 
-const std::string CARG[] = {"resume","quit","pause","status","path" ,"save","load","start","stop","all","rt_token","function","input","ilink","activity"};
+const std::string CARG[] = {"resume","quit","pause","status","path" ,"save","load","start","stop","all","rt_token","function","input","ilink","activity","true","false"};
 
 const int S_RESUME=0; 
 const int S_QUIT=1; 
@@ -89,6 +93,8 @@ const int S_FUNCTIONS=11;
 const int S_INPUTS=12;
 const int S_ILINKS=13;
 const int S_ACTIVITY=14;
+const int S_TRUE=15;
+const int S_FALSE=16;
 
 
 struct Request

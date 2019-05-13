@@ -60,7 +60,7 @@ void FRunner::exec()
 		if(is_oscillo_active()) start = std::chrono::system_clock::now();
 
 		try{	
-			f->compute();
+			f->kcompute();
 		}
 		catch(std::exception& e)
 		{

@@ -150,6 +150,9 @@ class Kernel
 		// Save activity  		
 		bool save_activity(const std::string& uuid, bool state);
 
+		// Active/deactive comment
+		bool comment(const std::string& uuid, bool state);
+
 		//Objects
 		void get_objects(std::vector<std::string> & objects);
 		void get_inputs(std::vector<std::string> & objects);
@@ -157,6 +160,9 @@ class Kernel
 		void get_functions(std::vector<std::string> & objects);
 		void get_rt_token(std::vector<std::string> & objects);
 		bool find_object(const std::string& uuid);
+		bool find_function(const std::string& uuid);
+		bool find_link(const std::string& uuid);
+		bool find_rttoken(const std::string& uuid);
 
 		//Publish
 		// Active publishing of the object defined by UUID
@@ -187,6 +193,7 @@ class Kernel
 		static void active_oscillo(bool order);
 		static void active_output(const std::string& uuid, bool order);
 		static void active_save_activity(const std::string& uuid, bool order);
+		static void active_comment(const std::string& uuid, bool order);
 		static void active_rt_token(bool order);
 		static void update_wait_delay();
 

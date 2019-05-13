@@ -50,7 +50,8 @@ class RosInterface : public ComInterface{
 		ros::ServiceServer sObjects;
 		ros::ServiceServer sRtToken;
 		ros::ServiceServer sActivity;
-		ros::ServiceServer sGetControlStatus;
+		ros::ServiceServer sComment;
+		//ros::ServiceServer sGetControlStatus;
 		
 		RosInterface(){}
 
@@ -67,6 +68,7 @@ class RosInterface : public ComInterface{
 		virtual void _init(int argc, char ** argv, std::string prog_name, std::string script_name);
 		virtual void _setDefaultName(std::string& str);
 
+		bool callback_comment(hieroglyph::ArgCmd::Request& request, hieroglyph::ArgCmd::Response& response);
 		bool callback_activity(hieroglyph::ArgCmd::Request& request, hieroglyph::ArgCmd::Response& response);
 		bool callback_rt_token(hieroglyph::SimpleCmd::Request& request, hieroglyph::SimpleCmd::Response& response);
 		bool callback_objects(hieroglyph::Objects::Request& request, hieroglyph::Objects::Response& response);
