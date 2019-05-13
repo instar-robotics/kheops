@@ -4,8 +4,8 @@
 
 ## I Description ##
 
-* What is kheops : a Neural Network and Dynamical Function simulator
-  1. A neural network is reprented by a graph strucutre.
+* Kheops is a Neural Network and Dynamical function simulator
+  1. A neural network is reprented by a graph strucutre described in an XML file called a neural script
   2. Each neurons layer or group are graph vertex and are connected to other layer by link (edge of the graph).
   3. The weight of the neurons are contains into the link.
   4. And neural activities are propagated accros the link.
@@ -20,104 +20,97 @@
   4. Each function is exectued by his runner and spread the wave accros output link.
   5. When the last layer is executed, kheops sleeps until the new period.
 
-* Neural Network graph are described in an XML file called a neural script (the scruture of the XML file is described in section : Neural Script developpers guide)
-* Kheops should be use in interaction with Papyrus, an IHM design to generate neural script.
 * Kheops is designed to be used in online environnement, mainly to design robotics controller.
-* Kheops uses ROS communication tools to stream data betwwen different neural script, get sensors data and send motor orders.
-* Kheops is strongly typed : each function could be Scalar type or Matrix type (Eigen Matrix)
+
+* Kheops are based on [ROS](http://www.ros.org/):
+  1. scripts communicate with one another through ROS topics   
+  2. live visualization is achieved by having functions publish their outputs in a ROS topic  
+  3. ROS services are used to control scripts execution
+
+* Kheops should be use in interaction with [Papyrus](https://github.com/instar-robotics/papyrus) GUI to create, edit and debug neural script 
+
 
 ## II- Installation ##
 
+Kheops is a part of the Kheops/Papyrus software containing 4 components : Kheops, [Papyrus](https://github.com/instar-robotics/papyrus), [Alexandria](https://github.com/instar-robotics/alexandria) and [Hieroglyph](https://github.com/instar-robotics/hieroglyph)
+
+Please see [Papyrus's how-to-install](https://github.com/instar-robotics/papyrus/blob/master/README.org#how-to-install) tutorial for a Kheops/Papyrus full installation.
+
+or See below for a Kheops standlone installation.
+
+
+## III- Standalone Installation ##
+
+Standalone installation is useful to install Kheops without Papyrus GUI on devices like mobile robots.
+
 ### Dependancy ###
-* ubuntu 16.04 or 18.04 (we recommand to use 18.04 the last LTS)
 * cmake 3.5
-* libboost 1.58
-* libboost BGL 1.58
-* libboost SYSTEM  1.58
-* libboost FILESYSTEM  1.58
-* libboost SERIALIZATION  1.58
+* libboost (BGL, SYSTEM, FILESYSTEM, SERIALIZATION) at least 1.58
 * libeigen 3.3
-* ROS Lunar or Melodic (we recommand to use Melodic, the current LTS)
-* hieroglyph 1.0
-* ROS diagnostic_msgs
+* ROS Melodic 
 
 ### Install dependancies ###
-* On ubuntu 16.04 : 
+* Installation has been tested on __ubuntu 18.04__  
+* For __ROS Melodic__ installation and workspace configuration, please refer to : http://wiki.ros.org/melodic/Installation/Ubuntu or to [Papyrus's how-to-install](https://github.com/instar-robotics/papyrus/blob/master/README.org#how-to-install) tutorial.
 
-**_apt-get update_**
+* Kheops dependancies : 
 
-**_apt-get install cmake libeigen3-dev libboost-graph-dev libboost-graph1.58.0 libboost-all-dev libboost-all-dev libboost1.58-dev_**
+```console
+$> apt-get update
+$> apt-get install cmake libeigen3-dev libboost-graph-dev libboost-graph1.65.1 libboost-all-dev libboost-all-dev libboost1.65-dev ros-melodic-diagnostics
+```
 
-* On ubuntu 18.04 : 
+* Alexandria dependancies : 
 
-**_apt-get update_**
+```console
+$> apt-get install ros-melodic-joy ros-melodic-tf2
+```
 
-**_apt-get install cmake libeigen3-dev libboost-graph-dev libboost-graph1.65.1 libboost-all-dev libboost-all-dev libboost1.65-dev_**
+### Install Kheops and Alexandria ###
 
-* For __ROS Lunar__ installation and workspace configuration, please refer to : http://wiki.ros.org/lunar/Installation/Ubuntu
+* For the next section, we admit you :
+  1. have install __ROS__ and configure a workspace using __catkin_make__
+  2. Kheops and Alexandria dependancies are installed
 
-* For __ROS Melodic__ installation and workspace configuration, please refer to : http://wiki.ros.org/melodic/Installation/Ubuntu
+* To fetch the sources:
 
-* Install __ROS diagnostics_msgs__ : 
+```console
+$> cd ~/CATKIN_WS/PATH/src
+$> git clone https://github.com/instar-robotics/kheops.git
+$> git clone https://github.com/instar-robotics/alexandria.git
+$> git clone https://github.com/instar-robotics/hieroglyph.git
+```
 
-**_apt-get install ros-melodic-diagnostic-msgs__**   [or ros-lunar-diagnostic-msgs]
+* Then we build the whole workspace:
+```console
+$> cd ~/CATKIN_WS/PATH/
+$> catkin_make
+```
 
-* For the next section, we admit you have install __ROS __ and configure a workspace using catkin_make
-* The workspace directory will be :
+## III Run kheops in standalone mode ##
 
-**_/home/johndoe/catkin_workspace_**
-
-* For __hieroglyph__ installation, please go to : https://github.com/instar-robotics/hieroglyph
-* For the next step, we assume you have __hieroglyph__ install in your catkin\_workspace (home/johndoe/catkin\_workspace/src/hieroglyph)
-
-### Install Kheops ###
-* clone the repository in your catkin workspace :
-
-**_cd /home/johndoe/catkin_workspace/src_**
-
-**_git clone https://github.com/instar-robotics/kheops.git_**
-
-* go to your root catkin workspace :
-
-**_cd /home/johndoe/catkin_workspace_**
-
-* And run **_catkin_make_**
-
-### Building User functions libraries
-
-* For example, we create user_src directory with a demofct inside 
-* Users who want to build could reuse the example
-
-* To build __demofct__, go to the demofct directory :
-
-**_cd /home/johndoe/catkin_workspace/src/kheops/user_src/demofct_**
-
-* then, run the classical cmake/make command : 
-
-**_cmake \._**
-
-**_make_**
-
-* After the compilation, you get a __libdeomfct.so__
-* You can copy this file in your library directory and run kheops with -l option (see __Run__ section)
-
-## III Run kheops ##
+Note : For beginners, we recommand to start with the full installation and run Kheops using Papyrus GUI ! 
 
 ### Run Kheops : quick version ###
 
-* Kheops is builded on top of ROS system. (In futur version, kheops will support other bus like dbus/yarp) 
+* Kheops is builded on top of ROS system.
 * Kheops need roscore to run properly. 
 * Launch roscore with :
 
-**_roscore_**
+```console
+$> roscore
+```
+* print Kheops help menu 
+
+```console
+$> rosrun kheops kheops -h
+```
 
 * To run kheops you can use __rosrun__ command :
 
-**_rosrun kheops kheops -s path-to-script-file_**
-
-* print Help menu 
-
-**_rosrun kheops kheops -h_**
+```console
+$> rosrun kheops kheops -s path-to-script-file_ -l path/to/alexandria/lib
+```
 
 * Launch script and load weight from weight_file to the neural network
 
