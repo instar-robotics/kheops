@@ -117,6 +117,25 @@ void Function::kexec_afterCompute()
 			save_activity();
 		}
 		exec_afterCompute();
+		inhibitionLastPublish = false;
+	}
+	else 
+	{
+		// Inhibition or Comment :
+		// Need to publish and save activity once  before inhibate the topic and save
+		if( ! inhibitionLastPublish )
+		{
+			if( is_publish_active() )
+			{
+				publish_activity();
+			}
+			// Save Activity
+			if( is_save_active() )
+			{
+				save_activity();
+			}
+			inhibitionLastPublish = true;
+		}
 	}
 }
 

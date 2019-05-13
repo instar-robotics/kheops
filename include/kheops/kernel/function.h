@@ -52,9 +52,10 @@ class Function
 		SCALAR inhibStren;
 
 		bool isComment;
+		bool inhibitionLastPublish;
 
 	public : 
-		Function(): publish(false),save(false), isInhib(false),inhibStren(0),isComment(false){}
+		Function(): publish(false),save(false), isInhib(false),inhibStren(0),isComment(false), inhibitionLastPublish(false){}
 		virtual ~Function();
 
 		virtual size_t type() = 0;
