@@ -38,8 +38,7 @@ Please see [Papyrus's how-to-install](https://github.com/instar-robotics/papyrus
 
 or See below for a Kheops standlone installation.
 
-
-## III- Standalone Installation ##
+## III- Standalone Installation ##
 
 Standalone installation is useful to install Kheops without Papyrus GUI on devices like mobile robots.
 
