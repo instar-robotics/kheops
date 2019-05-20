@@ -41,18 +41,18 @@ void RosInterface::destroy()
     }
 }
 
-void RosInterface::_init(int argc, char ** argv, std::string prog_name, std::string script_name)
+void RosInterface::_init(int argc, char ** argv, std::string prog_name, std::string script_name, uint32_t options)
 {
 	name = prog_name+"_"+script_name;
-        ros::init(argc, argv, name);
+        ros::init(argc, argv, name, options);
 
 	ros::Time::init();
         while (!ros::master::check())
         {
-                std::cout << "waiting..." << std::endl;
+                ROS_INFO_ONCE( "waiting rosmaster...");
                 ros::Duration(0.5).sleep();
         }
-        std::cout << "master started!" << std::endl;
+        ROS_INFO("rosmaster started!");
 }
 
 int RosInterface::enter()

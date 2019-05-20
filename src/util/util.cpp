@@ -19,7 +19,7 @@
   along with dogtag. If not, see <http://www.gnu.org/licenses/>.
 */
 
-
+#include <sstream>
 #include <sys/types.h>
 #include <dirent.h>
 #include <errno.h>
@@ -27,13 +27,14 @@
 #include <boost/filesystem.hpp>
 #include "kheops/util/util.h"
 
-int getdir (std::string dir, std::vector<std::string> &files)
+void getdir (std::string dir, std::vector<std::string> &files)
 {
     DIR *dp;
     struct dirent *dirp;
     if((dp  = opendir(dir.c_str())) == NULL) {
-        std::cout << "Error(" << errno << ") opening " << dir << std::endl;
-        return errno;
+	std::stringstream buf ;
+	buf << "Error(" << errno << ") opening " << dir ;
+	throw std::invalid_argument(buf.str());
     }
 
     while ((dirp = readdir(dp)) != NULL) {
@@ -43,7 +44,6 @@ int getdir (std::string dir, std::vector<std::string> &files)
         if( file != ".."  && file != ".") files.push_back( std::string(dirp->d_name));
     }
     closedir(dp);
-    return 0;
 }
 
 bool check_file_extension(const std::string& path, const std::string& extension )

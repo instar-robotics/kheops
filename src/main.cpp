@@ -38,6 +38,8 @@
 #include "kheops/ros/rosinterface.h"
 #include "kheops/util/util.h"
 
+#include "ros/console.h"
+
 const std::string KHEOPS_LIB_PATH = "KHEOPS_LIB_PATH";
 
 void signals_handler(int number)
@@ -45,22 +47,19 @@ void signals_handler(int number)
   switch (number)
   {
     case SIGINT:
-      	syslog( LOG_LOCAL0|LOG_LOCAL0 , "KHEOPS SIGINT received : interruption " );
+      	ROS_INFO("KHEOPS SIGINT received : interruption " );
       	break;
     case SIGTERM :
-        syslog( LOG_LOCAL0|LOG_LOCAL0 , "KHEOPS SIGTERM received : terminaison" );
+        ROS_INFO ("KHEOPS SIGTERM received : terminaison" );
 	break;
     default : 
-	std::string mess = "KHEOPS received unknown SIGNAL" + number;
-  	syslog( LOG_LOCAL0|LOG_LOCAL0, "%s", mess.c_str());
+	ROS_INFO_STREAM("KHEOPS received unknown SIGNAL " << number );
 	break;
   }
 
+  ROS_INFO("KHEOPS kernel ask stop");
   Kernel::ask_quit();
-  Kernel::quit();
-  RosInterface::destroy();
-
-  syslog( LOG_LOCAL0|LOG_LOCAL0 , "KHEOPS signal handler end " );
+  ROS_INFO("KHEOPS signal handler end ");
 }
 
 void print_splash(void)
@@ -86,6 +85,7 @@ void print_help(void)
 	std::cout << "  -p : start running in pause mode " << std::endl;	
 	std::cout << "  -v : active verbose mode " << std::endl;	
 	std::cout << "  -i : ignore matrix check size integrity when load weigt file" << std::endl;	
+	std::cout << "  -d : disable /rosout topic " << std::endl; 
 }
 
 
@@ -98,6 +98,7 @@ int main(int argc, char **argv)
 	bool ignore_matrix_check = false;
 	int opt;
 	int ret = 0;
+	uint32_t ros_options = ros::init_options::NoSigintHandler;
 	
 	std::string script;
 	std::string libdir;
@@ -108,7 +109,7 @@ int main(int argc, char **argv)
 	std::string progname;
 	get_file_name( argv[0], progname);
 
-	while (((opt = getopt (argc, argv, "vphs:w:l:i")) != -1) && (opt != 255))
+	while (((opt = getopt (argc, argv, "vphs:w:l:id")) != -1) && (opt != 255))
 	{
 		switch( opt )	
 		{
@@ -122,62 +123,57 @@ int main(int argc, char **argv)
 			case 'w' :  weight = optarg ; break;
 			case 'l' :  libdir = optarg ; break;
 			case 'i' :  ignore_matrix_check = true ; break;
+			case 'd' :  ros_options +=  ros::init_options::NoRosout; break;
 			default : 
-				    std::cout << "Unkown option ! "  << std::endl;
+				    std::cerr << "Unkown option ! "  << std::endl;
 				    print_help();
 				    return 0;
 		}	
 	}
 	
-	
 	if( !run )
 	{
-		std::cout << "Fatal : need to load a XML Script file \n" << std::endl;
+		std::cerr << "Fatal : need to load a XML Script file \n" << std::endl;
 		print_help();
-
 		return 0;
 	} 	
-
-        // *************Signaux handler operation ****************
-	
-	sigfillset(&action.sa_mask);
-	action.sa_handler = signals_handler;
-  	action.sa_flags = 0;
-
-  	if (sigaction(SIGINT, &action, NULL ) != 0)
-	{
-		std::cerr << "Unable to redefine SIGINT signal" << std::endl;
-		syslog( LOG_LOCAL0|LOG_ERR , "Unable to redefine SIGINT signal" );
-		return 0;
-	}
-  	if (sigaction(SIGTERM, &action, NULL ) != 0)
-	{
-		std::cerr << "Unable to redefine SIGTERM signal" << std::endl;
-		syslog( LOG_LOCAL0|LOG_ERR , "Unable to redefine SIGTERM signal" );
-		return 0;
-	}
-
-        // ************* End Signaux handler operation *************
-
-	char* lib = secure_getenv(KHEOPS_LIB_PATH.c_str());
-
-	if( lib != NULL )
-	{
-		if( libdir.size() > 0 ) libdir+=":";
-		libdir.append(lib);
-	}
-
-	// *********************************************************
-	// Use Ros builder by default
-	RosInterface::build();
-
-	LibManager::init(libdir);
-	LibManager::load();
-
-	Kernel::init(script, weight, ignore_matrix_check);	
 	
 	try{
-		ComInterface::init( argc, argv, progname , Kernel::instance().getName() );	
+		Kernel::init(script, weight, ignore_matrix_check);	
+	
+		// Use Ros builder by default
+		RosInterface::build();
+		ComInterface::init( argc, argv, progname , Kernel::instance().getName() , ros_options );	
+		ROS_INFO_STREAM("Run : " << Kernel::instance().getName() << " script" );
+
+	        // *************Signaux handler operation ****************
+	
+		sigfillset(&action.sa_mask);
+		action.sa_handler = signals_handler;
+  		action.sa_flags = 0;
+
+  		if (sigaction(SIGINT, &action, NULL ) != 0)
+		{
+			throw std::invalid_argument("Unable to redefine SIGINT signal");
+		}
+  		if (sigaction(SIGTERM, &action, NULL ) != 0)
+		{
+			throw std::invalid_argument("Unable to redefine SIGTERM signal" );
+		}
+
+        	// ************* End Signaux handler operation *************
+		char* lib = secure_getenv(KHEOPS_LIB_PATH.c_str());
+
+		if( lib != NULL )
+		{
+			if( libdir.size() > 0 ) libdir+=":";
+			libdir.append(lib);
+		}
+
+		// *********************************************************
+
+		LibManager::init(libdir);
+		LibManager::load();
 
 		Kernel::load();
 		Kernel::prerun();
@@ -188,7 +184,7 @@ int main(int argc, char **argv)
 	}
 	catch (std::exception& e)
 	{
-		std::cerr << "FATAL. " <<  e.what() << std::endl;		
+		ROS_FATAL_STREAM( e.what() );		
 	}
 
 	Kernel::quit();

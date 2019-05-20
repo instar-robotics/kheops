@@ -29,7 +29,7 @@
 
 const uuid_t DUUID = {0,0,0,0};
 
-int getdir (std::string dir, std::vector<std::string> &files);
+void getdir (std::string dir, std::vector<std::string> &files);
 
 bool check_file_extension(const std::string& path, const std::string& extension);
 void get_file_extension(const std::string& path, std::string& extension);

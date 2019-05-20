@@ -65,7 +65,7 @@ class RosInterface : public ComInterface{
 
 		virtual int enter();
 		virtual void registerListener();
-		virtual void _init(int argc, char ** argv, std::string prog_name, std::string script_name);
+		virtual void _init(int argc, char ** argv, std::string prog_name, std::string script_name, uint32_t options = 0);
 		virtual void _setDefaultName(std::string& str);
 
 		bool callback_comment(hieroglyph::ArgCmd::Request& request, hieroglyph::ArgCmd::Response& response);

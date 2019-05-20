@@ -28,6 +28,8 @@
 #include "kheops/iostream/serialization.h"
 #include "kheops/links/imatrix.h"
 
+#include "ros/console.h"
+
 void WeightConverter::load(std::map<std::string, InputBase*> &inputs, bool ignore_check_size )
 {
 	std::string in_uuid;
@@ -71,8 +73,8 @@ void WeightConverter::load(std::map<std::string, InputBase*> &inputs, bool ignor
 
 							if(tmpM.rows() != itmp->getInitWRows() || tmpM.cols() != itmp->getInitWCols()) 
 							{
-								if( ignore_check_size ) std::cout << "Warning Load Weight : Weight Matrix Dimension in weight file don't match with the expected Weight Matrix dimension" << std::endl;
-								else  throw std::invalid_argument("Error Load Weight : Weight Matrix Dimension in weight file don't match with the expected Weight Matrix dimension");
+								if( ignore_check_size ) ROS_WARN("Load Weight : Weight Matrix Dimension in weight file don't match with the expected Weight Matrix dimension");
+								else  throw std::invalid_argument("Load Weight : Weight Matrix Dimension in weight file don't match with the expected Weight Matrix dimension");
 							}
 
 							unsigned int rows=std::min(tmpM.rows(), itmp->w().rows());
@@ -81,8 +83,8 @@ void WeightConverter::load(std::map<std::string, InputBase*> &inputs, bool ignor
 							
 							if(tmpF.rows() != itmp->getInitWRows() || tmpF.cols() != itmp->getInitWCols()) 
 							{
-								if( ignore_check_size ) std::cout << "Warning Load Weight : Filter Matrix Dimension in weight file don't match with the expected Filter Matrix dimension" << std::endl;
-								else  throw std::invalid_argument("Warning Load Weight : Filter Matrix Dimension in weight file don't match with the expected Filter Matrix dimension");
+								if( ignore_check_size ) ROS_WARN("Load Weight : Filter Matrix Dimension in weight file don't match with the expected Filter Matrix dimension");
+								else  throw std::invalid_argument("Load Weight : Filter Matrix Dimension in weight file don't match with the expected Filter Matrix dimension");
 							}
 							rows=std::min(tmpF.rows(), itmp->f().rows());
 							cols=std::min(tmpF.cols(), itmp->f().cols());
@@ -97,14 +99,15 @@ void WeightConverter::load(std::map<std::string, InputBase*> &inputs, bool ignor
 	}
 	}
  	catch (std::ifstream::failure e) {
-    		std::cout << "Unable to open \""+file+"\" WEIGHT file : weight will be not loaded." << std::endl;
+    		ROS_WARN_STREAM("Load Weight : Unable to open \"" << file << "\" WEIGHT file : weight will be not loaded.");
   	}
 	catch(boost::archive::archive_exception e )
 	{
+		std::exception_ptr eptr = std::current_exception() ;
+
 		in.close();
-    		std::cout << "Unable to read \""+file+"\" WEIGHT file : file is corrupted. weight will be not loaded." << std::endl;
-		std::cout << e.what() << std::endl;
-		exit(0);
+    		ROS_FATAL_STREAM("Unable to read \"" << file << "\" WEIGHT file : file is corrupted. weight will be not loaded.");
+		std::rethrow_exception(eptr);
 	}
 }
 
@@ -146,6 +149,6 @@ void WeightConverter::save(std::map<std::string, InputBase*> &inputs)
 		out.close();
 	}
  	catch (std::ofstream::failure e) {
-    		std::cout << "Unable to write "+file+" RES file : weight will be not saved." << std::endl;
+    		ROS_WARN_STREAM("Unable to write " << file << " RES file : weight will be not saved.");
   	}
 }

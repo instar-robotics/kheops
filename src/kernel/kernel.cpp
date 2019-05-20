@@ -34,6 +34,7 @@
 #include "kheops/kernel/cominterface.h"
 #include "kheops/ros/rospublisher.h"
 
+#include "ros/console.h"
 
 Kernel Kernel::singleton;
 
@@ -96,7 +97,7 @@ void Kernel::load_functions()
 	{
 		if(! Factory<Function>::Instance().is_register(it->second.name) )
 		{
-			std::cout << "Function "+it->second.name+" is not known. Try to load it" << std::endl;
+			ROS_INFO_STREAM( "Function "+it->second.name+" is not known. Try to load it" << std::endl );
 			LibManager::load(it->second.libname);	
 		}
 		
@@ -942,8 +943,6 @@ void Kernel::init(std::string script_file, std::string weight_file, bool ignore_
 	XmlConverter * xmlc = new  XmlConverter(script_file);
 	xmlc->loadScript(singleton.xs);
 	delete xmlc;
-
-	std::cout << "Run : " << singleton.xs.name << " script"<< std::endl;
 
 	singleton.init_rt_token();
 
