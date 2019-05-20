@@ -187,6 +187,7 @@ int main(int argc, char **argv)
 		ROS_FATAL_STREAM( e.what() );		
 	}
 
+	ROS_INFO_STREAM("Quit : " << Kernel::instance().getName() << " script" );
 	Kernel::quit();
 	RosInterface::destroy();
 
