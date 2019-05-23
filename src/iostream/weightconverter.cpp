@@ -19,15 +19,12 @@
   along with dogtag. If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #include <boost/archive/binary_iarchive.hpp>
 #include <boost/archive/binary_oarchive.hpp>
 #include <fstream>
-#include <iostream>
 #include "kheops/iostream/weightconverter.h"
 #include "kheops/iostream/serialization.h"
 #include "kheops/links/imatrix.h"
-
 #include "ros/console.h"
 
 void WeightConverter::load(std::map<std::string, InputBase*> &inputs, bool ignore_check_size )

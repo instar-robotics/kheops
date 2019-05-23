@@ -19,12 +19,9 @@
   along with dogtag. If not, see <http://www.gnu.org/licenses/>.
 */
 
-
-#include <iostream>
 #include <boost/filesystem.hpp>
 #include <exception>
 #include <stdexcept>
-
 #include "kheops/kernel/kernel.h"
 #include "kheops/kernel/factory.h"
 #include "kheops/kernel/libManager.h"
@@ -33,7 +30,6 @@
 #include "kheops/util/util.h"
 #include "kheops/kernel/cominterface.h"
 #include "kheops/ros/rospublisher.h"
-
 #include "ros/console.h"
 
 Kernel Kernel::singleton;

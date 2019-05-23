@@ -19,13 +19,10 @@
   along with dogtag. If not, see <http://www.gnu.org/licenses/>.
 */
 
-
-#include <iostream>
 #include <dlfcn.h>
 #include <boost/algorithm/string.hpp>
 #include "kheops/kernel/libManager.h"
 #include "kheops/util/util.h"
-
 #include "ros/console.h"
 
 LibManager LibManager::singleton;

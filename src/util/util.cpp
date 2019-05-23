@@ -23,7 +23,6 @@
 #include <sys/types.h>
 #include <dirent.h>
 #include <errno.h>
-#include <iostream>
 #include <boost/filesystem.hpp>
 #include "kheops/util/util.h"
 

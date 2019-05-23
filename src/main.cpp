@@ -19,8 +19,6 @@
   along with dogtag. If not, see <http://www.gnu.org/licenses/>.
 */
 
-
-#include <iostream>
 #include <cstdint>
 #include <unistd.h>
 #include <syslog.h>

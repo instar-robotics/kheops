@@ -21,11 +21,8 @@
 
 
 #include <exception>
-#include <iostream>
-
 #include "kheops/kernel/frunner.h"
 #include "kheops/kernel/kernel.h"
-
 #include "ros/console.h"
 
 void FRunner::exec()
