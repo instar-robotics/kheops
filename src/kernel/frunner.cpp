@@ -26,6 +26,8 @@
 #include "kheops/kernel/frunner.h"
 #include "kheops/kernel/kernel.h"
 
+#include "ros/console.h"
+
 void FRunner::exec()
 {
 	std::chrono::time_point<std::chrono::system_clock> start,end;
@@ -64,7 +66,7 @@ void FRunner::exec()
 		}
 		catch(std::exception& e)
 		{
-			std::cerr << "FATAL in Function.compute " << f->getUuid() << ". " <<  e.what() << std::endl;
+			ROS_FATAL_STREAM( "FATAL in Function.compute " << f->getUuid() << ". " <<  e.what() );
 			Kernel::ask_quit();
 			break;
 		}
@@ -78,7 +80,7 @@ void FRunner::exec()
 		}
 		catch(std::exception& e)
 		{
-			std::cerr << "FATAL in Function.exec_afterCompute " << f->getUuid() << ". " <<  e.what() << std::endl;
+			ROS_FATAL_STREAM("FATAL in Function.exec_afterCompute " << f->getUuid() << ". " <<  e.what());
 			Kernel::ask_quit();
 			break;
 		}

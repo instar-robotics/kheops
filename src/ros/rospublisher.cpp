@@ -31,14 +31,8 @@ void RosTopic<RosMessage>::open(const std::string &topic)
 {
 	if(!state)
 	{
-		try{
-			ros::NodeHandle n;
-			pub = n.advertise<RosMessage>( topic , size_queue, latch);
-		}catch(...)
-		{
-			std::cerr <<"FATAL : Error when open rostopic publisher." << std::endl;
-			throw;
-		}
+		ros::NodeHandle n;
+		pub = n.advertise<RosMessage>( topic , size_queue, latch);
 		state = true;
 	}
 }

@@ -47,8 +47,9 @@ void LibManager::load_lib(const std::string& name)
 		handle = dlopen (  it->second.c_str() , RTLD_LAZY);
 		if (!handle)
 		{
-		    std::cerr <<  dlerror() << std::endl;
-		    exit(1);
+		    std::stringstream buf ;
+		    buf << "LibManager : error when open library (" << dlerror() << ")"	;
+		    throw std::invalid_argument(buf.str());
 		}
 	}
 	else  throw std::invalid_argument("LibManager : unable to find "+name+" library ");

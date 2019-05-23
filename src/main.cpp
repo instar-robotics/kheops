@@ -83,7 +83,6 @@ void print_help(void)
 	std::cout << "  -w [FILE] : path to the binary file containing neural weights" << std::endl;	
 	std::cout << "  -l [DIR] : path to the directory containing the external libraries" << std::endl;	
 	std::cout << "  -p : start running in pause mode " << std::endl;	
-	std::cout << "  -v : active verbose mode " << std::endl;	
 	std::cout << "  -i : ignore matrix check size integrity when load weigt file" << std::endl;	
 	std::cout << "  -d : disable /rosout topic " << std::endl; 
 }
@@ -92,7 +91,6 @@ void print_help(void)
 int main(int argc, char **argv)
 {
 	struct sigaction action;
-	bool verbose = false;
 	bool resume = true;
 	bool run = false;
 	bool ignore_matrix_check = false;
@@ -114,7 +112,6 @@ int main(int argc, char **argv)
 		switch( opt )	
 		{
 			case 'p' :  resume=false;break;
-			case 'v' :  verbose=true;break;
 			case 'h' :  print_help(); return 0;
 			case 's' :
 				run = true;  
