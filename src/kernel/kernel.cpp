@@ -20,6 +20,8 @@
 */
 
 #include <boost/filesystem.hpp>
+#include <boost/graph/breadth_first_search.hpp>
+#include <boost/graph/copy.hpp>
 #include <exception>
 #include <stdexcept>
 #include "kheops/kernel/kernel.h"
@@ -296,9 +298,29 @@ void Kernel::create_rt_klink()
 		if( *it.first != rt_node && *it.first != debug_node)
 		{
 			auto it_out = boost::out_edges(*it.first, graph);
-			if( it_out.first == it_out.second)
+
+			// If not output link : add a rt_klink
+			if( it_out.first == it_out.second )
 			{
 				add_klink( *it.first, rt_node );
+			}
+			// If every output link are secondary : add a rt_klink
+			else
+			{
+				bool add = true;
+				for (; it_out.first != it_out.second; ++it_out.first) 
+				{
+					kLink * l = boost::get(boost::edge_klink, graph, *it_out.first);
+					if( l != NULL)
+					{
+						if( ! l->isSecondary() ) 
+						{
+							add =false;
+							break;
+						}
+					}
+  				}
+				if( add ) add_klink( *it.first, rt_node );
 			}
 		}
 	}
@@ -704,6 +726,36 @@ void Kernel::init_debug_node()
         boost::put(boost::vertex_function, graph, debug_node, (Function*)NULL);
 }
 
+void Kernel::load_debug_map()
+{
+  	std::vector<vertices_size> distances(boost::num_vertices(graph));
+
+        dist_pmap = boost::make_iterator_property_map(distances.begin(), boost::get(boost::vertex_index, graph));
+
+	auto vis = boost::make_bfs_visitor(boost::record_distances(dist_pmap, boost::on_tree_edge()));
+	
+	Graph::vertex_descriptor rt_node = rttoken.getNode();
+
+	Graph_debug dgraph;
+
+	boost::copy_graph(graph,dgraph,boost::vertex_copy(do_nothing()).edge_copy(do_nothing()));
+
+	boost::breadth_first_search(dgraph, vertex(rt_node, dgraph) , boost::visitor(vis));
+
+  std::cout << "order of graph: "<< std::endl;
+  for (int i = 0; i < boost::num_vertices(graph) ; i++)
+  {
+       if( i == rt_node) std::cout << rttoken.getUuid() << " " << dist_pmap[i] << " " << std::endl;
+       else
+       {
+        	Function *f = boost::get(boost::vertex_function, graph, i) ;
+		if( f != NULL ) 
+		{
+       			 std::cout << f->getUuid() << " " << dist_pmap[i] << " "<< std::endl;
+		}
+       }
+  }
+}
 
 /*******************************************************************************************************/
 /****************** 			Bind Section 				      ******************/
@@ -1070,6 +1122,9 @@ void Kernel::load()
         singleton.load_links();
         singleton.load_rttoken();
         singleton.load_weight();
+
+	// Temporary : 
+	singleton.load_debug_map();
 }
 
 void Kernel::prerun()

@@ -36,6 +36,8 @@ class kLink{
 		virtual void produce() = 0;
 		virtual void consume() = 0;
 
+		virtual bool isSecondary()=0;
+
 };
 
 class Passing_kLink : public kLink
@@ -46,6 +48,8 @@ class Passing_kLink : public kLink
 
                 virtual inline void produce() {}
                 virtual inline void consume() {}
+		
+		virtual bool isSecondary(){return true;}
 };
 
 class Synchronized_kLink : public kLink
@@ -55,11 +59,13 @@ class Synchronized_kLink : public kLink
                 std::condition_variable cv;
                 bool state;
 
+		bool secondary;
+
                 bool __is_produce() { return state;}
                 bool __is_consume() { return state == false;}
         public :
-                Synchronized_kLink() : kLink(),state(false)  {}
-                Synchronized_kLink(bool state) : kLink(), state(state)  {}
+                Synchronized_kLink() : kLink(),state(false),secondary(false)  {}
+                Synchronized_kLink(bool state) : kLink(), state(state),secondary(state) {}
                 ~Synchronized_kLink(){}
 
                 virtual void produce()
@@ -79,6 +85,8 @@ class Synchronized_kLink : public kLink
 				state = false;
                         }
                 }
+
+		virtual bool isSecondary(){return secondary;}
 
 };
 

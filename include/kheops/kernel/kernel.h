@@ -69,6 +69,7 @@ class Kernel
 		std::map<std::string,std::string> input_to_funct;
 		
 		Graph::vertex_descriptor debug_node;
+		property_map_type dist_pmap;
 		
 		XScript xs;
 
@@ -136,6 +137,7 @@ class Kernel
 		void wait_for_pause_runners();
 
 		void init_debug_node();
+		void load_debug_map();
 
 		void bind( InputBase& value,const std::string& var_name,const std::string& uuid );
 		void bind( IString& value,const std::string& var_name,const std::string& uuid );
