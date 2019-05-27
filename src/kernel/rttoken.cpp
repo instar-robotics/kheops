@@ -145,7 +145,7 @@ void RtToken::sync_all()
         {
             Runner *r = boost::get(boost::vertex_runner, *g, *it.first);
 		
-            if( r != this) 
+            if( r != this && r!= NULL) 
 	    {                
           	dynamic_cast<FRunner*>(r)->sync();
        	    }
@@ -207,17 +207,20 @@ void RtToken::publish_oscillo()
 	    {
 		Function * f = boost::get(boost::vertex_function, *g, *it.first);
 		
-	    	OscilloMessage om( f->getUuid() );
-		om.period = getPeriod();
-		om.means = r->getMeanDuration();
-		om.sleep = r->getLastSleep();
-		om.duration = r->getLastDuration();
-		om.start = r->getLastStart(); 
-		om.minDuration = getMinDuration();
-		om.maxDuration = getMaxDuration();
-		om.warning = false;
+		if( f != NULL )
+		{
+	    		OscilloMessage om( f->getUuid() );
+			om.period = getPeriod();
+			om.means = r->getMeanDuration();
+			om.sleep = r->getLastSleep();
+			om.duration = r->getLastDuration();
+			om.start = r->getLastStart(); 
+			om.minDuration = getMinDuration();
+			om.maxDuration = getMaxDuration();
+			om.warning = false;
             	
-		o_pub->add( om );	
+			o_pub->add( om );	
+		}
 	    }
         }
 	o_pub->publish();

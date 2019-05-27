@@ -68,6 +68,8 @@ class Kernel
 		// string 1 : uuid input, string 2 : uuid function
 		std::map<std::string,std::string> input_to_funct;
 		
+		Graph::vertex_descriptor debug_node;
+		
 		XScript xs;
 
 		bool ignore_matrix_check;
@@ -105,6 +107,8 @@ class Kernel
 		void purge_output_ilinks(const std::string& uuid);
 
 
+		void add_klink(Graph::vertex_descriptor source, Graph::vertex_descriptor dest);
+		void del_klink(Graph::edge_descriptor e);
 		// string 1 : function uuid
 		void add_klink(const std::string& in_uuid,const XLink&);
 		// string 1 : link uuid
@@ -130,6 +134,8 @@ class Kernel
 		void quit_runners();
 		void wait_for_resume_runners();
 		void wait_for_pause_runners();
+
+		void init_debug_node();
 
 		void bind( InputBase& value,const std::string& var_name,const std::string& uuid );
 		void bind( IString& value,const std::string& var_name,const std::string& uuid );

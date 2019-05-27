@@ -41,24 +41,25 @@ Kernel::Kernel() : squit(false), k_pub(NULL), wait_delay(default_wait_delay)
 
 Kernel::~Kernel()
 {	
-	for( auto it = node_map.begin(); it != node_map.end(); it++)
+	for( auto it =  boost::vertices(graph) ; it.first != it.second; ++it.first)
 	{
-		Function *f = boost::get(boost::vertex_function , graph)[ it->second  ];
+		Function *f = boost::get(boost::vertex_function , graph)[ *it.first  ];
 		if( f != NULL ) delete(f);
 		
-		
-		if(it->first != rttoken.getUuid())
+		if( *it.first != rttoken.getNode())
 		{
-			Runner * runner = boost::get(boost::vertex_runner, graph)[it->second];
-			delete(runner);
+			Runner * runner = boost::get(boost::vertex_runner, graph)[*it.first];
+			if( runner != NULL ) delete(runner);
 		}
 	}
 	
-	for( auto it = edge_map.begin(); it != edge_map.end(); it++)
+	
+	for( auto it = boost::edges(graph); it.first != it.second; ++it.first)
 	{
-		kLink *l = boost::get(boost::edge_klink , graph)[ it->second  ];
+		kLink *l = boost::get(boost::edge_klink , graph)[ *it.first  ];
 		if( l != NULL ) delete(l);
 	}
+
 
 	for( auto it = ilinks.begin(); it != ilinks.end(); it++) 
 	{
@@ -120,20 +121,7 @@ void Kernel::load_links()
 		{
 			for( auto link = input->second.links.begin(); link !=  input->second.links.end(); link++)
 			{
-				//if  Link is not a constant : 
-				// - add a klink 
-				// - create the ilink
-				if( !xs.isLinkCst(*link) )
-				{
-					add_klink( funct->second.uuid , *link );
-				      	add_ilink( input->second.uuid , *link );
-				}
-				// if link is a constant : check that is not a String 
-				//  - create the ilink to the CST
-				else if(  xs.constants[link->uuid_pred].type != "STRING" )
-				{
-				       	add_ilink( input->second.uuid , *link );
-				}
+				add_ilink( input->second.uuid , *link );
 			}
 		}
 	}	 	
@@ -145,7 +133,6 @@ void Kernel::load_rttoken()
 	rttoken.set_oscillo_pub_name("oscillo");
 	update_rt_token_value(xs.rt);
 	create_rt_klink();
-	clear_rt_klink();
 }
 
 void Kernel::load_weight()
@@ -286,7 +273,6 @@ void Kernel::onRun_functions()
 
 void Kernel::init_rt_token()
 {
-	//TODO : choose if RtToken UUID is generated or read from the XML ?
 	std::string uuid = xs.rt.uuid;
 	Graph::vertex_descriptor rt_node = boost::add_vertex(graph);
 	boost::put(boost::vertex_runner, graph, rt_node, &rttoken);
@@ -307,25 +293,19 @@ void Kernel::create_rt_klink()
 	Graph::vertex_descriptor rt_node = rttoken.getNode();
 	for( auto it =  boost::vertices(graph) ; it.first != it.second; ++it.first)
         {
-		if( *it.first != rt_node)
+		if( *it.first != rt_node && *it.first != debug_node)
 		{
 			auto it_out = boost::out_edges(*it.first, graph);
 			if( it_out.first == it_out.second)
 			{
-				XLink xl; 
-				xl.uuid = generate_uuid();
-				xl.isSecondary = false;
-
-				Function *f =  boost::get(boost::vertex_function, graph,  *it.first   ) ;
-				if( f == NULL ) throw std::invalid_argument( "Kernel : try to add RT klink to a NULL Function " );
-				xl.uuid_pred = f->getUuid();
-
-				add_klink( rttoken.getUuid() , xl );
+				add_klink( *it.first, rt_node );
 			}
 		}
 	}
 }
 
+// INFO : Delete rt_klink doublon 
+// Only useful if we update graph at runtime  
 void Kernel::clear_rt_klink()
 {
 	Graph::vertex_descriptor rt_node = rttoken.getNode();
@@ -339,7 +319,7 @@ void Kernel::clear_rt_klink()
 		auto it_out = boost::out_edges(v, graph);
 		if( ++it_out.first != it_out.second ) 
 		{
-			del_klink( boost::get( boost::edge_uuid, graph, *it.first) );
+			del_klink(*it.first);
 		}
 	}
 }
@@ -348,10 +328,34 @@ void Kernel::clear_rt_klink()
 /******************* 		           kLink Section		   	   *********************/
 /*******************************************************************************************************/
 
+void Kernel::add_klink(Graph::vertex_descriptor source, Graph::vertex_descriptor dest)
+{
+	std::pair<Graph::edge_descriptor, bool> e = add_edge(source,dest,graph);
+	boost::put(boost::edge_klink, graph, e.first , new Synchronized_kLink());
+}
+
+void Kernel::del_klink(Graph::edge_descriptor e)
+{
+	std::string uuid_e = boost::get(boost::edge_uuid, graph, e);
+	auto it = edge_map.find(uuid_e);
+	if( it != edge_map.end())
+	{
+		edge_map.erase(it);
+	}
+
+	kLink * l = boost::get(boost::edge_klink, graph, e);
+	if(l != NULL) 
+	{
+		l->produce();
+		delete(l);
+	}
+	boost::remove_edge(e,graph);
+}
+
 void Kernel::add_klink(const std::string &in_uuid, const XLink& xl)
 {
-	if(  node_map.find( xl.uuid_pred ) == node_map.end()) throw  std::invalid_argument( "Kernel : try to add link with unkown source "+xl.uuid_pred );
-	if( node_map.find( in_uuid  ) == node_map.end()) throw  std::invalid_argument( "Kernel : try to add link with unkown target "+in_uuid );
+	if(  node_map.find( xl.uuid_pred ) == node_map.end()) throw  std::invalid_argument( "Kernel : try to add link to an unkown source (Function : "+xl.uuid_pred+")" );
+	if( node_map.find( in_uuid  ) == node_map.end()) throw  std::invalid_argument( "Kernel : try to add link to an unkown target (Function :"+in_uuid+")" );
 
 	if( edge_map.find( xl.uuid ) == edge_map.end() ) 
 	{
@@ -392,14 +396,14 @@ void Kernel::purge_klinks(const std::string& uuid)
 
 	for( ; it_out.first != it_out.second; ++it_out.first)
 	{
-		del_klink(  boost::get( boost::edge_uuid, graph, *it_out.first) );
+		del_klink( *it_out.first);
 	}
 
 	std::pair<in_edge_iterator, in_edge_iterator> it_in = boost::in_edges(node_map[uuid] , graph);
 
 	for( ; it_in.first != it_in.second; ++it_in.first)
 	{
-		del_klink(  boost::get( boost::edge_uuid, graph, *it_in.first) );
+		del_klink(  *it_in.first);
 	}
 }
 
@@ -409,15 +413,19 @@ void Kernel::purge_klinks(const std::string& uuid)
 
 void Kernel::add_ilink(const std::string& in_uuid, const XLink& xl)
 {
+	if( input_to_funct.find(in_uuid) == input_to_funct.end() ) throw std::invalid_argument( "Kernel : try to add ilink to an unbind input "+in_uuid);
+
 	// Control klink exist : non constant input and klink doesn't exist -> error 
 	if( !xs.isLinkCst(xl) )
 	{
-		if(edge_map.find( xl.uuid) == edge_map.end() ) throw std::invalid_argument( "Kernel : unable to find link "+xl.uuid );
-		if( node_map.find( xl.uuid_pred ) == node_map.end()) throw std::invalid_argument( "Kernel : try to add ilink from unkown function "+xl.uuid_pred );
+		add_klink( input_to_funct[in_uuid] , xl);
 	}		
-
-	if( input_to_funct.find(in_uuid) == input_to_funct.end() ) throw std::invalid_argument( "Kernel : try to add ilink to an unbind input "+in_uuid);
+	else if(  xs.constants[xl.uuid_pred].type == "STRING" ) // Nothing to do : return
+	{
+		return;
+	}
 	
+	// This is a SCALAR or MARTRIX cst : check Function exist
 	if( node_map.find( input_to_funct[in_uuid] ) == node_map.end()) throw std::invalid_argument( "Kernel : try to add ilink to unkown function "+input_to_funct[in_uuid] );
 
 	//TODO : replace by Builder and Factory 
@@ -685,6 +693,19 @@ void Kernel::wait_for_pause_runners()
 }
 
 /*******************************************************************************************************/
+/*****************                              DEBUG Section                         ******************/
+/*******************************************************************************************************/
+
+void Kernel::init_debug_node()
+{
+	debug_node = boost::add_vertex(graph);
+
+        boost::put(boost::vertex_runner, graph, debug_node, (Runner*)NULL);
+        boost::put(boost::vertex_function, graph, debug_node, (Function*)NULL);
+}
+
+
+/*******************************************************************************************************/
 /****************** 			Bind Section 				      ******************/
 /*******************************************************************************************************/
 
@@ -766,7 +787,7 @@ bool Kernel::save_activity(const std::string& uuid, bool state)
 
 bool Kernel::comment(const std::string& uuid, bool state)
 {
-	        bool ret = true;
+	bool ret = true;
         if( node_map.find( uuid ) != node_map.end() )
         {
                 Function *f =  boost::get(boost::vertex_function , graph)[ node_map[uuid]];
@@ -941,6 +962,7 @@ void Kernel::init(std::string script_file, std::string weight_file, bool ignore_
 	delete xmlc;
 
 	singleton.init_rt_token();
+	singleton.init_debug_node();
 
 	if( weight_file.size() == 0) 
 	{

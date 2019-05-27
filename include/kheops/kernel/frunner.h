@@ -26,7 +26,6 @@
 #include "kheops/kernel/runner.h"
 #include "kheops/kernel/function.h"
 
-
 class FRunner : public Runner
 {
         protected :
