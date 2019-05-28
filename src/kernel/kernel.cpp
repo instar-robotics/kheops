@@ -413,18 +413,18 @@ void Kernel::purge_klinks(const std::string& uuid)
 
 void Kernel::add_ilink(const std::string& in_uuid, const XLink& xl)
 {
-	if(  xs.constants[xl.uuid_pred].type == "STRING" ) // Nothing to do : return
+	// Control klink exist : non constant input and klink doesn't exist -> error 
+	if( !xs.isLinkCst(xl) )
+	{
+		add_klink( input_to_funct[in_uuid] , xl);
+	}		
+	else if(  xs.constants.at(xl.uuid_pred).type == "STRING" ) // Nothing to do : return
 	{
 		return;
 	}
 
 	if( input_to_funct.find(in_uuid) == input_to_funct.end() ) throw std::invalid_argument( "Kernel : try to add ilink to an unbind input "+in_uuid);
 
-	// Control klink exist : non constant input and klink doesn't exist -> error 
-	if( !xs.isLinkCst(xl) )
-	{
-		add_klink( input_to_funct[in_uuid] , xl);
-	}		
 	
 	// This is a SCALAR or MARTRIX cst : check Function exist
 	if( node_map.find( input_to_funct[in_uuid] ) == node_map.end()) throw std::invalid_argument( "Kernel : try to add ilink to unkown function "+input_to_funct[in_uuid] );
@@ -975,6 +975,7 @@ void Kernel::init(std::string script_file, std::string weight_file, bool ignore_
 	}
 
 	singleton.ignore_matrix_check = ignore_matrix_check;
+
 }
 
 
