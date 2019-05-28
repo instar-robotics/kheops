@@ -413,6 +413,11 @@ void Kernel::purge_klinks(const std::string& uuid)
 
 void Kernel::add_ilink(const std::string& in_uuid, const XLink& xl)
 {
+	if(  xs.constants[xl.uuid_pred].type == "STRING" ) // Nothing to do : return
+	{
+		return;
+	}
+
 	if( input_to_funct.find(in_uuid) == input_to_funct.end() ) throw std::invalid_argument( "Kernel : try to add ilink to an unbind input "+in_uuid);
 
 	// Control klink exist : non constant input and klink doesn't exist -> error 
@@ -420,10 +425,6 @@ void Kernel::add_ilink(const std::string& in_uuid, const XLink& xl)
 	{
 		add_klink( input_to_funct[in_uuid] , xl);
 	}		
-	else if(  xs.constants[xl.uuid_pred].type == "STRING" ) // Nothing to do : return
-	{
-		return;
-	}
 	
 	// This is a SCALAR or MARTRIX cst : check Function exist
 	if( node_map.find( input_to_funct[in_uuid] ) == node_map.end()) throw std::invalid_argument( "Kernel : try to add ilink to unkown function "+input_to_funct[in_uuid] );
