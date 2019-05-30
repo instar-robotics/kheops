@@ -281,11 +281,14 @@ void Kernel::init_rt_token()
 	rttoken.setUuid(uuid);
 	rttoken.setNode(rt_node);
 	rttoken.setGraph(&graph);
+
 }
 
 void Kernel::update_rt_token_value(const XRtToken& xrt)
 {
 	rttoken.setToken(xrt.value , xrt.unit );
+	wait_delay =  wait_delay + rttoken.getMsPeriod() ;
+	ROS_DEBUG_STREAM("set rttoken, WAIT DELAY : " << wait_delay);
 }
 
 void Kernel::create_rt_klink()
@@ -668,6 +671,7 @@ void Kernel::wait_for_resume_runners()
                 {
                         if( ! runner->wait_for_run_timeout(wait_delay))
                         {
+				ROS_DEBUG_STREAM("WAIT DELAY : " << wait_delay);
                         	throw std::invalid_argument( "Kernel : unable to resume the kernel, RUNNER is \"locked\" in pause mode");
                         }
                 }
@@ -686,6 +690,7 @@ void Kernel::wait_for_pause_runners()
                 {
                         if( ! runner->wait_for_pause_timeout(wait_delay))
                         {
+				ROS_DEBUG_STREAM("WAIT DELAY : " << wait_delay);
                                 throw std::invalid_argument( "Kernel : unable to pause the kernel, RUNNER is locked in \"resume\" mode");
                         }
                 }
@@ -1217,7 +1222,7 @@ void Kernel::active_save_activity(const std::string& uuid, bool order)
 
 void Kernel::update_wait_delay()
 {
-	singleton.wait_delay = default_wait_delay + singleton.rttoken.getMaxDuration() * 1000;
+	singleton.wait_delay = std::max(  (int)(default_wait_delay + singleton.rttoken.getMaxDuration() * 1000) , singleton.wait_delay) ;
 
 }
 
