@@ -19,7 +19,6 @@
   along with dogtag. If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #include <algorithm>
 #include <stdexcept>
 #include "kheops/iostream/xmlconverter.h"
@@ -168,6 +167,7 @@ void XmlConverter::__loadFunctions(std::map<std::string,XFunction> &functions)
 		}
 	}
 }
+
 
 void XmlConverter::__loadConstants(std::map<std::string,XConstant> &constants)
 {
