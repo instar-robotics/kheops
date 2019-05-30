@@ -36,7 +36,7 @@
 
 Kernel Kernel::singleton;
 
-Kernel::Kernel() : squit(false), k_pub(NULL), wait_delay(default_wait_delay)
+Kernel::Kernel() : debug_node(-1),debug_indice(0),debug(false) ,squit(false), k_pub(NULL), wait_delay(default_wait_delay)
 {	 
 	k_pub = new RosStatusPublisher(5);
 }
@@ -83,6 +83,7 @@ Kernel::~Kernel()
                 delete(k_pub);
         }
 
+	debug_order.clear();
 }
 
 /*******************************************************************************************************/
@@ -134,7 +135,7 @@ void Kernel::load_rttoken()
 	rttoken.set_rt_pub_name("rt_token");
 	rttoken.set_oscillo_pub_name("oscillo");
 	update_rt_token_value(xs.rt);
-	create_rt_klink();
+	create_rt_klinks();
 }
 
 void Kernel::load_weight()
@@ -293,12 +294,12 @@ void Kernel::update_rt_token_value(const XRtToken& xrt)
 	ROS_DEBUG_STREAM("set rttoken, WAIT DELAY : " << wait_delay);
 }
 
-void Kernel::create_rt_klink()
+void Kernel::create_rt_klinks()
 {
 	Graph::vertex_descriptor rt_node = rttoken.getNode();
 	for( auto it =  boost::vertices(graph) ; it.first != it.second; ++it.first)
         {
-		if( *it.first != rt_node && *it.first != debug_node)
+		if( *it.first != rt_node && *it.first !=debug_node)
 		{
 			auto it_out = boost::out_edges(*it.first, graph);
 
@@ -331,7 +332,7 @@ void Kernel::create_rt_klink()
 
 // INFO : Delete rt_klink doublon 
 // Only useful if we update graph at runtime  
-void Kernel::clear_rt_klink()
+void Kernel::clear_rt_klinks()
 {
 	Graph::vertex_descriptor rt_node = rttoken.getNode();
 
@@ -353,10 +354,10 @@ void Kernel::clear_rt_klink()
 /******************* 		           kLink Section		   	   *********************/
 /*******************************************************************************************************/
 
-void Kernel::add_klink(Graph::vertex_descriptor source, Graph::vertex_descriptor dest)
+void Kernel::add_klink(Graph::vertex_descriptor source, Graph::vertex_descriptor dest, bool secondary)
 {
 	std::pair<Graph::edge_descriptor, bool> e = add_edge(source,dest,graph);
-	boost::put(boost::edge_klink, graph, e.first , new Synchronized_kLink());
+	boost::put(boost::edge_klink, graph, e.first , new Synchronized_kLink(secondary));
 }
 
 void Kernel::del_klink(Graph::edge_descriptor e)
@@ -369,12 +370,12 @@ void Kernel::del_klink(Graph::edge_descriptor e)
 	}
 
 	kLink * l = boost::get(boost::edge_klink, graph, e);
+	boost::remove_edge(e,graph);
 	if(l != NULL) 
 	{
 		l->produce();
 		delete(l);
 	}
-	boost::remove_edge(e,graph);
 }
 
 void Kernel::add_klink(const std::string &in_uuid, const XLink& xl)
@@ -431,6 +432,26 @@ void Kernel::purge_klinks(const std::string& uuid)
 		del_klink(  *it_in.first);
 	}
 }
+
+
+void Kernel::purge_klinks(Graph::vertex_descriptor node)
+{
+
+        std::pair<out_edge_iterator, out_edge_iterator> it_out = boost::out_edges( node , graph);
+
+        for( ; it_out.first != it_out.second; ++it_out.first)
+        {
+                del_klink( *it_out.first);
+        }
+
+        std::pair<in_edge_iterator, in_edge_iterator> it_in = boost::in_edges( node , graph);
+
+        for( ; it_in.first != it_in.second; ++it_in.first)
+        {
+                del_klink(  *it_in.first);
+        }
+}
+
 
 /*******************************************************************************************************/
 /****************** 			iLink Section	 			      ******************/
@@ -724,30 +745,38 @@ void Kernel::wait_for_pause_runners()
 /*****************                              DEBUG Section                         ******************/
 /*******************************************************************************************************/
 
-void Kernel::init_debug_node()
+void Kernel::start_debug()
 {
-	debug_node = boost::add_vertex(graph);
+	if( !debug )
+	{
+		debug_node = boost::add_vertex(graph);
+		boost::put(boost::vertex_runner, graph, debug_node, (Runner*)NULL);
+		boost::put(boost::vertex_function, graph, debug_node, (Function*)NULL);
 
-        boost::put(boost::vertex_runner, graph, debug_node, (Runner*)NULL);
-        boost::put(boost::vertex_function, graph, debug_node, (Function*)NULL);
-}
+		std::vector<vertices_size> distances(boost::num_vertices(graph));
 
-void Kernel::load_debug_map()
-{
-  	std::vector<vertices_size> distances(boost::num_vertices(graph));
+		dist_pmap = boost::make_iterator_property_map(distances.begin(), boost::get(boost::vertex_index, graph));
 
-        dist_pmap = boost::make_iterator_property_map(distances.begin(), boost::get(boost::vertex_index, graph));
+		auto vis = boost::make_bfs_visitor(boost::record_distances(dist_pmap, boost::on_tree_edge()));
+		
+		Graph::vertex_descriptor rt_node = rttoken.getNode();
 
-	auto vis = boost::make_bfs_visitor(boost::record_distances(dist_pmap, boost::on_tree_edge()));
-	
-	Graph::vertex_descriptor rt_node = rttoken.getNode();
+		Graph_debug dgraph;
 
-	Graph_debug dgraph;
+		boost::copy_graph(graph,dgraph,boost::vertex_copy(do_nothing()).edge_copy(do_nothing()));
+		boost::breadth_first_search(dgraph, vertex(rt_node, dgraph) , boost::visitor(vis));
 
-	boost::copy_graph(graph,dgraph,boost::vertex_copy(do_nothing()).edge_copy(do_nothing()));
+		add_klink(debug_node,rt_node,true);
 
-	boost::breadth_first_search(dgraph, vertex(rt_node, dgraph) , boost::visitor(vis));
+		std::pair<vertices_size, vertex_descriptor> p;
+		p.first =dist_pmap[rt_node] ;
+		p.second = rt_node ;
 
+		debug_order.push_back(p);
+		debug_indice = 0;
+	}
+
+	/*
   std::cout << "order of graph: "<< std::endl;
   for (int i = 0; i < boost::num_vertices(graph) ; i++)
   {
@@ -760,7 +789,72 @@ void Kernel::load_debug_map()
        			 std::cout << f->getUuid() << " " << dist_pmap[i] << " "<< std::endl;
 		}
        }
-  }
+  }*/
+}
+
+void Kernel::stop_debug()
+{
+	if( debug )
+	{
+		purge_debug_klinks();
+		debug_order.clear();
+		remove_vertex(debug_node,graph);
+		debug_node = -1;
+	}
+}
+
+void Kernel::purge_debug_klinks()
+{
+	std::pair<out_edge_iterator, out_edge_iterator> it = boost::out_edges(debug_node , graph);
+
+        for( ; it.first != it.second; ++it.first)
+        {
+		kLink * l = boost::get(boost::edge_klink, graph,*it.first );
+		boost::remove_edge(*it.first ,graph);
+		if(l != NULL)
+		{
+			l->produce();
+			delete(l);
+		}
+        }
+}
+
+void Kernel::create_debug_klinks()
+{
+	Graph::vertex_descriptor rt_node = rttoken.getNode();
+
+        for( auto it =  boost::vertices(graph) ; it.first != it.second; ++it.first)
+        {
+                if( *it.first != debug_node && *it.first != rt_node )
+                {
+                	add_klink(debug_node, *it.first );
+                }
+        }
+}
+
+void Kernel::add_breakpoint(const std::string& target)
+{
+	if( target == CARG[S_ALL] ) create_debug_klinks();
+	else 
+	{
+	}
+}
+
+void Kernel::del_breakpoint(const std::string& target)
+{
+	if( target == CARG[S_ALL] ) 
+	{
+		purge_debug_klinks();
+
+	//	add_klink(debug_node,rt_node);
+
+		std::pair<vertices_size, vertex_descriptor> p;
+	//	p.first =dist_pmap[rt_node] ;
+	//	p.second = rt_node ;
+
+		debug_order.push_back(p);
+		debug_indice = 0;
+	}
 }
 
 /*******************************************************************************************************/
@@ -825,36 +919,30 @@ void Kernel::purge_empty_links(const std::string& uuid)
 /****************** 		    	 Save Activity  			      ******************/
 /*******************************************************************************************************/
 
-bool Kernel::save_activity(const std::string& uuid, bool state)
+void Kernel::save_activity(const std::string& uuid, bool state)
 {
-	bool ret = true;
         if( node_map.find( uuid ) != node_map.end() )
         {
                 Function *f =  boost::get(boost::vertex_function , graph)[ node_map[uuid]];
 
                 if( f != NULL ) f->active_save(state);
-                else ret = false;
+		else throw std::invalid_argument("Kernel : failed to start/stop save activity for Function "+uuid+". NULL Function.");
         }
-
-	return ret;
 }
 
 /*******************************************************************************************************/
 /******************                          Comment                                  ******************/
 /*******************************************************************************************************/
 
-bool Kernel::comment(const std::string& uuid, bool state)
+void Kernel::comment(const std::string& uuid, bool state)
 {
-	bool ret = true;
         if( node_map.find( uuid ) != node_map.end() )
         {
                 Function *f =  boost::get(boost::vertex_function , graph)[ node_map[uuid]];
 
                 if( f != NULL ) f->comment(state);
-                else ret = false;
+		else throw std::invalid_argument("Kernel : failed to comment/uncomment Function "+uuid+". NULL Function.");
         }
-
-        return ret;
 }
 
 /*******************************************************************************************************/
@@ -941,10 +1029,8 @@ bool Kernel::find_object(const std::string& uuid)
 /****************** 			Publish Section 			      ******************/
 /*******************************************************************************************************/
 
-bool Kernel::active_publish(const std::string& uuid, bool state)
+void Kernel::active_publish(const std::string& uuid, bool state)
 {
-	bool ret = true;
-
 	// Active RtToken Output
 	if( uuid == rttoken.getUuid() )
 	{
@@ -956,19 +1042,14 @@ bool Kernel::active_publish(const std::string& uuid, bool state)
 		Function *f =  boost::get(boost::vertex_function , graph)[ node_map[uuid]];
 
 		if( f != NULL ) f->active_publish(state);
-		else ret = false;
+		else throw std::invalid_argument("Kernel : failed to start/stop publisher for Function "+uuid+". NULL Function.");
 	}
 	// Active ilink Output
 	else if( ilinks.find( uuid ) != ilinks.end() ) 
 	{
 		ilinks[uuid]->active_publish(state);		
 	}
-	else 
-	{
-		ret = false;
-	}
-
-	return ret;
+	else throw std::invalid_argument("Kernel : failed to start/stop publisher for Object "+uuid+". Unknown Object !");
 }
 
 void Kernel::publish_status(StatusMessage &message)
@@ -1020,7 +1101,6 @@ void Kernel::init(std::string script_file, std::string weight_file, bool ignore_
 	delete xmlc;
 
 	singleton.init_rt_token();
-	singleton.init_debug_node();
 
 	if( weight_file.size() == 0) 
 	{
@@ -1034,6 +1114,26 @@ void Kernel::init(std::string script_file, std::string weight_file, bool ignore_
 	singleton.ignore_matrix_check = ignore_matrix_check;
 
 }
+void Kernel::load()
+{
+        singleton.load_functions();
+        singleton.load_links();
+        singleton.load_rttoken();
+        singleton.load_weight();
+}
+
+void Kernel::prerun()
+{
+        singleton.prerun_functions();
+}
+
+void Kernel::start(bool run)
+{
+        singleton.active_status(true);
+        singleton.spawn_runners();
+        if( run ) resume();
+        else pause();
+}
 
 
 void Kernel::quit()
@@ -1041,6 +1141,7 @@ void Kernel::quit()
 	StatusMessage m;
 
 	try{
+		if( singleton.debug) singleton.purge_debug_klinks();
 		Runner::ask_stop();
 
 		// Call Function::onQuit 
@@ -1067,15 +1168,20 @@ void Kernel::quit()
 
 void Kernel::resume()
 {
+	if( singleton.debug ) return ;
+
 	StatusMessage m;
 
 	try{
+		ROS_INFO("RESUME 1");
 		// Call onResume
 		singleton.onRun_functions();
 	
+		ROS_INFO("RESUME 2");
 		Runner::ask_resume();	
         	singleton.wait_for_resume_runners();
 
+		ROS_INFO("RESUME 3");
 		m.key = CMD[C_CONTROL] ;
 		m.value = CARG[S_RESUME];
 		singleton.publish_status(m);
@@ -1096,6 +1202,8 @@ void Kernel::resume()
 
 void Kernel::pause()
 {
+	if( singleton.debug ) return ;
+
 	StatusMessage m;
 
 	try{
@@ -1123,37 +1231,11 @@ void Kernel::pause()
 	}
 }
 
-void Kernel::load()
-{
-	singleton.load_functions();
-        singleton.load_links();
-        singleton.load_rttoken();
-        singleton.load_weight();
-
-	// Temporary : 
-	singleton.load_debug_map();
-}
-
-void Kernel::prerun()
-{
-	singleton.prerun_functions();
-}
-
-void Kernel::start(bool run)
-{ 	
-	singleton.active_status(true);
-	singleton.spawn_runners();
-	if( run ){
-	       	resume();
-	}
-	else pause();
-}
-
 void Kernel::sweight_save(std::string& path)
 {
 	StatusMessage m;
-	std::exception_ptr eptr;
 
+	bool state = is_pause();
 	pause();
 	
 	try
@@ -1165,26 +1247,33 @@ void Kernel::sweight_save(std::string& path)
 		m.value = CARG[S_SAVE];
 		singleton.publish_status(m);
 	}
+	// Error is not FATAL, so catch the exception and go one
 	catch(...)
 	{
 		m.key = CMD[C_WEIGHT] ;
 		m.value = CARG[S_SAVE]+"_failed";
 		singleton.publish_status(m);
 
-		eptr = std::current_exception(); 
-		if (eptr) 
+                ROS_ERROR_STREAM("Kernel : CMD "<< m.key << "failed, " << m.value);
+	  
+		std::exception_ptr eptr = std::current_exception(); 
+		try
 		{
-			std::rethrow_exception(eptr);
+		   std::rethrow_exception(eptr);
+		}
+		catch (const std::exception& e)
+		{
+                	ROS_ERROR_STREAM("Kernel : " << e.what());
 		}
 	}
-	resume();
+	if( !state ) resume();
 }
 
 void Kernel::sweight_load(std::string& path)
 {
 	StatusMessage m;
-	std::exception_ptr eptr;
 
+	bool state = is_pause();
 	pause();
 
 	try{
@@ -1195,31 +1284,34 @@ void Kernel::sweight_load(std::string& path)
 		m.value = CARG[S_LOAD];
 		singleton.publish_status(m);
 	}
+	// Error is not FATAL, so catch the exception and go one
 	catch(...)
 	{
 		m.key = CMD[C_WEIGHT] ;
 		m.value = CARG[S_LOAD]+"_failed";
 		singleton.publish_status(m);
 
-		eptr = std::current_exception(); 
-		if (eptr) 
+                ROS_ERROR_STREAM("Kernel : CMD "<< m.key << "failed, " << m.value);
+		std::exception_ptr eptr = std::current_exception(); 
+		try
 		{
-			std::rethrow_exception(eptr);
+		   std::rethrow_exception(eptr);
+		}
+		catch (const std::exception& e)
+		{
+                	ROS_ERROR_STREAM("Kernel : " << e.what());
 		}
 	}
-	resume();
+	if( !state ) resume();
 }
 
 void Kernel::active_oscillo(bool order)
 {
-	//StatusMessage m;
-        //std::exception_ptr eptr;
+	StatusMessage m;
 
+	bool state = is_pause();
 	pause();
-	singleton.rttoken.active_oscillo(order);
-	resume();	
-
-	/*
+	
 	try{
         	singleton.rttoken.active_oscillo(order);
 
@@ -1228,6 +1320,7 @@ void Kernel::active_oscillo(bool order)
 		else m.value = CARG[S_STOP];
 		singleton.publish_status(m);
 	}
+	// Error is not FATAL, so catch the exception and go one
         catch(...)
 	{
 		m.key = CMD[C_OSCILLO];
@@ -1235,25 +1328,54 @@ void Kernel::active_oscillo(bool order)
                 else m.value = CARG[S_STOP]+"_failed";
 		singleton.publish_status(m);
 		
-		eptr = std::current_exception(); 
-		if (eptr) 
+                ROS_ERROR_STREAM("Kernel : CMD "<< m.key << "failed, " << m.value);
+		std::exception_ptr eptr = std::current_exception(); 
+		try
 		{
-			std::rethrow_exception(eptr);
+		   std::rethrow_exception(eptr);
+		}
+		catch (const std::exception& e)
+		{
+                	ROS_ERROR_STREAM("Kernel : " << e.what());
 		}
 	}	
-	resume();	
-	*/
-
+	if( !state ) resume();
 }
 
 void Kernel::active_output(const std::string& uuid, bool order)
 {
+	StatusMessage m;
+
 	bool state = is_pause();
 	pause();
 
-	if( ! singleton.active_publish( uuid, order) )
+	try{	
+       		singleton.active_publish( uuid, order);
+
+		m.key = CMD[C_OUTPUT];
+		if( order ) m.value = CARG[S_START]+" "+uuid;
+		else m.value = CARG[S_STOP]+" "+uuid;
+		singleton.publish_status(m);
+
+	}
+	// Error is not FATAL, so catch the exception and go one
+        catch(...)
 	{
-		//TODO publish Message : failed
+		m.key = CMD[C_OUTPUT];
+                if( order ) m.value = CARG[S_START]+"_failed "+uuid;
+                else m.value = CARG[S_STOP]+"_failed "+uuid;
+		singleton.publish_status(m);
+		
+                ROS_ERROR_STREAM("Kernel : CMD "<< m.key << "failed, " << m.value);
+		std::exception_ptr eptr = std::current_exception(); 
+		try
+		{
+		   std::rethrow_exception(eptr);
+		}
+		catch (const std::exception& e)
+		{
+                	ROS_ERROR_STREAM("Kernel : " << e.what());
+		}
 	}
 
 	if( !state ) resume();
@@ -1261,32 +1383,164 @@ void Kernel::active_output(const std::string& uuid, bool order)
 
 void Kernel::active_rt_token(bool order)
 {
+	StatusMessage m;
+
 	bool state = is_pause();
 	pause();
-	singleton.rttoken.active_publish(order);
+	try
+	{
+		singleton.rttoken.active_publish(order);
+		
+		m.key = CMD[C_RTTOKEN];
+		if( order ) m.value = CARG[S_START];
+		else m.value = CARG[S_STOP];
+		singleton.publish_status(m);
+	}
+	// Error is not FATAL, so catch the exception and go one
+	catch(...)
+	{
+		m.key = CMD[C_RTTOKEN];
+                if( order ) m.value = CARG[S_START]+"_failed";
+                else m.value = CARG[S_STOP]+"_failed";
+                singleton.publish_status(m);
+		
+                ROS_ERROR_STREAM("Kernel : CMD "<< m.key << "failed, " << m.value);
+		std::exception_ptr eptr = std::current_exception(); 
+		try
+		{
+		   std::rethrow_exception(eptr);
+		}
+		catch (const std::exception& e)
+		{
+                	ROS_ERROR_STREAM("Kernel : " << e.what());
+		}
+	}
+
 	if( !state ) resume();
 }
 
 void Kernel::active_save_activity(const std::string& uuid, bool order)
 {
+	StatusMessage m;
+
 	bool state = is_pause();
 	pause();
-	singleton.save_activity(uuid,order);
+	try{
+		singleton.save_activity(uuid,order);
+
+		m.key = CMD[C_ACTIVITY];
+                if( order ) m.value = CARG[S_START]+" "+uuid;
+                else m.value = CARG[S_STOP]+" "+uuid;
+                singleton.publish_status(m);
+        }
+	// Error is not FATAL, so catch the exception and go one
+        catch(...)
+        {
+                m.key = CMD[C_ACTIVITY];
+                if( order ) m.value = CARG[S_START]+"_failed "+uuid;
+                else m.value = CARG[S_STOP]+"_failed "+uuid;
+                singleton.publish_status(m);
+
+                ROS_ERROR_STREAM("Kernel : CMD "<< m.key << "failed, " << m.value);
+		std::exception_ptr eptr = std::current_exception(); 
+		try
+		{
+		   std::rethrow_exception(eptr);
+		}
+		catch (const std::exception& e)
+		{
+                	ROS_ERROR_STREAM("Kernel : " << e.what());
+		}
+        }
+
 	if( !state ) resume();
+}
+
+void Kernel::active_comment(const std::string& uuid, bool order)
+{
+	StatusMessage m;
+
+	bool state = is_pause();
+	pause();
+
+	try{
+		singleton.comment(uuid,order);
+
+		m.key = CMD[C_COMMENT];
+                if( order ) m.value = CARG[S_START]+" "+uuid;
+                else m.value = CARG[S_STOP]+" "+uuid;
+                singleton.publish_status(m);
+        }
+	// Error is not FATAL, so catch the exception and go one
+        catch(...)
+        {
+                m.key = CMD[C_COMMENT];
+                if( order ) m.value = CARG[S_START]+"_failed "+uuid;
+                else m.value = CARG[S_STOP]+"_failed "+uuid;
+                singleton.publish_status(m);
+		
+                ROS_ERROR_STREAM("Kernel : CMD "<< m.key << "failed, " << m.value);
+		std::exception_ptr eptr = std::current_exception(); 
+		try
+		{
+		   std::rethrow_exception(eptr);
+		}
+		catch (const std::exception& e)
+		{
+                	ROS_ERROR_STREAM("Kernel : " << e.what());
+		}
+        }
+
+	if( !state ) resume();
+}
+
+void Kernel::active_debug(bool order)
+{
+        StatusMessage m;
+
+        pause();
+
+        try
+        {
+		if( order ){
+		       	singleton.start_debug();
+                	m.value = CARG[S_START];
+		}
+                else{
+		       	singleton.stop_debug();
+		       	m.value = CARG[S_STOP];
+		}	
+                m.key = CMD[C_DEBUG];
+                singleton.publish_status(m);
+        }
+        // Error is not FATAL, so catch the exception and go one
+        catch(...)
+        {
+                m.key = CMD[C_DEBUG];
+                if( order ) m.value = CARG[S_START]+"_failed";
+                else m.value = CARG[S_STOP]+"_failed";
+                singleton.publish_status(m);
+
+                ROS_ERROR_STREAM("Kernel : CMD "<< m.key << "failed, " << m.value);
+		std::exception_ptr eptr = std::current_exception(); 
+		try
+		{
+		   std::rethrow_exception(eptr);
+		}
+		catch (const std::exception& e)
+		{
+                	ROS_ERROR_STREAM("Kernel : " << e.what());
+		}
+        }
+
+	if( !order ) singleton.debug = false;
+        resume();
+	if( order ) singleton.debug = true;
 }
 
 void Kernel::update_wait_delay()
 {
 	singleton.wait_delay = std::max(  (int)(default_wait_delay + singleton.rttoken.getMaxDuration() * 1000) , singleton.wait_delay) ;
-
-}
-
-void Kernel::active_comment(const std::string& uuid, bool order)
-{
-	bool state = is_pause();
-	pause();
-	singleton.comment(uuid,order);
-	if( !state ) resume();
 }
 
 void Kernel::iBind( InputBase& value,const std::string& var_name,const std::string& uuid )

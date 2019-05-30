@@ -87,6 +87,57 @@ void RosInterface::registerListener()
 	sRtToken = n.advertiseService( name+"/"+CMD[C_RTTOKEN] , &RosInterface::callback_rt_token, this);
 	sActivity = n.advertiseService( name+"/"+CMD[C_ACTIVITY] ,&RosInterface::callback_activity,this);
 	sComment = n.advertiseService( name+"/"+CMD[C_COMMENT] ,&RosInterface::callback_comment,this);
+	sDebug = n.advertiseService( name+"/"+CMD[C_DEBUG] ,&RosInterface::callback_debug,this);
+}
+
+bool RosInterface::callback_debug(hieroglyph::ArgCmd::Request& request,hieroglyph::ArgCmd::Response& response)
+{
+	Request r;
+        r.id_cmd = C_DEBUG;
+        
+	if( request.cmd ==  CARG[S_START] )
+	{
+		r.id_arg = S_START;
+		qrequest.push(r);
+		response.ret = CARG[S_START];
+	}
+	else if( request.cmd ==  CARG[S_STOP] )
+	{
+		r.id_arg = S_STOP;
+		qrequest.push(r);
+		response.ret = CARG[S_STOP];
+	}
+	else if( request.cmd ==  CARG[S_NEXT] )
+	{
+		r.id_arg = S_NEXT;
+		qrequest.push(r);
+		response.ret = CARG[S_NEXT];
+	}
+	else if( request.cmd == CARG[S_ADD_BREAKPOINT] )
+	{
+                if(  Kernel::instance().find_function( request.arg ) || request.arg == CARG[S_ALL])
+		{
+			r.id_arg = S_ADD_BREAKPOINT;
+			r.args.push_back( request.arg );
+			response.ret =  CARG[S_ADD_BREAKPOINT]+" : "+request.arg;
+			qrequest.push(r);
+		}
+                else response.ret = RETURN[1]+" or arg must be 'all'";
+	}
+	else if( request.cmd ==  CARG[S_DEL_BREAKPOINT] )
+	{
+                if(  Kernel::instance().find_function( request.arg ) || request.arg == CARG[S_ALL])
+		{
+			r.id_arg = S_DEL_BREAKPOINT;
+			r.args.push_back( request.arg );
+			response.ret =  CARG[S_DEL_BREAKPOINT]+" : "+request.arg;
+			qrequest.push(r);
+		}
+                else response.ret = RETURN[1]+" or arg must be 'all'";
+	}
+        else  response.ret = RETURN[0];
+
+        return true;
 }
 
 bool RosInterface::callback_comment(hieroglyph::ArgCmd::Request& request,hieroglyph::ArgCmd::Response& response)
@@ -370,6 +421,15 @@ bool RosInterface::callback_helper( hieroglyph::Help::Request&, hieroglyph::Help
 	response.help.push_back("9- save_activity :\n");
 	response.help.push_back("   a- start 'uuid' (start saving function's activity into SHM)\n");
 	response.help.push_back("   b- stop 'uuid' (stop saving function's activity into SHM)\n");
+	response.help.push_back("10- comment :\n");
+	response.help.push_back("   a- true 'uuid' (comment function with 'uuid')\n");
+	response.help.push_back("   b- false 'uuid' (uncomment function with 'uuid')\n");
+	response.help.push_back("11- debug :\n");
+	response.help.push_back("   a- start\n");
+	response.help.push_back("   b- stop\n");
+	response.help.push_back("   c- next\n");
+	response.help.push_back("   d- add_breakpoint 'uuid' or 'all'\n");
+	response.help.push_back("   e- del_breakpoint 'uuid' or 'all'\n");
 
 	return true;
 }

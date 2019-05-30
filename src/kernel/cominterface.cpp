@@ -97,6 +97,22 @@ void ComInterface::exec_request()
 				else order = false;	
 
 				Kernel::active_comment(r.args[0], order);
+				break;
+			case C_DEBUG :
+				switch(r.id_arg)
+				{
+					case S_START : 
+						Kernel::active_debug(true);
+						break;
+					case S_STOP : 
+						Kernel::active_debug(false);
+						break;
+					case S_ADD_BREAKPOINT : 
+						break;
+					case S_DEL_BREAKPOINT : 
+						break;
+				}
+				break;
 		}	
 	}
 }

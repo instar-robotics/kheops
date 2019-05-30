@@ -70,6 +70,9 @@ class Kernel
 		
 		Graph::vertex_descriptor debug_node;
 		property_map_type dist_pmap;
+		std::vector<std::pair<vertices_size, vertex_descriptor>> debug_order ;
+		unsigned int debug_indice;
+		bool debug;
 		
 		XScript xs;
 
@@ -108,8 +111,10 @@ class Kernel
 		void purge_output_ilinks(const std::string& uuid);
 
 
-		void add_klink(Graph::vertex_descriptor source, Graph::vertex_descriptor dest);
+		// klink section
+		void add_klink(Graph::vertex_descriptor source, Graph::vertex_descriptor dest, bool secondary = false);
 		void del_klink(Graph::edge_descriptor e);
+		void purge_klinks(Graph::vertex_descriptor node);
 		// string 1 : function uuid
 		void add_klink(const std::string& in_uuid,const XLink&);
 		// string 1 : link uuid
@@ -117,6 +122,7 @@ class Kernel
 		// string 1 : function uuid
 		void purge_klinks(const std::string& uuid);
 
+		// Function section
 		void add_function(const XFunction&);
 		void del_function(const std::string & uuid);
 		void prerun_functions();
@@ -124,11 +130,13 @@ class Kernel
 		void onPause_functions();
 		void onRun_functions();
 		
+		//RtToken section
 		void init_rt_token();
 		void update_rt_token_value( const XRtToken& xrt );
-		void create_rt_klink();
-		void clear_rt_klink();
+		void create_rt_klinks();
+		void clear_rt_klinks();
 
+		//Runner section
 		void add_runner(const std::string& uuid);
 		void remove_runner(const std::string& uuid);
 		void spawn_runners();
@@ -136,9 +144,16 @@ class Kernel
 		void wait_for_resume_runners();
 		void wait_for_pause_runners();
 
-		void init_debug_node();
-		void load_debug_map();
+		//Debug section
+		void start_debug();
+		void stop_debug();
+		void add_breakpoint(const std::string& target);
+		void del_breakpoint(const std::string& target);
+		void purge_debug_klinks();
+		void create_debug_klinks();
+		void produce_debug_klinks();
 
+		//Bind section
 		void bind( InputBase& value,const std::string& var_name,const std::string& uuid );
 		void bind( IString& value,const std::string& var_name,const std::string& uuid );
 
@@ -156,10 +171,10 @@ class Kernel
 
 		
 		// Save activity  		
-		bool save_activity(const std::string& uuid, bool state);
+		void save_activity(const std::string& uuid, bool state);
 
 		// Active/deactive comment
-		bool comment(const std::string& uuid, bool state);
+		void comment(const std::string& uuid, bool state);
 
 		//Objects
 		void get_objects(std::vector<std::string> & objects);
@@ -174,7 +189,7 @@ class Kernel
 
 		//Publish
 		// Active publishing of the object defined by UUID
-		bool active_publish(const std::string& uuid, bool state);
+		void active_publish(const std::string& uuid, bool state);
 		void publish_status(StatusMessage &message);
 		void active_status(bool state);
 
@@ -204,6 +219,8 @@ class Kernel
 		static void active_comment(const std::string& uuid, bool order);
 		static void active_rt_token(bool order);
 		static void update_wait_delay();
+		static void active_debug(bool order);
+		static void active_breakpoint(bool order,const std::string& arg);
 
 		
 		static void iBind(InputBase& value,const std::string& var_name,const std::string& uuid );
