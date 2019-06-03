@@ -36,7 +36,10 @@
 #include "kheops/links/imatrix.h"
 
 // in millisecondes
-const int default_wait_delay = 100;
+const int default_wait_delay = 200;
+
+// NO debug answer
+const std::string no_debug = "debug not running";
 
 class Kernel 
 {
@@ -69,7 +72,7 @@ class Kernel
 		std::map<std::string,std::string> input_to_funct;
 		
 		Graph::vertex_descriptor debug_node;
-		property_map_type dist_pmap;
+		std::vector<vertices_size> dist_pmap;
 		std::vector<std::pair<vertices_size, vertex_descriptor>> debug_order ;
 		unsigned int debug_indice;
 		bool debug;
@@ -147,11 +150,11 @@ class Kernel
 		//Debug section
 		void start_debug();
 		void stop_debug();
+		std::string next_debug();
 		void add_breakpoint(const std::string& target);
 		void del_breakpoint(const std::string& target);
-		void purge_debug_klinks();
-		void create_debug_klinks();
-		void produce_debug_klinks();
+		void add_breakpoint(Graph::vertex_descriptor v);
+		void skip_debug();
 
 		//Bind section
 		void bind( InputBase& value,const std::string& var_name,const std::string& uuid );
@@ -221,6 +224,9 @@ class Kernel
 		static void update_wait_delay();
 		static void active_debug(bool order);
 		static void active_breakpoint(bool order,const std::string& arg);
+		static void snext_debug(std::string& ret);
+		static void sadd_breakpoint(const std::string& target,std::string& ret);
+		static void sdel_breakpoint(const std::string& target,std::string& ret);
 
 		
 		static void iBind(InputBase& value,const std::string& var_name,const std::string& uuid );

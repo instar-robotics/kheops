@@ -107,10 +107,6 @@ void ComInterface::exec_request()
 					case S_STOP : 
 						Kernel::active_debug(false);
 						break;
-					case S_ADD_BREAKPOINT : 
-						break;
-					case S_DEL_BREAKPOINT : 
-						break;
 				}
 				break;
 		}	

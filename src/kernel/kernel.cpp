@@ -749,15 +749,11 @@ void Kernel::start_debug()
 {
 	if( !debug )
 	{
-		debug_node = boost::add_vertex(graph);
-		boost::put(boost::vertex_runner, graph, debug_node, (Runner*)NULL);
-		boost::put(boost::vertex_function, graph, debug_node, (Function*)NULL);
-
 		std::vector<vertices_size> distances(boost::num_vertices(graph));
 
-		dist_pmap = boost::make_iterator_property_map(distances.begin(), boost::get(boost::vertex_index, graph));
+		property_map_type dm = boost::make_iterator_property_map(distances.begin(), boost::get(boost::vertex_index, graph));
 
-		auto vis = boost::make_bfs_visitor(boost::record_distances(dist_pmap, boost::on_tree_edge()));
+		auto vis = boost::make_bfs_visitor(boost::record_distances(dm, boost::on_tree_edge()));
 		
 		Graph::vertex_descriptor rt_node = rttoken.getNode();
 
@@ -766,95 +762,226 @@ void Kernel::start_debug()
 		boost::copy_graph(graph,dgraph,boost::vertex_copy(do_nothing()).edge_copy(do_nothing()));
 		boost::breadth_first_search(dgraph, vertex(rt_node, dgraph) , boost::visitor(vis));
 
-		add_klink(debug_node,rt_node,true);
+		dist_pmap.resize( boost::num_vertices(graph)  );
 
-		std::pair<vertices_size, vertex_descriptor> p;
-		p.first =dist_pmap[rt_node] ;
-		p.second = rt_node ;
-
-		debug_order.push_back(p);
-		debug_indice = 0;
-	}
-
-	/*
-  std::cout << "order of graph: "<< std::endl;
-  for (int i = 0; i < boost::num_vertices(graph) ; i++)
-  {
-       if( i == rt_node) std::cout << rttoken.getUuid() << " " << dist_pmap[i] << " " << std::endl;
-       else
-       {
-        	Function *f = boost::get(boost::vertex_function, graph, i) ;
-		if( f != NULL ) 
+		ROS_DEBUG_STREAM("Kernel : order of debug graph: (" << dist_pmap.size()<< " vertices)") ;
+		for (unsigned int i = 0; i < boost::num_vertices(graph) ; i++)
 		{
-       			 std::cout << f->getUuid() << " " << dist_pmap[i] << " "<< std::endl;
+			if( i == rt_node)
+			{
+			       	ROS_DEBUG_STREAM( "     "  <<  rttoken.getUuid() << " " << dm[i]  );
+				dist_pmap[i] = dm[i];				
+			}
+			else
+			{
+				Function *f = boost::get(boost::vertex_function, graph, i) ;
+				if( f != NULL )
+				{
+					dist_pmap[i] = dm[i];
+					ROS_DEBUG_STREAM( "    "  << f->getUuid() << "  cost : " << dist_pmap[i] << " , vertice : " << i << " , vertices by node_map :  "<< node_map[f->getUuid()] );
+				}else throw  std::invalid_argument("Kernel : Error in start_debug, no Function on cuurent vertice");
+			}
 		}
-       }
-  }*/
+
+		debug_node = boost::add_vertex(graph);
+		boost::put(boost::vertex_runner, graph, debug_node, (Runner*)NULL);
+		boost::put(boost::vertex_function, graph, debug_node, (Function*)NULL);
+		add_breakpoint( rt_node );
+		debug_indice = 0;
+		debug = true;
+	}
 }
 
 void Kernel::stop_debug()
 {
 	if( debug )
 	{
-		purge_debug_klinks();
-		debug_order.clear();
+		for( auto it = debug_order.begin(); it != debug_order.end(); ++it)
+                {
+                        if( it->second != rttoken.getNode() )
+                        {
+                                Graph::edge_descriptor e1;
+                                bool succes;
+                                tie(e1, succes) = boost::edge(debug_node, it->second ,graph);
+
+                                if (succes)
+                                {
+                                        del_klink(e1);
+                                }
+                        }
+                }
+                debug_order.clear();
+		dist_pmap.clear();
+
+                vertex_descriptor rt_node = rttoken.getNode();
+		Graph::edge_descriptor e1;
+		bool succes;
+		tie(e1, succes) = boost::edge(debug_node, rt_node ,graph);
+		if (succes)
+		{
+			del_klink(e1);
+		}
+
 		remove_vertex(debug_node,graph);
+                debug_indice = 0;
 		debug_node = -1;
+		debug = false;
 	}
 }
 
-void Kernel::purge_debug_klinks()
+void Kernel::skip_debug()
 {
-	std::pair<out_edge_iterator, out_edge_iterator> it = boost::out_edges(debug_node , graph);
-
-        for( ; it.first != it.second; ++it.first)
-        {
-		kLink * l = boost::get(boost::edge_klink, graph,*it.first );
-		boost::remove_edge(*it.first ,graph);
-		if(l != NULL)
-		{
-			l->produce();
-			delete(l);
-		}
-        }
+	if( !debug ) return;
+	do{
+		next_debug();
+	}while( debug_indice != 0);
 }
 
-void Kernel::create_debug_klinks()
+std::string Kernel::next_debug()
 {
-	Graph::vertex_descriptor rt_node = rttoken.getNode();
+	std::string uuid;
 
-        for( auto it =  boost::vertices(graph) ; it.first != it.second; ++it.first)
-        {
-                if( *it.first != debug_node && *it.first != rt_node )
-                {
-                	add_klink(debug_node, *it.first );
-                }
-        }
+	if( !debug ) return no_debug;
+
+	ROS_DEBUG_STREAM("Kernel : next_debug, indice " << debug_indice << " , nb breakpoint : " << debug_order.size()); 
+
+	auto p = debug_order[debug_indice];
+	debug_indice++;
+	if( debug_indice >= debug_order.size()) debug_indice = 0;
+
+	if(  p.second ==  rttoken.getNode() ) uuid = rttoken.getUuid();
+	else 
+	{
+		Function * f = boost::get(boost::vertex_function, graph, p.second);
+		if( f == NULL )  throw std::invalid_argument("Kernel : Error in next_debug, no Function on debug vertice");
+		uuid = f->getUuid();
+	}
+
+	Graph::edge_descriptor e1;
+	bool succes;
+	boost::tie(e1, succes) = boost::edge(debug_node, p.second  ,graph);
+
+	ROS_DEBUG_STREAM("Kernel : next_debug, vertex : " << p.second << " , cost : " << p.first << " , edge : " << e1 << " , uuid : " +uuid ); 
+
+	if (succes)
+	{
+		kLink * l = boost::get(boost::edge_klink, graph, e1 );
+		if(l != NULL){ 
+			l->produce();
+		}
+		else{
+		       	throw std::invalid_argument("Kernel : Error in next_debug, no klink for the Function "+uuid); 
+		}	
+		
+	}
+	else throw std::invalid_argument("Kernel : Error in next_debug, enable to find debug link for the Function "+uuid); 
+
+	return uuid;
+}
+
+void Kernel::add_breakpoint(Graph::vertex_descriptor v)
+{
+	Graph::edge_descriptor e1;
+	bool succes;
+	boost::tie(e1, succes) = boost::edge(debug_node, v  ,graph);
+
+	if( !succes )
+	{
+		add_klink(debug_node, v);
+		std::pair<vertices_size, vertex_descriptor> p;
+		p.first = dist_pmap[v] ;
+		p.second = v ;
+		debug_order.push_back(p);
+	}
 }
 
 void Kernel::add_breakpoint(const std::string& target)
 {
-	if( target == CARG[S_ALL] ) create_debug_klinks();
+	//TODO : perhaps better to pause/resume
+	skip_debug();
+
+	if( target == CARG[S_ALL] )
+	{
+		Graph::vertex_descriptor rt_node = rttoken.getNode();
+
+		for( auto it =  boost::vertices(graph) ; it.first != it.second; ++it.first)
+		{
+			if( *it.first != debug_node && *it.first != rt_node )
+			{
+				ROS_DEBUG_STREAM("Kernel : add_breakpoint, vertex : " << *it.first ); 
+				add_breakpoint( *it.first  );
+			}
+		}
+	}
 	else 
 	{
+		auto it = node_map.find(target);
+        	if( it == node_map.end() ) throw std::invalid_argument( "Kernel : try to add a breakpoint on an unexisted Function \""+target+"\"" );
+		
+		add_breakpoint( it->second ) ;
 	}
-}
+
+	std::sort(debug_order.begin(),debug_order.end(), std::greater<std::pair<vertices_size,vertex_descriptor>>());
+	
+	//TODO : perhaps better to pause/resume
+	rttoken.sync_all();
+}        
 
 void Kernel::del_breakpoint(const std::string& target)
 {
 	if( target == CARG[S_ALL] ) 
 	{
-		purge_debug_klinks();
+		for( auto it = debug_order.begin(); it != debug_order.end(); ++it)
+		{
+			if( it->second != rttoken.getNode() )
+			{
+				Graph::edge_descriptor e1;
+				bool succes;
+				tie(e1, succes) = boost::edge(debug_node, it->second ,graph);
 
-	//	add_klink(debug_node,rt_node);
-
+				if (succes)
+        	       	 	{
+                		        del_klink(e1);
+                		}
+			}
+		}
+		debug_order.clear();
 		std::pair<vertices_size, vertex_descriptor> p;
-	//	p.first =dist_pmap[rt_node] ;
-	//	p.second = rt_node ;
-
+		vertex_descriptor rt_node = rttoken.getNode();
+		p.first =dist_pmap[rt_node] ;
+		p.second = rt_node ;
 		debug_order.push_back(p);
 		debug_indice = 0;
 	}
+	else
+	{
+		auto it = node_map.find(target);
+        	if( it == node_map.end() ) throw std::invalid_argument( "Kernel : try to delete a breakpoint on an unexisted Function \""+target+"\"" );
+		
+		unsigned int ide = 0;
+		auto v = it->second;
+        	auto itde = std::find_if(debug_order.begin(), debug_order.end(), [v,&ide] (const std::pair<vertices_size, vertex_descriptor> & val){
+			ide++;	
+                	if(  val.second == v  ) return true;
+                	return false;
+        	 });
+
+		if( itde != debug_order.end() )
+        	{
+                	Graph::edge_descriptor e1;
+			bool succes;
+			boost::tie(e1, succes) = boost::edge(debug_node, itde->second  ,graph);
+
+			if (succes)
+			{
+				del_klink(e1);
+			}
+			debug_order.erase(itde);
+			if(ide < debug_indice  && debug_indice > 0) debug_indice--;
+
+			ROS_DEBUG_STREAM(" Kernel : del_breakpoint, debug_indice : " << debug_indice << " , del indice " << ide ); 
+		}
+        }
 }
 
 /*******************************************************************************************************/
@@ -863,7 +990,6 @@ void Kernel::del_breakpoint(const std::string& target)
 
 void Kernel::bind(InputBase& value,const std::string& var_name,const std::string& uuid)
 {
-
         if( node_map.find(uuid) == node_map.end() || xs.functions.find(uuid) == xs.functions.end() ) throw std::invalid_argument( "Kernel : try to bind \""+var_name+"\", a "+value.type_name()+" input from unkown function "+uuid );
 
         if( xs.functions[uuid].inputs.find(var_name) ==  xs.functions[uuid].inputs.end() )  throw std::invalid_argument( "Kernel : unable to find input \""+var_name+"\", a "+value.type_name()+" input from function "+uuid  );
@@ -1141,7 +1267,12 @@ void Kernel::quit()
 	StatusMessage m;
 
 	try{
-		if( singleton.debug) singleton.purge_debug_klinks();
+		if( singleton.debug)
+		{	
+			pause();
+			singleton.stop_debug();
+			resume();
+		}
 		Runner::ask_stop();
 
 		// Call Function::onQuit 
@@ -1168,20 +1299,15 @@ void Kernel::quit()
 
 void Kernel::resume()
 {
-	if( singleton.debug ) return ;
-
 	StatusMessage m;
 
 	try{
-		ROS_INFO("RESUME 1");
 		// Call onResume
 		singleton.onRun_functions();
 	
-		ROS_INFO("RESUME 2");
 		Runner::ask_resume();	
         	singleton.wait_for_resume_runners();
 
-		ROS_INFO("RESUME 3");
 		m.key = CMD[C_CONTROL] ;
 		m.value = CARG[S_RESUME];
 		singleton.publish_status(m);
@@ -1202,12 +1328,12 @@ void Kernel::resume()
 
 void Kernel::pause()
 {
-	if( singleton.debug ) return ;
-
 	StatusMessage m;
 
 	try{
 		Runner::ask_pause();
+
+		singleton.skip_debug();
 	
 		// Call onPause
 		singleton.onPause_functions();
@@ -1498,6 +1624,12 @@ void Kernel::active_debug(bool order)
 {
         StatusMessage m;
 
+	if( order == singleton.debug ){
+		
+		//TODO : publish state ? 
+	       	return;
+	}
+	
         pause();
 
         try
@@ -1525,7 +1657,7 @@ void Kernel::active_debug(bool order)
 		std::exception_ptr eptr = std::current_exception(); 
 		try
 		{
-		   std::rethrow_exception(eptr);
+			std::rethrow_exception(eptr);
 		}
 		catch (const std::exception& e)
 		{
@@ -1533,9 +1665,83 @@ void Kernel::active_debug(bool order)
 		}
         }
 
-	if( !order ) singleton.debug = false;
         resume();
-	if( order ) singleton.debug = true;
+}
+
+void Kernel::snext_debug(std::string& ret)
+{
+	try
+	{
+		ret = CARG[S_NEXT]+" "+singleton.next_debug();
+	}
+	catch(...)
+	{
+		ret = CARG[S_NEXT]+"_failed";
+		ROS_ERROR_STREAM("Kernel : CMD "<< CMD[C_DEBUG] << "failed, " << ret);
+		std::exception_ptr eptr = std::current_exception();
+		try
+		{
+			std::rethrow_exception(eptr);
+		}
+		catch (const std::exception& e)
+		{
+			ROS_ERROR_STREAM("Kernel : " << e.what());
+		}
+	}
+}
+
+void Kernel::sadd_breakpoint(const std::string& target, std::string& ret)
+{
+	try
+	{
+		if( singleton.debug) 
+		{
+			singleton.add_breakpoint(target);
+			ret = CARG[S_ADD_BREAKPOINT]+" "+target;
+		}
+		else ret=CARG[S_ADD_BREAKPOINT]+" "+no_debug;
+	}
+	catch(...)
+	{
+		ret = CARG[S_ADD_BREAKPOINT]+"_failed";
+		ROS_ERROR_STREAM("Kernel : CMD "<< CMD[C_DEBUG] << "failed, " << ret);
+		std::exception_ptr eptr = std::current_exception();
+		try
+		{
+			std::rethrow_exception(eptr);
+		}
+		catch (const std::exception& e)
+		{
+			ROS_ERROR_STREAM("Kernel : " << e.what());
+		}
+	}
+}
+
+void Kernel::sdel_breakpoint(const std::string& target,std::string& ret)
+{
+	try
+	{
+		if( singleton.debug) 
+		{
+			singleton.del_breakpoint(target);
+			ret = CARG[S_DEL_BREAKPOINT]+" "+target;
+		}
+		else ret=CARG[S_DEL_BREAKPOINT]+" "+no_debug;
+	}
+	catch(...)
+	{
+		ret = CARG[S_DEL_BREAKPOINT]+"_failed";
+		ROS_ERROR_STREAM("Kernel : CMD "<< CMD[C_DEBUG] << "failed, " << ret);
+		std::exception_ptr eptr = std::current_exception();
+		try
+		{
+			std::rethrow_exception(eptr);
+		}
+		catch (const std::exception& e)
+		{
+			ROS_ERROR_STREAM("Kernel : " << e.what());
+		}
+	}
 }
 
 void Kernel::update_wait_delay()

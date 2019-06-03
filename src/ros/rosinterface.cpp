@@ -109,18 +109,13 @@ bool RosInterface::callback_debug(hieroglyph::ArgCmd::Request& request,hieroglyp
 	}
 	else if( request.cmd ==  CARG[S_NEXT] )
 	{
-		r.id_arg = S_NEXT;
-		qrequest.push(r);
-		response.ret = CARG[S_NEXT];
+		Kernel::snext_debug(response.ret);
 	}
 	else if( request.cmd == CARG[S_ADD_BREAKPOINT] )
 	{
                 if(  Kernel::instance().find_function( request.arg ) || request.arg == CARG[S_ALL])
 		{
-			r.id_arg = S_ADD_BREAKPOINT;
-			r.args.push_back( request.arg );
-			response.ret =  CARG[S_ADD_BREAKPOINT]+" : "+request.arg;
-			qrequest.push(r);
+			Kernel::sadd_breakpoint(request.arg, response.ret);
 		}
                 else response.ret = RETURN[1]+" or arg must be 'all'";
 	}
@@ -128,10 +123,7 @@ bool RosInterface::callback_debug(hieroglyph::ArgCmd::Request& request,hieroglyp
 	{
                 if(  Kernel::instance().find_function( request.arg ) || request.arg == CARG[S_ALL])
 		{
-			r.id_arg = S_DEL_BREAKPOINT;
-			r.args.push_back( request.arg );
-			response.ret =  CARG[S_DEL_BREAKPOINT]+" : "+request.arg;
-			qrequest.push(r);
+			Kernel::sdel_breakpoint(request.arg, response.ret);
 		}
                 else response.ret = RETURN[1]+" or arg must be 'all'";
 	}
