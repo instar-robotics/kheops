@@ -315,8 +315,8 @@ bool RosInterface::callback_rt_stat( hieroglyph::RtStat::Request&, hieroglyph::R
 	response.data.sleep = rt.getLastSleep(); 
 	response.data.start = rt.getLastStart();
 	response.data.duration = rt.getLastDuration();
-	response.data.minDuration = rt.getMaxDuration();
-	response.data.maxDuration = rt.getMinDuration();
+	response.data.minDuration = rt.getMinDuration();
+	response.data.maxDuration = rt.getMaxDuration();
 	
 	return true;
 }
