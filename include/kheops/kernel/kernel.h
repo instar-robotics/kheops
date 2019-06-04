@@ -73,8 +73,10 @@ class Kernel
 		
 		Graph::vertex_descriptor debug_node;
 		std::vector<vertices_size> dist_pmap;
-		std::vector<std::pair<vertices_size, vertex_descriptor>> debug_order ;
-		unsigned int debug_indice;
+		//std::vector<std::pair<vertices_size, vertex_descriptor>> debug_order ;
+		std::list<std::pair<vertices_size, vertex_descriptor>> debug_order ;
+		//unsigned int debug_indice;
+		std::list<std::pair<vertices_size, vertex_descriptor>>::iterator debug_indice;
 		bool debug;
 		
 		XScript xs;

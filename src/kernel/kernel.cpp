@@ -770,7 +770,7 @@ void Kernel::start_debug()
 			if( i == rt_node)
 			{
 			       	ROS_DEBUG_STREAM( "     "  <<  rttoken.getUuid() << " " << dm[i]  );
-				dist_pmap[i] = dm[i];				
+				dist_pmap[i] = std::numeric_limits<int>::max();				
 			}
 			else
 			{
@@ -787,7 +787,7 @@ void Kernel::start_debug()
 		boost::put(boost::vertex_runner, graph, debug_node, (Runner*)NULL);
 		boost::put(boost::vertex_function, graph, debug_node, (Function*)NULL);
 		add_breakpoint( rt_node );
-		debug_indice = 0;
+		debug_indice = debug_order.begin();
 		debug = true;
 	}
 }
@@ -796,20 +796,8 @@ void Kernel::stop_debug()
 {
 	if( debug )
 	{
-		for( auto it = debug_order.begin(); it != debug_order.end(); ++it)
-                {
-                        if( it->second != rttoken.getNode() )
-                        {
-                                Graph::edge_descriptor e1;
-                                bool succes;
-                                tie(e1, succes) = boost::edge(debug_node, it->second ,graph);
+		del_breakpoint("all");
 
-                                if (succes)
-                                {
-                                        del_klink(e1);
-                                }
-                        }
-                }
                 debug_order.clear();
 		dist_pmap.clear();
 
@@ -823,7 +811,6 @@ void Kernel::stop_debug()
 		}
 
 		remove_vertex(debug_node,graph);
-                debug_indice = 0;
 		debug_node = -1;
 		debug = false;
 	}
@@ -832,9 +819,12 @@ void Kernel::stop_debug()
 void Kernel::skip_debug()
 {
 	if( !debug ) return;
+
+	debug_indice = debug_order.begin();	
 	do{
 		next_debug();
-	}while( debug_indice != 0);
+	}while( debug_indice != debug_order.begin()); 
+
 }
 
 std::string Kernel::next_debug()
@@ -843,11 +833,11 @@ std::string Kernel::next_debug()
 
 	if( !debug ) return no_debug;
 
-	ROS_DEBUG_STREAM("Kernel : next_debug, indice " << debug_indice << " , nb breakpoint : " << debug_order.size()); 
+	ROS_DEBUG_STREAM("Kernel : next_debug, indice " << debug_indice->second << " , nb breakpoint : " << debug_order.size()); 
 
-	auto p = debug_order[debug_indice];
-	debug_indice++;
-	if( debug_indice >= debug_order.size()) debug_indice = 0;
+	auto p = *debug_indice;
+	++debug_indice;
+	if( debug_indice == debug_order.end()) debug_indice = debug_order.begin();
 
 	if(  p.second ==  rttoken.getNode() ) uuid = rttoken.getUuid();
 	else 
@@ -866,13 +856,8 @@ std::string Kernel::next_debug()
 	if (succes)
 	{
 		kLink * l = boost::get(boost::edge_klink, graph, e1 );
-		if(l != NULL){ 
-			l->produce();
-		}
-		else{
-		       	throw std::invalid_argument("Kernel : Error in next_debug, no klink for the Function "+uuid); 
-		}	
-		
+		if(l != NULL) l->produce();
+		else throw std::invalid_argument("Kernel : Error in next_debug, no klink for the Function "+uuid); 
 	}
 	else throw std::invalid_argument("Kernel : Error in next_debug, enable to find debug link for the Function "+uuid); 
 
@@ -891,15 +876,18 @@ void Kernel::add_breakpoint(Graph::vertex_descriptor v)
 		std::pair<vertices_size, vertex_descriptor> p;
 		p.first = dist_pmap[v] ;
 		p.second = v ;
-		debug_order.push_back(p);
+
+        	auto itde = std::find_if(debug_order.begin(), debug_order.end(), [p] (const std::pair<vertices_size, vertex_descriptor> & val){
+			std::greater<std::pair<vertices_size, vertex_descriptor>> g;
+			return g(p,val) ;
+        	 });
+
+		debug_order.insert(itde,p);
 	}
 }
 
 void Kernel::add_breakpoint(const std::string& target)
 {
-	//TODO : perhaps better to pause/resume
-	skip_debug();
-
 	if( target == CARG[S_ALL] )
 	{
 		Graph::vertex_descriptor rt_node = rttoken.getNode();
@@ -920,17 +908,16 @@ void Kernel::add_breakpoint(const std::string& target)
 		
 		add_breakpoint( it->second ) ;
 	}
-
-	std::sort(debug_order.begin(),debug_order.end(), std::greater<std::pair<vertices_size,vertex_descriptor>>());
-	
-	//TODO : perhaps better to pause/resume
-	rttoken.sync_all();
 }        
 
 void Kernel::del_breakpoint(const std::string& target)
 {
 	if( target == CARG[S_ALL] ) 
 	{
+		do{
+                	next_debug();
+        	}while( debug_indice != debug_order.begin()); 
+
 		for( auto it = debug_order.begin(); it != debug_order.end(); ++it)
 		{
 			if( it->second != rttoken.getNode() )
@@ -945,42 +932,47 @@ void Kernel::del_breakpoint(const std::string& target)
                 		}
 			}
 		}
-		debug_order.clear();
 		std::pair<vertices_size, vertex_descriptor> p;
 		vertex_descriptor rt_node = rttoken.getNode();
 		p.first =dist_pmap[rt_node] ;
 		p.second = rt_node ;
+		debug_order.clear();
 		debug_order.push_back(p);
-		debug_indice = 0;
+		debug_indice = debug_order.begin();
 	}
 	else
 	{
+		// Do not remove RTTOKEN UUID
+		// TODO : send better msg to help papyrus
+		if( target == rttoken.getUuid()) return;
+
 		auto it = node_map.find(target);
         	if( it == node_map.end() ) throw std::invalid_argument( "Kernel : try to delete a breakpoint on an unexisted Function \""+target+"\"" );
-		
-		unsigned int ide = 0;
+
+		auto iv = debug_indice->second;
 		auto v = it->second;
-        	auto itde = std::find_if(debug_order.begin(), debug_order.end(), [v,&ide] (const std::pair<vertices_size, vertex_descriptor> & val){
-			ide++;	
+		auto itde = std::find_if(debug_order.begin(), debug_order.end(), [v] (const std::pair<vertices_size, vertex_descriptor> & val){
                 	if(  val.second == v  ) return true;
                 	return false;
-        	 });
+		});
 
-		if( itde != debug_order.end() )
-        	{
-                	Graph::edge_descriptor e1;
-			bool succes;
-			boost::tie(e1, succes) = boost::edge(debug_node, itde->second  ,graph);
+		if( itde == debug_order.end() ) return; 
 
-			if (succes)
-			{
-				del_klink(e1);
-			}
-			debug_order.erase(itde);
-			if(ide < debug_indice  && debug_indice > 0) debug_indice--;
+		debug_order.erase(itde);
 
-			ROS_DEBUG_STREAM(" Kernel : del_breakpoint, debug_indice : " << debug_indice << " , del indice " << ide ); 
-		}
+		debug_indice =  std::find_if(debug_order.begin(), debug_order.end(), [iv] (const std::pair<vertices_size, vertex_descriptor> & val){
+                        if(  val.second == iv  ) return true;
+                        return false;
+                 });
+		if( debug_indice == debug_order.end() ) debug_indice = debug_order.begin();
+ 
+		Graph::edge_descriptor e1;
+		bool succes;
+		boost::tie(e1, succes) = boost::edge(debug_node, v  ,graph);
+
+		if (succes) del_klink(e1);
+		
+		ROS_DEBUG_STREAM(" Kernel : del_breakpoint, debug_indice : " << debug_indice->second  ); 
         }
 }
 
