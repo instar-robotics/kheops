@@ -317,6 +317,10 @@ bool RosInterface::callback_rt_stat( hieroglyph::RtStat::Request&, hieroglyph::R
 	response.data.duration = rt.getLastDuration();
 	response.data.minDuration = rt.getMinDuration();
 	response.data.maxDuration = rt.getMaxDuration();
+
+	if( response.data.duration  >=  response.data.period ) response.data.warning = true;
+        else  response.data.warning = false;
+
 	
 	return true;
 }
