@@ -25,7 +25,7 @@
 #include <signal.h>
 #include <exception>
 #include <cstdlib>
-
+#include <sys/sysinfo.h>
 
 #include "kheops/kernel/rttoken.h"
 #include "kheops/kernel/frunner.h"
@@ -85,7 +85,6 @@ void print_help(void)
 	std::cout << "  -d : disable /rosout topic " << std::endl; 
 }
 
-
 int main(int argc, char **argv)
 {
 	struct sigaction action;
@@ -134,12 +133,18 @@ int main(int argc, char **argv)
 	} 	
 	
 	try{
+		//NBTHREAD = get_nprocs_conf();
+		NBTHREAD = 10 ;
+		//omp_set_num_threads(NBTHREAD);
+		Eigen::setNbThreads(NBTHREAD);
+
 		Kernel::init(script, weight, ignore_matrix_check);	
 	
 		// Use Ros builder by default
 		RosInterface::build();
 		ComInterface::init( argc, argv, progname , Kernel::instance().getName() , ros_options );	
 		ROS_INFO_STREAM("Run : " << Kernel::instance().getName() << " script" );
+		ROS_INFO_STREAM("Eigen Thread number : " << Eigen::nbThreads() );
 
 	        // *************Signaux handler operation ****************
 	

@@ -35,6 +35,7 @@
 #include "ros/console.h"
 
 Kernel Kernel::singleton;
+int NBTHREAD = 0;
 
 Kernel::Kernel() : debug_node(-1),debug_indice(0),debug(false) ,squit(false), k_pub(NULL), wait_delay(default_wait_delay)
 {	 

@@ -41,6 +41,8 @@ const int default_wait_delay = 200;
 // NO debug answer
 const std::string no_debug = "debug not running";
 
+extern int NBTHREAD;
+
 class Kernel 
 {
 	private :

@@ -58,9 +58,9 @@ catkin_package(
 ###########
 
 if( ${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86_64" )
-	set(CMAKE_CXX_FLAGS "-std=c++17 -O2 -msse2 -mtune=native -march=native -rdynamic ")
+	set(CMAKE_CXX_FLAGS "-std=c++17 -O2 -msse2 -mtune=native -march=native -rdynamic -fopenmp")
 else()
-	set(CMAKE_CXX_FLAGS "-std=c++17 -O2 -mtune=native -march=native -rdynamic ")
+	set(CMAKE_CXX_FLAGS "-std=c++17 -O2 -mtune=native -march=native -rdynamic -fopenmp")
 endif()
 
 add_definitions(-Wextra -Wall)
