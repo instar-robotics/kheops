@@ -60,7 +60,7 @@ int RosInterface::enter()
 	int ret = 0;
 	ros::Rate r(DEFAULT_RATE);
 
-	while( !Kernel::is_asking_quit() && ros::master::check() )
+	while( !Kernel::is_asking_quit() && ros::master::check() && ros::ok() )
 	{
 	    Kernel::update_wait_delay();
 	    exec_request();

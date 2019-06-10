@@ -55,7 +55,7 @@ void signals_handler(int number)
 	break;
   }
 
-  ROS_INFO("KHEOPS kernel ask stop");
+  ROS_INFO_STREAM("KHEOPS kernel " << Kernel::instance().getName()  <<  " ask stop");
   Kernel::ask_quit();
   ROS_INFO("KHEOPS signal handler end ");
 }
