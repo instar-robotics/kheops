@@ -129,13 +129,13 @@ class ComInterface
 
 		static ComInterface *getInstance(){return singleton;}
 
-		static void init(int argc, char ** argv, std::string prog_name, std::string script_name, uint32_t options = 0){singleton->_init(argc, argv,prog_name,script_name,options);}
+		static void init(int argc, char ** argv, std::string prog_name, std::string script_name, bool debug, uint32_t options = 0){singleton->_init(argc, argv,prog_name,script_name,debug, options);}
 		static void setDefaultName(std::string& str) {return singleton->_setDefaultName(str);}
 		static std::string getName() {return singleton->name;}
 
 		virtual int enter() = 0;
 		virtual void registerListener() = 0;
-		virtual void _init(int argc, char ** argv, std::string prog_name, std::string script_name, uint32_t options = 0 )=0;
+		virtual void _init(int argc, char ** argv, std::string prog_name, std::string script_name,bool debug, uint32_t options = 0 )=0;
 		virtual void _setDefaultName(std::string& str) = 0;
 
 		void exec_request();

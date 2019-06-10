@@ -41,10 +41,18 @@ void RosInterface::destroy()
     }
 }
 
-void RosInterface::_init(int argc, char ** argv, std::string prog_name, std::string script_name, uint32_t options)
+void RosInterface::_init(int argc, char ** argv, std::string prog_name, std::string script_name,bool debug, uint32_t options)
 {
 	name = prog_name+"_"+script_name;
         ros::init(argc, argv, name, options);
+
+	if( debug )
+        {
+                if(ros::console::set_logger_level(ROSCONSOLE_DEFAULT_NAME, ros::console::levels::Debug))
+                {
+                        ros::console::notifyLoggerLevelsChanged();
+                }
+        }
 
 	ros::Time::init();
         while (!ros::master::check())

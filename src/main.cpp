@@ -82,7 +82,8 @@ void print_help(void)
 	std::cout << "  -l [DIR] : path to the directory containing the external libraries" << std::endl;	
 	std::cout << "  -p : start running in pause mode " << std::endl;	
 	std::cout << "  -i : ignore matrix check size integrity when load weigt file" << std::endl;	
-	std::cout << "  -d : disable /rosout topic " << std::endl; 
+	std::cout << "  -r : disable /rosout topic " << std::endl; 
+	std::cout << "  -d : active debug mode"  << std::endl;
 }
 
 
@@ -95,6 +96,8 @@ int main(int argc, char **argv)
 	int opt;
 	int ret = 0;
 	uint32_t ros_options = ros::init_options::NoSigintHandler;
+	bool debug = false;
+
 	
 	std::string script;
 	std::string libdir;
@@ -105,7 +108,7 @@ int main(int argc, char **argv)
 	std::string progname;
 	get_file_name( argv[0], progname);
 
-	while (((opt = getopt (argc, argv, "vphs:w:l:id")) != -1) && (opt != 255))
+	while (((opt = getopt (argc, argv, "vphs:w:l:ird")) != -1) && (opt != 255))
 	{
 		switch( opt )	
 		{
@@ -118,7 +121,8 @@ int main(int argc, char **argv)
 			case 'w' :  weight = optarg ; break;
 			case 'l' :  libdir = optarg ; break;
 			case 'i' :  ignore_matrix_check = true ; break;
-			case 'd' :  ros_options +=  ros::init_options::NoRosout; break;
+			case 'r' :  ros_options +=  ros::init_options::NoRosout; break;
+		        case 'd' : debug = true; break;
 			default : 
 				    std::cerr << "Unkown option ! "  << std::endl;
 				    print_help();
@@ -138,7 +142,7 @@ int main(int argc, char **argv)
 	
 		// Use Ros builder by default
 		RosInterface::build();
-		ComInterface::init( argc, argv, progname , Kernel::instance().getName() , ros_options );	
+		ComInterface::init( argc, argv, progname , Kernel::instance().getName(), debug , ros_options );	
 		ROS_INFO_STREAM("Run : " << Kernel::instance().getName() << " script" );
 
 	        // *************Signaux handler operation ****************
