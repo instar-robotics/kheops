@@ -94,8 +94,10 @@ void RtToken::exec()
 	{
 		if( Runner::is_asking_pause())
 		{	
+			// HERE : perhaps better to pause before sync_all ? 
 			sync_all();
 			pause();
+
 			Runner::wait_ask_resume();
 			resume();
 		}

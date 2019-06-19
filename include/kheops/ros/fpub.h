@@ -51,6 +51,8 @@ class FMatrixPub : public FMatrix
 
 	public : 
 
+		FMatrixPub(unsigned int shape = NONE_SHAPE) : FMatrix(shape) {}
+
 		virtual void setparameters()
 		{
 			Kernel::iBind(topic_name,"topic_name", getUuid());
