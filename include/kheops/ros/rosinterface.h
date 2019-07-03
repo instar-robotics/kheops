@@ -70,12 +70,12 @@ class RosInterface : public ComInterface{
 		virtual void _setDefaultName(std::string& str);
 
 		bool callback_debug(hieroglyph::ArgCmd::Request& request, hieroglyph::ArgCmd::Response& response);
-		bool callback_comment(hieroglyph::ArgCmd::Request& request, hieroglyph::ArgCmd::Response& response);
-		bool callback_activity(hieroglyph::ArgCmd::Request& request, hieroglyph::ArgCmd::Response& response);
+		bool callback_comment(hieroglyph::ArgsCmd::Request& request, hieroglyph::ArgsCmd::Response& response);
+		bool callback_activity(hieroglyph::ArgsCmd::Request& request, hieroglyph::ArgsCmd::Response& response);
 		bool callback_rt_token(hieroglyph::SimpleCmd::Request& request, hieroglyph::SimpleCmd::Response& response);
 		bool callback_objects(hieroglyph::Objects::Request& request, hieroglyph::Objects::Response& response);
 		bool callback_oscillo(hieroglyph::SimpleCmd::Request& request, hieroglyph::SimpleCmd::Response& response);
-		bool callback_output( hieroglyph::ArgCmd::Request& request, hieroglyph::ArgCmd::Response& response);
+		bool callback_output( hieroglyph::ArgsCmd::Request& request, hieroglyph::ArgsCmd::Response& response);
 		bool callback_rt_stat( hieroglyph::RtStat::Request& request, hieroglyph::RtStat::Response& response);
 		bool callback_weight( hieroglyph::ArgCmd::Request& request, hieroglyph::ArgCmd::Response& response);
 		bool callback_control( hieroglyph::SimpleCmd::Request& request, hieroglyph::SimpleCmd::Response& response);

@@ -140,64 +140,48 @@ bool RosInterface::callback_debug(hieroglyph::ArgCmd::Request& request,hieroglyp
         return true;
 }
 
-bool RosInterface::callback_comment(hieroglyph::ArgCmd::Request& request,hieroglyph::ArgCmd::Response& response)
+bool RosInterface::callback_comment(hieroglyph::ArgsCmd::Request& request,hieroglyph::ArgsCmd::Response& response)
 {
 	Request r;
         r.id_cmd = C_COMMENT;
 
         if( request.cmd ==  CARG[S_TRUE] )
         {
-                if(  Kernel::instance().find_function( request.arg ))
-                {
-                        r.id_arg = S_TRUE;
-                        r.args.push_back( request.arg );
-                        response.ret =  CARG[S_TRUE]+" : "+request.arg;
-                        qrequest.push(r);
-                }
-                else response.ret = RETURN[1];
+		r.id_arg = S_TRUE;
+		r.args = request.args;
+		response.ret =  CARG[S_TRUE];
+		qrequest.push(r);
         }
         else if( request.cmd == CARG[S_FALSE])
         {
-                if(  Kernel::instance().find_function( request.arg ))
-                {
-                        r.id_arg = S_FALSE;
-                        r.args.push_back( request.arg );
-                        response.ret =  CARG[S_FALSE]+" : "+request.arg;
-                        qrequest.push(r);
-                }
-                else response.ret = RETURN[1];
+		r.id_arg = S_FALSE;
+		r.args = request.args ;
+		response.ret =  CARG[S_FALSE];
+		qrequest.push(r);
         }
         else  response.ret = RETURN[0];
 
 	return true;
 }
 
-bool RosInterface::callback_activity(hieroglyph::ArgCmd::Request& request,hieroglyph::ArgCmd::Response& response)
+bool RosInterface::callback_activity(hieroglyph::ArgsCmd::Request& request,hieroglyph::ArgsCmd::Response& response)
 {
         Request r;
         r.id_cmd = C_ACTIVITY;
 
         if( request.cmd ==  CARG[S_START] )
         {
-                if(  Kernel::instance().find_function( request.arg ))
-                {
-                        r.id_arg = S_START;
-                        r.args.push_back( request.arg );
-                        response.ret =  CARG[S_START]+" : "+request.arg;
-                        qrequest.push(r);
-                }
-                else response.ret = RETURN[1];
+		r.id_arg = S_START;
+		r.args = request.args ;
+		response.ret =  CARG[S_START];
+		qrequest.push(r);
         }
         else if( request.cmd == CARG[S_STOP])
         {
-                if(  Kernel::instance().find_function( request.arg ))
-                {
-                        r.id_arg = S_STOP;
-                        r.args.push_back( request.arg );
-                        response.ret =  CARG[S_STOP]+" : "+request.arg;
-                        qrequest.push(r);
-                }
-                else response.ret = RETURN[1];
+		r.id_arg = S_STOP;
+		r.args = request.args ;
+		response.ret =  CARG[S_STOP];
+		qrequest.push(r);
         }
         else  response.ret = RETURN[0];
 
@@ -280,33 +264,24 @@ bool RosInterface::callback_oscillo( hieroglyph::SimpleCmd::Request& request, hi
 	return true;
 }
 
-bool RosInterface::callback_output( hieroglyph::ArgCmd::Request& request, hieroglyph::ArgCmd::Response& response)
+bool RosInterface::callback_output( hieroglyph::ArgsCmd::Request& request, hieroglyph::ArgsCmd::Response& response)
 {
 	Request r;
 	r.id_cmd = C_OUTPUT;
 
-
 	if( request.cmd ==  CARG[S_START] )
 	{
-		if(  Kernel::instance().find_object( request.arg )) 
-		{
-			r.id_arg = S_START;	
-			r.args.push_back( request.arg );
-			response.ret =  CARG[S_START]+" : "+request.arg;
-			qrequest.push(r);
-		}
-		else response.ret = RETURN[1];
+		r.id_arg = S_START;	
+		r.args = request.args;
+		response.ret =  CARG[S_START];
+		qrequest.push(r);
 	}
 	else if( request.cmd == CARG[S_STOP])
 	{
-		if(  Kernel::instance().find_object( request.arg )) 
-		{
-			r.id_arg = S_STOP;	
-			r.args.push_back( request.arg );
-			response.ret =  CARG[S_STOP]+" : "+request.arg;
-			qrequest.push(r);
-		}
-		else response.ret = RETURN[1];
+		r.id_arg = S_STOP;	
+		r.args = request.args;
+		response.ret =  CARG[S_STOP];
+		qrequest.push(r);
 	}
 	else  response.ret = RETURN[0];
 
@@ -411,8 +386,8 @@ bool RosInterface::callback_helper( hieroglyph::Help::Request&, hieroglyph::Help
 	response.help.push_back("   a- start  (active oscillo)\n");
 	response.help.push_back("   b- stop   (stop oscillo)\n");
 	response.help.push_back("6- output :\n");
-	response.help.push_back("   a- start 'uuid'  (active output for uuid object )\n");
-	response.help.push_back("   b- stop  'uuid'  (stop output for uuid object )\n");
+	response.help.push_back("   a- start [uuid]  (active output for uuid object )\n");
+	response.help.push_back("   b- stop  [uuid]  (stop output for uuid object )\n");
 	response.help.push_back("7- objects :\n");
 	response.help.push_back("   a- all : get the list of uuid/type of all the objects\n");
 	response.help.push_back("   b- ilink : get list of uuid of ilink\n");
@@ -423,17 +398,17 @@ bool RosInterface::callback_helper( hieroglyph::Help::Request&, hieroglyph::Help
 	response.help.push_back("   a- start (active rt_token topic)\n");
 	response.help.push_back("   b- stop  (stop rt_token topic)\n");
 	response.help.push_back("9- save_activity :\n");
-	response.help.push_back("   a- start 'uuid' (start saving function's activity into SHM)\n");
-	response.help.push_back("   b- stop 'uuid' (stop saving function's activity into SHM)\n");
+	response.help.push_back("   a- start [uuid] (start saving function's activity into SHM)\n");
+	response.help.push_back("   b- stop [uuid] (stop saving function's activity into SHM)\n");
 	response.help.push_back("10- comment :\n");
-	response.help.push_back("   a- true 'uuid' (comment function with 'uuid')\n");
-	response.help.push_back("   b- false 'uuid' (uncomment function with 'uuid')\n");
+	response.help.push_back("   a- true [uuid] (comment function with 'uuid')\n");
+	response.help.push_back("   b- false [uuid] (uncomment function with 'uuid')\n");
 	response.help.push_back("11- debug :\n");
 	response.help.push_back("   a- start\n");
 	response.help.push_back("   b- stop\n");
 	response.help.push_back("   c- next\n");
-	response.help.push_back("   d- add_breakpoint 'uuid' or 'all'\n");
-	response.help.push_back("   e- del_breakpoint 'uuid' or 'all'\n");
+	response.help.push_back("   d- add_breakpoint [uuid] or 'all'\n");
+	response.help.push_back("   e- del_breakpoint [uuid] or 'all'\n");
 
 	return true;
 }

@@ -43,8 +43,8 @@
 * 	a- start  (active oscillo)
 *	b- stop   (stop oscillo)
 *  6- output :
-* 	a- start 'uuid'  (active output for uuid object )
-*	b- stop  'uuid'  (stop output for uuid object )
+* 	a- start [uuid]  (active output for uuid object )
+*	b- stop  [uuid]  (stop output for uuid object )
 *  7- objects :
 *	a- all : get the list of uuid/type of all the objects
 *	b- ilink : get list of uuid of ilink
@@ -55,17 +55,17 @@
 *	a- start (active rt_token topic)
 *	b- stop  (stop rt_token topic)
 *  9- save_activity :
-*  	a- start 'uuid' (start saving function's activity into SHM)
-*  	b- stop 'uuid' (stop saving function's activity into SHM)
+*  	a- start [uuid] (start saving function's activity into SHM)
+*  	b- stop [uuid] (stop saving function's activity into SHM)
 *  10- comment : 
-*  	a- true 'uuid' (comment the function : stop to run compute and after_compute)  	
-*  	b- false 'uuid' (uncomment the function)
+*  	a- true [uuid] (comment the function : stop to run compute and after_compute)  	
+*  	b- false [uuid] (uncomment the function)
 *  11- debug  : 
 *  	a- start
 *  	b- stop
 *  	c- next
-*	d- add_breakpoint 'uuid' or 'all'
-*	e- del_breakpoint 'uuid' or 'all'
+*	d- add_breakpoint [uuid] or 'all'
+*	e- del_breakpoint [uuid] or 'all'
 ********************************************************************************/
 
 const std::string RETURN[] = {"unknown command","unknown uuid"};

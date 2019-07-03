@@ -219,9 +219,9 @@ class Kernel
 		static void sweight_save(std::string& path);
 		static void sweight_load(std::string& path);
 		static void active_oscillo(bool order);
-		static void active_output(const std::string& uuid, bool order);
-		static void active_save_activity(const std::string& uuid, bool order);
-		static void active_comment(const std::string& uuid, bool order);
+		static void active_output(const std::vector<std::string>& uuids, bool order);
+		static void active_save_activity(const std::vector<std::string>& uuids, bool order);
+		static void active_comment(const std::vector<std::string>& uuids, bool order);
 		static void active_rt_token(bool order);
 		static void update_wait_delay();
 		static void active_debug(bool order);

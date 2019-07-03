@@ -82,21 +82,21 @@ void ComInterface::exec_request()
 				if( r.id_arg == S_START) order = true;
 				else order = false;	
 		
-				Kernel::active_output(r.args[0], order);
+				Kernel::active_output(r.args, order);
 
 				break;
 			case C_ACTIVITY:
 				if( r.id_arg == S_START) order = true;
 				else order = false;	
 		
-				Kernel::active_save_activity(r.args[0], order);
+				Kernel::active_save_activity(r.args, order);
 
 				break;
 			case C_COMMENT:
 				if( r.id_arg == S_TRUE) order = true;
 				else order = false;	
 
-				Kernel::active_comment(r.args[0], order);
+				Kernel::active_comment(r.args, order);
 				break;
 			case C_DEBUG :
 				switch(r.id_arg)

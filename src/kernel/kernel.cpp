@@ -1460,42 +1460,45 @@ void Kernel::active_oscillo(bool order)
 	if( !state ) resume();
 }
 
-void Kernel::active_output(const std::string& uuid, bool order)
+void Kernel::active_output(const std::vector<std::string>& uuids, bool order)
 {
 	StatusMessage m;
 
 	bool state = is_pause();
 	pause();
 
-	try{	
-       		singleton.active_publish( uuid, order);
-
-		m.key = CMD[C_OUTPUT];
-		if( order ) m.value = CARG[S_START]+" "+uuid;
-		else m.value = CARG[S_STOP]+" "+uuid;
-		singleton.publish_status(m);
-
-	}
-	// Error is not FATAL, so catch the exception and go one
-        catch(...)
+	for( unsigned int i = 0; i < uuids.size(); i++)
 	{
-		m.key = CMD[C_OUTPUT];
-                if( order ) m.value = CARG[S_START]+"_failed "+uuid;
-                else m.value = CARG[S_STOP]+"_failed "+uuid;
-		singleton.publish_status(m);
-		
-                ROS_ERROR_STREAM("Kernel : CMD "<< m.key << "failed, " << m.value);
-		std::exception_ptr eptr = std::current_exception(); 
-		try
-		{
-		   std::rethrow_exception(eptr);
+		try{	
+			ROS_DEBUG_STREAM("Kernel : output "<< uuids[i]);
+			singleton.active_publish( uuids[i], order);
+
+			m.key = CMD[C_OUTPUT];
+			if( order ) m.value = CARG[S_START]+" "+uuids[i];
+			else m.value = CARG[S_STOP]+" "+uuids[i];
+			singleton.publish_status(m);
+
 		}
-		catch (const std::exception& e)
+		// Error is not FATAL, so catch the exception and go one
+		catch(...)
 		{
-                	ROS_ERROR_STREAM("Kernel : " << e.what());
+			m.key = CMD[C_OUTPUT];
+			if( order ) m.value = CARG[S_START]+"_failed "+uuids[i];
+			else m.value = CARG[S_STOP]+"_failed "+uuids[i];
+			singleton.publish_status(m);
+			
+			ROS_ERROR_STREAM("Kernel : CMD "<< m.key << "failed, " << m.value);
+			std::exception_ptr eptr = std::current_exception(); 
+			try
+			{
+			   std::rethrow_exception(eptr);
+			}
+			catch (const std::exception& e)
+			{
+				ROS_ERROR_STREAM("Kernel : " << e.what());
+			}
 		}
 	}
-
 	if( !state ) resume();
 }
 
@@ -1537,77 +1540,84 @@ void Kernel::active_rt_token(bool order)
 	if( !state ) resume();
 }
 
-void Kernel::active_save_activity(const std::string& uuid, bool order)
+void Kernel::active_save_activity(const std::vector<std::string>& uuids, bool order)
 {
 	StatusMessage m;
 
 	bool state = is_pause();
 	pause();
-	try{
-		singleton.save_activity(uuid,order);
+	for( unsigned int i = 0; i < uuids.size(); i++)
+	{
+		try{
+			ROS_DEBUG_STREAM("Kernel : save activity "<< uuids[i]);
+			singleton.save_activity(uuids[i],order);
 
-		m.key = CMD[C_ACTIVITY];
-                if( order ) m.value = CARG[S_START]+" "+uuid;
-                else m.value = CARG[S_STOP]+" "+uuid;
-                singleton.publish_status(m);
-        }
-	// Error is not FATAL, so catch the exception and go one
-        catch(...)
-        {
-                m.key = CMD[C_ACTIVITY];
-                if( order ) m.value = CARG[S_START]+"_failed "+uuid;
-                else m.value = CARG[S_STOP]+"_failed "+uuid;
-                singleton.publish_status(m);
+			m.key = CMD[C_ACTIVITY];
+			if( order ) m.value = CARG[S_START]+" "+uuids[i];
+			else m.value = CARG[S_STOP]+" "+uuids[i];
+			singleton.publish_status(m);
 
-                ROS_ERROR_STREAM("Kernel : CMD "<< m.key << "failed, " << m.value);
-		std::exception_ptr eptr = std::current_exception(); 
-		try
-		{
-		   std::rethrow_exception(eptr);
 		}
-		catch (const std::exception& e)
+		// Error is not FATAL, so catch the exception and go one
+		catch(...)
 		{
-                	ROS_ERROR_STREAM("Kernel : " << e.what());
-		}
-        }
+			m.key = CMD[C_ACTIVITY];
+			if( order ) m.value = CARG[S_START]+"_failed "+uuids[i];
+			else m.value = CARG[S_STOP]+"_failed "+uuids[i];
+			singleton.publish_status(m);
 
+			ROS_ERROR_STREAM("Kernel : CMD "<< m.key << "failed, " << m.value);
+			std::exception_ptr eptr = std::current_exception(); 
+			try
+			{
+			   std::rethrow_exception(eptr);
+			}
+			catch (const std::exception& e)
+			{
+				ROS_ERROR_STREAM("Kernel : " << e.what());
+			}
+		}
+	}
 	if( !state ) resume();
 }
 
-void Kernel::active_comment(const std::string& uuid, bool order)
+void Kernel::active_comment(const std::vector<std::string>& uuids, bool order)
 {
 	StatusMessage m;
 
 	bool state = is_pause();
 	pause();
 
-	try{
-		singleton.comment(uuid,order);
+	for( unsigned int i = 0; i < uuids.size(); i++)
+	{
+		try{
+			singleton.comment(uuids[i],order);
 
-		m.key = CMD[C_COMMENT];
-                if( order ) m.value = CARG[S_START]+" "+uuid;
-                else m.value = CARG[S_STOP]+" "+uuid;
-                singleton.publish_status(m);
-        }
-	// Error is not FATAL, so catch the exception and go one
-        catch(...)
-        {
-                m.key = CMD[C_COMMENT];
-                if( order ) m.value = CARG[S_START]+"_failed "+uuid;
-                else m.value = CARG[S_STOP]+"_failed "+uuid;
-                singleton.publish_status(m);
-		
-                ROS_ERROR_STREAM("Kernel : CMD "<< m.key << "failed, " << m.value);
-		std::exception_ptr eptr = std::current_exception(); 
-		try
-		{
-		   std::rethrow_exception(eptr);
+			m.key = CMD[C_COMMENT];
+			if( order ) m.value = CARG[S_START]+" "+uuids[i];
+			else m.value = CARG[S_STOP]+" "+uuids[i];
+			singleton.publish_status(m);
 		}
-		catch (const std::exception& e)
+		// Error is not FATAL, so catch the exception and go one
+		catch(...)
 		{
-                	ROS_ERROR_STREAM("Kernel : " << e.what());
+			m.key = CMD[C_COMMENT];
+			if( order ) m.value = CARG[S_START]+"_failed "+uuids[i];
+			else m.value = CARG[S_STOP]+"_failed "+uuids[i];
+			singleton.publish_status(m);
+			
+			ROS_ERROR_STREAM("Kernel : CMD "<< m.key << "failed, " << m.value);
+			std::exception_ptr eptr = std::current_exception(); 
+			try
+			{
+			   std::rethrow_exception(eptr);
+			}
+			catch (const std::exception& e)
+			{
+				ROS_ERROR_STREAM("Kernel : " << e.what());
+			}
 		}
-        }
+	}
 
 	if( !state ) resume();
 }
