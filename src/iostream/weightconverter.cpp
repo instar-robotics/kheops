@@ -40,6 +40,7 @@ void WeightConverter::load(std::map<std::string, InputBase*> &inputs, bool ignor
 	in.open(file);
         boost::archive::binary_iarchive ia (in);
 	
+
 	ia >> nb_input;
 	for(unsigned int i = 0; i < nb_input; i++)
 	{
@@ -58,7 +59,6 @@ void WeightConverter::load(std::map<std::string, InputBase*> &inputs, bool ignor
 
 				boost::serialization::load( ia  , tmpM );
 				boost::serialization::load( ia  , tmpF );
-
 
 				for( unsigned int j = 0 ; j < inputs[in_uuid]->size(); j++)
 				{
@@ -92,8 +92,9 @@ void WeightConverter::load(std::map<std::string, InputBase*> &inputs, bool ignor
 				}
 			}
 		}
-		in.close();
+
 	}
+	in.close();
 	}
  	catch (std::ifstream::failure e) {
     		ROS_WARN_STREAM("Load Weight : Unable to open \"" << file << "\" WEIGHT file : weight will be not loaded.");
