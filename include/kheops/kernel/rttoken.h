@@ -41,12 +41,12 @@ class RtToken : public Runner
 
                 // In second
                 double period;
+		double last_sleep;
 		
 		bool publish;
 	
 		OscilloPublisher *o_pub;
 		RtTokenOutputPublisher *rt_pub;	
-
 
 	public : 
 
@@ -73,6 +73,8 @@ class RtToken : public Runner
 		inline double getPeriod(){return period;}
 		inline double getMsPeriod(){return  convert_s_to_ms(period);}
 		inline double getFrequency(){return  convert_period_frequency(period);}
+
+		inline double getLastSleep() { return last_sleep;}
 
 		void setToken(double value, std::string unit);
 		virtual void exec();

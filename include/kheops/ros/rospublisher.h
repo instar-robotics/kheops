@@ -30,6 +30,7 @@
 #include "kheops/kernel/publisher.h" 
 #include "kheops/ros/rosinterface.h"
 #include "hieroglyph/OscilloArray.h"
+#include "hieroglyph/RtToken.h"
 
 using Eigen::Map;
 
@@ -93,25 +94,30 @@ class RosArrayPublisher : public ArrayPublisher<Message> , public RosTopic<RosMe
 		virtual bool is_open() { return  RosTopic<RosMessage>::is_open();}
 };
 
-class RosOscilloPublisher : public RosArrayPublisher<OscilloMessage,hieroglyph::OscilloArray>
+class RosOscilloPublisher : public OscilloPublisher,  public RosTopic<hieroglyph::OscilloArray>
 {
 	public : 
-		RosOscilloPublisher(int size) : RosArrayPublisher(size) {}
+		RosOscilloPublisher(int size) : OscilloPublisher(),RosTopic<hieroglyph::OscilloArray>(size) {}
 		virtual ~RosOscilloPublisher(){}
 
 		virtual void add(const OscilloMessage &m);
+		virtual void addRt(const RtTokenMessage& m);
 		virtual void clear();
 		virtual void resize(int size);
+		virtual void open();
+                virtual void close();
+                virtual void publish();
+		virtual bool is_open() { return  RosTopic<hieroglyph::OscilloArray>::is_open();}
 };
 
-class RosRtTokenOutputPublisher : public RosDataPublisher<OscilloMessage, hieroglyph::OscilloData>
+class RosRtTokenOutputPublisher : public RosDataPublisher<RtTokenMessage, hieroglyph::RtToken>
 {
 	public : 
 
 		RosRtTokenOutputPublisher(int size) : RosDataPublisher(size) {}
 
 		virtual ~RosRtTokenOutputPublisher(){}
-		virtual void setMessage(const OscilloMessage& m);
+		virtual void setMessage(const RtTokenMessage& m);
 };
 
 class RosScalarPublisher : public RosDataPublisher<SCALAR,std_msgs::Float64>

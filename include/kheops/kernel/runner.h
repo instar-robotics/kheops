@@ -41,7 +41,6 @@ class Runner
 		//TODO : pour l'instant pas de gestion de rebouclage du compteur
                 unsigned long long nbrun;
                 double means;    
-                double last_sleep;
                 double last_duration;
 		double date_start;
 		double minDuration;
@@ -59,7 +58,7 @@ class Runner
 		
 	public :
 
-                Runner() : g(NULL),nbrun(0),means(0),last_sleep(0),last_duration(0),date_start(0),minDuration(0),maxDuration(0),state(K_PAUSE) {
+                Runner() : g(NULL),nbrun(0),means(0),last_duration(0),date_start(0),minDuration(0),maxDuration(0),state(K_PAUSE) {
 			minDuration = std::numeric_limits<double>::max();
 		}
 
@@ -71,7 +70,6 @@ class Runner
 
 		inline double getLastStart(){ return date_start;}
 		inline double getLastDuration(){ return last_duration;}
-                inline double getLastSleep() { return last_sleep;}
                 inline double getMeanDuration() { if( nbrun == 0) return 0;  return means/nbrun;}
                 inline double getMinDuration() {return minDuration;}
                 inline double getMaxDuration() {return maxDuration;}

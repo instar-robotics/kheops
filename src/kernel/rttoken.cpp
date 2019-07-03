@@ -25,19 +25,19 @@
 #include "kheops/ros/rospublisher.h"
 
 
-RtToken::RtToken() : Runner(),period(0),  publish(false) 
+RtToken::RtToken() : Runner(),period(0),last_sleep(0) , publish(false)
 {
 	o_pub = new RosOscilloPublisher(1);
 	rt_pub = new RosRtTokenOutputPublisher(1); 
 }
 
-RtToken::RtToken(double period) : Runner(),period(period),publish(false)
+RtToken::RtToken(double period) : Runner(),period(period),last_sleep(0) , publish(false)
 { 
 	o_pub = new RosOscilloPublisher(1);
 	rt_pub = new RosRtTokenOutputPublisher(1); 
 }
 
-RtToken::RtToken(double value, std::string unit) : Runner(), publish(false)
+RtToken::RtToken(double value, std::string unit) : Runner(), period(0),last_sleep(0) , publish(false)
 {
 	setToken(value,unit); 
 	o_pub = new RosOscilloPublisher(1);
@@ -192,7 +192,7 @@ void RtToken::publish_oscillo()
 
             if( r == this)
             {
-	    	OscilloMessage om( getUuid() );
+	    	RtTokenMessage om( getUuid() );
 		om.period = getPeriod();
 		om.means = getMeanDuration();
 		om.sleep = getLastSleep();
@@ -204,7 +204,8 @@ void RtToken::publish_oscillo()
 		if( om.duration >= om.period ) om.warning = true;
 		else  om.warning = false; 
             
-		o_pub->add( om );	
+		o_pub->addRt( om );	
+
             }
 	    else
 	    {
@@ -213,14 +214,11 @@ void RtToken::publish_oscillo()
 		if( f != NULL )
 		{
 	    		OscilloMessage om( f->getUuid() );
-			om.period = getPeriod();
 			om.means = r->getMeanDuration();
-			om.sleep = r->getLastSleep();
 			om.duration = r->getLastDuration();
 			om.start = r->getLastStart(); 
 			om.minDuration = r->getMinDuration();
 			om.maxDuration = r->getMaxDuration();
-			om.warning = false;
             	
 			o_pub->add( om );	
 		}
@@ -251,7 +249,7 @@ void RtToken::active_publish(bool state)
 
 void RtToken::publish_message()
 {
-	OscilloMessage om( getUuid() );
+	RtTokenMessage om( getUuid() );
 	om.period = getPeriod();
 	om.means = getMeanDuration();
 	om.sleep = getLastSleep();

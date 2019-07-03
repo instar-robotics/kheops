@@ -95,23 +95,48 @@ void RosArrayPublisher<Message,RosMessage>::publish()
 /*****************                       ROSOscilloPublisher                         *******************/
 /*******************************************************************************************************/
 
+void RosOscilloPublisher::open()
+{
+        RosTopic<hieroglyph::OscilloArray>::open( Publisher::pub_name );
+}
+
+void RosOscilloPublisher::close()
+{
+        RosTopic<hieroglyph::OscilloArray>::close();
+}
+
+void RosOscilloPublisher::publish()
+{
+         RosTopic<hieroglyph::OscilloArray>::publish();
+}
+
+
 void RosOscilloPublisher::add(const OscilloMessage &m)
 {
 	hieroglyph::OscilloData osc_data;
 
 	osc_data.uuid = m.uuid;
-	osc_data.period = m.period;
 	osc_data.means = m.means;
-	osc_data.sleep = m.sleep;
 	osc_data.duration = m.duration;
 	osc_data.start = m.start;
-	osc_data.warning = m.warning;
 	osc_data.maxDuration = m.maxDuration;
 	osc_data.minDuration = m.minDuration;
 
 	msg.array.push_back(osc_data);
 }
 
+void RosOscilloPublisher::addRt(const RtTokenMessage &m)
+{
+	msg.rt_data.uuid = m.uuid;
+	msg.rt_data.period = m.period;
+	msg.rt_data.means = m.means;
+	msg.rt_data.sleep = m.sleep;
+	msg.rt_data.duration = m.duration;
+	msg.rt_data.start = m.start;
+	msg.rt_data.minDuration = m.minDuration;
+	msg.rt_data.maxDuration = m.maxDuration;
+	msg.rt_data.warning = m.warning;
+}
 
 void RosOscilloPublisher::clear()
 {
@@ -128,7 +153,7 @@ void RosOscilloPublisher::resize(int size)
 /*****************                    RosRtTokenOutputPublisher                      *******************/
 /*******************************************************************************************************/
 
-void RosRtTokenOutputPublisher::setMessage(const OscilloMessage& m)
+void RosRtTokenOutputPublisher::setMessage(const RtTokenMessage& m)
 {
 	msg.uuid = m.uuid;
 	msg.period = m.period;

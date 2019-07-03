@@ -69,7 +69,21 @@ class DataPublisher : public Publisher
 		virtual void setMessage(const Message& m) = 0;
 };
 
+
 class OscilloMessage{
+
+	public : 
+		const std::string &uuid;
+		double means;
+		double duration;
+		double start; 
+		double minDuration;
+		double maxDuration;
+
+		OscilloMessage(const std::string &uuid) : uuid(uuid) {}
+};
+
+class RtTokenMessage{
 
 	public : 
 		const std::string &uuid;
@@ -82,7 +96,7 @@ class OscilloMessage{
 		double maxDuration;
 		bool warning;
 
-		OscilloMessage(const std::string &uuid) : uuid(uuid) {}
+		RtTokenMessage(const std::string &uuid) : uuid(uuid) {}
 };
 
 class StatusMessage{
@@ -91,10 +105,23 @@ class StatusMessage{
 		std::string value;
 };
 
-typedef ArrayPublisher<OscilloMessage> OscilloPublisher;
-typedef DataPublisher<OscilloMessage> RtTokenOutputPublisher;
+
+typedef DataPublisher<RtTokenMessage> RtTokenOutputPublisher;
 typedef DataPublisher<MATRIX> MatrixPublisher;
 typedef DataPublisher<SCALAR> ScalarPublisher;
 typedef DataPublisher<StatusMessage> StatusPublisher;
+
+class OscilloPublisher : public Publisher
+{
+	public : 
+		
+		OscilloPublisher() {}
+		virtual ~OscilloPublisher(){}	
+
+		virtual void add(const OscilloMessage& m) = 0; 
+		virtual void addRt(const RtTokenMessage& m) = 0; 
+		virtual void clear() = 0;
+		virtual void resize(int size) = 0;
+};
 
 #endif // __PUBLISHER_H__
