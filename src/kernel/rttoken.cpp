@@ -217,8 +217,8 @@ void RtToken::publish_oscillo()
 			om.sleep = r->getLastSleep();
 			om.duration = r->getLastDuration();
 			om.start = r->getLastStart(); 
-			om.minDuration = getMinDuration();
-			om.maxDuration = getMaxDuration();
+			om.minDuration = r->getMinDuration();
+			om.maxDuration = r->getMaxDuration();
 			om.warning = false;
             	
 			o_pub->add( om );	
