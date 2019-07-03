@@ -85,7 +85,7 @@ void FRunner::exec()
 		if( is_oscillo_active() ) 
 		{
 			std::chrono::duration<double> elapsed_seconds = end-start;
-			date_start = start.time_since_epoch().count();
+			date_start = std::chrono::duration_cast<std::chrono::seconds>( start.time_since_epoch()).count();
 			last_duration = elapsed_seconds.count();
 			if( last_duration > maxDuration ) maxDuration = last_duration;
 			if( last_duration < minDuration ) minDuration = last_duration;
