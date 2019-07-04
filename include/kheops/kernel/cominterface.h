@@ -64,12 +64,13 @@
 *  	a- start
 *  	b- stop
 *  	c- next
-*	d- add_breakpoint [uuid] or 'all'
-*	e- del_breakpoint [uuid] or 'all'
+*  12- breakpoint :
+*	a- add [uuid] or 'all'
+*	e- del [uuid] or 'all'
 ********************************************************************************/
 
 const std::string RETURN[] = {"unknown command","unknown uuid"};
-const std::string CMD[] = {"help","control","weight","rt_stat","output","oscillo","objects","rt_token","save_activity","comment","debug"};
+const std::string CMD[] = {"help","control","weight","rt_stat","output","oscillo","objects","rt_token","save_activity","comment","debug","breakpoint"};
 
 const int C_HELP=0; 
 const int C_CONTROL=1; 
@@ -82,8 +83,9 @@ const int C_RTTOKEN=7;
 const int C_ACTIVITY=8; 
 const int C_COMMENT=9; 
 const int C_DEBUG=10; 
+const int C_BREAKPOINT=11; 
 
-const std::string CARG[] = {"resume","quit","pause","status","path" ,"save","load","start","stop","all","rt_token","function","input","ilink","activity","true","false","next","add_breakpoint","del_breakpoint"};
+const std::string CARG[] = {"resume","quit","pause","status","path" ,"save","load","start","stop","all","rt_token","function","input","ilink","activity","true","false","next","add","del"};
 
 const int S_RESUME=0; 
 const int S_QUIT=1; 
@@ -103,8 +105,8 @@ const int S_ACTIVITY=14;
 const int S_TRUE=15;
 const int S_FALSE=16;
 const int S_NEXT=17;
-const int S_ADD_BREAKPOINT=18;
-const int S_DEL_BREAKPOINT=19;
+const int S_ADD=18;
+const int S_DEL=19;
 
 struct Request
 {

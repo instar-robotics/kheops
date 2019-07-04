@@ -96,9 +96,30 @@ void RosInterface::registerListener()
 	sActivity = n.advertiseService( name+"/"+CMD[C_ACTIVITY] ,&RosInterface::callback_activity,this);
 	sComment = n.advertiseService( name+"/"+CMD[C_COMMENT] ,&RosInterface::callback_comment,this);
 	sDebug = n.advertiseService( name+"/"+CMD[C_DEBUG] ,&RosInterface::callback_debug,this);
+	sBreakpoint = n.advertiseService( name+"/"+CMD[C_BREAKPOINT] ,&RosInterface::callback_breakpoint,this);
 }
 
-bool RosInterface::callback_debug(hieroglyph::ArgCmd::Request& request,hieroglyph::ArgCmd::Response& response)
+bool RosInterface::callback_breakpoint(hieroglyph::ArgCmd::Request& request,hieroglyph::ArgCmd::Response& response)
+{
+	if( request.cmd == CARG[S_ADD] )
+        {
+                if(  Kernel::instance().find_function( request.arg ) || request.arg == CARG[S_ALL])
+                {
+                        Kernel::sadd_breakpoint(request.arg, response.ret);
+                }
+                else response.ret = RETURN[1]+" or arg must be 'all'";
+        }
+        else if( request.cmd ==  CARG[S_DEL] )
+        {
+                if(  Kernel::instance().find_function( request.arg ) || request.arg == CARG[S_ALL])
+                {
+                        Kernel::sdel_breakpoint(request.arg, response.ret);
+                }
+                else response.ret = RETURN[1]+" or arg must be 'all'";
+        }
+}
+
+bool RosInterface::callback_debug(hieroglyph::SimpleCmd::Request& request,hieroglyph::SimpleCmd::Response& response)
 {
 	Request r;
         r.id_cmd = C_DEBUG;
@@ -118,22 +139,6 @@ bool RosInterface::callback_debug(hieroglyph::ArgCmd::Request& request,hieroglyp
 	else if( request.cmd ==  CARG[S_NEXT] )
 	{
 		Kernel::snext_debug(response.ret);
-	}
-	else if( request.cmd == CARG[S_ADD_BREAKPOINT] )
-	{
-                if(  Kernel::instance().find_function( request.arg ) || request.arg == CARG[S_ALL])
-		{
-			Kernel::sadd_breakpoint(request.arg, response.ret);
-		}
-                else response.ret = RETURN[1]+" or arg must be 'all'";
-	}
-	else if( request.cmd ==  CARG[S_DEL_BREAKPOINT] )
-	{
-                if(  Kernel::instance().find_function( request.arg ) || request.arg == CARG[S_ALL])
-		{
-			Kernel::sdel_breakpoint(request.arg, response.ret);
-		}
-                else response.ret = RETURN[1]+" or arg must be 'all'";
 	}
         else  response.ret = RETURN[0];
 
@@ -407,8 +412,9 @@ bool RosInterface::callback_helper( hieroglyph::Help::Request&, hieroglyph::Help
 	response.help.push_back("   a- start\n");
 	response.help.push_back("   b- stop\n");
 	response.help.push_back("   c- next\n");
-	response.help.push_back("   d- add_breakpoint [uuid] or 'all'\n");
-	response.help.push_back("   e- del_breakpoint [uuid] or 'all'\n");
+	response.help.push_back("12- breakpoint :\n");
+	response.help.push_back("   a- add [uuid] or 'all'\n");
+	response.help.push_back("   b- del [uuid] or 'all'\n");
 
 	return true;
 }

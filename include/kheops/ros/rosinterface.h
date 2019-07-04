@@ -52,6 +52,7 @@ class RosInterface : public ComInterface{
 		ros::ServiceServer sActivity;
 		ros::ServiceServer sComment;
 		ros::ServiceServer sDebug;
+		ros::ServiceServer sBreakpoint;
 		//ros::ServiceServer sGetControlStatus;
 		
 		RosInterface(){}
@@ -69,7 +70,8 @@ class RosInterface : public ComInterface{
 		virtual void _init(int argc, char ** argv, std::string prog_name, std::string script_name,bool debug, uint32_t options = 0);
 		virtual void _setDefaultName(std::string& str);
 
-		bool callback_debug(hieroglyph::ArgCmd::Request& request, hieroglyph::ArgCmd::Response& response);
+		bool callback_breakpoint(hieroglyph::ArgCmd::Request& request,hieroglyph::ArgCmd::Response& response);
+		bool callback_debug(hieroglyph::SimpleCmd::Request& request, hieroglyph::SimpleCmd::Response& response);
 		bool callback_comment(hieroglyph::ArgsCmd::Request& request, hieroglyph::ArgsCmd::Response& response);
 		bool callback_activity(hieroglyph::ArgsCmd::Request& request, hieroglyph::ArgsCmd::Response& response);
 		bool callback_rt_token(hieroglyph::SimpleCmd::Request& request, hieroglyph::SimpleCmd::Response& response);

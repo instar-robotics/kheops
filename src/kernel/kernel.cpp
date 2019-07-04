@@ -1699,13 +1699,13 @@ void Kernel::sadd_breakpoint(const std::string& target, std::string& ret)
 		if( singleton.debug) 
 		{
 			singleton.add_breakpoint(target);
-			ret = CARG[S_ADD_BREAKPOINT]+" "+target;
+			ret = CARG[S_ADD]+" "+target;
 		}
-		else ret=CARG[S_ADD_BREAKPOINT]+" "+no_debug;
+		else ret=CARG[S_ADD]+" "+no_debug;
 	}
 	catch(...)
 	{
-		ret = CARG[S_ADD_BREAKPOINT]+"_failed";
+		ret = CARG[S_ADD]+"_failed";
 		ROS_ERROR_STREAM("Kernel : CMD "<< CMD[C_DEBUG] << "failed, " << ret);
 		std::exception_ptr eptr = std::current_exception();
 		try
@@ -1726,13 +1726,13 @@ void Kernel::sdel_breakpoint(const std::string& target,std::string& ret)
 		if( singleton.debug) 
 		{
 			singleton.del_breakpoint(target);
-			ret = CARG[S_DEL_BREAKPOINT]+" "+target;
+			ret = CARG[S_DEL]+" "+target;
 		}
-		else ret=CARG[S_DEL_BREAKPOINT]+" "+no_debug;
+		else ret=CARG[S_DEL]+" "+no_debug;
 	}
 	catch(...)
 	{
-		ret = CARG[S_DEL_BREAKPOINT]+"_failed";
+		ret = CARG[S_DEL]+"_failed";
 		ROS_ERROR_STREAM("Kernel : CMD "<< CMD[C_DEBUG] << "failed, " << ret);
 		std::exception_ptr eptr = std::current_exception();
 		try

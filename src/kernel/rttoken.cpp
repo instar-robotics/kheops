@@ -118,7 +118,7 @@ void RtToken::exec()
 			usleep( sleep_duration * CONV_S_TO_MS );
 		}
 
-		date_start = std::chrono::duration_cast<std::chrono::seconds>( start.time_since_epoch()).count();
+		date_start = std::chrono::duration_cast<std::chrono::milliseconds>( start.time_since_epoch()).count();
 
 		last_duration = elapsed_seconds.count();
 		if( last_duration > maxDuration ) maxDuration = last_duration;
