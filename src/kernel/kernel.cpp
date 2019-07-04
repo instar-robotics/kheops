@@ -1046,6 +1046,7 @@ void Kernel::save_activity(const std::string& uuid, bool state)
                 if( f != NULL ) f->active_save(state);
 		else throw std::invalid_argument("Kernel : failed to start/stop save activity for Function "+uuid+". NULL Function.");
         }
+	else throw std::invalid_argument("Kernel : failed to start/stop save activity Function "+uuid+". unknown function");
 }
 
 /*******************************************************************************************************/
@@ -1061,6 +1062,7 @@ void Kernel::comment(const std::string& uuid, bool state)
                 if( f != NULL ) f->comment(state);
 		else throw std::invalid_argument("Kernel : failed to comment/uncomment Function "+uuid+". NULL Function.");
         }
+	else throw std::invalid_argument("Kernel : failed to comment/uncomment Function "+uuid+". unknown function");
 }
 
 /*******************************************************************************************************/
@@ -1591,6 +1593,7 @@ void Kernel::active_comment(const std::vector<std::string>& uuids, bool order)
 	for( unsigned int i = 0; i < uuids.size(); i++)
 	{
 		try{
+			ROS_DEBUG_STREAM("Kernel : comment "<< uuids[i]  << " , order : " << order);
 			singleton.comment(uuids[i],order);
 
 			m.key = CMD[C_COMMENT];
