@@ -63,7 +63,7 @@ void FRunner::exec()
 		}
 		catch(std::exception& e)
 		{
-			ROS_FATAL_STREAM( "FATAL in Function.compute " << f->getUuid() << ". " <<  e.what() );
+			ROS_FATAL_STREAM_NAMED(ComInterface::getName() , "FATAL in Function.compute " << f->getUuid() << ". " <<  e.what() );
 			Kernel::ask_quit();
 			break;
 		}
@@ -77,7 +77,7 @@ void FRunner::exec()
 		}
 		catch(std::exception& e)
 		{
-			ROS_FATAL_STREAM("FATAL in Function.exec_afterCompute " << f->getUuid() << ". " <<  e.what());
+			ROS_FATAL_STREAM_NAMED(ComInterface::getName(),"FATAL in Function.exec_afterCompute " << f->getUuid() << ". " <<  e.what());
 			Kernel::ask_quit();
 			break;
 		}

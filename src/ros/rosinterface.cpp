@@ -57,10 +57,10 @@ void RosInterface::_init(int argc, char ** argv, std::string prog_name, std::str
 	ros::Time::init();
         while (!ros::master::check())
         {
-                ROS_INFO_ONCE( "waiting rosmaster...");
+                ROS_INFO_ONCE_NAMED( name, "waiting rosmaster...");
                 ros::Duration(0.5).sleep();
         }
-        ROS_INFO("rosmaster started!");
+        ROS_INFO_NAMED(name,"rosmaster started!");
 }
 
 int RosInterface::enter()

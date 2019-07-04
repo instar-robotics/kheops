@@ -45,19 +45,19 @@ void signals_handler(int number)
   switch (number)
   {
     case SIGINT:
-      	ROS_INFO("KHEOPS SIGINT received : interruption " );
+      	ROS_INFO_NAMED(RosInterface::getName(),"KHEOPS SIGINT received : interruption " );
       	break;
     case SIGTERM :
-        ROS_INFO ("KHEOPS SIGTERM received : terminaison" );
+        ROS_INFO_NAMED(RosInterface::getName(), "KHEOPS SIGTERM received : terminaison" );
 	break;
     default : 
-	ROS_INFO_STREAM("KHEOPS received unknown SIGNAL " << number );
+	ROS_INFO_STREAM_NAMED(RosInterface::getName(),"KHEOPS received unknown SIGNAL " << number );
 	break;
   }
 
-  ROS_INFO_STREAM("KHEOPS kernel " << Kernel::instance().getName()  <<  " ask stop");
+  ROS_INFO_STREAM_NAMED(RosInterface::getName(),"KHEOPS kernel " << Kernel::instance().getName()  <<  " ask stop");
   Kernel::ask_quit();
-  ROS_INFO("KHEOPS signal handler end ");
+  ROS_INFO_NAMED(RosInterface::getName(),"KHEOPS signal handler end ");
 }
 
 void print_splash(void)
@@ -142,8 +142,8 @@ int main(int argc, char **argv)
 	
 		// Use Ros builder by default
 		RosInterface::build();
-		ComInterface::init( argc, argv, progname , Kernel::instance().getName(), debug , ros_options );	
-		ROS_INFO_STREAM("Run : " << Kernel::instance().getName() << " script" );
+		RosInterface::init( argc, argv, progname , Kernel::instance().getName(), debug , ros_options );	
+		ROS_INFO_STREAM_NAMED(RosInterface::getName() ,"Run : " << RosInterface::getName() << " script" );
 
 	        // *************Signaux handler operation ****************
 	
@@ -183,10 +183,10 @@ int main(int argc, char **argv)
 	}
 	catch (std::exception& e)
 	{
-		ROS_FATAL_STREAM( e.what() );		
+		ROS_FATAL_STREAM_NAMED(RosInterface::getName() ,e.what() );		
 	}
 
-	ROS_INFO_STREAM("Quit : " << Kernel::instance().getName() << " script" );
+	ROS_INFO_STREAM_NAMED(RosInterface::getName(), "Quit : " << Kernel::instance().getName() << " script" );
 	Kernel::quit();
 	RosInterface::destroy();
 

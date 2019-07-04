@@ -97,7 +97,7 @@ void Kernel::load_functions()
 	{
 		if(! Factory<Function>::Instance().is_register(it->second.name) )
 		{
-			ROS_INFO_STREAM( "Function "+it->second.name+" is not known. Try to load it" << std::endl );
+			ROS_INFO_STREAM_NAMED(ComInterface::getName(), "Function "+it->second.name+" is not known. Try to load it" << std::endl );
 			LibManager::load(it->second.libname);	
 		}
 		
@@ -291,7 +291,7 @@ void Kernel::update_rt_token_value(const XRtToken& xrt)
 {
 	rttoken.setToken(xrt.value , xrt.unit );
 	wait_delay =  wait_delay + rttoken.getMsPeriod() ;
-	ROS_DEBUG_STREAM("set rttoken, WAIT DELAY : " << wait_delay);
+	ROS_DEBUG_STREAM_NAMED(ComInterface::getName(),"set rttoken, WAIT DELAY : " << wait_delay);
 }
 
 void Kernel::create_rt_klinks()
@@ -714,7 +714,7 @@ void Kernel::wait_for_resume_runners()
                 {
                         if( ! runner->wait_for_run_timeout(wait_delay))
                         {
-				ROS_DEBUG_STREAM("WAIT DELAY : " << wait_delay);
+				ROS_DEBUG_STREAM_NAMED(ComInterface::getName(),"WAIT DELAY : " << wait_delay);
                         	throw std::invalid_argument( "Kernel : unable to resume the kernel, RUNNER is \"locked\" in pause mode");
                         }
                 }
@@ -733,7 +733,7 @@ void Kernel::wait_for_pause_runners()
                 {
                         if( ! runner->wait_for_pause_timeout(wait_delay))
                         {
-				ROS_DEBUG_STREAM("WAIT DELAY : " << wait_delay);
+				ROS_DEBUG_STREAM_NAMED(ComInterface::getName(),"WAIT DELAY : " << wait_delay);
                                 throw std::invalid_argument( "Kernel : unable to pause the kernel, RUNNER is locked in \"resume\" mode");
                         }
                 }
@@ -764,12 +764,12 @@ void Kernel::start_debug()
 
 		dist_pmap.resize( boost::num_vertices(graph)  );
 
-		ROS_DEBUG_STREAM("Kernel : order of debug graph: (" << dist_pmap.size()<< " vertices)") ;
+		ROS_DEBUG_STREAM_NAMED(ComInterface::getName(),"Kernel : order of debug graph: (" << dist_pmap.size()<< " vertices)") ;
 		for (unsigned int i = 0; i < boost::num_vertices(graph) ; i++)
 		{
 			if( i == rt_node)
 			{
-			       	ROS_DEBUG_STREAM( "     "  <<  rttoken.getUuid() << " " << dm[i]  );
+			       	ROS_DEBUG_STREAM_NAMED(ComInterface::getName(), "     "  <<  rttoken.getUuid() << " " << dm[i]  );
 				dist_pmap[i] = std::numeric_limits<int>::max();				
 			}
 			else
@@ -778,7 +778,7 @@ void Kernel::start_debug()
 				if( f != NULL )
 				{
 					dist_pmap[i] = dm[i];
-					ROS_DEBUG_STREAM( "    "  << f->getUuid() << "  cost : " << dist_pmap[i] << " , vertice : " << i << " , vertices by node_map :  "<< node_map[f->getUuid()] );
+					ROS_DEBUG_STREAM_NAMED(ComInterface::getName(), "    "  << f->getUuid() << "  cost : " << dist_pmap[i] << " , vertice : " << i << " , vertices by node_map :  "<< node_map[f->getUuid()] );
 				}else throw  std::invalid_argument("Kernel : Error in start_debug, no Function on cuurent vertice");
 			}
 		}
@@ -833,7 +833,7 @@ std::string Kernel::next_debug()
 
 	if( !debug ) return no_debug;
 
-	ROS_DEBUG_STREAM("Kernel : next_debug, indice " << debug_indice->second << " , nb breakpoint : " << debug_order.size()); 
+	ROS_DEBUG_STREAM_NAMED(ComInterface::getName(),"Kernel : next_debug, indice " << debug_indice->second << " , nb breakpoint : " << debug_order.size()); 
 
 	auto p = *debug_indice;
 	++debug_indice;
@@ -851,7 +851,7 @@ std::string Kernel::next_debug()
 	bool succes;
 	boost::tie(e1, succes) = boost::edge(debug_node, p.second  ,graph);
 
-	ROS_DEBUG_STREAM("Kernel : next_debug, vertex : " << p.second << " , cost : " << p.first << " , edge : " << e1 << " , uuid : " +uuid ); 
+	ROS_DEBUG_STREAM_NAMED(ComInterface::getName(),"Kernel : next_debug, vertex : " << p.second << " , cost : " << p.first << " , edge : " << e1 << " , uuid : " +uuid ); 
 
 	if (succes)
 	{
@@ -896,7 +896,7 @@ void Kernel::add_breakpoint(const std::string& target)
 		{
 			if( *it.first != debug_node && *it.first != rt_node )
 			{
-				ROS_DEBUG_STREAM("Kernel : add_breakpoint, vertex : " << *it.first ); 
+				ROS_DEBUG_STREAM_NAMED(ComInterface::getName(),"Kernel : add_breakpoint, vertex : " << *it.first ); 
 				add_breakpoint( *it.first  );
 			}
 		}
@@ -972,7 +972,7 @@ void Kernel::del_breakpoint(const std::string& target)
 
 		if (succes) del_klink(e1);
 		
-		ROS_DEBUG_STREAM(" Kernel : del_breakpoint, debug_indice : " << debug_indice->second  ); 
+		ROS_DEBUG_STREAM_NAMED(ComInterface::getName()," Kernel : del_breakpoint, debug_indice : " << debug_indice->second  ); 
         }
 }
 
@@ -1374,7 +1374,7 @@ void Kernel::sweight_save(std::string& path)
 		m.value = CARG[S_SAVE]+"_failed";
 		singleton.publish_status(m);
 
-                ROS_ERROR_STREAM("Kernel : CMD "<< m.key << "failed, " << m.value);
+                ROS_ERROR_STREAM_NAMED(ComInterface::getName(),"Kernel : CMD "<< m.key << "failed, " << m.value);
 	  
 		std::exception_ptr eptr = std::current_exception(); 
 		try
@@ -1383,7 +1383,7 @@ void Kernel::sweight_save(std::string& path)
 		}
 		catch (const std::exception& e)
 		{
-                	ROS_ERROR_STREAM("Kernel : " << e.what());
+                	ROS_ERROR_STREAM_NAMED(ComInterface::getName(),"Kernel : " << e.what());
 		}
 	}
 	if( !state ) resume();
@@ -1411,7 +1411,7 @@ void Kernel::sweight_load(std::string& path)
 		m.value = CARG[S_LOAD]+"_failed";
 		singleton.publish_status(m);
 
-                ROS_ERROR_STREAM("Kernel : CMD "<< m.key << "failed, " << m.value);
+                ROS_ERROR_STREAM_NAMED(ComInterface::getName(),"Kernel : CMD "<< m.key << "failed, " << m.value);
 		std::exception_ptr eptr = std::current_exception(); 
 		try
 		{
@@ -1419,7 +1419,7 @@ void Kernel::sweight_load(std::string& path)
 		}
 		catch (const std::exception& e)
 		{
-                	ROS_ERROR_STREAM("Kernel : " << e.what());
+                	ROS_ERROR_STREAM_NAMED(ComInterface::getName(),"Kernel : " << e.what());
 		}
 	}
 	if( !state ) resume();
@@ -1448,7 +1448,7 @@ void Kernel::active_oscillo(bool order)
                 else m.value = CARG[S_STOP]+"_failed";
 		singleton.publish_status(m);
 		
-                ROS_ERROR_STREAM("Kernel : CMD "<< m.key << "failed, " << m.value);
+                ROS_ERROR_STREAM_NAMED(ComInterface::getName(),"Kernel : CMD "<< m.key << "failed, " << m.value);
 		std::exception_ptr eptr = std::current_exception(); 
 		try
 		{
@@ -1456,7 +1456,7 @@ void Kernel::active_oscillo(bool order)
 		}
 		catch (const std::exception& e)
 		{
-                	ROS_ERROR_STREAM("Kernel : " << e.what());
+                	ROS_ERROR_STREAM_NAMED(ComInterface::getName(),"Kernel : " << e.what());
 		}
 	}	
 	if( !state ) resume();
@@ -1472,7 +1472,7 @@ void Kernel::active_output(const std::vector<std::string>& uuids, bool order)
 	for( unsigned int i = 0; i < uuids.size(); i++)
 	{
 		try{	
-			ROS_DEBUG_STREAM("Kernel : output "<< uuids[i]);
+			ROS_DEBUG_STREAM_NAMED(ComInterface::getName(),"Kernel : output "<< uuids[i]);
 			singleton.active_publish( uuids[i], order);
 
 			m.key = CMD[C_OUTPUT];
@@ -1489,7 +1489,7 @@ void Kernel::active_output(const std::vector<std::string>& uuids, bool order)
 			else m.value = CARG[S_STOP]+"_failed "+uuids[i];
 			singleton.publish_status(m);
 			
-			ROS_ERROR_STREAM("Kernel : CMD "<< m.key << "failed, " << m.value);
+			ROS_ERROR_STREAM_NAMED(ComInterface::getName(),"Kernel : CMD "<< m.key << "failed, " << m.value);
 			std::exception_ptr eptr = std::current_exception(); 
 			try
 			{
@@ -1497,7 +1497,7 @@ void Kernel::active_output(const std::vector<std::string>& uuids, bool order)
 			}
 			catch (const std::exception& e)
 			{
-				ROS_ERROR_STREAM("Kernel : " << e.what());
+				ROS_ERROR_STREAM_NAMED(ComInterface::getName(),"Kernel : " << e.what());
 			}
 		}
 	}
@@ -1527,7 +1527,7 @@ void Kernel::active_rt_token(bool order)
                 else m.value = CARG[S_STOP]+"_failed";
                 singleton.publish_status(m);
 		
-                ROS_ERROR_STREAM("Kernel : CMD "<< m.key << "failed, " << m.value);
+                ROS_ERROR_STREAM_NAMED(ComInterface::getName(),"Kernel : CMD "<< m.key << "failed, " << m.value);
 		std::exception_ptr eptr = std::current_exception(); 
 		try
 		{
@@ -1535,7 +1535,7 @@ void Kernel::active_rt_token(bool order)
 		}
 		catch (const std::exception& e)
 		{
-                	ROS_ERROR_STREAM("Kernel : " << e.what());
+                	ROS_ERROR_STREAM_NAMED(ComInterface::getName(),"Kernel : " << e.what());
 		}
 	}
 
@@ -1551,7 +1551,7 @@ void Kernel::active_save_activity(const std::vector<std::string>& uuids, bool or
 	for( unsigned int i = 0; i < uuids.size(); i++)
 	{
 		try{
-			ROS_DEBUG_STREAM("Kernel : save activity "<< uuids[i]);
+			ROS_DEBUG_STREAM_NAMED(ComInterface::getName(),"Kernel : save activity "<< uuids[i]);
 			singleton.save_activity(uuids[i],order);
 
 			m.key = CMD[C_ACTIVITY];
@@ -1568,7 +1568,7 @@ void Kernel::active_save_activity(const std::vector<std::string>& uuids, bool or
 			else m.value = CARG[S_STOP]+"_failed "+uuids[i];
 			singleton.publish_status(m);
 
-			ROS_ERROR_STREAM("Kernel : CMD "<< m.key << "failed, " << m.value);
+			ROS_ERROR_STREAM_NAMED(ComInterface::getName(),"Kernel : CMD "<< m.key << "failed, " << m.value);
 			std::exception_ptr eptr = std::current_exception(); 
 			try
 			{
@@ -1576,7 +1576,7 @@ void Kernel::active_save_activity(const std::vector<std::string>& uuids, bool or
 			}
 			catch (const std::exception& e)
 			{
-				ROS_ERROR_STREAM("Kernel : " << e.what());
+				ROS_ERROR_STREAM_NAMED(ComInterface::getName(),"Kernel : " << e.what());
 			}
 		}
 	}
@@ -1593,7 +1593,7 @@ void Kernel::active_comment(const std::vector<std::string>& uuids, bool order)
 	for( unsigned int i = 0; i < uuids.size(); i++)
 	{
 		try{
-			ROS_DEBUG_STREAM("Kernel : comment "<< uuids[i]  << " , order : " << order);
+			ROS_DEBUG_STREAM_NAMED(ComInterface::getName(),"Kernel : comment "<< uuids[i]  << " , order : " << order);
 			singleton.comment(uuids[i],order);
 
 			m.key = CMD[C_COMMENT];
@@ -1609,7 +1609,7 @@ void Kernel::active_comment(const std::vector<std::string>& uuids, bool order)
 			else m.value = CARG[S_STOP]+"_failed "+uuids[i];
 			singleton.publish_status(m);
 			
-			ROS_ERROR_STREAM("Kernel : CMD "<< m.key << "failed, " << m.value);
+			ROS_ERROR_STREAM_NAMED(ComInterface::getName(),"Kernel : CMD "<< m.key << "failed, " << m.value);
 			std::exception_ptr eptr = std::current_exception(); 
 			try
 			{
@@ -1617,7 +1617,7 @@ void Kernel::active_comment(const std::vector<std::string>& uuids, bool order)
 			}
 			catch (const std::exception& e)
 			{
-				ROS_ERROR_STREAM("Kernel : " << e.what());
+				ROS_ERROR_STREAM_NAMED(ComInterface::getName(),"Kernel : " << e.what());
 			}
 		}
 	}
@@ -1658,7 +1658,7 @@ void Kernel::active_debug(bool order)
                 else m.value = CARG[S_STOP]+"_failed";
                 singleton.publish_status(m);
 
-                ROS_ERROR_STREAM("Kernel : CMD "<< m.key << "failed, " << m.value);
+                ROS_ERROR_STREAM_NAMED(ComInterface::getName(),"Kernel : CMD "<< m.key << "failed, " << m.value);
 		std::exception_ptr eptr = std::current_exception(); 
 		try
 		{
@@ -1666,7 +1666,7 @@ void Kernel::active_debug(bool order)
 		}
 		catch (const std::exception& e)
 		{
-                	ROS_ERROR_STREAM("Kernel : " << e.what());
+                	ROS_ERROR_STREAM_NAMED(ComInterface::getName(),"Kernel : " << e.what());
 		}
         }
 
@@ -1682,7 +1682,7 @@ void Kernel::snext_debug(std::string& ret)
 	catch(...)
 	{
 		ret = CARG[S_NEXT]+"_failed";
-		ROS_ERROR_STREAM("Kernel : CMD "<< CMD[C_DEBUG] << "failed, " << ret);
+		ROS_ERROR_STREAM_NAMED(ComInterface::getName(),"Kernel : CMD "<< CMD[C_DEBUG] << "failed, " << ret);
 		std::exception_ptr eptr = std::current_exception();
 		try
 		{
@@ -1690,7 +1690,7 @@ void Kernel::snext_debug(std::string& ret)
 		}
 		catch (const std::exception& e)
 		{
-			ROS_ERROR_STREAM("Kernel : " << e.what());
+			ROS_ERROR_STREAM_NAMED(ComInterface::getName(),"Kernel : " << e.what());
 		}
 	}
 }
@@ -1709,7 +1709,7 @@ void Kernel::sadd_breakpoint(const std::string& target, std::string& ret)
 	catch(...)
 	{
 		ret = CARG[S_ADD]+"_failed";
-		ROS_ERROR_STREAM("Kernel : CMD "<< CMD[C_DEBUG] << "failed, " << ret);
+		ROS_ERROR_STREAM_NAMED(ComInterface::getName(),"Kernel : CMD "<< CMD[C_DEBUG] << "failed, " << ret);
 		std::exception_ptr eptr = std::current_exception();
 		try
 		{
@@ -1717,7 +1717,7 @@ void Kernel::sadd_breakpoint(const std::string& target, std::string& ret)
 		}
 		catch (const std::exception& e)
 		{
-			ROS_ERROR_STREAM("Kernel : " << e.what());
+			ROS_ERROR_STREAM_NAMED(ComInterface::getName(),"Kernel : " << e.what());
 		}
 	}
 }
@@ -1736,7 +1736,7 @@ void Kernel::sdel_breakpoint(const std::string& target,std::string& ret)
 	catch(...)
 	{
 		ret = CARG[S_DEL]+"_failed";
-		ROS_ERROR_STREAM("Kernel : CMD "<< CMD[C_DEBUG] << "failed, " << ret);
+		ROS_ERROR_STREAM_NAMED(ComInterface::getName(),"Kernel : CMD "<< CMD[C_DEBUG] << "failed, " << ret);
 		std::exception_ptr eptr = std::current_exception();
 		try
 		{
@@ -1744,7 +1744,7 @@ void Kernel::sdel_breakpoint(const std::string& target,std::string& ret)
 		}
 		catch (const std::exception& e)
 		{
-			ROS_ERROR_STREAM("Kernel : " << e.what());
+			ROS_ERROR_STREAM_NAMED(ComInterface::getName(),"Kernel : " << e.what());
 		}
 	}
 }

@@ -24,6 +24,7 @@
 #include "kheops/kernel/libManager.h"
 #include "kheops/util/util.h"
 #include "ros/console.h"
+#include "kheops/kernel/cominterface.h"
 
 LibManager LibManager::singleton;
 
@@ -40,7 +41,7 @@ void LibManager::load_lib(const std::string& name)
 
 	if( it != libs.end())
 	{
-		ROS_INFO_STREAM( "Load lib : " << it->first << std::endl);
+		ROS_INFO_STREAM_NAMED(ComInterface::getName(), "Load lib : " << it->first << std::endl);
 		handle = dlopen (  it->second.c_str() , RTLD_LAZY);
 		if (!handle)
 		{
@@ -63,7 +64,7 @@ void LibManager::load_libs()
   	std::vector<std::string> files;
   	getdir (dir, files);
 
-  	ROS_INFO_STREAM("Load librairies in " << dir); 
+  	ROS_INFO_STREAM_NAMED(ComInterface::getName(),"Load librairies in " << dir); 
 
   	for(auto const& file: files) 
   	{
@@ -78,7 +79,7 @@ void LibManager::load_libs()
 		if( file_extension == libExt ) 
 		{
 			file_path = (dir+file);
-			ROS_INFO_STREAM("Load lib : " << file_name << " in "<< file_path);
+			ROS_INFO_STREAM_NAMED(ComInterface::getName(),"Load lib : " << file_name << " in "<< file_path);
 			libs[file_name] = file_path;
 		}
 	}

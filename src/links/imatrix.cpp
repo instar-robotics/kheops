@@ -478,7 +478,7 @@ void iMMatrix::buildFilter(const XConnectivity& con)
 			}
 			catch(...)
 			{
-				ROS_FATAL_STREAM("iMMatrix [" << getUuid() << "] : invalid ONE_TO_NEI connectivity rule !"); 
+				ROS_FATAL_STREAM_NAMED(ComInterface::getName(),"iMMatrix [" << getUuid() << "] : invalid ONE_TO_NEI connectivity rule !"); 
 				std::exception_ptr eptr = std::current_exception();;
 				if( eptr)  std::rethrow_exception(eptr);
 			}
