@@ -144,7 +144,6 @@ int main(int argc, char **argv)
 		RosInterface::build();
 		RosInterface::init( argc, argv, progname , Kernel::instance().getName(), debug , ros_options );	
 		ROS_INFO_STREAM_NAMED(RosInterface::getName() ,"Run : " << RosInterface::getName() << " script" );
-
 	        // *************Signaux handler operation ****************
 	
 		sigfillset(&action.sa_mask);

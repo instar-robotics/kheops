@@ -46,6 +46,9 @@ void RosInterface::_init(int argc, char ** argv, std::string prog_name, std::str
 	name = prog_name+"_"+script_name;
         ros::init(argc, argv, name, options);
 
+	//TODO : 
+	// name = ros::this_node::getName();
+
 	if( debug )
         {
                 if(ros::console::set_logger_level(ROSCONSOLE_DEFAULT_NAME, ros::console::levels::Debug))

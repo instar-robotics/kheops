@@ -25,6 +25,8 @@
 #include "kheops/kernel/function.h"
 #include "kheops/kernel/kernel.h"
 #include "kheops/ros/rossubscriber.h"
+#include <ros/ros.h>
+
 
 /* Note :
  *      1- Each FMatrixSub or FScalarSub object has 3 default Kheops Input:
