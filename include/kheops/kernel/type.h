@@ -24,10 +24,13 @@
 
 #include <Eigen/Dense>
 #include <Eigen/Core>
+#include <Eigen/Geometry>
 
 using Eigen::MatrixXd;
 using Eigen::Matrix;
 using Eigen::Dynamic;
+using Eigen::Quaternion;
+using Eigen::AngleAxis;
 
 typedef double SCALAR;
 typedef Matrix<SCALAR, Dynamic, Dynamic> MATRIX;
@@ -35,5 +38,9 @@ typedef Matrix<SCALAR, Dynamic, Dynamic> MATRIX;
 
 typedef Matrix<SCALAR, Dynamic,1> VectorXs;
 typedef Matrix<SCALAR, 1,Dynamic> RVectorXs;
+
+typedef Matrix<SCALAR, 3, 1> Vector3s;
+typedef AngleAxis<SCALAR> AngleAxiss;
+typedef Quaternion<SCALAR> Quaternions;
 
 #endif // __TYPE_H__
