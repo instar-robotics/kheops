@@ -62,7 +62,7 @@ $> apt-get install cmake libeigen3-dev libboost-graph-dev libboost-graph1.65.1 l
 * Alexandria dependancies : 
 
 ```console
-$> apt-get install ros-melodic-joy ros-melodic-tf2 ros-melodic-tf2_ros ros-melodic-nav-msgs
+$> apt-get install ros-melodic-joy ros-melodic-tf2 ros-melodic-tf2-ros ros-melodic-nav-msgs
 ```
 
 ### Install Kheops and Alexandria ###
