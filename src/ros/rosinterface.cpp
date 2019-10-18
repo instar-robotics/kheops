@@ -120,6 +120,7 @@ bool RosInterface::callback_breakpoint(hieroglyph::ArgCmd::Request& request,hier
                 }
                 else response.ret = RETURN[1]+" or arg must be 'all'";
         }
+        return true;
 }
 
 bool RosInterface::callback_debug(hieroglyph::SimpleCmd::Request& request,hieroglyph::SimpleCmd::Response& response)
